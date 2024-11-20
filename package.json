@@ -1,10 +1,49 @@
 {
+  "name": "litos-ui",
+  "description": "基于 Web Component 的 UI 组件库",
+  "version": "0.0.1",
+  "type": "module",
   "scripts": {
+    "lib:build": "vite build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "inspect:eslint": "eslint --inspect-config"
   },
   "devDependencies": {
+    "prettier": "^3.3.3",
     "vitepress": "^1.5.0"
-  }
+  },
+  "files": [
+    "lib",
+    "style"
+  ],
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    "./style/*": "./style/*",
+    "./lib/*": "./lib/*",
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DvShu/litos-ui.git"
+  },
+  "keywords": [
+    "litos-ui-vue",
+    "neatui",
+    "vue",
+    "ui framework",
+    "component library"
+  ],
+  "homepage": "https://dvshu.github.io/litos-ui/",
+  "bugs": {
+    "url": "https://github.com/DvShu/litos-ui/issues"
+  },
+  "license": "MulanPSL-2.0"
 }
