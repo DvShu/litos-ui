@@ -11,12 +11,17 @@
     "inspect:eslint": "eslint --inspect-config"
   },
   "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "eslint": "^9.15.0",
+    "globals": "^15.12.0",
     "prettier": "^3.3.3",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0",
+    "vite": "^5.4.11",
     "vitepress": "^1.5.0"
   },
   "files": [
-    "lib",
-    "style"
+    "lib"
   ],
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -35,9 +40,8 @@
     "url": "git+https://github.com/DvShu/litos-ui.git"
   },
   "keywords": [
-    "litos-ui-vue",
-    "neatui",
-    "vue",
+    "litos-ui",
+    "web component",
     "ui framework",
     "component library"
   ],
@@ -45,5 +49,5 @@
   "bugs": {
     "url": "https://github.com/DvShu/litos-ui/issues"
   },
-  "license": "MulanPSL-2.0"
+  "license": "MIT"
 }

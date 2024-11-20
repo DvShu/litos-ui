@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "NeatUI"
+  name: "LitosUI"
   text: "Web Component UI"
   tagline: 轻量、样式可控、TypeScript、逻辑可控
   image:

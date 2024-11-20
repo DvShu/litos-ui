@@ -68,4 +68,11 @@ export default defineConfig({
   sitemap: {
     hostname: "https://dvshu.github.io/neatui/",
   },
+  vue: {
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => tag.startsWith("lt-"),
+      },
+    },
+  },
 });

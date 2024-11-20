@@ -2,7 +2,15 @@
 
 This page demonstrates some of the built-in markdown extensions provided by VitePress.
 
+<script setup lang="ts">
+  import Button from '../src/components/button';
+
+  customElements.define('lt-button', Button);
+</script>
+
 ## Syntax Highlighting
+
+<lt-button>ddddd</lt-button>
 
 VitePress provides Syntax Highlighting powered by [Shiki](https://github.com/shikijs/shiki), with additional features like line-highlighting:
 
