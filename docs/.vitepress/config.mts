@@ -11,7 +11,7 @@ export default defineConfig({
       "link",
       {
         rel: "icon",
-        href: "/neatui-vue/logo.svg",
+        href: "/litos-ui-vue/logo.svg",
       },
     ],
   ],
