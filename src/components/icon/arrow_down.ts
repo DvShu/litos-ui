@@ -1,12 +1,10 @@
 import BaseIcon from "./base";
 
 export default class ArrowDown extends BaseIcon {
-  public static tagName = "lt-arrow-down-icon";
+  public static tagName = "arrow-down-icon";
 
   connectedCallback() {
     super.connectedCallback();
-    this.useLink = true;
-    this.viewBox = "0 0 1024 1024";
   }
 
   renderChildren() {

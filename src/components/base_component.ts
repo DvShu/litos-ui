@@ -1,18 +1,32 @@
 export default class BaseComponent extends HTMLElement {
-  public shadow: ShadowRoot;
+  public static tagName: string = "base-component";
   public constructor() {
     super();
-    this.shadow = this.attachShadow({ mode: "open" });
+    this.attachShadow({ mode: "open" });
+  }
+
+  get shadow() {
+    return this.shadowRoot as ShadowRoot;
   }
 
   loadStyle(styleNames: string[]) {
     for (let i = 0, len = styleNames.length; i < len; i++) {
       const styleName = styleNames[i];
-      import(`./components/${styleName}/index.css?raw`).then((res) => {
+      import(`./${styleName}/index.css?raw`).then((res) => {
         const style = document.createElement("style");
         style.textContent = res.default.trim();
         this.shadow.appendChild(style);
       });
+    }
+  }
+
+  public setProperty(key: string, value: any) {
+    (this as any)[key] = value;
+  }
+
+  public setProperties(properties: Record<string, any>) {
+    for (const key in properties) {
+      this.setProperty(key, properties[key]);
     }
   }
 
@@ -55,4 +69,10 @@ export default class BaseComponent extends HTMLElement {
     }
     return value;
   }
+
+  connectedCallback() {
+    this.render();
+  }
+
+  render() {}
 }

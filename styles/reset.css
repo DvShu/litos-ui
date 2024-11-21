@@ -1,0 +1,49 @@
+/* 一般开发网页的时候，都是按照100%来开发 */
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+/* 修复由于 inline baseline 导致的图片下方的空白间隙问题 */
+img {
+  vertical-align: top;
+}
+/* 非大面积文字排版网站通常不需要列表项，如果需要可单独设置 */
+ul,
+ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+/* 统一采用盒子模式 */
+div {
+  box-sizing: border-box;
+}
+/*
+ * 去除链接默认的下划线，提高文字可读性
+ */
+a {
+  text-decoration: none;
+  color: #4998f6;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+a:hover {
+  color: #5ba2f7; /* less tint(#4998f6, 10%) */
+}
+a:active {
+  color: #64a7f7; /* less tint(#4998f6, 15%) */
+}
+
+p {
+  margin: 5px 0;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #333;
+}

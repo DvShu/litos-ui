@@ -1,7 +1,7 @@
-import BaseComponent from "../../base_component";
+import BaseComponent from "../base_component";
 
 export default class BaseIcon extends BaseComponent {
-  public static tagName = "lt-base-icon";
+  public static tagName = "base-icon";
   public useLink: boolean;
   public viewBox: string;
   public constructor() {
@@ -16,7 +16,6 @@ export default class BaseIcon extends BaseComponent {
   }
 
   render() {
-    console.log("render");
     const $svg = this.createEl("svg");
     const useLink = this.getAttr("useLink", this.useLink);
     const viewBox = this.getAttr("viewBox", this.viewBox);

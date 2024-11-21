@@ -2,16 +2,18 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: "/neatui/",
+  base: "/litos_ui/",
   title: "NeatUI",
   description: "基于 Web Component 的 UI 组件库",
   lastUpdated: true,
+  cleanUrls: true,
   head: [
     [
       "link",
       {
         rel: "icon",
-        href: "/litos-ui-vue/logo.svg",
+        href: "/litos_ui/logo.svg",
+        type: "image/svg+xml",
       },
     ],
   ],
@@ -22,6 +24,9 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     siteTitle: false,
+    outline: {
+      level: [1, 4],
+    },
     lastUpdated: {
       text: "最后更新时间",
       formatOptions: {
@@ -33,14 +38,36 @@ export default defineConfig({
     logo: "/logo.svg",
     nav: [
       { text: "首页", link: "/" },
+      { text: "文档", link: "/usage" },
       { text: "组件", link: "/markdown-examples" },
     ],
     sidebar: [
       {
-        text: "Examples",
+        text: "指南",
+        collapsed: true,
         items: [
-          { text: "Markdown Examples", link: "/markdown-examples" },
-          { text: "Runtime API Examples", link: "/api-examples" },
+          { text: "快速开始", link: "/usage" },
+          { text: "样式重置", link: "/reset" },
+        ],
+      },
+      {
+        text: "通用",
+        collapsed: true,
+        items: [
+          {
+            text: "图标",
+            link: "/components/icon",
+          },
+        ],
+      },
+      {
+        text: "反馈",
+        collapsed: true,
+        items: [
+          {
+            text: "Message 消息提示",
+            link: "/components/message",
+          },
         ],
       },
     ],

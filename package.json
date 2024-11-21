@@ -27,7 +27,7 @@
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "exports": {
-    "./style/*": "./style/*",
+    "./styles/*": "./styles/*",
     "./lib/*": "./lib/*",
     ".": {
       "import": "./lib/index.js",
