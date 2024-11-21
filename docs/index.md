@@ -11,7 +11,7 @@ hero:
   actions:
     - theme: brand
       text: 快速开始
-      link: /markdown-examples
+      link: /usage
     - theme: alt
       text: GitHub
       link: https://github.com/DvShu/neatui

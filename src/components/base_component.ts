@@ -74,5 +74,7 @@ export default class BaseComponent extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {}
+
   render() {}
 }

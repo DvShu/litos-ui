@@ -98,7 +98,7 @@ export default defineConfig({
   vue: {
     template: {
       compilerOptions: {
-        isCustomElement: (tag) => tag.startsWith("lt-"),
+        isCustomElement: (tag) => tag.startsWith("l-"),
       },
     },
   },
