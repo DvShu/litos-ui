@@ -1,43 +1,65 @@
 import BaseComponent from "./base_component";
+import { startTransition, endTransition } from "./util";
 
 export class Transition extends BaseComponent {
   static tagName: string = "transition";
-  observer: MutationObserver;
+  /** 应用过滤动画的属性值, 例如: opacity: 0; transform: xx; */
+  sheetRec: [string, string][];
+
+  static get observedAttributes() {
+    return ["sheets"];
+  }
+
   constructor() {
     super();
-    this.observer = new MutationObserver((mutationsList) => {
-      console.log("m");
-      for (const mutation of mutationsList) {
-        if (mutation.type === "attributes") {
-          console.log(`属性变化: ${mutation.attributeName}`);
-          console.log(mutation.target); // 变化的 DOM 元素
-        }
-      }
-    });
+    this.sheetRec = this._parseSheets(this.getAttr("sheets", "opacity: 0"));
   }
 
   connectedCallback(): void {
     super.connectedCallback();
-    const slot = this.shadow.querySelector("slot");
-    if (slot != null) {
-      slot.addEventListener("slotchange", () => {
-        if (slot.assignedNodes().length > 0) {
-          this.observer.observe(slot.assignedNodes()[0], {
-            attributes: true,
-          });
-        } else {
-          this.observer.disconnect();
-        }
-      });
-    }
+    this.show();
   }
 
   render() {
-    this.shadow.innerHTML = "<slot></slot>";
+    this.shadow.innerHTML = `<slot></slot>`;
   }
 
-  disconnectedCallback(): void {
-    this.observer.disconnect();
-    this.observer = null as any;
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string) {
+    if (name === "sheets") {
+      this.sheetRec = this._parseSheets(newValue);
+    }
+  }
+
+  private show() {
+    const target = this._getSlotFirstChild();
+    if (!target) return;
+    const duration = this.getAttr("duration", "0.3s");
+    startTransition(target, this.sheetRec, duration);
+  }
+
+  public hide(finish?: () => void) {
+    const target = this._getSlotFirstChild();
+    if (!target) return;
+    endTransition(target, this.sheetRec, finish);
+  }
+
+  private _parseSheets(sheets: string) {
+    const sheetsArr = sheets.split(";");
+    const sheetsObj: [string, string][] = [];
+    sheetsArr.forEach((sheet) => {
+      if (sheet) {
+        const [key, value] = sheet.split(":");
+        sheetsObj.push([key.trim(), value.trim()]);
+      }
+    });
+    return sheetsObj;
+  }
+
+  private _getSlotFirstChild() {
+    const slot = this.shadow.querySelector("slot");
+    if (slot != null && slot.assignedNodes().length > 0) {
+      return slot.assignedNodes()[0] as HTMLElement;
+    }
+    return null;
   }
 }
