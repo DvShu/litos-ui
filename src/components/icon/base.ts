@@ -1,4 +1,4 @@
-import BaseComponent from "../base_component";
+import BaseComponent from "../base";
 
 export default class BaseIcon extends BaseComponent {
   public static tagName = "base-icon";
@@ -19,7 +19,7 @@ export default class BaseIcon extends BaseComponent {
     const $svg = this.createEl("svg");
     const useLink = this.getAttr("useLink", this.useLink);
     const viewBox = this.getAttr("viewBox", this.viewBox);
-    $svg.classList.add("lt-icon");
+    $svg.classList.add("l-icon");
     $svg.setAttribute("viewBox", !useLink ? viewBox : "");
     const $children = this.renderChildren();
     if (typeof $children === "string") {

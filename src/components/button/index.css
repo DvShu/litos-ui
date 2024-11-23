@@ -1,4 +1,156 @@
-.lt-btn {
+/* 默认按钮，按钮的基础样式 */
+.l-btn {
+  /* 按钮的文字颜色 */
+  --l-btn-text-color: #ffffff;
+  --l-btn-hover-text-color: var(--l-btn-text-color);
+  --l-btn-active-text-color: var(--l-btn-text-color);
+  /* 按钮的背景色 */
+  /* 按钮的边框颜色 */
+  --l-btn-border-color: var(--l-primary-color, #52c41a);
+  --l-btn-background: var(--l-btn-border-color);
+  /* 按钮的悬浮边框 less lighten(var(--l-primary-color), 10) */
+  --l-btn-hover-border-color: var(--l-primary-color-light1, #31890a);
+  --l-btn-hover-background: var(--l-btn-hover-border-color);
+  /* 按钮的点击颜色 */
+  --l-btn-active-border-color: var(--l-primary-color-dark1, #31890a);
+  --l-btn-active-background: var(--l-btn-active-border-color);
+  /* 按钮禁用 */
+  --l-btn-disabled-color: #c9c9c9;
+  --l-btn-disabled-background: #fbfbfb;
+  --l-btn-disabled-border-color: #e6e6e6;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  outline: none;
   box-sizing: border-box;
-  color: red;
+  vertical-align: middle;
+  padding: 0 15px;
+  line-height: 1;
+  height: var(--l-form-edit-height, 32px);
+  border-radius: 3px;
+  font-size: 14px;
+  color: var(--l-btn-text-color);
+  background: var(--l-btn-background);
+  border: 1px solid var(--l-btn-border-color);
+  position: relative;
+  gap: 5px;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s,
+    color 0.3s;
+}
+
+.l-btn:hover {
+  border-color: var(--l-btn-hover-border-color, var(--l-btn-hover-background));
+  color: var(--l-btn-hover-text-color);
+  background: var(--l-btn-hover-background);
+}
+
+.l-btn:active {
+  border-color: var(
+    --l-btn-active-border-color,
+    var(--l-btn-active-background)
+  );
+  color: var(--l-btn-active-text-color);
+  background: var(--l-btn-active-background);
+}
+
+.l-btn-normal {
+  /* 按钮的文字颜色 */
+  --l-btn-text-color: auto;
+  /* 按钮的背景色 */
+  --l-btn-background: transparent;
+  /* 按钮的边框颜色 */
+  --l-btn-border-color: #d9d9d9;
+  /* 按钮的悬浮边框 less lighten(var(--l-primary-color), 10) */
+  --l-btn-hover-text-color: var(--l-primary-color-light1, #31890a);
+  /* 按钮的点击颜色 */
+  --l-btn-active-text-color: var(--l-primary-color-dark1, #31890a);
+  --l-btn-hover-background: #fff;
+  --l-btn-active-background: #fff;
+  --l-btn-hover-border-color: var(--l-btn-hover-text-color);
+  --l-btn-active-border-color: var(--l-btn-active-text-color);
+}
+
+/* primary 按钮样式 */
+.l-btn-primary {
+  /* 按钮的背景色 */
+  --l-btn-background: var(--l-primary-color);
+  /* 按钮的边框颜色 */
+  --l-btn-hover-background: var(--l-primary-color-light1, #31890a);
+  /* 按钮的点击颜色 */
+  --l-btn-active-background: var(--l-primary-color-dark1, #31890a);
+}
+
+/* 按钮禁用时的样式 */
+.l-btn:not(.l-btn-loading):disabled {
+  border-color: var(--l-btn-disabled-border-color);
+  background: var(--l-btn-disabled-background);
+  color: var(--l-btn-disabled-color);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* 文本按钮样式 */
+.l-btn-text {
+  /* 按钮的背景色 */
+  --l-btn-background: transparent;
+  /* 按钮的边框颜色 */
+  --l-btn-border-color: transparent;
+  --l-btn-hover-border-color: transparent;
+  --l-btn-active-border-color: transparent;
+  --l-btn-disabled-background: transparent;
+  --l-btn-disabled-border-color: transparent;
+  --l-btn-hover-background: transparent;
+  --l-btn-active-background: transparent;
+  height: auto;
+  padding: 5px;
+}
+.l-btn-primary.l-btn-text {
+  --l-btn-text-color: var(--l-primary-color, #52c41a);
+  --l-btn-hover-text-color: var(--l-primary-color-light1, #31890a);
+  --l-btn-active-text-color: var(--l-primary-color-dark1, #31890a);
+}
+
+.l-btn-ghost {
+  /* 按钮的颜色 */
+  --l-btn-text-color: var(--l-btn-border-color);
+  /* 按钮的背景色 */
+  --l-btn-background: transparent;
+  --l-btn-hover-background: transparent;
+  --l-btn-active-background: transparent;
+  /* 按钮的悬浮边框 less lighten(var(--l-primary-color), 10) */
+  --l-btn-hover-text-color: var(--l-btn-hover-border-color);
+  /* 按钮的点击颜色 */
+  --l-btn-active-text-color: var(--l-btn-active-border-color);
+}
+
+/* 高度圆形按钮 */
+.l-btn-round {
+  border-radius: calc(var(--l-form-edit-height) / 2);
+}
+
+/* 全圆按钮 */
+.l-btn-circle {
+  border-radius: 50%;
+  width: var(--l-form-edit-height);
+  padding: 0;
+}
+
+/* 使按钮适合其父宽度，100% */
+.l-btn-block {
+  width: 100%;
+}
+
+.l-btn:not(.l-btn-text) + .l-btn {
+  margin-left: 10px;
+}
+
+html.dark {
+  .l-btn:disabled {
+    --l-btn-disabled-background: rgba(255, 255, 255, 0.08);
+    --l-btn-disabled-color: rgba(255, 255, 255, 0.3);
+    --l-btn-disabled-border-color: rgba(255, 255, 255, 0.3);
+  }
 }

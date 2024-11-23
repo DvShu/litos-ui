@@ -126,3 +126,86 @@ export function hideTransition(el?: string | HTMLElement, remove = false) {
 export function useId() {
   return `${uiConfig.prefix}-${++seed}`;
 }
+
+/**
+ * 格式化类名，支持数组和对象两种形式。
+ * - 数组形式：数组中的每个元素代表一个类名，非空元素将被添加到结果字符串中。
+ * - 对象形式：对象的键代表类名，值为真（非空、非undefined、非null）时，键将被添加到结果字符串中。
+ * @param classObj - 类名对象或数组
+ * @returns 格式化后的类名字符串
+ */
+export function formatClass(
+  classObj:
+    | (boolean | string | undefined | null)[]
+    | Record<string, boolean | string | undefined | null>
+) {
+  let classes = "";
+  if (Array.isArray(classObj)) {
+    for (let i = 0, len = classObj.length; i < len; i++) {
+      const item = classObj[i];
+      if (item) {
+        classes += `${item} `;
+      }
+    }
+  } else {
+    for (const key in classObj) {
+      if (classObj[key]) {
+        classes += `${key} `;
+      }
+    }
+  }
+  return classes.trim();
+}
+
+/**
+ * 获取属性值
+ * @param key 属性名称
+ */
+export function getAttr(el: HTMLElement, key: string): string;
+/**
+ * 获取属性值，同时将值转换为默认值的类型，如果未赋值，则返回默认值；
+ * @param key 属性名称
+ * @param defaultValue 默认值
+ */
+export function getAttr(
+  el: HTMLElement,
+  filepath: string,
+  defaultValue: string
+): string;
+export function getAttr(
+  el: HTMLElement,
+  filepath: string,
+  defaultValue: number
+): number;
+export function getAttr(
+  el: HTMLElement,
+  filepath: string,
+  defaultValue: boolean
+): boolean;
+export function getAttr<T extends Record<string, string | number | boolean>>(
+  el: HTMLElement,
+  filepath: string,
+  defaultValue: T
+): T;
+export function getAttr(el: HTMLElement, key: string, defaultValue?: unknown) {
+  const value = el.getAttribute(key);
+  if (defaultValue == null) return value;
+  const valueType = typeof defaultValue;
+  if (value == null) return defaultValue;
+  // 类型转换
+  if (valueType === "bigint" || valueType === "number") {
+    if (value === "") return defaultValue;
+    return Number(value);
+  }
+  if (valueType === "boolean") {
+    if (value === "" || value === "1" || value === "true" || value === key) {
+      return true;
+    }
+    return false;
+  }
+  if (valueType === "object") {
+    if (value === "") return defaultValue;
+    return JSON.parse(value);
+  }
+  return value;
+}

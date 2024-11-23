@@ -1,3 +1,5 @@
+import { getAttr } from "./util";
+
 export default class BaseComponent extends HTMLElement {
   public static tagName: string = "base-component";
   public constructor() {
@@ -48,26 +50,7 @@ export default class BaseComponent extends HTMLElement {
     defaultValue: T
   ): T;
   public getAttr(key: string, defaultValue?: unknown) {
-    const value = this.getAttribute(key);
-    if (defaultValue == null) return value;
-    const valueType = typeof defaultValue;
-    if (value == null) return defaultValue;
-    // 类型转换
-    if (valueType === "bigint" || valueType === "number") {
-      if (value === "") return defaultValue;
-      return Number(value);
-    }
-    if (valueType === "boolean") {
-      if (value === "" || value === "1" || value === "true" || value === key) {
-        return true;
-      }
-      return false;
-    }
-    if (valueType === "object") {
-      if (value === "") return defaultValue;
-      return JSON.parse(value);
-    }
-    return value;
+    return getAttr(this, key, defaultValue as any);
   }
 
   connectedCallback() {

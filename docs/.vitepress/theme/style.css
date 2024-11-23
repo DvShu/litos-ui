@@ -20,3 +20,47 @@
 
   --vp-home-hero-image-filter: blur(40px);
 }
+.source-code .code-bopy-btn {
+  position: absolute;
+  z-index: 1;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 0;
+  color: #999;
+}
+.source-code .code-bopy-btn:hover {
+  color: var(--l-primary-color);
+}
+.source-code textarea {
+  display: none;
+}
+
+.code-preview {
+  border: 1px solid #e2e2e3;
+  border-radius: 5px;
+}
+.code-preview .preview-container {
+  padding: 15px;
+}
+.code-preview .operate-container {
+  padding: 10px 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid #e2e2e3;
+}
+.code-preview .source-code {
+  border-top: 1px solid #e2e2e3;
+}
+.code-preview .collapse-icon {
+  transition: transform 0.3s;
+}
+.code-preview .open .collapse-icon {
+  transform: rotate3d(0, 0, 1, 180deg);
+}
+
+#app .vp-doc .code-preview div[class*="language-"] {
+  margin: 0;
+  border-radius: 0;
+}

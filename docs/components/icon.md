@@ -13,7 +13,7 @@ regist(ArrowDownIcon);
 // ...
 ```
 
-<script setup lang="ts">
+<!-- <script setup lang="ts">
   import { ArrowDownIcon, regist } from '../../src/components'
 
   regist(ArrowDownIcon);
@@ -24,6 +24,4 @@ regist(ArrowDownIcon);
   // customElements.define('lt-button', Button);
   // customElements.define(ArrowDownIcon.tagName, ArrowDownIcon);
   // customElements.define(BaseIcon.tagName, BaseIcon);
-</script>
-
-<lt-arrow-down-icon class="red-color" />
+</script> -->

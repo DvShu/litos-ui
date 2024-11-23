@@ -49,5 +49,9 @@
   "bugs": {
     "url": "https://github.com/DvShu/litos-ui/issues"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "ph-utils": "^0.9.15",
+    "shiki": "^1.23.1"
+  }
 }

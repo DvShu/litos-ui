@@ -1,13 +1,11 @@
-import BaseComponent from "../base_component";
+import BaseComponent from "../base";
+import { formatClass } from "../util";
 
 export default class Button extends BaseComponent {
-  public static TagName = "lt-button";
-
-  public type: "normal" | "primary" | string;
+  public static tagName = "button";
 
   constructor() {
     super();
-    this.type = "normal";
   }
 
   connectedCallback(): void {
@@ -17,11 +15,26 @@ export default class Button extends BaseComponent {
 
   public render() {
     // 创建一些 HTML 并应用到 shadow dom 中
-    const wrapper = document.createElement("button");
-    wrapper.setAttribute("class", "lt-btn");
+    const type = this.getAttr("type", "normal");
+    const $btn = document.createElement("button");
+    // class
+    const classes = [
+      "l-btn",
+      `l-btn-${type}`,
+      this.getAttr("block", false) ? "l-btn-block" : "",
+      this.getAttr("round", false) ? "l-btn-round" : "",
+      this.getAttr("circle", false) ? "l-btn-circle" : "",
+      this.getAttr("ghost", false) ? "l-btn-ghost" : "",
+      this.getAttr("text", false) ? "l-btn-text" : "",
+      this.getAttr("loading", false) ? "l-btn-loading" : "",
+    ];
+    $btn.className = formatClass(classes);
+    $btn.disabled =
+      this.getAttr("disabled", false) || this.getAttr("loading", false);
+    $btn.type = this.getAttr("html-type", "button") as "button";
 
-    wrapper.innerHTML = "<slot></slot>";
+    $btn.innerHTML = "<slot></slot>";
 
-    this.shadow.appendChild(wrapper);
+    this.shadow.appendChild($btn);
   }
 }

@@ -1,4 +1,4 @@
-import BaseComponent from "./base_component";
+import BaseComponent from "./base";
 import { startTransition, endTransition } from "./util";
 
 export class Transition extends BaseComponent {
