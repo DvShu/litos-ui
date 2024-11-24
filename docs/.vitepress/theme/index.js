@@ -11,6 +11,8 @@ export default {
         const component = module[key];
         if (component.tagName) {
           module.regist(component);
+        } else if (key === "Message") {
+          window.LMessage = component;
         }
       }
       const CodePreview = await import(

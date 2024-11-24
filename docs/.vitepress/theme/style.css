@@ -40,6 +40,9 @@
   border: 1px solid #e2e2e3;
   border-radius: 5px;
 }
+l-code-preview .source {
+  display: none;
+}
 .code-preview .preview-container {
   padding: 15px;
 }
@@ -63,4 +66,7 @@
 #app .vp-doc .code-preview div[class*="language-"] {
   margin: 0;
   border-radius: 0;
+}
+#app .vp-doc .code-preview .vp-code-group {
+  margin-top: 0;
 }

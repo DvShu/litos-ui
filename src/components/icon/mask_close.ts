@@ -3,10 +3,9 @@ import BaseIcon from "./base";
 export default class MaskClose extends BaseIcon {
   public static tagName = "mask-close-icon";
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.useLink = true;
-    this.viewBox = "0 0 1024 1024";
+  constructor() {
+    super();
+    this.viewBox = "0 0 24 24";
   }
 
   renderChildren() {

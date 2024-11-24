@@ -51,14 +51,16 @@ function close(id: string) {
   // 从消息列表中移除消息
   const removedVm = instances.splice(idx, 1)[0];
   if (removedVm == null) return;
+  endTransition(removedVm, transitionSheet, () => {
+    removedVm.remove();
+  });
   const removedHeight = 15 + removedVm.offsetHeight;
-  removedVm.remove();
   const len = instances.length;
   if (len === 0) return;
   // 消息移除后，重新构建后续消息的 top
   for (let i = idx; i < len; i++) {
     const instance = instances[i];
-    const offset = parseInt(instance.style.top, 10) - removedHeight - 15;
+    const offset = parseInt(instance.style.top, 10) - removedHeight;
     instance.style.setProperty("top", `${offset}px`);
   }
 }
@@ -110,40 +112,31 @@ const Message: MessageInstance = ((option: string | MessageOption) => {
   instances.push($msg);
   document.body.appendChild($msg);
   startTransition($msg, transitionSheet);
-  const duration = props.duration || 3000;
+  let duration = props.duration;
+  if (duration == null) {
+    duration = 3000;
+  }
   if (duration !== 0) {
     setTimeout(() => {
-      endTransition($msg, transitionSheet, () => {
-        close(id);
-      });
+      close(id);
     }, duration);
   }
   return id;
-  // props.onClose = () => {
-  //   close(id);
-  // };
-  // props.onDestroy = () => {
-  //   // 动画结束后，节点已经隐藏，同时将节点移除
-  //   render(null, container);
-  //   container = null as any;
-  // };
-
-  // const vm = h(MessageTemplate, props);
-  // render(vm, container);
-  // instances.push(vm);
-  // document.body.appendChild(container.firstElementChild as any);
 }) as any;
 
 for (const type of ["info", "success", "error", "warn", "show"]) {
   Message[type] = (options: string | MessageOption) => {
     const opts: MessageOption =
       typeof options === "string" ? { message: options } : options;
-    opts.type = type as any;
-    if (opts.type === "show") {
+    if (type !== "show") {
+      opts.type = type as any;
+    } else if (opts.type == null) {
       opts.type = "info";
     }
     return Message(opts);
   };
 }
+
+Message.close = close;
 
 export default Message;
