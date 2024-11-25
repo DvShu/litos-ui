@@ -1,5 +1,5 @@
-import "./index.css";
-import { useId, startTransition, regist, endTransition } from "../util";
+import { useId, regist } from "../util";
+import { startTransition, endTransition } from "ph-utils/dom";
 import MaskClose from "../icon/mask_close";
 import Success from "../icon/success";
 import Warn from "../icon/warn";

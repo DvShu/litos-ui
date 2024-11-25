@@ -2,6 +2,13 @@
 
 常用于主动操作后的反馈提示。更多用于系统级通知的被动提醒。
 
+## 引入
+
+```js
+import { Message } from "litos-ui";
+import "litos-ui/styles/message.css";
+```
+
 ## 基础用法
 
 <script setup>

@@ -1,7 +1,6 @@
-import { getAttr } from "../components/util";
 import { codeToHtml } from "shiki";
 import { random } from "ph-utils";
-import { elem } from "ph-utils/dom";
+import { elem, getAttr } from "ph-utils/dom";
 
 export default class SourceCode extends HTMLElement {
   async connectedCallback() {

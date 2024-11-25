@@ -1,4 +1,4 @@
-import { getAttr } from "./util";
+import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
   public static tagName: string = "base-component";
@@ -14,7 +14,7 @@ export default class BaseComponent extends HTMLElement {
   loadStyle(styleNames: string[]) {
     for (let i = 0, len = styleNames.length; i < len; i++) {
       const styleName = styleNames[i];
-      import(`./${styleName}/index.css?raw`).then((res) => {
+      import(`./${styleName}/index.css?inline`).then((res) => {
         const style = document.createElement("style");
         style.textContent = res.default.trim();
         this.shadow.appendChild(style);

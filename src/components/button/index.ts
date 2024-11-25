@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { formatClass } from "../util";
+import { formatClass } from "ph-utils/dom";
 
 export default class Button extends BaseComponent {
   public static tagName = "button";

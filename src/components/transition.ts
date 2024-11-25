@@ -1,5 +1,5 @@
 import BaseComponent from "./base";
-import { startTransition, endTransition } from "./util";
+import { startTransition, endTransition } from "ph-utils/dom";
 
 export class Transition extends BaseComponent {
   static tagName: string = "transition";
