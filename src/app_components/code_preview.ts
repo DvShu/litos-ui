@@ -56,7 +56,7 @@ export default class CodePreview extends HTMLElement {
     let $source = elem("l-source-code", this)[0];
     if (!$target.classList.contains("open")) {
       $target.classList.add("open");
-      text(elem("span", $target)[0], "查看源代码");
+      text(elem("span", $target)[0], "隐藏源代码");
       if ($source == null) {
         const $preview = elem(".code-preview", this)[0];
         $source = document.createElement("l-source-code");
@@ -68,7 +68,7 @@ export default class CodePreview extends HTMLElement {
       }
     } else {
       $target.classList.remove("open");
-      text(elem("span", $target)[0], "隐藏源代码");
+      text(elem("span", $target)[0], "查看源代码");
       $source.style.display = "none";
     }
   }

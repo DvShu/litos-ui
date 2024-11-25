@@ -16,6 +16,12 @@ export default defineConfig({
         type: "image/svg+xml",
       },
     ],
+    [
+      "script",
+      {
+        src: "//at.alicdn.com/t/c/font_4432992_0ygpzjm2hdqa.js",
+      },
+    ],
   ],
   markdown: {
     lineNumbers: true,

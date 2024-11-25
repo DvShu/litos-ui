@@ -20,7 +20,9 @@ export default class BaseIcon extends BaseComponent {
     const useLink = this.getAttr("useLink", this.useLink);
     const viewBox = this.getAttr("viewBox", this.viewBox);
     $svg.classList.add("l-icon");
-    $svg.setAttribute("viewBox", !useLink ? viewBox : "");
+    if (!useLink) {
+      $svg.setAttribute("viewBox", viewBox);
+    }
     const $children = this.renderChildren();
     if (typeof $children === "string") {
       if ($children === "") {

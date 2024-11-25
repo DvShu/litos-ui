@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 import { readdirSync } from "node:fs";
 import path from "path";
 
-const entries = {};
+const entries: Record<string, string> = {};
 
 const dir = "src/components";
 const entryFiles = readdirSync(dir, {
