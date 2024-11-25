@@ -1,7 +1,7 @@
 {
   "name": "litos-ui",
   "description": "基于 Web Component 的 UI 组件库",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "scripts": {
     "lib:build": "vite build",
