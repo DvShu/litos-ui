@@ -106,3 +106,17 @@ l-code-preview .source {
 .icon-list .icon-item .name {
   font-size: 12px;
 }
+
+l-button[type="blue"]::part(default) {
+  --l-btn-border-color: #1677ff;
+  --l-btn-hover-border-color: #4096ff;
+  --l-btn-active-border-color: #0958d9;
+}
+l-button[type="gradient"]::part(default) {
+  border: none;
+  --l-btn-color: #389e0d;
+  --l-btn-active-color: #0fd850;
+  --l-btn-background: linear-gradient(90deg, #0fd850 0%, #f9f047 100%);
+  --l-btn-hover-background: linear-gradient(90deg, #2af06a 0%, #fbf478 100%);
+  --l-btn-active-background: linear-gradient(90deg, #0a9036 0%, #ece008 100%);
+}

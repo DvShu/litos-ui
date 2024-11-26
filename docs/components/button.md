@@ -10,29 +10,6 @@ regist(Button);
 
 ## 基础使用
 
-<script setup>
-  import { onMounted, onUnmounted } from 'vue';
-  import { iterate, on, off, $, nextTick } from 'ph-utils/dom';
-
-  function handleClick() {
-    console.log('click')
-  }
-
-  onMounted(() => {
-    nextTick(() => {
-      iterate($('l-button'), (el) => {
-        on(el, 'click', handleClick);
-      });
-    })
-  });
-
-  onUnmounted(() => {
-    iterate($('l-button'), (el) => {
-      off(el, 'click', handleClick);
-    });
-  });
-</script>
-
 ### 按钮类型
 
 使用 `type` 控制按钮类型, 提供两种类型: `normal`, `primary`。
@@ -148,7 +125,84 @@ regist(Button);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button color="#722ed1">Primary</l-button>
+  <l-button color="#2a9235">Primary</l-button>
+  <l-button color="#1e9fff" ghost>Primary</l-button>
 </textarea>
 </l-code-preview>
 </ClientOnly>
+
+### 扩展type
+
+通过给 `type` 设置一个非预设的值，然后定义 `l-button[type="x"]::part(default)` 的样式。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button type="blue">蓝色按钮</l-button>
+  <l-button type="gradient">渐变按钮</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button type="blue">蓝色按钮</l-button>
+  <l-button type="gradient">渐变按钮</l-button>
+</textarea>
+<textarea lang="css">
+  l-button[type="blue"]::part(default) {
+    --l-btn-border-color: #1677ff;
+    --l-btn-hover-border-color: #4096ff;
+    --l-btn-active-border-color: #0958d9;
+  }
+  l-button[type="gradient"]::part(default) {
+    border: none;
+    --l-btn-color: #389e0d;
+    --l-btn-active-color: #0fd850;
+    --l-btn-background: linear-gradient(90deg, #0fd850 0%, #f9f047 100%);
+    --l-btn-hover-background: linear-gradient(90deg, #2af06a 0%, #fbf478 100%);
+    --l-btn-active-background: linear-gradient(90deg, #0a9036 0%, #ece008 100%);
+  }
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+## API
+
+### Button Attributes
+
+<!-- prettier-ignore -->
+| 名称 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `type` | 按钮类型, `normal`, `primary` | `string` | `normal` |
+| `disabled` | 按钮禁用状态 | `boolean` | `false` |
+| `loading` | 按钮加载状态 | `boolean` | `false` |
+| `block` | 按钮是否为块级元素[适合其父宽度(宽度100%)] | `boolean` | `false` |
+| `shape` | 按钮形状, `default`, `round`按钮为圆角[弧形按钮] , `circle`按钮为圆形 | `string` | `default` |
+| `html-type` | 原生的 `type` 属性; `button`、`submit`、`reset` | `string` | `button` |
+| `loading-text` | 加载状态时显示的文字 | `string`  | - |
+| `color` | 自定义按钮颜色 | `string` | - |
+
+### Button Slots
+
+<!-- prettier-ignore -->
+| 名称      | 说明     |
+| --------- | -------- |
+| `default` | 按钮内容 |
+
+### 样式变量
+
+<!-- prettier-ignore -->
+| 名称                             | 描述                     | 默认值                       |
+| -------------------------------- | ------------------------ | ---------------------------- |
+| `--l-btn-text-color`            | 按钮的文字颜色           | `rgba(0, 0, 0, 0.65)`        |
+| `--l-btn-background`            | 按钮的背景颜色           | `	#fff`                       |
+| `--l-btn-border-color`          | 按钮的边框颜色           | `#d9d9d9`                    |
+| `--l-form-edit-height`          | 按钮的高度               | `32px`                       |
+| `--l-btn-hover-text-color`      | 鼠标悬浮时按钮的文字颜色 | `#79b3f7`                    |
+| `--l-btn-hover-border-color`    | 鼠标悬浮时按钮的边框颜色 | `var(--l-btn-hover-color)`  |
+| `--l-btn-hover-background`      | 鼠标悬浮时按钮的背景颜色 | `var(--l-btn-background)`   |
+| `--l-btn-active-text-color`     | 点击时按钮的颜色         | `#197df1`                    |
+| `--l-btn-active-background`     | 点击时按钮的背景颜色     | `var(--l-btn-background)`   |
+| `--l-btn-active-border-color`   | 点击时按钮的边框颜色     | `var(--l-btn-active-color)` |
+| `--l-btn-disabled-color`        | 禁用时按钮的文字颜色     | `#c9c9c9`                    |
+| `--l-btn-disabled-background`   | 禁用时按钮的背景颜色     | `#fbfbfb`                    |
+| `--l-btn-disabled-border-color` | 禁用时按钮的边框颜色     | `#e6e6e6`                    |
