@@ -9,7 +9,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "inspect:eslint": "eslint --inspect-config",
-    "version": "node scripts/version.js"
+    "new_version": "node scripts/version.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
