@@ -1,0 +1,13 @@
+/* 旋转动画 */
+@keyframes l-rotate-frame {
+  from {
+    transform: rotate3d(0, 0, 1, 0);
+  }
+  to {
+    transform: rotate3d(0, 0, 1, 360deg);
+  }
+}
+/** 应用旋转动画 */
+.l-rotate-anim {
+  animation: l-rotate-frame 1.5s infinite linear;
+}

@@ -1,5 +1,5 @@
 import { icons } from "../icons";
-import { $one, on, off, getAttr } from "ph-utils/dom";
+import { $one, on, off } from "ph-utils/dom";
 import { copy } from "ph-utils/copy";
 
 export default class IconList extends HTMLElement {
@@ -36,7 +36,8 @@ export default class IconList extends HTMLElement {
 
   private _handleItemClick(_e: Event, currTarget?: HTMLElement, flag?: string) {
     if (flag) {
-      copy(`<${flag} />`).then();
+      copy(`<${flag}></${flag}>`).then();
+      // @ts-ignore
       LMessage.success("复制成功");
     }
   }

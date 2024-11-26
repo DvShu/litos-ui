@@ -61,10 +61,15 @@ export default defineConfig({
         collapsed: true,
         items: [
           {
-            text: "图标",
+            text: "Icon 图标",
             link: "/components/icon",
           },
         ],
+      },
+      {
+        text: "表单",
+        collapsed: true,
+        items: [{ text: "Button 按钮", link: "/components/button" }],
       },
       {
         text: "反馈",

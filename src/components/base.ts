@@ -7,17 +7,32 @@ export default class BaseComponent extends HTMLElement {
     this.attachShadow({ mode: "open" });
   }
 
+  /**
+   * 返回一个数组，表示观察的属性列表
+   */
+  static get observedAttributes(): string[] | undefined | null {
+    return [];
+  }
+
+  // 当属性发生变化时调用的回调函数
+  // eslint-disable-next-line
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {}
+
   get shadow() {
     return this.shadowRoot as ShadowRoot;
+  }
+
+  public createStyle(text: string) {
+    const style = document.createElement("style");
+    style.textContent = text.trim();
+    this.shadow.appendChild(style);
   }
 
   loadStyle(styleNames: string[]) {
     for (let i = 0, len = styleNames.length; i < len; i++) {
       const styleName = styleNames[i];
       import(`./${styleName}/index.css?inline`).then((res) => {
-        const style = document.createElement("style");
-        style.textContent = res.default.trim();
-        this.shadow.appendChild(style);
+        this.createStyle(res.default);
       });
     }
   }

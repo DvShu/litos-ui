@@ -51,3 +51,33 @@ export function hideTransition(el?: string | HTMLElement, remove = false) {
 export function useId() {
   return `${uiConfig.prefix}-${++seed}`;
 }
+
+export function parseAttrValue(
+  value: string,
+  type: "boolean",
+  key?: string
+): boolean;
+export function parseAttrValue(
+  value: string,
+  type: "number",
+  key?: string
+): number;
+export function parseAttrValue(
+  value: string,
+  type: "string",
+  key?: string
+): string;
+export function parseAttrValue(
+  value: string,
+  type: "string" | "number" | "boolean",
+  key?: string
+): string | number | boolean {
+  switch (type) {
+    case "boolean":
+      return value === "" || value === "true" || value === "1" || value === key;
+    case "number":
+      return Number(value);
+    default:
+      return value;
+  }
+}

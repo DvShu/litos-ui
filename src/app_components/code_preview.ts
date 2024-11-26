@@ -21,6 +21,9 @@ export default class CodePreview extends HTMLElement {
     } else {
       sourceStr = $source.innerHTML;
     }
+    if (!sourceStr.startsWith("<textarea")) {
+      sourceStr = `<textarea lang="html">${sourceStr}</textarea>`;
+    }
     if ($code == null) {
       code = this.innerHTML;
     } else {
