@@ -23,7 +23,8 @@
     "vitepress": "^1.5.0"
   },
   "files": [
-    "lib"
+    "lib",
+    "styles"
   ],
   "main": "./lib/index.js",
   "module": "./lib/index.js",
