@@ -69,7 +69,15 @@ export default defineConfig({
       {
         text: "表单",
         collapsed: true,
-        items: [{ text: "Button 按钮", link: "/components/button" }],
+        items: [
+          { text: "Button 按钮", link: "/components/button" },
+          { text: "Input", link: "/components/input" },
+        ],
+      },
+      {
+        text: "数据展示",
+        collapsed: true,
+        items: [],
       },
       {
         text: "反馈",

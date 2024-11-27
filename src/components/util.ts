@@ -54,24 +54,26 @@ export function useId() {
 
 export function parseAttrValue(
   value: string,
-  type: "boolean",
+  defaultValue?: boolean,
   key?: string
 ): boolean;
 export function parseAttrValue(
   value: string,
-  type: "number",
+  defaultValue?: number,
   key?: string
 ): number;
 export function parseAttrValue(
   value: string,
-  type: "string",
+  defaultValue: string,
   key?: string
 ): string;
 export function parseAttrValue(
   value: string,
-  type: "string" | "number" | "boolean",
+  defaultValue: any,
   key?: string
-): string | number | boolean {
+): any {
+  if (!value) return defaultValue;
+  const type = typeof defaultValue;
   switch (type) {
     case "boolean":
       return value === "" || value === "true" || value === "1" || value === key;
@@ -79,5 +81,19 @@ export function parseAttrValue(
       return Number(value);
     default:
       return value;
+  }
+}
+
+/**
+ * 初始化元素的属性值。
+ * 遍历元素的所有属性，并对每个属性的值进行解析，然后将解析后的值赋给元素的相应属性。
+ * @param el - 要初始化属性的 HTML 元素。
+ */
+export function initAttr(el: HTMLElement) {
+  const attrs = el.attributes;
+  for (const item of attrs) {
+    const { name, value } = item;
+    const parsedValue = parseAttrValue(value, (el as any)[name], name);
+    (el as any)[name] = parsedValue;
   }
 }
