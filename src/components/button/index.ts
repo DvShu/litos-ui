@@ -37,6 +37,7 @@ export default class Button extends BaseComponent {
 
   constructor() {
     super();
+    //@ts-ignore
     import("../styles/animation.css?inline").then((res) => {
       this.createStyle(res.default);
     });
@@ -52,7 +53,7 @@ export default class Button extends BaseComponent {
     const $btn = $one(".l-btn", this.shadow as any) as HTMLButtonElement;
     if ($btn) {
       if (name === "loading") {
-        const loading = parseAttrValue(newValue, "boolean", name);
+        const loading = parseAttrValue(newValue, false, name);
         const $btn = $one(".l-btn", this.shadow as any) as HTMLButtonElement;
         if (loading) {
           addClass($btn, "l-btn-loading");

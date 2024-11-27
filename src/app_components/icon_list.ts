@@ -37,7 +37,7 @@ export default class IconList extends HTMLElement {
   private _handleItemClick(_e: Event, currTarget?: HTMLElement, flag?: string) {
     if (flag) {
       copy(`<${flag}></${flag}>`).then();
-      // @ts-ignore
+      // @ts-expect-error: Unreachable code error
       LMessage.success("复制成功");
     }
   }

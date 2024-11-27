@@ -1,4 +1,7 @@
+export * from "./util";
+
 export { default as Button } from "./button";
+export { default as Input } from "./input";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
@@ -9,5 +12,3 @@ export { default as LoadingIcon } from "./icon/loading";
 export { default as SearchIcon } from "./icon/search";
 
 export { default as Message } from "./message";
-
-export * from "./util";
