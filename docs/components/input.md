@@ -17,7 +17,7 @@ regist(Input);
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-input a='135'>按钮</l-input>
+  <l-input value='135'>按钮</l-input>
 </textarea>
 <div class="source">
 <textarea lang="html">

@@ -86,12 +86,12 @@ function renderBody(props: any) {
   if (iconName === "error") {
     iconName = "mask-close";
   }
-  $message.innerHTML = `
-    <div class="l-message-container">
-      <l-${iconName}-icon class="l-message-icon"></l-${iconName}-icon>
-      <span class="l-message-content">${props.message}</span>
-    </div>
-  `;
+  $message.innerHTML = [
+    '<div class="l-message-container">',
+    `<l-${iconName}-icon class="l-message-icon"></l-${iconName}-icon>`,
+    `<span class="l-message-content">${props.message}</span>`,
+    "</div>",
+  ].join("");
   return $message;
 }
 

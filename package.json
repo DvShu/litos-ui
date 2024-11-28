@@ -11,18 +11,18 @@
     "new_version": "node scripts/version.js",
     "create": "node scripts/index.js create",
     "source:build": "vite build",
-    "umd:build": "vite build -c vite_umd.config.ts --mode browser",
+    "umd:build": "vite build -c vite_iife.config.ts --mode browser",
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
     "lib:build": "pnpm source:build && pnpm dts:build"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@types/node": "^22.9.3",
+    "@types/node": "^22.10.1",
     "eslint": "^9.15.0",
     "globals": "^15.12.0",
-    "prettier": "^3.3.3",
+    "prettier": "^3.4.1",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.15.0",
+    "typescript-eslint": "^8.16.0",
     "vite": "^6.0.1",
     "vitepress": "^1.5.0"
   },
@@ -57,7 +57,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ph-utils": "^0.10.0",
-    "shiki": "^1.23.1"
+    "ph-utils": "^0.10.1",
+    "shiki": "^1.24.0"
   }
 }

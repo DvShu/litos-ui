@@ -2,9 +2,11 @@ import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
   public static tagName: string = "base-component";
-  public constructor() {
+  public constructor(shadow = true) {
     super();
-    this.attachShadow({ mode: "open" });
+    if (shadow) {
+      this.attachShadow({ mode: "open" });
+    }
   }
 
   /**
