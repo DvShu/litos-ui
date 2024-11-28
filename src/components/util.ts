@@ -1,3 +1,5 @@
+import { isBlank } from "ph-utils";
+
 type UIConfig = {
   /** 注册应用的前缀, 默认: lt */
   prefix: string;
@@ -93,7 +95,28 @@ export function initAttr(el: HTMLElement) {
   const attrs = el.attributes;
   for (const item of attrs) {
     const { name, value } = item;
-    const parsedValue = parseAttrValue(value, (el as any)[name], name);
+    const nameItems = name.split("-").map((item, index) => {
+      if (index === 0) return item;
+      return item[0].toUpperCase() + item.slice(1);
+    });
+    const attrName = nameItems.join("");
+    const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
     (el as any)[name] = parsedValue;
   }
+}
+
+/**
+ * 生成 HTML 标签属性字符串。
+ * @param attr - 属性名。
+ * @param value - 属性值，可以是字符串、undefined 或布尔值。
+ * @returns 返回拼接好的属性字符串。
+ */
+export function tagAttr(attr: string, value: string | undefined | boolean) {
+  let res = " ";
+  if (value === true) {
+    res = ` ${attr}`;
+  } else if (typeof value === "string" && !isBlank(value)) {
+    res = ` ${attr}="${value}"`;
+  }
+  return res;
 }

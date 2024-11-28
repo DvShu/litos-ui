@@ -1,0 +1,24 @@
+.l-input {
+  --l-input-width: auto;
+  outline: none;
+  box-sizing: border-box;
+  width: var(--l-input-width);
+  max-width: 100%;
+  height: var(--l-form-edit-height, 32px);
+  border: 1px solid var(--l-border-color, #dedede);
+  transition: border-color 0.3s;
+  text-align: inherit;
+  padding: 0 5px;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+.l-input.is-autosize {
+  width: auto;
+}
+.l-input:focus {
+  border-color: var(--l-primary-color, #52c41a);
+}
+.l-input:disabled {
+  cursor: not-allowed;
+  background: var(--l-disabled-color, #f5f7fa);
+}

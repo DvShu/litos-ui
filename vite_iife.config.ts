@@ -6,9 +6,10 @@ export default defineConfig({
     lib: {
       entry: "src/components/browser.ts",
       name: "LitosUI",
-      formats: ["es"],
+      formats: ["iife"],
       fileName: "litos-ui",
     },
+    minify: false,
     emptyOutDir: false,
     copyPublicDir: false,
   },
