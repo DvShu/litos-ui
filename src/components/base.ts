@@ -29,11 +29,24 @@ export default class BaseComponent extends HTMLElement {
   }
 
   loadStyle(styleNames: string[]) {
-    for (let i = 0, len = styleNames.length; i < len; i++) {
-      const styleName = styleNames[i];
-      import(`./${styleName}/index.css?inline`).then((res) => {
-        this.createStyle(res.default);
-      });
+    if (import.meta.env.MODE !== "browser") {
+      for (let i = 0, len = styleNames.length; i < len; i++) {
+        const styleName = styleNames[i];
+        import(`./${styleName}/index.css?inline`).then((res) => {
+          this.createStyle(res.default);
+        });
+      }
+    }
+  }
+
+  loadExternalStyle(styleNames: string[]) {
+    if (import.meta.env.MODE !== "browser") {
+      for (let i = 0, len = styleNames.length; i < len; i++) {
+        const styleName = styleNames[i];
+        import(`./styles/${styleName}.css?inline`).then((res) => {
+          this.createStyle(res.default);
+        });
+      }
     }
   }
 

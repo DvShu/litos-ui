@@ -10,7 +10,7 @@ const entryFiles = readdirSync(dir, {
   encoding: "utf-8",
 });
 for (const filename of entryFiles) {
-  console.log(filename);
+  if (filename === "browser.ts") continue;
   const filepath = path.parse(filename);
   if (filepath.ext === "" || filepath.ext === ".css") continue;
   const fileAbsName = path.join(dir, filename);
@@ -20,7 +20,6 @@ for (const filename of entryFiles) {
 export default defineConfig({
   build: {
     outDir: "lib",
-    cssCodeSplit: true,
     lib: {
       entry: entries,
       name: "LitosUI",

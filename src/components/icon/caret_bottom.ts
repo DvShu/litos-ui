@@ -1,6 +1,6 @@
 import BaseIcon from "./base";
 
-export default class ArrowDown extends BaseIcon {
+export default class CaretBottom extends BaseIcon {
   public static tagName = "caret-bottom-icon";
 
   renderChildren() {

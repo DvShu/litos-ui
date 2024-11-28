@@ -37,10 +37,7 @@ export default class Button extends BaseComponent {
 
   constructor() {
     super();
-    //@ts-ignore
-    import("../styles/animation.css?inline").then((res) => {
-      this.createStyle(res.default);
-    });
+    this.loadExternalStyle(["animation"]);
   }
 
   // 初始化属性观察器
