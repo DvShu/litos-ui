@@ -1,7 +1,7 @@
 import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
-  public static tagName: string = "base-component";
+  public static baseName: string = "base-component";
   public constructor(shadow = true) {
     super();
     if (shadow) {

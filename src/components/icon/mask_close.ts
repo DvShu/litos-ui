@@ -1,7 +1,7 @@
 import BaseIcon from "./base";
 
 export default class MaskClose extends BaseIcon {
-  public static tagName = "mask-close-icon";
+  public static baseName = "mask-close-icon";
 
   constructor() {
     super();

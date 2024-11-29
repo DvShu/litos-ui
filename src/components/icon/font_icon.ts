@@ -1,7 +1,7 @@
 import BaseIcon from "./base";
 
 export default class FontIcon extends BaseIcon {
-  public static tagName = "font-icon";
+  public static baseName = "font-icon";
 
   private _t: number | undefined;
   private _start: number;

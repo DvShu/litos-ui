@@ -18,10 +18,10 @@ export function config(cfg: Partial<UIConfig>) {
 /**
  * 注册 Web Components 组件
  * @param component Web Components 组件
- * @param name 组件名称, 如果不填, 则根据组件的 tagName 生成
+ * @param name 组件名称, 如果不填, 则根据组件的 baseName 生成
  */
 export function regist(component: typeof HTMLElement, name?: string) {
-  const cmName = name || `${uiConfig.prefix}-${(component as any).tagName}`;
+  const cmName = name || `${uiConfig.prefix}-${(component as any).baseName}`;
   if (!customElements.get(cmName)) {
     customElements.define(cmName, component);
   }

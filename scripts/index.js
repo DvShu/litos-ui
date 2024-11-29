@@ -12,7 +12,7 @@ function sourceTemplate(name, sname) {
     'import BaseComponent from "../base"',
     'import { initAttr } from "../util";\r\n',
     `export default class ${name} extends BaseComponent {`,
-    `  public static tagName = "${sname}";`,
+    `  public static baseName = "${sname}";`,
     "  constructor() {",
     "    super();",
     "    initAttr(this);",

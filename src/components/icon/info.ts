@@ -1,7 +1,7 @@
 import BaseIcon from "./base";
 
 export default class Info extends BaseIcon {
-  public static tagName = "info-icon";
+  public static baseName = "info-icon";
 
   connectedCallback() {
     super.connectedCallback();

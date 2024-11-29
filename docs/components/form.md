@@ -20,7 +20,7 @@ regist(Form);
 <l-code-preview>
 <textarea>
   <l-form>
-    <l-input>按钮</l-input>
+    <l-input></l-input>
   </l-form>
 </textarea>
 <div class="source">

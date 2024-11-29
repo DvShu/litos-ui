@@ -1,7 +1,7 @@
 import BaseIcon from "./base";
 
 export default class ArrowDown extends BaseIcon {
-  public static tagName = "arrow-down-icon";
+  public static baseName = "arrow-down-icon";
 
   connectedCallback() {
     super.connectedCallback();
