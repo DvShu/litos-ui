@@ -1,8 +1,8 @@
 import DefaultTheme from "vitepress/theme";
 import "./style.css";
-import "../../../styles/vars.css";
+// import "../../../styles/vars.css";
 import "../../../styles/message.css";
-import { add } from '../../../src/icons'
+import { add } from "../../../src/icons";
 
 export default {
   extends: DefaultTheme,

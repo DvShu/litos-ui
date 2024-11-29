@@ -30,12 +30,32 @@ export default class BaseComponent extends HTMLElement {
     this.shadow.appendChild(style);
   }
 
+  public createLink(href: string) {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = href;
+    this.shadow.appendChild(link);
+  }
+
   loadStyle(styleNames: string[]) {
     if (import.meta.env.MODE !== "browser") {
       for (let i = 0, len = styleNames.length; i < len; i++) {
         const styleName = styleNames[i];
         import(`./${styleName}/index.css?inline`).then((res) => {
           this.createStyle(res.default);
+        });
+      }
+    }
+    if (import.meta.env.MODE === "browser") {
+      let $style = document.querySelector("#litos-ui-style") as HTMLLinkElement;
+      if ($style) {
+        this.createLink($style.href);
+      } else {
+        queueMicrotask(() => {
+          $style = document.querySelector("#litos-ui-style") as HTMLLinkElement;
+          if ($style) {
+            this.createLink($style.href);
+          }
         });
       }
     }

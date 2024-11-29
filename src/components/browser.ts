@@ -25,8 +25,22 @@ regist(SearchIcon);
 // @ts-expect-error x
 globalThis.LMessage = Message;
 
+/** 加载 style 样式 */
+function loadStyle() {
+  const scriptSrc = (document.currentScript as HTMLScriptElement).src;
+  const lS = scriptSrc.lastIndexOf("/");
+  const base = scriptSrc.slice(0, lS + 1);
+  const styleUrl = `${base}litos-ui.css`;
+  const $style = document.createElement("link");
+  $style.rel = "stylesheet";
+  $style.href = styleUrl;
+  $style.id = "litos-ui-style";
+  document.head.appendChild($style);
+}
+
+loadStyle();
+
 import "../../styles/reset.css";
-import "../../styles/vars.css";
 import "../../styles/message.css";
 import "./styles/animation.css";
 import "./button/index.css";
