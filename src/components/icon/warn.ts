@@ -1,7 +1,7 @@
 import BaseIcon from "./base";
 
 export default class Warn extends BaseIcon {
-  public static tagName = "warn-icon";
+  public static baseName = "warn-icon";
 
   connectedCallback() {
     super.connectedCallback();

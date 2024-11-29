@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 
 export default class BaseIcon extends BaseComponent {
-  public static tagName = "base-icon";
+  public static baseName = "base-icon";
   public useLink: boolean;
   public viewBox: string;
   public constructor() {

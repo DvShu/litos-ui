@@ -1,7 +1,7 @@
 import BaseIcon from "./base";
 
 export default class Success extends BaseIcon {
-  public static tagName = "success-icon";
+  public static baseName = "success-icon";
 
   connectedCallback() {
     super.connectedCallback();

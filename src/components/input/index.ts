@@ -1,9 +1,12 @@
 import { formatClass, $one } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, tagAttr } from "../util";
+import type Form from "../form";
+import FormItem from "../form/form_item";
+import { add } from "../form/form_events";
 
 export default class Input extends BaseComponent {
-  public static tagName: string = "input";
+  public static baseName: string = "input";
   /** 原生 input 的 type */
   public type: string = "text";
   public placeholder: string | undefined = undefined;
@@ -29,11 +32,14 @@ export default class Input extends BaseComponent {
   constructor() {
     super();
     initAttr(this);
-    console.log(this.closest("l-form")?.formId);
   }
 
   connectedCallback(): void {
     this.loadStyle(["input"]);
+    const formInfo = this._getForm();
+    if (formInfo.formId) {
+      add(formInfo.formId, "formAttributeChanged", this._formAttributeChanged);
+    }
     super.connectedCallback();
   }
 
@@ -48,5 +54,32 @@ export default class Input extends BaseComponent {
     });
     this.shadow.innerHTML = `<input${valStr} type="${this.type}"${placeholderStr}${disabledStr} class="${classStr}" />`;
     this.$input = $one("input", this.shadow as any) as HTMLInputElement;
+  }
+
+  private _formAttributeChanged(name: string, value: string) {}
+
+  private _getForm() {
+    let $form: Form | undefined;
+    let $formItem: FormItem | undefined;
+    let $parent = this.parentElement;
+    while ($parent != null) {
+      const tagName = $parent.tagName;
+      if (tagName === "L-FORM") {
+        $form = $parent as Form;
+        break;
+      }
+      if (tagName === "BODY") break;
+      if (tagName === "L-FORM-ITEM") {
+        $formItem = $parent as FormItem;
+      }
+      $parent = $parent.parentElement;
+    }
+    return {
+      $form,
+      $formItem,
+      formId: $form?.formId,
+      formDisabled: $form?.disabled,
+      formItemDisabled: $formItem?.disabled,
+    };
   }
 }

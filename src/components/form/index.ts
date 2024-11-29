@@ -4,12 +4,13 @@ import { initAttr } from "../util";
 import { random } from "ph-utils";
 
 export default class Form extends BaseComponent {
-  public static tagName = "form";
+  public static baseName = "form";
   /** 是否行内表单 */
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";
   public labelWidth?: string;
   public formId: string;
+  public disabled: boolean = false;
   constructor() {
     super();
     this.formId = `l-f${random(3)}-${random(6)}`;

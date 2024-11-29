@@ -33,7 +33,7 @@ function formatStyle(
 regist(LoadingIcon);
 
 export default class Button extends BaseComponent {
-  public static tagName = "button";
+  public static baseName = "button";
 
   constructor() {
     super();
