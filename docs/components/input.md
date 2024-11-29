@@ -8,22 +8,29 @@ import { Input, regist } from "litos-ui";
 regist(Input);
 ```
 
-## 使用
+## 演示
 
-### 使用
+### 基础用法
 
-使用
+文本输入的基础用法。
 
 <ClientOnly>
 <l-code-preview>
-<textarea>
-  <l-input value='135'>按钮</l-input>
-</textarea>
-<div class="source">
 <textarea lang="html">
-  <l-input>按钮</l-input>
+  <l-input placeholder="请输入内容"></l-input>
 </textarea>
-</div>
+</l-code-preview>
+</ClientOnly>
+
+### 禁用状态
+
+通过 `disabled` 属性设置输入框为禁用状态。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input placeholder="请输入内容" disabled></l-input>
+</textarea>
 </l-code-preview>
 </ClientOnly>
 
