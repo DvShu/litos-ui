@@ -6,13 +6,13 @@
   --l-btn-active-text-color: var(--l-btn-text-color);
   /* 按钮的背景色 */
   /* 按钮的边框颜色 */
-  --l-btn-border-color: var(--l-primary-color, #52c41a);
+  --l-btn-border-color: var(--l-primary-color, #722ed1);
   --l-btn-background: var(--l-btn-border-color);
   /* 按钮的悬浮边框 less lighten(var(--l-primary-color), 10) */
-  --l-btn-hover-border-color: var(--l-primary-color-light1, #31890a);
+  --l-btn-hover-border-color: var(--l-primary-color-light1, #9254de);
   --l-btn-hover-background: var(--l-btn-hover-border-color);
   /* 按钮的点击颜色 */
-  --l-btn-active-border-color: var(--l-primary-color-dark1, #31890a);
+  --l-btn-active-border-color: var(--l-primary-color-dark1, #531dab);
   --l-btn-active-background: var(--l-btn-active-border-color);
   /* 按钮禁用 */
   --l-btn-disabled-color: #c9c9c9;
@@ -64,9 +64,9 @@
   /* 按钮的边框颜色 */
   --l-btn-border-color: #d9d9d9;
   /* 按钮的悬浮边框 less lighten(var(--l-primary-color), 10) */
-  --l-btn-hover-text-color: var(--l-primary-color-light1, #31890a);
+  --l-btn-hover-text-color: var(--l-primary-color-light1, #9254de);
   /* 按钮的点击颜色 */
-  --l-btn-active-text-color: var(--l-primary-color-dark1, #31890a);
+  --l-btn-active-text-color: var(--l-primary-color-dark1, #531dab);
   --l-btn-hover-background: #fff;
   --l-btn-active-background: #fff;
   --l-btn-hover-border-color: var(--l-btn-hover-text-color);
@@ -76,11 +76,11 @@
 /* primary 按钮样式 */
 .l-btn-primary {
   /* 按钮的背景色 */
-  --l-btn-background: var(--l-primary-color);
+  --l-btn-background: var(--l-primary-color, #722ed1);
   /* 按钮的边框颜色 */
-  --l-btn-hover-background: var(--l-primary-color-light1, #31890a);
+  --l-btn-hover-background: var(--l-primary-color-light1, #9254de);
   /* 按钮的点击颜色 */
-  --l-btn-active-background: var(--l-primary-color-dark1, #31890a);
+  --l-btn-active-background: var(--l-primary-color-dark1, #531dab);
 }
 
 /* 按钮禁用时的样式 */
@@ -108,9 +108,9 @@
   padding: 5px;
 }
 .l-btn-primary.l-btn-text {
-  --l-btn-text-color: var(--l-primary-color, #52c41a);
-  --l-btn-hover-text-color: var(--l-primary-color-light1, #31890a);
-  --l-btn-active-text-color: var(--l-primary-color-dark1, #31890a);
+  --l-btn-text-color: var(--l-primary-color, #722ed1);
+  --l-btn-hover-text-color: var(--l-primary-color-light1, #9254de);
+  --l-btn-active-text-color: var(--l-primary-color-dark1, #531dab);
 }
 
 .l-btn-ghost {
@@ -128,13 +128,13 @@
 
 /* 高度圆形按钮 */
 .l-btn-round {
-  border-radius: calc(var(--l-form-edit-height) / 2);
+  border-radius: calc(var(--l-form-edit-height, 32px) / 2);
 }
 
 /* 全圆按钮 */
 .l-btn-circle {
   border-radius: 50%;
-  width: var(--l-form-edit-height);
+  width: var(--l-form-edit-height, 32px);
   padding: 0;
 }
 

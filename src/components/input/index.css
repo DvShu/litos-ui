@@ -16,7 +16,7 @@
   width: auto;
 }
 .l-input:focus {
-  border-color: var(--l-primary-color, #52c41a);
+  border-color: var(--l-primary-color, #722ed1);
 }
 .l-input:disabled {
   cursor: not-allowed;

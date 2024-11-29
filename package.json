@@ -11,15 +11,16 @@
     "new_version": "node scripts/version.js",
     "create": "node scripts/index.js create",
     "source:build": "vite build",
-    "umd:build": "vite build -c vite_iife.config.ts --mode browser",
+    "iife:build": "vite build -c vite_iife.config.ts --mode browser",
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
-    "lib:build": "pnpm source:build && pnpm dts:build"
+    "lib:build": "pnpm source:build && pnpm dts:build && pnpm iife:build"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
     "@types/node": "^22.10.1",
     "eslint": "^9.15.0",
     "globals": "^15.12.0",
+    "lightningcss": "^1.28.2",
     "prettier": "^3.4.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.16.0",
@@ -33,12 +34,15 @@
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "jsdelivr": "./lib/litos-ui.min.js",
+  "unpkg": "./lib/litos-ui.min.js",
   "exports": {
     "./styles/*": "./styles/*",
     "./lib/*": "./lib/*",
     ".": {
       "import": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.js"
     }
   },
   "repository": {
