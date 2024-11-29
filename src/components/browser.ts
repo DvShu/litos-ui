@@ -10,8 +10,9 @@ import FontIcon from "./icon/font_icon";
 import LoadingIcon from "./icon/loading";
 import SearchIcon from "./icon/search";
 import Message from "./message";
+import Form from "./form";
 //Web Components Import
-
+regist(Form);
 regist(Button);
 regist(Input);
 regist(BaseIcon);
@@ -46,3 +47,4 @@ import "./styles/animation.css";
 import "./button/index.css";
 import "./icon/index.css";
 import "./input/index.css";
+import "./form/index.css";

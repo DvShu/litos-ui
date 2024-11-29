@@ -3,6 +3,10 @@ import path from "node:path";
 import { write } from "ph-utils/file";
 import { styleText } from "node:util";
 
+function looseJsonParse(obj) {
+  return Function('"use strict";return (' + obj + ")")();
+}
+
 function sourceTemplate(name, sname) {
   const res = [
     'import BaseComponent from "../base"',
@@ -14,8 +18,8 @@ function sourceTemplate(name, sname) {
     "    initAttr(this);",
     "  }",
     "  connectedCallback(): void {",
-    `    this.loadStyle(["${sname}"]);`,
     "    super.connectedCallback();",
+    `    this.loadStyle(["${sname}"]);`,
     "  }",
     "  render() {}",
     "}",
@@ -23,26 +27,26 @@ function sourceTemplate(name, sname) {
   return res.join("\r\n");
 }
 
-function docsTemplate(name) {
+function docsTemplate(name, sname) {
   const res = [
     `# ${name}\r\n`,
     `${name}\r\n`,
     "## 引用\r\n",
     "```js",
     `import { ${name}, regist } from "litos-ui";\r\n`,
-    "regist(${name});",
+    `regist(${name});`,
     "```\r\n",
     "## 演示\r\n",
     "### 基础用法\r\n",
     "使用",
     "<ClientOnly>",
     "<l-code-preview>",
-    "<textarea>",
-    " <l-input>按钮</l-input>",
+    '<textarea lang="html">',
+    ` <l-${sname}></l-${sname}>`,
     "</textarea>",
     '<div class="source">',
     '<textarea lang="html">',
-    "  <l-input>按钮</l-input>",
+    `  <l-${sname}></l-${sname}>`,
     "</textarea>",
     "</div>",
     "</l-code-preview>",
@@ -53,22 +57,22 @@ function docsTemplate(name) {
     "| 参数 | 说明 | 类型 | 默认值 |",
     "| --- | --- | --- | --- |",
     "| x | x | x | x |",
-    "### ${name} Slots\r\n",
+    `### ${name} Slots\r\n`,
     "<!-- prettier-ignore -->",
     "| 名称 | 说明 |",
     "| --- | --- |",
     "| `default` | 内容 |",
-    "### ${name} Events\r\n",
+    `### ${name} Events\r\n`,
     "<!-- prettier-ignore -->",
     "| 事件名 | 说明 | 回调参数 |",
     "| --- | --- | --- |",
     "| `click` | 点击按钮时触发 | `(event: Event)` |",
-    "### ${name} Methods\r\n",
+    `### ${name} Methods\r\n`,
     "<!-- prettier-ignore -->",
     "| 方法名 | 说明 | 类型 |",
-    "| --- | --- | --- | --- |",
+    "| --- | --- | --- |",
     "| `x` | x | `(x: number): string` |",
-    "### ${name} CSS Variables\r\n",
+    `### ${name} CSS Variables\r\n`,
     "<!-- prettier-ignore -->",
     "| 变量名 | 说明 | 默认值 |",
     "| --- | --- | --- |",
@@ -86,13 +90,17 @@ function createComponentTemplate(name) {
   const compoentsPath = path.join(cwd, "src/components");
   // 创建源码目录
   const sourcePath = path.join(compoentsPath, sName);
-  mkdir(sourcePath).then(() => {
-    write(path.join(sourcePath, "index.css"), "").then();
-    write(
-      path.join(sourcePath, "index.ts"),
-      sourceTemplate(name, sName)
-    ).then();
-  });
+  mkdir(sourcePath)
+    .then(() => {
+      write(path.join(sourcePath, "index.css"), "").then();
+      write(
+        path.join(sourcePath, "index.ts"),
+        sourceTemplate(name, sName)
+      ).then();
+    })
+    .catch(() => {
+      console.log("");
+    });
 
   // 文档
   const docsPath = path.join(cwd, "docs/components", `${sName}.md`);
@@ -106,7 +114,6 @@ function createComponentTemplate(name) {
       return write(exportPath, content);
     })
     .then();
-
   // 编辑侧边栏配置
   const configPath = path.join(cwd, "docs/.vitepress/config.mts");
   readFile(configPath, "utf-8")
@@ -131,7 +138,7 @@ function createComponentTemplate(name) {
     .then((content) => {
       content = content.replace(
         "//Web Components Import",
-        `import ${name} from "./${sName}";\n//Web Components Import`
+        `import ${name} from "./${sName}";\n//Web Components Import\nregist(${name})\n`
       );
       content = content.trim() + `\nimport "./${sName}/index.css";\n`;
       return write(iifePath, content);

@@ -12,6 +12,8 @@ export default class Input extends BaseComponent {
   /** 限制输入类型, number, integer */
   public allowInput: string | undefined = undefined;
   private $input: HTMLInputElement | undefined = undefined;
+  /** 表单 form 的 唯一标记 */
+  private form: string | undefined = undefined;
 
   get value(): string {
     if (this.$input) return this.$input.value;
@@ -27,6 +29,7 @@ export default class Input extends BaseComponent {
   constructor() {
     super();
     initAttr(this);
+    console.log(this.closest("l-form")?.formId);
   }
 
   connectedCallback(): void {

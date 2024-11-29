@@ -26,9 +26,7 @@ export default defineConfig({
   markdown: {
     lineNumbers: true,
   },
-
   themeConfig: {
-    // https://vitepress.dev/reference/default-theme-config
     siteTitle: false,
     outline: {
       level: [1, 4],
@@ -40,20 +38,34 @@ export default defineConfig({
         timeStyle: "medium",
       },
     },
-
     logo: "/logo.svg",
     nav: [
-      { text: "首页", link: "/" },
-      { text: "文档", link: "/usage" },
-      { text: "组件", link: "/markdown-examples" },
+      {
+        text: "首页",
+        link: "/",
+      },
+      {
+        text: "文档",
+        link: "/usage",
+      },
+      {
+        text: "组件",
+        link: "/markdown-examples",
+      },
     ],
     sidebar: [
       {
         text: "指南",
         collapsed: true,
         items: [
-          { text: "快速开始", link: "/usage" },
-          { text: "样式重置", link: "/reset" },
+          {
+            text: "快速开始",
+            link: "/usage",
+          },
+          {
+            text: "样式重置",
+            link: "/reset",
+          },
         ],
       },
       {
@@ -70,8 +82,18 @@ export default defineConfig({
         text: "表单",
         collapsed: true,
         items: [
-          { text: "Button 按钮", link: "/components/button" },
-          { text: "Input", link: "/components/input" },
+          {
+            text: "Button 按钮",
+            link: "/components/button",
+          },
+          {
+            text: "Input 输入框",
+            link: "/components/input",
+          },
+          {
+            text: "Form 表单",
+            link: "/components/form",
+          },
         ],
       },
       {
@@ -90,9 +112,12 @@ export default defineConfig({
         ],
       },
     ],
-
-    socialLinks: [{ icon: "github", link: "https://github.com/DvShu/neatui" }],
-
+    socialLinks: [
+      {
+        icon: "github",
+        link: "https://github.com/DvShu/neatui",
+      },
+    ],
     footer: {
       message: "Released under the MulanPSL2 License.",
       copyright: "Copyright © 2024-present Shu",
@@ -117,7 +142,7 @@ export default defineConfig({
   vue: {
     template: {
       compilerOptions: {
-        isCustomElement: (tag) => tag.startsWith("l-"),
+        isCustomElement: (tag: string) => tag.startsWith("l-"),
       },
     },
   },
