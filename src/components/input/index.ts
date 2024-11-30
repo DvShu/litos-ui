@@ -3,8 +3,69 @@ import BaseComponent from "../base";
 import { initAttr, tagAttr } from "../util";
 import type Form from "../form";
 import FormItem from "../form/form_item";
-import { add } from "../form/form_events";
+import { add, remove } from "../form/form_events";
 
+/**
+ * 输入组件，继承自 BaseComponent。
+ * 提供了基本的输入框功能，包括：
+ * - 输入类型（text、number等）
+ * - 占位符
+ * - 自动调整大小
+ * - 禁用状态
+ * - 输入限制（如仅允许整数、小数）
+ * - 自定义输入解析器
+ * - 表单关联及属性变化监听
+ *
+ * @example
+ * ```typescript
+ * const input = new Input();
+ * input.type = "number";
+ * input.placeholder = "请输入数字";
+ * input.setParser((value) => value.trim());
+ * ```
+ */
+/**
+ * 输入组件，继承自 BaseComponent。
+ * 提供了基本的输入框功能，包括类型设置、占位符、自动调整大小、禁用状态、输入限制和自定义解析器等。
+ *
+ * @property {string} type - 原生 input 的类型，默认为 "text"。
+ * @property {string | undefined} placeholder - 输入框占位符。
+ * @property {boolean} autosize - 是否自动调整输入框大小。
+ * @property {boolean} disabled - 是否禁用输入框。
+ * @property {string | undefined} allowInput - 限制输入类型，如 "number" 或 "integer"。
+ * @property {(value: string) => string | undefined} parser - 自定义输入解析器。
+ * @property {HTMLInputElement | undefined} $input - 原生 input 元素。
+ * @property {string | undefined} form - 表单 form 的唯一标记。
+ * @property {Record<string, any>} formAttrs - 表单属性。
+ * @property {Record<string, any>} formItemAttrs - 表单项属性。
+ *
+ * @method value - 获取或设置输入框的值。
+ * @method setParser - 设置自定义输入解析器。
+ * @method _input - 处理输入事件，包括输入限制和解析。
+ * @method _isDisabled - 判断输入框是否被禁用。
+ * @method _formAttributeChanged - 处理表单属性变化。
+ * @method _changeDisabled - 根据表单属性变化更新输入框禁用状态。
+ * @method _getForm - 获取表单信息。
+ * @method _numberInputParse - 解析数字输入。
+ */
+/**
+ * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
+ *
+ * @property {string} type - 原生 input 的类型，默认为 "text"。
+ * @property {string | undefined} placeholder - 输入框占位符。
+ * @property {boolean} autosize - 是否自动调整大小。
+ * @property {boolean} disabled - 是否禁用输入框。
+ * @property {string | undefined} allowInput - 限制输入类型，如 "number", "integer"。
+ * @property {(value: string) => string | undefined} parser - 自定义输入解析器。
+ *
+ * @method setParser - 设置自定义输入解析器。
+ * @method _input - 处理输入事件，支持数字和整数的输入限制，并应用自定义解析器。
+ * @method _isDisabled - 判断输入框是否应该被禁用。
+ * @method _formAttributeChanged - 处理表单属性变化事件。
+ * @method _changeDisabled - 根据表单属性更新输入框的禁用状态。
+ * @method _getForm - 获取当前组件所在的表单信息。
+ * @method _numberInputParse - 解析并返回符合要求的数字输入值。
+ */
 export default class Input extends BaseComponent {
   public static baseName: string = "input";
   /** 原生 input 的 type */
@@ -14,9 +75,15 @@ export default class Input extends BaseComponent {
   public disabled = false;
   /** 限制输入类型, number, integer */
   public allowInput: string | undefined = undefined;
+  /** 自定义输入解析器 */
+  public parser?: (value: string) => string;
   private $input: HTMLInputElement | undefined = undefined;
   /** 表单 form 的 唯一标记 */
   private form: string | undefined = undefined;
+  private formAttrs: Record<string, any> = {};
+  private formItemAttrs: Record<string, any> = {};
+  private attributeChangedHandler: undefined | ((...param: any) => void);
+  private handleInput: (e: Event) => void;
 
   get value(): string {
     if (this.$input) return this.$input.value;
@@ -32,54 +99,162 @@ export default class Input extends BaseComponent {
   constructor() {
     super();
     initAttr(this);
+    this.handleInput = this._input.bind(this);
   }
 
   connectedCallback(): void {
-    this.loadStyle(["input"]);
     const formInfo = this._getForm();
-    if (formInfo.formId) {
-      add(formInfo.formId, "formAttributeChanged", this._formAttributeChanged);
+    this.formAttrs = formInfo.formAttr;
+    this.formItemAttrs = formInfo.formItemAttr;
+    if (this.formAttrs.formId) {
+      this.attributeChangedHandler = this._formAttributeChanged.bind(this);
+      add(
+        this.formAttrs.formId,
+        "attributeChanged",
+        this.attributeChangedHandler
+      );
     }
-    super.connectedCallback();
+    this.render();
+    this.loadStyle(["input"]);
+  }
+
+  disconnectedCallback(): void {
+    if (this.attributeChangedHandler != null) {
+      remove(
+        this.formAttrs.formId,
+        "attributeChanged",
+        this.attributeChangedHandler
+      );
+    }
+    this.$input?.removeEventListener("input", this.handleInput);
+    this.$input = undefined;
   }
 
   render() {
     const val = this.getAttr("value", "");
     let valStr = tagAttr("value", val);
     const placeholderStr = tagAttr("placeholder", this.placeholder);
-    const disabledStr = tagAttr("disabled", this.disabled);
+    const disabledStr = tagAttr("disabled", this._isDisabled());
     const classStr = formatClass({
       "l-input": true,
       "is-autosize": this.autosize,
     });
     this.shadow.innerHTML = `<input${valStr} type="${this.type}"${placeholderStr}${disabledStr} class="${classStr}" />`;
     this.$input = $one("input", this.shadow as any) as HTMLInputElement;
+    this.$input.addEventListener("input", this.handleInput);
   }
 
-  private _formAttributeChanged(name: string, value: string) {}
+  /**
+   * 设置自定义的输入解析器
+   * @param cb
+   */
+  public setParser(cb: (value: string) => string) {
+    this.parser = cb;
+  }
+
+  private _input(e: Event) {
+    const $target = e.target as HTMLInputElement;
+    let value = $target.value;
+    if (this.allowInput != null) {
+      let dotIndex = this.allowInput.indexOf(".");
+      let precition =
+        dotIndex === -1
+          ? dotIndex
+          : parseInt(this.allowInput.substring(dotIndex + 1));
+      value = this._numberInputParse(value, {
+        integer: this.allowInput.includes("integer"),
+        negative: this.allowInput.startsWith("-"),
+        precition: precition,
+      });
+      $target.value = String(value);
+    }
+    if (this.parser != null) {
+      value = this.parser(value);
+      $target.value = String(value);
+    }
+  }
+
+  private _isDisabled() {
+    if (this.formAttrs.disabled === true) return true;
+    if (this.formItemAttrs.disabled === true) return true;
+    return this.disabled;
+  }
+
+  private _formAttributeChanged(
+    flag: "form" | "formItem",
+    name: string,
+    value: string
+  ) {
+    if (flag === "form") {
+      this.formAttrs[name] = value;
+    } else {
+      this.formItemAttrs[name] = value;
+    }
+    if (name === "disabled") {
+      this._changeDisabled();
+    }
+  }
+
+  private _changeDisabled() {
+    if (this.$input != null) {
+      this.$input.disabled = this._isDisabled();
+    }
+  }
 
   private _getForm() {
-    let $form: Form | undefined;
-    let $formItem: FormItem | undefined;
     let $parent = this.parentElement;
+    let formAttr: Record<string, any> = {};
+    let formItemAttr: Record<string, any> = {};
     while ($parent != null) {
       const tagName = $parent.tagName;
       if (tagName === "L-FORM") {
-        $form = $parent as Form;
+        const sharedAttrs = ($parent as Form).sharedAttrs;
+        for (let i = 0; i < sharedAttrs.length; i++) {
+          const attr = sharedAttrs[i];
+          formAttr[attr] = ($parent as Form)[attr as "disabled"];
+        }
         break;
       }
       if (tagName === "BODY") break;
       if (tagName === "L-FORM-ITEM") {
-        $formItem = $parent as FormItem;
+        const sharedAttrs = ($parent as FormItem).sharedAttrs;
+        for (let i = 0; i < sharedAttrs.length; i++) {
+          const attr = sharedAttrs[i];
+          formItemAttr[attr] = ($parent as FormItem)[attr as "disabled"];
+        }
       }
       $parent = $parent.parentElement;
     }
+    $parent = null;
     return {
-      $form,
-      $formItem,
-      formId: $form?.formId,
-      formDisabled: $form?.disabled,
-      formItemDisabled: $formItem?.disabled,
+      formAttr,
+      formItemAttr,
     };
+  }
+
+  private _numberInputParse(
+    value: string,
+    config: { integer: boolean; negative: boolean; precition: number }
+  ) {
+    let val = value;
+    let negative = config.negative ? "-?" : "";
+    if (config.integer) {
+      const match = val.match(new RegExp(`^(${negative}\\d*)`));
+      if (match != null) {
+        return match[1];
+      }
+      return val.substring(0, val.length - 1);
+    }
+    const match = val.match(
+      new RegExp(
+        `(${negative}\\d+\\.\\d{0,${config.precition}})|(${negative}\\d*)`
+      )
+    );
+    if (match != null) {
+      val = match[1] || match[2];
+    } else {
+      val = "";
+    }
+    return match != null ? match[1] || match[2] : "";
   }
 }

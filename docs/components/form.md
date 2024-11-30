@@ -12,6 +12,21 @@ regist(Form);
 
 ## 演示
 
+<script setup>
+  import { onMounted, nextTick } from 'vue';
+  import { $one } from 'ph-utils/dom';
+
+  onMounted(() => {
+    nextTick(() => {
+      const form = $one('#form1');
+      console.log(form)
+      setTimeout(() => {
+        form.removeAttribute('disabled')
+      }, 3000);
+    });
+  })
+</script>
+
 ### 基础用法
 
 使用
@@ -19,7 +34,7 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-form>
+  <l-form id="form1" disabled>
     <l-input></l-input>
   </l-form>
 </textarea>
