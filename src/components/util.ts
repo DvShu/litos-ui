@@ -74,7 +74,7 @@ export function parseAttrValue(
   defaultValue: any,
   key?: string
 ): any {
-  if (!value) return defaultValue;
+  if (value == null) return defaultValue;
   const type = typeof defaultValue;
   switch (type) {
     case "boolean":
@@ -101,7 +101,7 @@ export function initAttr(el: HTMLElement) {
     });
     const attrName = nameItems.join("");
     const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
-    (el as any)[name] = parsedValue;
+    (el as any)[attrName] = parsedValue;
   }
 }
 
