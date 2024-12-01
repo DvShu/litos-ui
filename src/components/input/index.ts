@@ -6,49 +6,6 @@ import FormItem from "../form/form_item";
 import { add, remove } from "../form/form_events";
 
 /**
- * 输入组件，继承自 BaseComponent。
- * 提供了基本的输入框功能，包括：
- * - 输入类型（text、number等）
- * - 占位符
- * - 自动调整大小
- * - 禁用状态
- * - 输入限制（如仅允许整数、小数）
- * - 自定义输入解析器
- * - 表单关联及属性变化监听
- *
- * @example
- * ```typescript
- * const input = new Input();
- * input.type = "number";
- * input.placeholder = "请输入数字";
- * input.setParser((value) => value.trim());
- * ```
- */
-/**
- * 输入组件，继承自 BaseComponent。
- * 提供了基本的输入框功能，包括类型设置、占位符、自动调整大小、禁用状态、输入限制和自定义解析器等。
- *
- * @property {string} type - 原生 input 的类型，默认为 "text"。
- * @property {string | undefined} placeholder - 输入框占位符。
- * @property {boolean} autosize - 是否自动调整输入框大小。
- * @property {boolean} disabled - 是否禁用输入框。
- * @property {string | undefined} allowInput - 限制输入类型，如 "number" 或 "integer"。
- * @property {(value: string) => string | undefined} parser - 自定义输入解析器。
- * @property {HTMLInputElement | undefined} $input - 原生 input 元素。
- * @property {string | undefined} form - 表单 form 的唯一标记。
- * @property {Record<string, any>} formAttrs - 表单属性。
- * @property {Record<string, any>} formItemAttrs - 表单项属性。
- *
- * @method value - 获取或设置输入框的值。
- * @method setParser - 设置自定义输入解析器。
- * @method _input - 处理输入事件，包括输入限制和解析。
- * @method _isDisabled - 判断输入框是否被禁用。
- * @method _formAttributeChanged - 处理表单属性变化。
- * @method _changeDisabled - 根据表单属性变化更新输入框禁用状态。
- * @method _getForm - 获取表单信息。
- * @method _numberInputParse - 解析数字输入。
- */
-/**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
  *
  * @property {string} type - 原生 input 的类型，默认为 "text"。
@@ -59,12 +16,7 @@ import { add, remove } from "../form/form_events";
  * @property {(value: string) => string | undefined} parser - 自定义输入解析器。
  *
  * @method setParser - 设置自定义输入解析器。
- * @method _input - 处理输入事件，支持数字和整数的输入限制，并应用自定义解析器。
- * @method _isDisabled - 判断输入框是否应该被禁用。
- * @method _formAttributeChanged - 处理表单属性变化事件。
- * @method _changeDisabled - 根据表单属性更新输入框的禁用状态。
- * @method _getForm - 获取当前组件所在的表单信息。
- * @method _numberInputParse - 解析并返回符合要求的数字输入值。
+ * @method focus - 输入框获取焦点
  */
 export default class Input extends BaseComponent {
   public static baseName: string = "input";
@@ -150,6 +102,10 @@ export default class Input extends BaseComponent {
    */
   public setParser(cb: (value: string) => string) {
     this.parser = cb;
+  }
+
+  public focus() {
+    this.$input?.focus();
   }
 
   private _input(e: Event) {
