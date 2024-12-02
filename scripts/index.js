@@ -92,7 +92,10 @@ function createComponentTemplate(name) {
   const sourcePath = path.join(compoentsPath, sName);
   mkdir(sourcePath)
     .then(() => {
-      write(path.join(sourcePath, "index.css"), "").then();
+      write(
+        path.join(sourcePath, "index.less"),
+        '@import "../styles/component_base.less";'
+      ).then();
       write(
         path.join(sourcePath, "index.ts"),
         sourceTemplate(name, sName)

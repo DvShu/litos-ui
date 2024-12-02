@@ -91,7 +91,7 @@ export default class Input extends BaseComponent {
       "l-input": true,
       "is-autosize": this.autosize,
     });
-    this.shadow.innerHTML = `<input${valStr} type="${this.type}"${placeholderStr}${disabledStr} class="${classStr}" />`;
+    this.shadow.innerHTML = `<input${valStr} part="default" type="${this.type}"${placeholderStr}${disabledStr} class="${classStr}"></inpuy>`;
     this.$input = $one("input", this.shadow as any) as HTMLInputElement;
     this.$input.addEventListener("input", this.handleInput);
   }

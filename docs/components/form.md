@@ -46,6 +46,25 @@ regist(Form);
 </l-code-preview>
 </ClientOnly>
 
+### 只使用 `FormItem`
+
+`FormItem` 可以不放在 `Form` 里面，从而进行单独使用。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-form-item>
+    <l-input placeholder="请输入文本"></l-input>
+  </l-form-item>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button>按钮</l-button>
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Form Attibutes
