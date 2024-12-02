@@ -38,6 +38,7 @@ export default class BaseComponent extends HTMLElement {
   }
 
   loadStyle(styleNames: string[]) {
+    //@ts-ignore
     if (import.meta.env.MODE !== "browser") {
       for (let i = 0, len = styleNames.length; i < len; i++) {
         const styleName = styleNames[i];
@@ -46,6 +47,7 @@ export default class BaseComponent extends HTMLElement {
         });
       }
     }
+    //@ts-ignore
     if (import.meta.env.MODE === "browser") {
       let $style = document.querySelector("#litos-ui-style") as HTMLLinkElement;
       if ($style) {
@@ -62,6 +64,7 @@ export default class BaseComponent extends HTMLElement {
   }
 
   loadExternalStyle(styleNames: string[]) {
+    //@ts-ignore
     if (import.meta.env.MODE !== "browser") {
       for (let i = 0, len = styleNames.length; i < len; i++) {
         const styleName = styleNames[i];
