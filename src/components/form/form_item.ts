@@ -1,25 +1,38 @@
 import { formatClass, $one } from "ph-utils/dom";
-import { Form, initAttr } from "..";
+import { initAttr, parseAttrValue } from "../";
+import type Form from "./index";
 import BaseComponent from "../base";
+import { emit } from "./form_events";
+import { random } from "ph-utils";
+import type { RuleType } from "ph-utils/validator";
 
 export default class FormItem extends BaseComponent {
   public static baseName = "form-item";
   public disabled: boolean = false;
-  public sharedAttrs: string[] = ["disabled"];
+  public sharedAttrs: string[] = ["disabled", "id", "name"];
   /** 是否必须 */
   public required: boolean = false;
   public error?: string;
   /** 标签文本 */
   public label?: string;
+  public id: string;
+  /** 内置验证规则: required - 必填, same:password - 一般用于验证确认密码和密码, phone - 验证电话号码 */
+  public verify?: string;
+  /** 验证失败错误信息 */
+  public validity?: string;
+  /** 自定义验证的正则 */
+  public pattern?: string;
+  public name?: string;
   private formId?: string;
 
   public constructor() {
     super();
+    this.id = `l-fi${random(3)}-${random(6)}`;
     initAttr(this);
   }
 
   static get observedAttributes() {
-    return ["error", "label"];
+    return ["error", "label", "disabled"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -31,6 +44,12 @@ export default class FormItem extends BaseComponent {
     } else if (name === "label") {
       this.label = newValue;
       this._updateLabel();
+    } else if (name === "disabled") {
+      const val = parseAttrValue(newValue, false, name);
+      if (val !== this.disabled) {
+        emit(this.id, "attributeChanged", name, val, this.id);
+        this.disabled = val;
+      }
     }
   }
 
@@ -38,6 +57,15 @@ export default class FormItem extends BaseComponent {
     super.connectedCallback();
     this.loadStyle(["form"]);
     this.formId = this._getFormId();
+  }
+
+  public setRules(rules: RuleType[]) {
+    const schema = {
+      key: this.name,
+      required: this.required,
+      rules,
+      message: this.validity,
+    };
   }
 
   public setError(error: string) {
@@ -65,6 +93,7 @@ export default class FormItem extends BaseComponent {
   }
 
   private _updateError() {
+    if (!this.rendered) return;
     let $error = $one(".l-form-item__error", this);
     if ($error) {
       if (this.error) {
@@ -78,12 +107,15 @@ export default class FormItem extends BaseComponent {
         $error.className = "l-form-item__error";
         $error.textContent = this.error;
         const $parent = $one(".l-form-item__content", this);
-        $parent.appendChild($error);
+        if ($parent) {
+          $parent.appendChild($error);
+        }
       }
     }
   }
 
   private _updateLabel() {
+    if (!this.rendered) return;
     let $label = $one(".l-form-item__label", this);
     if ($label == null) {
       if (this.label != null) {
@@ -91,7 +123,9 @@ export default class FormItem extends BaseComponent {
         $label.className = "l-form-item__label";
         $label.textContent = this.label;
         const $main = $one(".l-form-item", this);
-        $main.appendChild($label);
+        if ($main) {
+          $main.appendChild($label);
+        }
       }
     } else {
       if (this.label != null) {
@@ -108,7 +142,7 @@ export default class FormItem extends BaseComponent {
     while ($parent != null) {
       const tagName = $parent.tagName;
       if (tagName === "L-FORM") {
-        formId = ($parent as Form).formId;
+        formId = ($parent as Form).id;
         break;
       }
       if (tagName === "BODY") break;
