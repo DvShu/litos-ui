@@ -1,9 +1,6 @@
-import { formatClass, $one } from "ph-utils/dom";
-import BaseComponent from "../base";
+import { formatClass, $one, on, off } from "ph-utils/dom";
 import { initAttr, tagAttr } from "../util";
-import type Form from "../form";
-import type FormItem from "../form/form_item";
-import { add, emit, remove } from "../form/form_events";
+import FormInner from "../form/form_inner";
 
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
@@ -18,87 +15,54 @@ import { add, emit, remove } from "../form/form_events";
  * @method setParser - 设置自定义输入解析器。
  * @method focus - 输入框获取焦点
  */
-export default class Input extends BaseComponent {
+export default class Input extends FormInner {
   public static baseName: string = "input";
   /** 原生 input 的 type */
   public type: string = "text";
   public placeholder: string | undefined = undefined;
   public autosize = false;
-  public disabled = false;
   /** 限制输入类型, number, integer */
   public allowInput: string | undefined = undefined;
   /** 自定义输入解析器 */
   public parser?: (value: string) => string;
-  public name?: string;
   private $input: HTMLInputElement | undefined = undefined;
-  private formAttrs: Record<string, any> = {};
-  private formItemAttrs: Record<string, any> = {};
-
-  get value(): string {
-    if (this.$input) return this.$input.value;
-    return "";
-  }
-
-  set value(value: string | undefined) {
-    if (this.$input) {
-      this.$input.value = value || "";
-    }
-  }
 
   constructor() {
     super();
     initAttr(this);
   }
 
+  set value(value: any) {
+    this.setValue(value);
+    if (this.$input != null) {
+      this.$input.value = this.value;
+    }
+  }
+
   connectedCallback(): void {
-    const formInfo = this._getForm();
-    this.formAttrs = formInfo.formAttr;
-    this.formItemAttrs = formInfo.formItemAttr;
-    if (this.formAttrs.id) {
-      add(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
-    }
-    if (this.formItemAttrs.id) {
-      add(
-        this.formItemAttrs.id,
-        "attributeChanged",
-        this._formAttributeChanged
-      );
-    }
-    if (this.name == null) {
-      this.name = this.formItemAttrs.name;
-    }
-    this.render();
-    if (this.formAttrs.id) {
-      emit(this.formAttrs.id, "valueChange", this.name, this.formAttrs.id);
-    }
+    super.connectedCallback();
     this.loadStyle(["input"]);
   }
 
   disconnectedCallback(): void {
-    remove(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
-    remove(
-      this.formItemAttrs.id,
-      "attributeChanged",
-      this._formAttributeChanged
-    );
-    this.$input?.removeEventListener("input", this._input);
+    super.disconnectedCallback();
+    off(this.$input as any, "input", this._input);
     this.$input = undefined;
   }
 
   render() {
-    const val = this.getAttr("value", "");
-    let valStr = tagAttr("value", val);
+    let valStr = tagAttr("value", this.value);
     const placeholderStr = tagAttr("placeholder", this.placeholder);
     const disabledStr = tagAttr("disabled", this._isDisabled());
     const classStr = formatClass({
       "l-input": true,
       "is-autosize": this.autosize,
     });
-    const nameStr = tagAttr("name", this.formItemAttrs.name || this.name);
+    const nameStr = tagAttr("name", this._getName());
     const attrStr = `${valStr}${nameStr}${placeholderStr}${disabledStr}`;
     this.shadow.innerHTML = `<input part="default" type="${this.type}" class="${classStr}"${attrStr}></input>`;
-    this.$input = $one("input", this.shadow as any) as HTMLInputElement;
-    this.$input.addEventListener("input", this._input);
+    this.$input = $one("input", this.root) as HTMLInputElement;
+    on(this.$input, "input", this._input);
   }
 
   /**
@@ -127,66 +91,20 @@ export default class Input extends BaseComponent {
         negative: this.allowInput.startsWith("-"),
         precition: precition,
       });
-      $target.value = String(value);
+      value = String(value);
+      $target.value = value;
     }
     if (this.parser != null) {
       value = this.parser(value);
-      $target.value = String(value);
+      $target.value = value;
     }
+    this.setValue(value);
   };
 
-  private _isDisabled() {
-    if (this.formAttrs.disabled === true) return true;
-    if (this.formItemAttrs.disabled === true) return true;
-    return this.disabled;
-  }
-
-  private _formAttributeChanged = (name: string, value: string, id: string) => {
-    if (id === this.formAttrs.formId) {
-      this.formAttrs[name] = value;
-    } else {
-      this.formItemAttrs[name] = value;
-    }
-    if (name === "disabled") {
-      this._changeDisabled();
-    }
-  };
-
-  private _changeDisabled() {
+  _changeDisabled() {
     if (this.$input != null) {
       this.$input.disabled = this._isDisabled();
     }
-  }
-
-  private _getForm() {
-    let $parent = this.parentElement;
-    let formAttr: Record<string, any> = {};
-    let formItemAttr: Record<string, any> = {};
-    while ($parent != null) {
-      const tagName = $parent.tagName;
-      if (tagName === "L-FORM") {
-        const sharedAttrs = ($parent as Form).sharedAttrs;
-        for (let i = 0; i < sharedAttrs.length; i++) {
-          const attr = sharedAttrs[i];
-          formAttr[attr] = ($parent as Form)[attr as "disabled"];
-        }
-        break;
-      }
-      if (tagName === "BODY") break;
-      if (tagName === "L-FORM-ITEM") {
-        const sharedAttrs = ($parent as FormItem).sharedAttrs;
-        for (let i = 0; i < sharedAttrs.length; i++) {
-          const attr = sharedAttrs[i];
-          formItemAttr[attr] = ($parent as FormItem)[attr as "disabled"];
-        }
-      }
-      $parent = $parent.parentElement;
-    }
-    $parent = null;
-    return {
-      formAttr,
-      formItemAttr,
-    };
   }
 
   private _numberInputParse(

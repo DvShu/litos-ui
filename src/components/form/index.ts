@@ -45,10 +45,12 @@ export default class Form extends BaseComponent {
     this.loadStyle(["form"]);
     super.connectedCallback();
     add(this.id, "ruleChange", this.ruleChange);
+    add(this.id, "valueChange", this._valueChange);
   }
 
   disconnectedCallback(): void {
     clear(this.id);
+    this.validator = undefined as any;
   }
 
   render() {
@@ -65,6 +67,9 @@ export default class Form extends BaseComponent {
 
   ruleChange = (schema: SchemaType) => {
     this.validator.addSchema(schema);
-    console.log(this.validator);
+  };
+
+  _valueChange = (name: string, value: any) => {
+    console.log(name, value);
   };
 }

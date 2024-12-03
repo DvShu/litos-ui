@@ -1,26 +1,51 @@
 import BaseComponent from "../base";
 import type Form from "../form";
 import type FormItem from "../form/form_item";
+import { parseAttrValue } from "../util";
 import { emit, add, remove } from "./form_events";
 
 export default class FormInner extends BaseComponent {
   public disabled = false;
-  public name?: string;
+  public name?: string = undefined;
   private formAttrs: Record<string, any> = {};
   private formItemAttrs: Record<string, any> = {};
   public _value?: any;
   public _resetValue?: any;
 
   set value(value: any) {
-    this._value = value;
-    if (this.formAttrs.id && this.name) {
-      emit(this.formAttrs.id, "valueChange", this.name, this._value);
-    }
+    this.setValue(value);
   }
 
   get value() {
     return this._value;
   }
+
+  public setValue(value: any) {
+    this._value = value;
+    this.pushValueChange();
+  }
+
+  static get observedAttributes() {
+    return ["disabled"];
+  }
+
+  attributeChangedCallback(
+    name: string,
+    oldValue: string,
+    newValue: string
+  ): void {
+    if (name === "disabled") {
+      const val = parseAttrValue(newValue, false, name);
+      if (val !== this.disabled) {
+        this._changeDisabled();
+        this.disabled = val;
+      }
+    } else {
+      this.attributeChange(name, oldValue, newValue);
+    }
+  }
+
+  protected attributeChange(name: string, oldValue: string, newValue: string) {}
 
   connectedCallback(): void {
     const formInfo = this._getForm();
@@ -28,10 +53,7 @@ export default class FormInner extends BaseComponent {
     this.formItemAttrs = formInfo.formItemAttr;
     if (this.formAttrs.id) {
       add(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
-      const name = this._getName();
-      if (name) {
-        emit(this.formAttrs.id, "valueChange", name, this.formAttrs.id);
-      }
+      this.pushValueChange();
     }
     if (this.formItemAttrs.id) {
       add(
@@ -52,13 +74,13 @@ export default class FormInner extends BaseComponent {
     );
   }
 
-  private _isDisabled() {
+  protected _isDisabled() {
     if (this.formAttrs.disabled === true) return true;
     if (this.formItemAttrs.disabled === true) return true;
     return this.disabled;
   }
 
-  private _getName() {
+  protected _getName() {
     if (this.formItemAttrs.name) return this.formItemAttrs.name;
     return this.name;
   }
@@ -105,5 +127,17 @@ export default class FormInner extends BaseComponent {
     }
   };
 
+  /** disable 属性改变时回调 */
   protected _changeDisabled() {}
+
+  protected pushValueChange() {
+    const name = this._getName();
+    if (this.formAttrs.id && name) {
+      emit(this.formAttrs.id, "valueChange", name, this._value);
+    }
+  }
+
+  public reset() {
+    this.value = this._resetValue;
+  }
 }
