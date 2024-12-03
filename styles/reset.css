@@ -47,3 +47,8 @@ p {
   line-height: 1.4;
   color: #333;
 }
+
+/* 按钮之间间隔 */
+l-button:not([text]) + l-button {
+  margin-left: 10px;
+}
