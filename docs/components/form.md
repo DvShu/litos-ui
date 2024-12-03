@@ -15,16 +15,6 @@ regist(Form);
 <script setup>
   import { onMounted, nextTick } from 'vue';
   import { $one } from 'ph-utils/dom';
-
-  onMounted(() => {
-    nextTick(() => {
-      const form = $one('#form1');
-      console.log(form)
-      setTimeout(() => {
-        form.removeAttribute('disabled')
-      }, 3000);
-    });
-  })
 </script>
 
 ### 基础用法
@@ -34,8 +24,20 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-form disabled>
-    <l-input></l-input>
+  <l-form id="ddd">
+    <l-form-item required label="姓名" name="name">
+      <l-input placeholder="请输入姓名" value="张三"></l-input>
+    </l-form-item>
+    <l-form-item required label="密码" name="password">
+      <l-input placeholder="请输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item required label="确认密码" verify="same:password" name="confimPassword">
+      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item label="">
+      <l-button html-type="reset">重置</l-button>
+      <l-button type="primary">提交</l-button>
+    </l-form-item>
   </l-form>
 </textarea>
 <div class="source">
@@ -45,6 +47,8 @@ regist(Form);
 </div>
 </l-code-preview>
 </ClientOnly>
+
+> 如果想要实现按钮之间的间隔，需要引入 `litos-ui/styles/reset.css` 文件
 
 ### 只使用 `FormItem`
 

@@ -23,6 +23,8 @@ regist(Button);
 </l-code-preview>
 </ClientOnly>
 
+> 如果想要实现按钮之间的间隔，需要引入 `litos-ui/styles/reset.css` 文件
+
 ### 文本按钮
 
 通过传递 `text` 属性将按钮变为文本按钮，配合 `type` 能有更多风格。

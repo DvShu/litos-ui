@@ -2,7 +2,7 @@ import { formatClass, $one } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../";
 import type Form from "./index";
 import BaseComponent from "../base";
-import { emit } from "./form_events";
+import { emit, clear } from "./form_events";
 import { random } from "ph-utils";
 import type { RuleType } from "ph-utils/validator";
 
@@ -27,8 +27,11 @@ export default class FormItem extends BaseComponent {
 
   public constructor() {
     super();
-    this.id = `l-fi${random(3)}-${random(6)}`;
     initAttr(this);
+    //@ts-ignore
+    if (this.id == null) {
+      this.id = `l-fi${random(3)}-${random(6)}`;
+    }
   }
 
   static get observedAttributes() {
@@ -57,15 +60,37 @@ export default class FormItem extends BaseComponent {
     super.connectedCallback();
     this.loadStyle(["form"]);
     this.formId = this._getFormId();
+    if (this.name && this.formId) {
+      let rules: any[] = this.verify?.split("|") || [];
+      if (this.pattern) {
+        rules.push(new RegExp(this.pattern));
+      }
+      const schema = {
+        key: this.name,
+        required: this.required,
+        message: this.validity,
+        rules: rules,
+      };
+      emit(this.formId, "ruleChange", schema);
+    }
   }
 
-  public setRules(rules: RuleType[]) {
-    const schema = {
-      key: this.name,
-      required: this.required,
-      rules,
-      message: this.validity,
-    };
+  disconnectedCallback(): void {
+    clear(this.id);
+  }
+
+  public setRules(rules: {
+    required?: boolean;
+    rules?: RuleType[];
+    message?: string;
+  }) {
+    const schema = { ...rules, key: this.name };
+    if (schema.required != null && this.required) {
+      schema.required = true;
+    }
+    if (this.formId) {
+      emit(this.formId, "ruleChange", schema);
+    }
   }
 
   public setError(error: string) {

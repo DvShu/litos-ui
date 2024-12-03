@@ -1,15 +1,15 @@
+@import "../styles/component_base.less";
+
 .l-form {
+  --l-form-item-display: contents;
   display: grid;
   grid-template-columns: var(--l-form-label-width, auto) 1fr;
   row-gap: 20px;
 }
 .l-form-item {
   --l-input-width: 100%;
-  display: flex;
+  display: var(--l-form-item-display, flex);
   font-size: 14px;
-}
-.l-form .l-form-item {
-  display: contents;
 }
 .l-form-item__label {
   text-align: right;

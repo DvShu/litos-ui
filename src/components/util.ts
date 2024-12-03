@@ -93,8 +93,17 @@ export function parseAttrValue(
  */
 export function initAttr(el: HTMLElement) {
   const attrs = el.attributes;
+  const names = Object.getOwnPropertyNames(el);
   for (const item of attrs) {
     const { name, value } = item;
+    if (
+      name.startsWith("data-") ||
+      name.startsWith("aria-") ||
+      name.startsWith("_") ||
+      !names.includes(name)
+    ) {
+      continue;
+    }
     const nameItems = name.split("-").map((item, index) => {
       if (index === 0) return item;
       return item[0].toUpperCase() + item.slice(1);
@@ -102,6 +111,9 @@ export function initAttr(el: HTMLElement) {
     const attrName = nameItems.join("");
     const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
     (el as any)[attrName] = parsedValue;
+    if (name === "value") {
+      (el as any).resetValue = parsedValue;
+    }
   }
 }
 

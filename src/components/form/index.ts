@@ -2,7 +2,9 @@ import { formatClass, formatStyle } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../util";
 import { random } from "ph-utils";
-import { emit } from "./form_events";
+import { emit, add, clear } from "./form_events";
+import type { SchemaType } from "ph-utils/validator";
+import Validator from "ph-utils/validator";
 
 export default class Form extends BaseComponent {
   public static baseName = "form";
@@ -13,10 +15,16 @@ export default class Form extends BaseComponent {
   public id: string;
   public disabled: boolean = false;
   public sharedAttrs: string[] = ["disabled", "id"];
+  public validator: Validator;
+
   constructor() {
     super();
-    this.id = `l-f${random(3)}-${random(6)}`;
     initAttr(this);
+    //@ts-ignore
+    if (this.id == null) {
+      this.id = `l-f${random(3)}-${random(6)}`;
+    }
+    this.validator = new Validator([]);
   }
 
   static get observedAttributes() {
@@ -36,6 +44,11 @@ export default class Form extends BaseComponent {
   connectedCallback(): void {
     this.loadStyle(["form"]);
     super.connectedCallback();
+    add(this.id, "ruleChange", this.ruleChange);
+  }
+
+  disconnectedCallback(): void {
+    clear(this.id);
   }
 
   render() {
@@ -49,4 +62,9 @@ export default class Form extends BaseComponent {
     });
     this.shadow.innerHTML = `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
   }
+
+  ruleChange = (schema: SchemaType) => {
+    this.validator.addSchema(schema);
+    console.log(this.validator);
+  };
 }
