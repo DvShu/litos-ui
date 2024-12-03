@@ -93,14 +93,13 @@ export function parseAttrValue(
  */
 export function initAttr(el: HTMLElement) {
   const attrs = el.attributes;
-  const names = Object.getOwnPropertyNames(el);
   for (const item of attrs) {
     const { name, value } = item;
     if (
       name.startsWith("data-") ||
       name.startsWith("aria-") ||
       name.startsWith("_") ||
-      !names.includes(name)
+      name.startsWith("$")
     ) {
       continue;
     }

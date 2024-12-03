@@ -18,11 +18,7 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string,
-    _newValue: string
-  ) {}
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {}
 
   get shadow() {
     return this.shadowRoot as ShadowRoot;
