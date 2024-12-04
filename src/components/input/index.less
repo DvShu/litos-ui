@@ -1,12 +1,13 @@
 @import "../styles/component_base.less";
 
 .l-input {
+  --l-input-border-color: var(--l-form-error, var(--l-border-color, #dedede));
   outline: none;
   box-sizing: border-box;
   width: var(--l-input-width, auto);
   max-width: 100%;
   height: var(--l-form-edit-height, 32px);
-  border: 1px solid var(--l-border-color, #dedede);
+  border: 1px solid var(--l-input-border-color);
   transition: border-color 0.3s;
   text-align: inherit;
   padding: 0 5px;
@@ -17,7 +18,7 @@
   width: auto;
 }
 .l-input:focus {
-  border-color: var(--l-primary-color, #722ed1);
+  border-color: var(--l-form-error, var(--l-primary-color, #722ed1));
 }
 .l-input:disabled {
   cursor: not-allowed;

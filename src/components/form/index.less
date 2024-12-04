@@ -38,24 +38,20 @@
   position: absolute;
   top: 100%;
   left: 0;
-  color: var(--l-error-color, #ed3f13);
+  color: var(--nt-error-color, #ed3f13);
   padding-top: 3px;
-  padding-left: 5px;
-}
-l-input::part(default) {
-  border: 1px solid red;
 }
 .l-form-item.is-error {
-  --l-border-color: var(--l-error-color, #ed3f13);
+  --l-form-error: var(--l-error-color, #ed3f13);
 }
-.l-form-item.is-error l-input::part(default),
-.l-form-item.is-error .l-md-input .l-md-input__inner {
-  border-color: var(--l-error-color, #ed3f13);
-}
-.l-form-item .l-md-input,
-.l-form-item .l-input {
-  width: 100%;
-}
+// .l-form-item.is-error l-input::part(default),
+// .l-form-item.is-error .l-md-input .l-md-input__inner {
+//   border-color: var(--l-error-color, #ed3f13);
+// }
+// .l-form-item .l-md-input,
+// .l-form-item .l-input {
+//   width: 100%;
+// }
 
 .l-form--left .l-form-item__label {
   text-align: left;

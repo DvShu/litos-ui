@@ -17,12 +17,16 @@ export default class FormInner extends BaseComponent {
   }
 
   get value() {
-    return this._value;
+    return this.getValue();
   }
 
   public setValue(value: any) {
     this._value = value;
     this.pushValueChange();
+  }
+
+  public getValue() {
+    return this._value;
   }
 
   static get observedAttributes() {

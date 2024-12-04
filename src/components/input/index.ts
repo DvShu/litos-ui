@@ -1,6 +1,7 @@
 import { formatClass, $one, on, off } from "ph-utils/dom";
 import { initAttr, tagAttr } from "../util";
 import FormInner from "../form/form_inner";
+import { debounce } from "ph-utils/web";
 
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
@@ -39,6 +40,10 @@ export default class Input extends FormInner {
     }
   }
 
+  get value() {
+    return this.getValue();
+  }
+
   connectedCallback(): void {
     super.connectedCallback();
     this.loadStyle(["input"]);
@@ -62,9 +67,9 @@ export default class Input extends FormInner {
     const attrStr = `${valStr}${nameStr}${placeholderStr}${disabledStr}`;
     this.shadow.innerHTML = `<input part="default" type="${this.type}" class="${classStr}"${attrStr}></input>`;
     this.$input = $one("input", this.root) as HTMLInputElement;
+
     on(this.$input, "input", this._input);
   }
-
   /**
    * 设置自定义的输入解析器
    * @param cb
@@ -77,7 +82,7 @@ export default class Input extends FormInner {
     this.$input?.focus();
   }
 
-  private _input = (e: Event) => {
+  _input = (e: Event) => {
     const $target = e.target as HTMLInputElement;
     let value = $target.value;
     if (this.allowInput != null) {

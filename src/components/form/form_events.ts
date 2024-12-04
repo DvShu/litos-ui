@@ -6,7 +6,8 @@ type EventName =
   | "attributeChanged"
   | "formSubmitted"
   | "ruleChange"
-  | "valueChange";
+  | "valueChange"
+  | "validateChange";
 
 /**
  * 添加表单事件监听器。
