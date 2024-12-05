@@ -1,7 +1,15 @@
-import { formatClass, $one, on, off } from "ph-utils/dom";
-import { initAttr, tagAttr } from "../util";
+import {
+  formatClass,
+  $one,
+  on,
+  off,
+  formatStyle,
+  addClass,
+  removeClass,
+} from "ph-utils/dom";
+import { initAttr, parseAttrValue, tagAttr } from "../util";
 import FormInner from "../form/form_inner";
-import { debounce } from "ph-utils/web";
+import { add, remove } from "../form/form_events";
 
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
@@ -26,6 +34,11 @@ export default class Input extends FormInner {
   public allowInput: string | undefined = undefined;
   /** 自定义输入解析器 */
   public parser?: (value: string) => string;
+  /** 宽度 */
+  public width?: string;
+  /** 宽度铺满 */
+  public block = false;
+  public error = false;
   private $input: HTMLInputElement | undefined = undefined;
 
   constructor() {
@@ -44,6 +57,10 @@ export default class Input extends FormInner {
     return this.getValue();
   }
 
+  static get observedAttributes() {
+    return ["disabled", "error"];
+  }
+
   connectedCallback(): void {
     super.connectedCallback();
     this.loadStyle(["input"]);
@@ -51,8 +68,25 @@ export default class Input extends FormInner {
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
+    if (this.formAttrs.id) {
+      remove(this.formAttrs.id, "validateChange", this._validateChange);
+    }
     off(this.$input as any, "input", this._input);
     this.$input = undefined;
+  }
+
+  protected attributeChange(
+    name: string,
+    oldValue: string,
+    newValue: string
+  ): void {
+    if (name === "error") {
+      const newError = parseAttrValue(newValue, false, name);
+      if (newError !== this.error) {
+        this.error = newError;
+        this._updateError();
+      }
+    }
   }
 
   render() {
@@ -62,13 +96,20 @@ export default class Input extends FormInner {
     const classStr = formatClass({
       "l-input": true,
       "is-autosize": this.autosize,
+      "is-error": this.error,
     });
-    const nameStr = tagAttr("name", this._getName());
+    const name = this._getName();
+    const nameStr = tagAttr("name", name);
     const attrStr = `${valStr}${nameStr}${placeholderStr}${disabledStr}`;
     this.shadow.innerHTML = `<input part="default" type="${this.type}" class="${classStr}"${attrStr}></input>`;
     this.$input = $one("input", this.root) as HTMLInputElement;
 
     on(this.$input, "input", this._input);
+    this.style.cssText =
+      formatStyle(this._getStyleObj()) + this.getAttr("style", "");
+    if (name && this.formAttrs.id) {
+      add(this.formAttrs.id, "validateChange", this._validateChange);
+    }
   }
   /**
    * 设置自定义的输入解析器
@@ -137,4 +178,42 @@ export default class Input extends FormInner {
     }
     return match != null ? match[1] || match[2] : "";
   }
+
+  private _getStyleObj() {
+    const styleObj: Record<string, string> = {};
+    if (this._isBlock()) {
+      styleObj["--l-input-width"] = "100%";
+    }
+    if (this.width) {
+      styleObj["--l-input-width"] = this.width;
+    }
+    return styleObj;
+  }
+
+  private _isBlock() {
+    if (this.block === true) return true;
+    if (this.formItemAttrs.innerBlock === true) return true;
+    if (this.formAttrs.innerBlock === true) return true;
+  }
+
+  private _updateError() {
+    if (this.$input) {
+      if (this.error) {
+        addClass(this.$input, "is-error");
+      } else {
+        removeClass(this.$input, "is-error");
+      }
+    }
+  }
+
+  private _validateChange = (
+    result: true | Record<string, string>,
+    name?: string
+  ) => {
+    const error = result === true ? false : result[this.name as string] == null;
+    if (name == null || (name === this._getName() && this.error != error)) {
+      this.error = error;
+      this._updateError();
+    }
+  };
 }

@@ -7,7 +7,9 @@ type EventName =
   | "formSubmitted"
   | "ruleChange"
   | "valueChange"
-  | "validateChange";
+  | "validateChange"
+  | "reset"
+  | "submit";
 
 /**
  * 添加表单事件监听器。

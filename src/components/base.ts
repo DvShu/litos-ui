@@ -103,9 +103,9 @@ export default class BaseComponent extends HTMLElement {
    * @param key 属性名称
    * @param defaultValue 默认值
    */
-  public getAttr(filepath: string, defaultValue: string): string;
-  public getAttr(filepath: string, defaultValue: number): number;
-  public getAttr(filepath: string, defaultValue: boolean): boolean;
+  public getAttr(key: string, defaultValue: string): string;
+  public getAttr(key: string, defaultValue: number): number;
+  public getAttr(key: string, defaultValue: boolean): boolean;
   public getAttr<T extends Record<string, string | number | boolean>>(
     filepath: string,
     defaultValue: T

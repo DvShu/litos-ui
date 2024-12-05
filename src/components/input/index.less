@@ -1,24 +1,26 @@
-@import "../styles/component_base.less";
+:host {
+  display: inline-block;
+  width: var(--l-input-width, auto);
+}
 
 .l-input {
-  --l-input-border-color: var(--l-form-error, var(--l-border-color, #dedede));
   outline: none;
   box-sizing: border-box;
-  width: var(--l-input-width, auto);
+  width: 100%;
   max-width: 100%;
   height: var(--l-form-edit-height, 32px);
-  border: 1px solid var(--l-input-border-color);
+  border: 1px solid var(--l-border-color, #dedede);
   transition: border-color 0.3s;
   text-align: inherit;
   padding: 0 5px;
   border-radius: 3px;
   vertical-align: middle;
 }
-.l-input.is-autosize {
-  width: auto;
+.l-input.is-error {
+  --l-border-color: var(--nt-error-color, #ed3f13);
 }
-.l-input:focus {
-  border-color: var(--l-form-error, var(--l-primary-color, #722ed1));
+.l-input:not(.is-error):focus {
+  border-color: var(--l-primary-color, #722ed1);
 }
 .l-input:disabled {
   cursor: not-allowed;

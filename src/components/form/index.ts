@@ -14,8 +14,10 @@ export default class Form extends BaseComponent {
   public labelWidth?: string;
   public id: string;
   public disabled: boolean = false;
-  public sharedAttrs: string[] = ["disabled", "id"];
+  public sharedAttrs: string[] = ["disabled", "id", "innerBlock"];
   public validator: Validator;
+  public innerBlock = false;
+  public novalidate = false;
   private _data?: Record<string, any>;
 
   constructor() {
@@ -76,10 +78,10 @@ export default class Form extends BaseComponent {
     }
     const needValid = Object.hasOwn(this._data, name);
     this._data[name] = value;
-    if (needValid) {
+    if (!this.novalidate && needValid) {
       this.validator
         .validateKey(name, value, this._data)
-        .then((res) => {
+        .then(() => {
           emit(this.id, "validateChange", true, name);
         })
         .catch((err) => {
@@ -87,4 +89,66 @@ export default class Form extends BaseComponent {
         });
     }
   };
+
+  public validateField(field: string | string[]) {
+    const tacks: Promise<{ key: string; value: any }>[] = [];
+    if (this._data != null) {
+      if (Array.isArray(field)) {
+        for (let i = 0, len = field.length; i < len; i++) {
+          const f = field[i];
+          tacks.push(this.validator.validateKey(f, this._data[f], this._data));
+        }
+      } else {
+        tacks.push(
+          this.validator.validateKey(field, this._data[field], this._data)
+        );
+      }
+      Promise.allSettled(tacks).then((results) => {
+        for (let i = 0, len = results.length; i < len; i++) {
+          const result = results[i];
+          if (result.status === "rejected") {
+            emit(
+              this.id,
+              "validateChange",
+              result.reason.detail,
+              result.reason.key
+            );
+          } else {
+            emit(this.id, "validateChange", true, result.value.key);
+          }
+        }
+      });
+    }
+  }
+
+  public clearValidate() {
+    emit(this.id, "validateChange", true);
+  }
+
+  public reset() {
+    emit(this.id, "reset");
+  }
+
+  public submit() {}
+
+  /**
+   * 校验全部表单数据
+   */
+  public async validate() {
+    if (this._data != null) {
+      try {
+        await this.validator.validate(this._data);
+        emit(this.id, "validateChange", true);
+        return Promise.resolve(true);
+      } catch (err: any) {
+        emit(this.id, "validateChange", err.detail);
+        return Promise.resolve(false);
+      }
+    }
+    return Promise.resolve(true);
+  }
+
+  public getData() {
+    return { ...this._data };
+  }
 }

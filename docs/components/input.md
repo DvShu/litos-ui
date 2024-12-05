@@ -120,6 +120,8 @@ regist(Input);
 | `html-type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
 | `placeholder` | 占位文本 | `string` | - |
 | `allow-input` | 允许输入的值; `number`、`integer`,前面包含 `-` 表明允许负数, 以 `.2` 结尾表明小数点后精度 | `string` | - |
+| `block` | 宽度是否铺满父元素 | `boolean` | `false` |
+| `width` | 宽度 | `string` | - |
 
 ### Input Methods
 
