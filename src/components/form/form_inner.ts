@@ -7,9 +7,9 @@ import { emit, add, remove } from "./form_events";
 export default class FormInner extends BaseComponent {
   public disabled = false;
   public name?: string = undefined;
-  private formAttrs: Record<string, any> = {};
-  private formItemAttrs: Record<string, any> = {};
-  public _value?: any;
+  protected formAttrs: Record<string, any> = {};
+  protected formItemAttrs: Record<string, any> = {};
+  public _value: any = "";
   public _resetValue?: any;
 
   set value(value: any) {
@@ -57,6 +57,7 @@ export default class FormInner extends BaseComponent {
     this.formItemAttrs = formInfo.formItemAttr;
     if (this.formAttrs.id) {
       add(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
+      add(this.formAttrs.id, "reset", this._resetFieldValue);
       this.pushValueChange();
     }
     if (this.formItemAttrs.id) {
@@ -70,12 +71,17 @@ export default class FormInner extends BaseComponent {
   }
 
   disconnectedCallback(): void {
-    remove(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
-    remove(
-      this.formItemAttrs.id,
-      "attributeChanged",
-      this._formAttributeChanged
-    );
+    if (this.formAttrs.id) {
+      remove(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
+      remove(this.formAttrs.id, "reset", this._resetFieldValue);
+    }
+    if (this.formItemAttrs.id) {
+      remove(
+        this.formItemAttrs.id,
+        "attributeChanged",
+        this._formAttributeChanged
+      );
+    }
   }
 
   protected _isDisabled() {
@@ -141,7 +147,11 @@ export default class FormInner extends BaseComponent {
     }
   }
 
+  private _resetFieldValue = () => {
+    this.reset();
+  };
+
   public reset() {
-    this.value = this._resetValue;
+    this.value = this._resetValue || "";
   }
 }

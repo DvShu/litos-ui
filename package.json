@@ -62,7 +62,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ph-utils": "^0.11.2",
+    "ph-utils": "^0.11.3",
     "shiki": "^1.24.0"
   }
 }

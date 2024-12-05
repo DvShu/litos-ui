@@ -15,6 +15,15 @@ regist(Form);
 <script setup>
   import { onMounted, nextTick } from 'vue';
   import { $one } from 'ph-utils/dom';
+
+  onMounted(() => {
+    nextTick(() => {
+      const $form = $one('#form');
+      $form.addEventListener('submit', (event) => {
+        console.log(event)
+      })
+    })
+  })
 </script>
 
 ### 基础用法
@@ -23,8 +32,8 @@ regist(Form);
 
 <ClientOnly>
 <l-code-preview>
-<textarea>
-  <l-form id="ddd">
+<textarea lang="html">
+  <l-form id="form">
     <l-form-item required label="姓名" name="name">
       <l-input placeholder="请输入姓名" value="张三"></l-input>
     </l-form-item>
@@ -36,15 +45,10 @@ regist(Form);
     </l-form-item>
     <l-form-item label="">
       <l-button html-type="reset">重置</l-button>
-      <l-button type="primary">提交</l-button>
+      <l-button html-type="submit" type="primary">提交</l-button>
     </l-form-item>
   </l-form>
 </textarea>
-<div class="source">
-<textarea lang="html">
-  <l-input>按钮</l-input>
-</textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 

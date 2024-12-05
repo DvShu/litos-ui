@@ -1,15 +1,14 @@
 import { formatClass, $one, addClass, removeClass } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../";
-import type Form from "./index";
+import { initAttr, parseAttrValue } from "../util";
 import BaseComponent from "../base";
-import { emit, clear, add } from "./form_events";
+import { emit, clear, add, remove } from "./form_events";
 import { random } from "ph-utils";
 import type { RuleType } from "ph-utils/validator";
 
 export default class FormItem extends BaseComponent {
   public static baseName = "form-item";
   public disabled: boolean = false;
-  public sharedAttrs: string[] = ["disabled", "id", "name"];
+  public sharedAttrs: string[] = ["disabled", "id", "name", "innerBlock"];
   /** 是否必须 */
   public required: boolean = false;
   public error?: string;
@@ -23,6 +22,7 @@ export default class FormItem extends BaseComponent {
   /** 自定义验证的正则 */
   public pattern?: string;
   public name?: string;
+  public innerBlock = false;
   private formId?: string;
 
   public constructor() {
@@ -78,6 +78,9 @@ export default class FormItem extends BaseComponent {
 
   disconnectedCallback(): void {
     clear(this.id);
+    if (this.formId) {
+      remove(this.formId, "validateChange", this._validateChange);
+    }
   }
 
   public setRules(rules: {
@@ -122,17 +125,10 @@ export default class FormItem extends BaseComponent {
     result: true | Record<string, string>,
     name?: string
   ) => {
-    if (result === true) {
-      if (name == null || (name === this.name && this.error)) {
-        this.error = undefined;
-        this._updateError();
-      }
-    } else {
-      const error = result[this.name as string] as string;
-      if (this.error !== error) {
-        this.error = error;
-        this._updateError();
-      }
+    const error = result === true ? undefined : result[this.name as string];
+    if (name == null || (name === this.name && this.error != error)) {
+      this.error = error;
+      this._updateError();
     }
   };
 
@@ -194,7 +190,7 @@ export default class FormItem extends BaseComponent {
     while ($parent != null) {
       const tagName = $parent.tagName;
       if (tagName === "L-FORM") {
-        formId = ($parent as Form).id;
+        formId = ($parent as any).id;
         break;
       }
       if (tagName === "BODY") break;

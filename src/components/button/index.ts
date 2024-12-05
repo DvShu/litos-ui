@@ -1,43 +1,30 @@
 import { parseAttrValue, regist } from "../util";
 import BaseComponent from "../base";
-import { formatClass, $one, addClass, removeClass } from "ph-utils/dom";
+import {
+  formatClass,
+  addClass,
+  removeClass,
+  formatStyle,
+  on,
+  off,
+  getAttr,
+  $one,
+} from "ph-utils/dom";
 import LoadingIcon from "../icon/loading";
 import { adjust } from "ph-utils/color";
-
-/**
- * 将样式对象格式化为 CSS 样式字符串。
- * @param styleObj - 样式对象，可以是字符串数组或键值对对象。
- * @returns 格式化后的 CSS 样式字符串。
- */
-function formatStyle(
-  styleObj: (string | undefined | null | "")[] | Record<string, string>
-) {
-  let styleStr = "";
-  if (Array.isArray(styleObj)) {
-    for (let i = 0, len = styleObj.length; i < len; i++) {
-      const item = styleObj[i];
-      if (item) {
-        styleStr += `${item};`;
-      }
-    }
-  } else {
-    for (const key in styleObj) {
-      if (styleObj[key]) {
-        styleStr += `${key}:${styleObj[key]};`;
-      }
-    }
-  }
-  return styleStr;
-}
+import type Form from "../form";
 
 regist(LoadingIcon);
 
 export default class Button extends BaseComponent {
   public static baseName = "button";
 
+  private $form?: Form;
+
   constructor() {
     super();
     this.loadExternalStyle(["animation"]);
+    this.$form = this._getForm();
   }
 
   // 初始化属性观察器
@@ -47,11 +34,10 @@ export default class Button extends BaseComponent {
 
   // 当属性发生变化时调用的回调函数
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const $btn = $one(".l-btn", this.shadow as any) as HTMLButtonElement;
+    const $btn = $one(".l-button", this.root) as HTMLButtonElement;
     if ($btn) {
       if (name === "loading") {
         const loading = parseAttrValue(newValue, false, name);
-        const $btn = $one(".l-btn", this.shadow as any) as HTMLButtonElement;
         if (loading) {
           addClass($btn, "l-btn-loading");
           $btn.disabled = true;
@@ -72,10 +58,20 @@ export default class Button extends BaseComponent {
   connectedCallback(): void {
     this.loadStyle(["button"]);
     this.render();
+
+    if (this.$form) {
+      on(this, "click", this._handleClick);
+    }
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    if (this.$form) {
+      off(this, "click", this._handleClick);
+    }
   }
 
   public render() {
-    // 创建一些 HTML 并应用到 shadow dom 中
     const type = this.getAttr("type", "normal");
     const $btn = document.createElement("button");
     const isLoading = this.getAttr("loading", false);
@@ -106,7 +102,7 @@ export default class Button extends BaseComponent {
       $btn.innerHTML = "<slot></slot>";
     }
     $btn.setAttribute("part", "default");
-    this.shadow.appendChild($btn);
+    this.root.appendChild($btn);
   }
 
   loadingBody() {
@@ -136,5 +132,31 @@ export default class Button extends BaseComponent {
       "--l-btn-active-border-color": text ? "transparent" : darken,
     };
     return formatStyle(cssVars);
+  }
+
+  private _handleClick = (e: Event) => {
+    const $targe = e.target as HTMLElement;
+    const htmlType = getAttr($targe, "html-type");
+    if (htmlType === "reset") {
+      this.$form?.reset();
+    } else if (htmlType === "submit") {
+      this.$form?.submit();
+    }
+  };
+
+  private _getForm() {
+    let $parent = this.parentElement;
+    let $form: Form | undefined;
+    while ($parent != null) {
+      const tagName = $parent.tagName;
+      if (tagName === "L-FORM") {
+        $form = $parent as Form;
+        break;
+      }
+      if (tagName === "BODY") break;
+      $parent = $parent.parentElement;
+    }
+    $parent = null;
+    return $form;
   }
 }
