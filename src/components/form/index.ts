@@ -19,6 +19,7 @@ export default class Form extends BaseComponent {
   public innerBlock = false;
   public novalidate = false;
   private _data?: Record<string, any>;
+  private emit: CustomEvent;
 
   constructor() {
     super();
@@ -28,6 +29,7 @@ export default class Form extends BaseComponent {
       this.id = `l-f${random(3)}-${random(6)}`;
     }
     this.validator = new Validator([]);
+    this.emit = new CustomEvent("submit");
   }
 
   static get observedAttributes() {
@@ -129,7 +131,17 @@ export default class Form extends BaseComponent {
     emit(this.id, "reset");
   }
 
-  public submit() {}
+  public submit() {
+    if (this.novalidate) {
+      this.dispatchEvent(this.emit);
+    } else {
+      this.validate().then((valid) => {
+        if (valid) {
+          this.dispatchEvent(this.emit);
+        }
+      });
+    }
+  }
 
   /**
    * 校验全部表单数据

@@ -1,4 +1,4 @@
-import { parseAttrValue, regist } from "../util";
+import { initAttr, parseAttrValue, regist } from "../util";
 import BaseComponent from "../base";
 import {
   formatClass,
@@ -18,13 +18,11 @@ regist(LoadingIcon);
 
 export default class Button extends BaseComponent {
   public static baseName = "button";
-
-  private $form?: Form;
-
+  public htmlType: "submit" | "reset" | "button" = "button";
   constructor() {
     super();
+    initAttr(this);
     this.loadExternalStyle(["animation"]);
-    this.$form = this._getForm();
   }
 
   // 初始化属性观察器
@@ -58,15 +56,14 @@ export default class Button extends BaseComponent {
   connectedCallback(): void {
     this.loadStyle(["button"]);
     this.render();
-
-    if (this.$form) {
+    if (this.htmlType === "reset" || this.htmlType === "submit") {
       on(this, "click", this._handleClick);
     }
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this.$form) {
+    if (this.htmlType === "reset" || this.htmlType === "submit") {
       off(this, "click", this._handleClick);
     }
   }
@@ -137,10 +134,15 @@ export default class Button extends BaseComponent {
   private _handleClick = (e: Event) => {
     const $targe = e.target as HTMLElement;
     const htmlType = getAttr($targe, "html-type");
-    if (htmlType === "reset") {
-      this.$form?.reset();
-    } else if (htmlType === "submit") {
-      this.$form?.submit();
+    if (htmlType === "reset" || htmlType === "submit") {
+      const $form = this._getForm();
+      if ($form) {
+        if (htmlType === "reset") {
+          $form.reset();
+        } else if (htmlType === "submit") {
+          $form.submit();
+        }
+      }
     }
   };
 
