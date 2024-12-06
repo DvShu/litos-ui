@@ -18,9 +18,10 @@ regist(Form);
 
   onMounted(() => {
     nextTick(() => {
-      const $form = $one('#form');
+      const $form = $one('#lform');
       $form.addEventListener('submit', (event) => {
-        console.log(event)
+        const $target = event.target;
+        console.log($target.getData());
       })
     })
   })
@@ -33,7 +34,7 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form id="form">
+  <l-form id="lform">
     <l-form-item required label="姓名" name="name">
       <l-input placeholder="请输入姓名" value="张三"></l-input>
     </l-form-item>
