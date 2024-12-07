@@ -92,13 +92,13 @@ export default class Input extends FormInner {
   render() {
     let valStr = tagAttr("value", this.value);
     const placeholderStr = tagAttr("placeholder", this.placeholder);
-    const disabledStr = tagAttr("disabled", this._isDisabled());
+    const disabledStr = tagAttr("disabled", this.isDisabled());
     const classStr = formatClass({
       "l-input": true,
       "is-autosize": this.autosize,
       "is-error": this.error,
     });
-    const name = this._getName();
+    const name = this.getName();
     const nameStr = tagAttr("name", name);
     const attrStr = `${valStr}${nameStr}${placeholderStr}${disabledStr}`;
     this.shadow.innerHTML = `<input part="default" type="${this.type}" class="${classStr}"${attrStr}></input>`;
@@ -149,7 +149,7 @@ export default class Input extends FormInner {
 
   _changeDisabled() {
     if (this.$input != null) {
-      this.$input.disabled = this._isDisabled();
+      this.$input.disabled = this.isDisabled();
     }
   }
 
@@ -211,7 +211,7 @@ export default class Input extends FormInner {
     name?: string
   ) => {
     const error = result === true ? false : result[this.name as string] == null;
-    if (name == null || (name === this._getName() && this.error != error)) {
+    if (name == null || (name === this.getName() && this.error != error)) {
       this.error = error;
       this._updateError();
     }

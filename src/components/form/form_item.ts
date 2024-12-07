@@ -23,6 +23,7 @@ export default class FormItem extends BaseComponent {
   public pattern?: string;
   public name?: string;
   public innerBlock = false;
+  public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
 
   public constructor() {
@@ -106,6 +107,7 @@ export default class FormItem extends BaseComponent {
       `l-form-item`,
       this.required ? "is-required" : undefined,
       this.error ? "is-error" : undefined,
+      `l-form-item--${this.labelPosition}`,
     ];
     const labelStr =
       this.label != null

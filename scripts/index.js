@@ -3,10 +3,6 @@ import path from "node:path";
 import { write } from "ph-utils/file";
 import { styleText } from "node:util";
 
-function looseJsonParse(obj) {
-  return Function('"use strict";return (' + obj + ")")();
-}
-
 function sourceTemplate(name, sname) {
   const res = [
     'import BaseComponent from "../base"',
@@ -38,7 +34,7 @@ function docsTemplate(name, sname) {
     "```\r\n",
     "## 演示\r\n",
     "### 基础用法\r\n",
-    "使用",
+    "使用\r\n",
     "<ClientOnly>",
     "<l-code-preview>",
     '<textarea lang="html">',
@@ -121,16 +117,14 @@ function createComponentTemplate(name) {
   const configPath = path.join(cwd, "docs/.vitepress/config.mts");
   readFile(configPath, "utf-8")
     .then((configContent) => {
-      const configReg = /\(({[\s\S]*?\})\)/;
-      configContent = configContent.replace(configReg, (m, b) => {
-        const configJson = looseJsonParse(b);
-        const sidebar = configJson.themeConfig.sidebar;
-        sidebar[3].items.push({
-          text: name,
-          link: `/components/${name.toLowerCase()}`,
-        });
-        return `(${JSON.stringify(configJson, null, 2)})`;
-      });
+      configContent = configContent.replace(
+        "/* TemplateItem */",
+        `{
+            text: "Radio",
+            link: "/components/radio",
+          },
+          /* TemplateItem */`
+      );
       return write(configPath, configContent);
     })
     .then();

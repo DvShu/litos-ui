@@ -1,23 +1,27 @@
 @import "../styles/component_base.less";
 
 .l-form {
-  --l-form-item-display: contents;
   display: grid;
   grid-template-columns: var(--l-form-label-width, auto) 1fr;
   row-gap: 20px;
 }
+
 .l-form-item {
-  display: var(--l-form-item-display, flex);
+  display: var(--l-form-item-display, contents);
   font-size: 14px;
+  grid-template-columns: 1fr;
 }
 .l-form-item__label {
-  text-align: right;
+  text-align: var(--l-form-label-align, right);
   display: inline-block;
   width: var(--l-form-label-width, auto);
   height: var(--l-form-edit-height, 32px);
   line-height: var(--l-form-edit-height, 32px);
   color: #606266;
   padding: 0 10px 0 0;
+}
+.l-form-item__label:empty {
+  display: var(--l-form-label-empty-display, inline-block);
 }
 .l-form-item.is-required .l-form-item__label::before {
   content: "*";
@@ -40,14 +44,6 @@
   color: var(--nt-error-color, #ed3f13);
   padding-top: 3px;
 }
-// .l-form-item.is-error l-input::part(default),
-// .l-form-item.is-error .l-md-input .l-md-input__inner {
-//   border-color: var(--l-error-color, #ed3f13);
-// }
-// .l-form-item .l-md-input,
-// .l-form-item .l-input {
-//   width: 100%;
-// }
 
 .l-form--left .l-form-item__label {
   text-align: left;
@@ -72,8 +68,20 @@
   gap: 20px;
   flex-flow: row wrap;
 }
+.l-form.l-form-inline {
+  --l-form-item-display: flex;
+}
 
-.l-form-inline .l-form-item {
-  display: inline-flex;
-  vertical-align: middle;
+/* 对齐方式: left */
+.l-form.l-form--left,
+.l-form-item.l-form-item--left {
+  --l-form-label-align: left;
+}
+/* 对齐方式: top */
+.l-form.l-form--top,
+.l-form-item.l-form-item--top {
+  --l-form-item-display: grid;
+  --l-form-label-align: left;
+  --l-form-label-empty-display: none;
+  grid-template-columns: 1fr;
 }

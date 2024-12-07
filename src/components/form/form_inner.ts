@@ -84,15 +84,15 @@ export default class FormInner extends BaseComponent {
     }
   }
 
-  protected _isDisabled() {
-    if (this.formAttrs.disabled === true) return true;
+  public isDisabled() {
+    if (this.disabled === true) return true;
     if (this.formItemAttrs.disabled === true) return true;
-    return this.disabled;
+    return this.formAttrs.disabled || false;
   }
 
-  protected _getName() {
-    if (this.formItemAttrs.name) return this.formItemAttrs.name;
-    return this.name;
+  public getName() {
+    if (this.name) return this.name;
+    return this.formItemAttrs.name;
   }
 
   private _getForm() {
@@ -141,7 +141,7 @@ export default class FormInner extends BaseComponent {
   protected _changeDisabled() {}
 
   protected pushValueChange() {
-    const name = this._getName();
+    const name = this.getName();
     if (this.formAttrs.id && name) {
       emit(this.formAttrs.id, "valueChange", name, this._value);
     }

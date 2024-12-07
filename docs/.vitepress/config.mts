@@ -91,6 +91,10 @@ export default defineConfig({
             link: "/components/input",
           },
           {
+            text: "Radio 单选框",
+            link: "/components/radio",
+          },
+          {
             text: "Form 表单",
             link: "/components/form",
           },
@@ -99,7 +103,9 @@ export default defineConfig({
       {
         text: "数据展示",
         collapsed: true,
-        items: [],
+        items: [
+          /* TemplateItem */
+        ],
       },
       {
         text: "反馈",
@@ -142,7 +148,7 @@ export default defineConfig({
   vue: {
     template: {
       compilerOptions: {
-        isCustomElement: (tag: string) => tag.startsWith("l-"),
+        isCustomElement: (tag) => tag.startsWith("l-"),
       },
     },
   },

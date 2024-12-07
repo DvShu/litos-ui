@@ -59,6 +59,7 @@ export default class Form extends BaseComponent {
   }
 
   render() {
+    console.log(this.inline);
     const classStr = formatClass([
       "l-form",
       this.inline ? "l-form-inline" : undefined,
