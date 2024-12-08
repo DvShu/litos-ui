@@ -3,7 +3,7 @@ import { defineConfig } from "vitepress";
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   base: "/litos_ui/",
-  title: "NeatUI",
+  title: "LitosUI",
   description: "基于 Web Component 的 UI 组件库",
   lastUpdated: true,
   cleanUrls: true,
@@ -121,7 +121,7 @@ export default defineConfig({
     socialLinks: [
       {
         icon: "github",
-        link: "https://github.com/DvShu/neatui",
+        link: "https://github.com/DvShu/litos-ui",
       },
     ],
     footer: {
@@ -143,7 +143,7 @@ export default defineConfig({
     },
   },
   sitemap: {
-    hostname: "https://dvshu.github.io/neatui/",
+    hostname: "https://dvshu.github.io/litos-ui/",
   },
   vue: {
     template: {

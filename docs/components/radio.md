@@ -19,7 +19,12 @@ regist(Radio);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-<l-radio></l-radio>
+<l-radio>
+  <span slot="label">
+    <span>同意</span>
+    <a href='#'>隐私协议</a>
+  </span>
+</l-radio>
 </textarea>
 <div class="source">
 <textarea lang="html">

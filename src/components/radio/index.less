@@ -1,1 +1,105 @@
-@import "../styles/component_base.less";
+:host {
+  display: flex;
+  align-items: center;
+}
+
+.l-radio {
+  --l-radio-size: 16px;
+  --l-radio-label-color: #333;
+  --l-radio-disabled-color: #e6e6e6;
+  --l-radio-disabled-label-color: #c0c4cc;
+  --l-radio-checked-color: var(--l-primary-color, #722ed1);
+  --l-radio-item-margin: 10px;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.l-radio__label {
+  transition: color 0.3s ease-in-out;
+  margin-left: 5px;
+}
+
+.l-radio__input {
+  position: absolute;
+  z-index: -1;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+.l-radio__inner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: var(--l-radio-size);
+  height: var(--l-radio-size);
+  border: 1px solid #dcddd9;
+  border-radius: 50%;
+
+  box-sizing: border-box;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.l-radio__inner::before {
+  content: "";
+  display: block;
+  width: 60%;
+  height: 60%;
+  background-color: transparent;
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.l-radio.is-checked .l-radio__inner {
+  border-color: var(--l-primary-color, #722ed1);
+}
+.l-radio.is-checked .l-radio__inner::before {
+  background-color: var(--l-primary-color, #722ed1);
+}
+.l-radio.is-checked .l-radio__label {
+  color: var(--l-primary-color, #722ed1);
+}
+
+.l-radio--disabled {
+  cursor: not-allowed;
+}
+.l-radio--disabledd .l-radio__inner {
+  border-color: var(--l-radio-disabled-color);
+}
+.l-radio--disabled .l-radio__label {
+  color: var(--l-radio-disabled-label-color);
+}
+
+.l-radio:not(:first-child) {
+  margin-left: var(--l-radio-item-margin);
+}
+
+.l-radio--button .l-radio__label {
+  display: inline-flex;
+  height: var(--l-form-edit-height, 32px);
+  justify-content: center;
+  align-items: center;
+  padding: 0 15px;
+  border: 1px solid #c0c4cc;
+  border-left-width: 0;
+  margin-left: 0;
+}
+.l-radio--button:not(:first-child) {
+  margin-left: 0;
+}
+.l-radio--button:first-child .l-radio__label {
+  border-left-width: 1px;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+.l-radio--button:last-child .l-radio__label {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.is-checked.l-radio--button .l-radio__label {
+  background-color: var(--l-radio-checked-color);
+  color: #fff;
+  border-color: var(--l-radio-checked-color);
+}

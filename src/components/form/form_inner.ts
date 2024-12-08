@@ -11,6 +11,16 @@ export default class FormInner extends BaseComponent {
   protected formItemAttrs: Record<string, any> = {};
   public _value: any = "";
   public _resetValue?: any;
+  protected _firstPushValue = true;
+
+  /**
+   *
+   * @param firstPushValue 是否第一次赋值 value 时, 推送数据到 Form, 默认: true
+   */
+  public constructor(firstPushValue = true) {
+    super();
+    this._firstPushValue = firstPushValue;
+  }
 
   set value(value: any) {
     this.setValue(value);
@@ -58,7 +68,9 @@ export default class FormInner extends BaseComponent {
     if (this.formAttrs.id) {
       add(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
       add(this.formAttrs.id, "reset", this._resetFieldValue);
-      this.pushValueChange();
+      if (this._firstPushValue) {
+        this.pushValueChange();
+      }
     }
     if (this.formItemAttrs.id) {
       add(
