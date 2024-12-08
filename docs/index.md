@@ -14,7 +14,7 @@ hero:
       link: /usage
     - theme: alt
       text: GitHub
-      link: https://github.com/DvShu/neatui
+      link: https://github.com/DvShu/litos-ui
 
 features:
   - title: 轻量
