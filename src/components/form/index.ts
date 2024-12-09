@@ -1,4 +1,4 @@
-import { formatClass, formatStyle } from "ph-utils/dom";
+import { formatClass, formatStyle, $one } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../util";
 import { random } from "ph-utils";
@@ -33,7 +33,7 @@ export default class Form extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["disabled"];
+    return ["disabled", "label-position"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -42,6 +42,15 @@ export default class Form extends BaseComponent {
       if (val !== this.disabled) {
         emit(this.id, "attributeChanged", name, val, this.id);
         this.disabled = val;
+      }
+    } else if (name === "label-position") {
+      const $form = $one("form", this.root);
+      if ($form) {
+        $form.className = formatClass([
+          "l-form",
+          this.inline ? "l-form-inline" : undefined,
+          `l-form--${newValue}`,
+        ]);
       }
     }
   }
@@ -59,7 +68,6 @@ export default class Form extends BaseComponent {
   }
 
   render() {
-    console.log(this.inline);
     const classStr = formatClass([
       "l-form",
       this.inline ? "l-form-inline" : undefined,
