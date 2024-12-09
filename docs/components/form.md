@@ -13,8 +13,14 @@ regist(Form);
 ## 演示
 
 <script setup>
-  import { onMounted, nextTick } from 'vue';
-  import { $one } from 'ph-utils/dom';
+  import { onMounted, nextTick, onUnmounted } from 'vue';
+  import { $one, on, off } from 'ph-utils/dom';
+
+  function handlePositionChange(e) {
+    const position = e.target.value;
+    const $form = $one('#positionForm');
+    $form.setAttribute('label-position', position);
+  }
 
   onMounted(() => {
     nextTick(() => {
@@ -22,8 +28,16 @@ regist(Form);
       $form.addEventListener('submit', (event) => {
         const $target = event.target;
         console.log($target.getData());
-      })
+      });
+
+      const $positionRadio = $one('#positionRadio');
+      on($positionRadio, 'change', handlePositionChange);
     })
+  });
+
+  onUnmounted(() => {
+    const $positionRadio = $one('#positionRadio');
+    off($positionRadio, 'change', handlePositionChange);
   })
 </script>
 
@@ -121,7 +135,14 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form inner-block label-position="left">
+  <l-form id="positionForm" inner-block>
+    <l-form-item label="LabelPositin">
+      <l-radio value="right" type="button" id="positionRadio">
+        <span radio-value="left">Left</span>
+        <span radio-value="right">Right</span>
+        <span radio-value="top">Top</span>
+      </l-radio>
+    </l-form-item>
     <l-form-item label="用户名">
       <l-input placeholder="请输入用户名" value="张三"></l-input>
     </l-form-item>

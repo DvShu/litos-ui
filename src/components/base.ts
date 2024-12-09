@@ -122,4 +122,8 @@ export default class BaseComponent extends HTMLElement {
   disconnectedCallback() {}
 
   render() {}
+
+  set(attr: string, value: any) {
+    this.attributeChangedCallback(attr, this[attr as "id"], value);
+  }
 }
