@@ -12,6 +12,7 @@ export default class FormInner extends BaseComponent {
   public _value: any = "";
   public _resetValue?: any;
   protected _firstPushValue = true;
+  private _reseting = false;
 
   /**
    *
@@ -155,11 +156,19 @@ export default class FormInner extends BaseComponent {
   protected pushValueChange() {
     const name = this.getName();
     if (this.formAttrs.id && name) {
-      emit(this.formAttrs.id, "valueChange", name, this._value);
+      emit(
+        this.formAttrs.id,
+        "valueChange",
+        name,
+        this._value,
+        !this._reseting
+      );
     }
+    this._reseting = false;
   }
 
   private _resetFieldValue = () => {
+    this._reseting = true;
     this.reset();
   };
 

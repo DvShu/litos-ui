@@ -83,13 +83,13 @@ export default class Form extends BaseComponent {
     this.validator.addSchema(schema);
   };
 
-  _valueChange = (name: string, value: any) => {
+  _valueChange = (name: string, value: any, valid = true) => {
     if (this._data == null) {
       this._data = {};
     }
     const needValid = Object.hasOwn(this._data, name);
     this._data[name] = value;
-    if (!this.novalidate && needValid) {
+    if (!this.novalidate && needValid && valid) {
       this.validator
         .validateKey(name, value, this._data)
         .then(() => {
@@ -137,6 +137,7 @@ export default class Form extends BaseComponent {
   }
 
   public reset() {
+    this.clearValidate();
     emit(this.id, "reset");
   }
 
