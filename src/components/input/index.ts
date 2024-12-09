@@ -210,10 +210,17 @@ export default class Input extends FormInner {
     result: true | Record<string, string>,
     name?: string
   ) => {
-    const error = result === true ? false : result[this.name as string] == null;
-    if (name == null || (name === this.getName() && this.error != error)) {
-      this.error = error;
-      this._updateError();
+    const thisName = this.getName() as string;
+    if (thisName) {
+      const error = result === true ? false : result[thisName] != null;
+      if (name == null || (name === thisName && this.error != error)) {
+        this.error = error;
+        this._updateError();
+      }
+      const keys = Object.keys(result);
+      if (keys[0] === thisName) {
+        this.focus();
+      }
     }
   };
 }

@@ -12,16 +12,6 @@ regist(Radio);
 
 ## 演示
 
-<script setup>
-  import { onMounted, nextTick } from 'vue';
-  import { $one } from 'ph-utils/dom';
-
-  onMounted(() => {
-    nextTick(() => {
-    })
-  })
-</script>
-
 ### 基础用法
 
 当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot-label` 来重写选项的文字。

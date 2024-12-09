@@ -1,4 +1,4 @@
-import { initAttr, tagAttr } from "../util";
+import { initAttr, parseAttrValue, tagAttr } from "../util";
 import FormInner from "../form/form_inner";
 import {
   formatClass,
@@ -48,6 +48,28 @@ export default class Radio extends FormInner {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     this._removeEvents();
+  }
+
+  protected attributeChange(
+    name: string,
+    oldValue: string,
+    newValue: string
+  ): void {
+    if (name === "checked") {
+      const value = parseAttrValue(newValue, false, name);
+      this.checked = value;
+      this.value = value;
+      const $radio = $one(".l-radio", this.root);
+      if ($radio) {
+        if (!hasClass($radio, "is-checked")) {
+          addClass($radio, "is-checked");
+          const $inner = $one("input", $radio) as HTMLInputElement;
+          if ($inner) {
+            $inner.checked = true;
+          }
+        }
+      }
+    }
   }
 
   render() {
@@ -173,21 +195,4 @@ export default class Radio extends FormInner {
     }
     this.dispatchEvent(this._changeEvent);
   };
-
-  set(attr: string, value: any): void {
-    if (attr === "checked") {
-      this.checked = value;
-      this.value = value;
-      const $radio = $one(".l-radio", this.root);
-      if ($radio) {
-        if (!hasClass($radio, "is-checked")) {
-          addClass($radio, "is-checked");
-          const $inner = $one("input", $radio) as HTMLInputElement;
-          if ($inner) {
-            $inner.checked = true;
-          }
-        }
-      }
-    }
-  }
 }
