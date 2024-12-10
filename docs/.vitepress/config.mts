@@ -82,6 +82,7 @@ export default defineConfig({
         text: "表单",
         collapsed: true,
         items: [
+<<<<<<< HEAD
           {
             text: "Button 按钮",
             link: "/components/button",
@@ -98,14 +99,22 @@ export default defineConfig({
             text: "Form 表单",
             link: "/components/form",
           },
+=======
+          { text: "Button 按钮", link: "/components/button" },
+          { text: "Input", link: "/components/input" },
+>>>>>>> d28da02 (CI: 组件生成命令)
         ],
       },
       {
         text: "数据展示",
         collapsed: true,
+<<<<<<< HEAD
         items: [
           /* TemplateItem */
         ],
+=======
+        items: [],
+>>>>>>> d28da02 (CI: 组件生成命令)
       },
       {
         text: "反馈",

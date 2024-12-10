@@ -21,8 +21,15 @@ export default class Button extends BaseComponent {
   public htmlType: "submit" | "reset" | "button" = "button";
   constructor() {
     super();
+<<<<<<< HEAD
     initAttr(this);
     this.loadExternalStyle(["animation"]);
+=======
+    //@ts-ignore
+    import("../styles/animation.css?inline").then((res) => {
+      this.createStyle(res.default);
+    });
+>>>>>>> d28da02 (CI: 组件生成命令)
   }
 
   // 初始化属性观察器
@@ -36,6 +43,10 @@ export default class Button extends BaseComponent {
     if ($btn) {
       if (name === "loading") {
         const loading = parseAttrValue(newValue, false, name);
+<<<<<<< HEAD
+=======
+        const $btn = $one(".l-btn", this.shadow as any) as HTMLButtonElement;
+>>>>>>> d28da02 (CI: 组件生成命令)
         if (loading) {
           addClass($btn, "l-btn-loading");
           $btn.disabled = true;
