@@ -74,7 +74,11 @@ export function parseAttrValue(
   defaultValue: any,
   key?: string
 ): any {
+<<<<<<< HEAD
   if (value == null) return defaultValue;
+=======
+  if (!value) return defaultValue;
+>>>>>>> d28da02 (CI: 组件生成命令)
   const type = typeof defaultValue;
   switch (type) {
     case "boolean":
@@ -95,6 +99,7 @@ export function initAttr(el: HTMLElement) {
   const attrs = el.attributes;
   for (const item of attrs) {
     const { name, value } = item;
+<<<<<<< HEAD
     if (
       name.startsWith("data-") ||
       name.startsWith("aria-") ||
@@ -131,3 +136,9 @@ export function tagAttr(attr: string, value: string | undefined | boolean) {
   }
   return res;
 }
+=======
+    const parsedValue = parseAttrValue(value, (el as any)[name], name);
+    (el as any)[name] = parsedValue;
+  }
+}
+>>>>>>> d28da02 (CI: 组件生成命令)
