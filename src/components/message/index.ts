@@ -111,7 +111,7 @@ const Message: MessageInstance = ((option: string | MessageOption) => {
   const $msg = renderBody(props);
   instances.push($msg);
   document.body.appendChild($msg);
-  startTransition($msg, transitionSheet);
+  startTransition($msg, transitionSheet, "0.3s");
   let duration = props.duration;
   if (duration == null) {
     duration = 3000;
