@@ -1,7 +1,11 @@
 {
   "name": "litos-ui",
   "description": "基于 Web Component 的 UI 组件库",
+<<<<<<< HEAD
   "version": "0.1.0",
+=======
+  "version": "0.0.3",
+>>>>>>> 2d097b3 (CI: 组件生成命令)
   "type": "module",
   "scripts": {
     "docs:dev": "vitepress dev docs",
@@ -10,10 +14,14 @@
     "inspect:eslint": "eslint --inspect-config",
     "new_version": "node scripts/version.js",
     "create": "node scripts/index.js create",
+<<<<<<< HEAD
     "source:build": "vite build",
     "iife:build": "vite build -c vite_iife.config.ts --mode browser",
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
     "lib:build": "pnpm source:build && pnpm dts:build && pnpm iife:build"
+=======
+    "type:build": "tsc -p tsconfig.build.json"
+>>>>>>> 2d097b3 (CI: 组件生成命令)
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",

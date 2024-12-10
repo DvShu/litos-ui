@@ -115,6 +115,8 @@ regist(Input);
 <!-- prettier-ignore -->
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
+
+<<<<<<< HEAD
 | `html-type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
 | `placeholder` | 占位文本 | `string` | - |
 | `allow-input` | 允许输入的值; `number`、`integer`,前面包含 `-` 表明允许负数, 以 `.2` 结尾表明小数点后精度 | `string` | - |
@@ -126,3 +128,22 @@ regist(Input);
 | --- | --- | --- |
 | `setParser` | 设置输入解析 | `(parser: (val: string) => string): void` |
 | `focus` | 聚焦 | `(): void` |
+
+=======
+| x | x | x | x |
+
+### Input Slots
+
+<!-- prettier-ignore -->
+| 名称 | 说明 |
+| --- | --- |
+| `default` | 内容 |
+
+### 样式变量
+
+<!-- prettier-ignore -->
+| 名称 | 描述 | 默认值 |
+| --- | --- | --- |
+| `--l-btn-text-color` | 按钮的文字颜色 | `rgba(0, 0, 0, 0.65)` |
+
+> > > > > > > 2d097b3 (CI: 组件生成命令)
