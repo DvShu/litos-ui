@@ -16,6 +16,7 @@ export default class Form extends BaseComponent {
   public disabled: boolean = false;
   public sharedAttrs: string[] = ["disabled", "id"];
   public validator: Validator;
+  private _data?: Record<string, any>;
 
   constructor() {
     super();
@@ -70,6 +71,20 @@ export default class Form extends BaseComponent {
   };
 
   _valueChange = (name: string, value: any) => {
-    console.log(name, value);
+    if (this._data == null) {
+      this._data = {};
+    }
+    const needValid = Object.hasOwn(this._data, name);
+    this._data[name] = value;
+    if (needValid) {
+      this.validator
+        .validateKey(name, value, this._data)
+        .then((res) => {
+          emit(this.id, "validateChange", true, name);
+        })
+        .catch((err) => {
+          emit(this.id, "validateChange", err.detail, name);
+        });
+    }
   };
 }

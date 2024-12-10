@@ -1,8 +1,8 @@
-import { formatClass, $one } from "ph-utils/dom";
+import { formatClass, $one, addClass, removeClass } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../";
 import type Form from "./index";
 import BaseComponent from "../base";
-import { emit, clear } from "./form_events";
+import { emit, clear, add } from "./form_events";
 import { random } from "ph-utils";
 import type { RuleType } from "ph-utils/validator";
 
@@ -72,6 +72,7 @@ export default class FormItem extends BaseComponent {
         rules: rules,
       };
       emit(this.formId, "ruleChange", schema);
+      add(this.formId, "validateChange", this._validateChange);
     }
   }
 
@@ -117,9 +118,27 @@ export default class FormItem extends BaseComponent {
     ].join("");
   }
 
+  private _validateChange = (
+    result: true | Record<string, string>,
+    name?: string
+  ) => {
+    if (result === true) {
+      if (name == null || (name === this.name && this.error)) {
+        this.error = undefined;
+        this._updateError();
+      }
+    } else {
+      const error = result[this.name as string] as string;
+      if (this.error !== error) {
+        this.error = error;
+        this._updateError();
+      }
+    }
+  };
+
   private _updateError() {
     if (!this.rendered) return;
-    let $error = $one(".l-form-item__error", this);
+    let $error = $one(".l-form-item__error", this.root);
     if ($error) {
       if (this.error) {
         $error.textContent = this.error;
@@ -131,23 +150,31 @@ export default class FormItem extends BaseComponent {
         $error = document.createElement("div");
         $error.className = "l-form-item__error";
         $error.textContent = this.error;
-        const $parent = $one(".l-form-item__content", this);
+        const $parent = $one(".l-form-item__content", this.root);
         if ($parent) {
           $parent.appendChild($error);
         }
+      }
+    }
+    const $root = $one(".l-form-item", this.root);
+    if ($root) {
+      if (this.error) {
+        addClass($root, "is-error");
+      } else {
+        removeClass($root, "is-error");
       }
     }
   }
 
   private _updateLabel() {
     if (!this.rendered) return;
-    let $label = $one(".l-form-item__label", this);
+    let $label = $one(".l-form-item__label", this.root);
     if ($label == null) {
       if (this.label != null) {
         $label = document.createElement("div");
         $label.className = "l-form-item__label";
         $label.textContent = this.label;
-        const $main = $one(".l-form-item", this);
+        const $main = $one(".l-form-item", this.root);
         if ($main) {
           $main.appendChild($label);
         }

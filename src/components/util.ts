@@ -111,7 +111,7 @@ export function initAttr(el: HTMLElement) {
     const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
     (el as any)[attrName] = parsedValue;
     if (name === "value") {
-      (el as any).resetValue = parsedValue;
+      (el as any)._resetValue = parsedValue;
     }
   }
 }
