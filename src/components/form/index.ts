@@ -10,12 +10,12 @@ export default class Form extends BaseComponent {
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";
   public labelWidth?: string;
-  public formId: string;
+  public id: string;
   public disabled: boolean = false;
-  public sharedAttrs: string[] = ["disabled", "formId"];
+  public sharedAttrs: string[] = ["disabled", "id"];
   constructor() {
     super();
-    this.formId = `l-f${random(3)}-${random(6)}`;
+    this.id = `l-f${random(3)}-${random(6)}`;
     initAttr(this);
   }
 
@@ -27,7 +27,7 @@ export default class Form extends BaseComponent {
     if (name === "disabled") {
       const val = parseAttrValue(newValue, false, name);
       if (val !== this.disabled) {
-        emit(this.formId, "attributeChanged", "form", name, val, this.disabled);
+        emit(this.id, "attributeChanged", name, val, this.id);
         this.disabled = val;
       }
     }

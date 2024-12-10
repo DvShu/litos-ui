@@ -34,7 +34,7 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-form id="form1" disabled>
+  <l-form disabled>
     <l-input></l-input>
   </l-form>
 </textarea>
@@ -53,7 +53,7 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form-item>
+  <l-form-item id="form1" label="姓名">
     <l-input placeholder="请输入文本"></l-input>
   </l-form-item>
 </textarea>

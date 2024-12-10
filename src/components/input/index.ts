@@ -58,10 +58,17 @@ export default class Input extends BaseComponent {
     const formInfo = this._getForm();
     this.formAttrs = formInfo.formAttr;
     this.formItemAttrs = formInfo.formItemAttr;
+    this.attributeChangedHandler = this._formAttributeChanged.bind(this);
     if (this.formAttrs.formId) {
-      this.attributeChangedHandler = this._formAttributeChanged.bind(this);
       add(
         this.formAttrs.formId,
+        "attributeChanged",
+        this.attributeChangedHandler
+      );
+    }
+    if (this.formItemAttrs.formItemId) {
+      add(
+        this.formItemAttrs.formItemId,
         "attributeChanged",
         this.attributeChangedHandler
       );
@@ -74,6 +81,11 @@ export default class Input extends BaseComponent {
     if (this.attributeChangedHandler != null) {
       remove(
         this.formAttrs.formId,
+        "attributeChanged",
+        this.attributeChangedHandler
+      );
+      remove(
+        this.formItemAttrs.formItemId,
         "attributeChanged",
         this.attributeChangedHandler
       );
@@ -136,12 +148,8 @@ export default class Input extends BaseComponent {
     return this.disabled;
   }
 
-  private _formAttributeChanged(
-    flag: "form" | "formItem",
-    name: string,
-    value: string
-  ) {
-    if (flag === "form") {
+  private _formAttributeChanged(name: string, value: string, id: string) {
+    if (id === this.formAttrs.formId) {
       this.formAttrs[name] = value;
     } else {
       this.formItemAttrs[name] = value;

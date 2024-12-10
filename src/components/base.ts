@@ -2,6 +2,7 @@ import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
   public static baseName: string = "base-component";
+  public rendered: boolean = false;
   public constructor(shadow = true) {
     super();
     if (shadow) {
@@ -119,6 +120,7 @@ export default class BaseComponent extends HTMLElement {
 
   connectedCallback() {
     this.render();
+    this.rendered = true;
   }
 
   disconnectedCallback() {}
