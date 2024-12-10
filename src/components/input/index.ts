@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import {
   formatClass,
   $one,
@@ -41,20 +40,10 @@ export default class Input extends FormInner {
   public block = false;
   public error = false;
   private $input: HTMLInputElement | undefined = undefined;
-=======
-import BaseComponent from "../base";
-import { initAttr } from "../util";
-
-export default class Input extends BaseComponent {
-  public static tagName: string = "input";
-  public a: number = 0;
-  private _b: number = 0;
->>>>>>> d28da02 (CI: 组件生成命令)
 
   constructor() {
     super();
     initAttr(this);
-<<<<<<< HEAD
   }
 
   set value(value: any) {
@@ -234,16 +223,4 @@ export default class Input extends BaseComponent {
       }
     }
   };
-=======
-
-    console.log(this.a);
-  }
-
-  connectedCallback(): void {
-    this.loadStyle(["input"]);
-    super.connectedCallback();
-  }
-
-  render() {}
->>>>>>> d28da02 (CI: 组件生成命令)
 }
