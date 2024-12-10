@@ -104,6 +104,10 @@ export default defineConfig({
         text: "数据展示",
         collapsed: true,
         items: [
+          {
+            text: "List 滚动列表",
+            link: "/components/list",
+          },
           /* TemplateItem */
         ],
       },

@@ -14,8 +14,8 @@ function sourceTemplate(name, sname) {
     "    initAttr(this);",
     "  }",
     "  connectedCallback(): void {",
-    "    super.connectedCallback();",
     `    this.loadStyle(["${sname}"]);`,
+    "    super.connectedCallback();",
     "  }",
     "  render() {}",
     "}",
@@ -120,8 +120,8 @@ function createComponentTemplate(name) {
       configContent = configContent.replace(
         "/* TemplateItem */",
         `{
-            text: "Radio",
-            link: "/components/radio",
+            text: "${name}",
+            link: "/components/${sName}",
           },
           /* TemplateItem */`
       );
@@ -135,9 +135,9 @@ function createComponentTemplate(name) {
     .then((content) => {
       content = content.replace(
         "//Web Components Import",
-        `import ${name} from "./${sName}";\n//Web Components Import\nregist(${name})\n`
+        `import ${name} from "./${sName}";\n//Web Components Import\nregist(${name})`
       );
-      content = content.trim() + `\nimport "./${sName}/index.css";\n`;
+      content = content.trim() + `\nimport "./${sName}/index.less";\n`;
       return write(iifePath, content);
     })
     .then();

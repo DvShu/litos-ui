@@ -1,5 +1,5 @@
 import { useId, regist } from "../util";
-import { startTransition, endTransition } from "ph-utils/dom";
+import { endTransition, startTransition } from "ph-utils/dom";
 import MaskClose from "../icon/mask_close";
 import Success from "../icon/success";
 import Warn from "../icon/warn";
@@ -111,7 +111,7 @@ const Message: MessageInstance = ((option: string | MessageOption) => {
   const $msg = renderBody(props);
   instances.push($msg);
   document.body.appendChild($msg);
-  startTransition($msg, transitionSheet, "0.3s");
+  startTransition($msg, transitionSheet, null);
   let duration = props.duration;
   if (duration == null) {
     duration = 3000;

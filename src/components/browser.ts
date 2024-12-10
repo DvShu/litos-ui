@@ -13,7 +13,10 @@ import Message from "./message";
 import Form from "./form";
 import FormItem from "./form/form_item";
 import Radio from "./radio";
+import List from "./list";
 //Web Components Import
+regist(List);
+
 regist(Radio);
 regist(Form);
 regist(FormItem);
@@ -53,3 +56,4 @@ import "./icon/index.less";
 import "./input/index.less";
 import "./form/index.less";
 import "./radio/index.less";
+import "./list/index.less";
