@@ -14,3 +14,4 @@ export { default as LoadingIcon } from "./icon/loading";
 export { default as SearchIcon } from "./icon/search";
 
 export { default as Form } from "./form";
+export { default as FormItem } from './form/form_item'

@@ -11,8 +11,10 @@ import LoadingIcon from "./icon/loading";
 import SearchIcon from "./icon/search";
 import Message from "./message";
 import Form from "./form";
+import FormItem from "./form/form_item";
 //Web Components Import
 regist(Form);
+regist(FormItem);
 regist(Button);
 regist(Input);
 regist(BaseIcon);

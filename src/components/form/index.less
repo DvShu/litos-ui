@@ -1,0 +1,87 @@
+.l-form {
+  display: grid;
+  grid-template-columns: var(--l-form-label-width, auto) 1fr;
+  row-gap: 20px;
+}
+.l-form-item {
+  --l-input-width: 100%;
+  display: flex;
+  font-size: 14px;
+}
+.l-form .l-form-item {
+  display: contents;
+}
+.l-form-item__label {
+  text-align: right;
+  display: inline-block;
+  width: var(--l-form-label-width, auto);
+  height: var(--l-form-edit-height, 32px);
+  line-height: var(--l-form-edit-height, 32px);
+  color: #606266;
+  padding: 0 10px 0 0;
+}
+.l-form-item.is-required .l-form-item__label::before {
+  content: "*";
+  margin-right: 4px;
+  color: var(--l-warn-color, #f56c6c);
+  vertical-align: middle;
+}
+.l-form-item__content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.l-form-item__error {
+  font-size: 12px;
+  line-height: 1;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  color: var(--l-error-color, #ed3f13);
+  padding-top: 3px;
+  padding-left: 5px;
+}
+l-input::part(default) {
+  border: 1px solid red;
+}
+.l-form-item.is-error {
+  --l-border-color: var(--l-error-color, #ed3f13);
+}
+.l-form-item.is-error l-input::part(default),
+.l-form-item.is-error .l-md-input .l-md-input__inner {
+  border-color: var(--l-error-color, #ed3f13);
+}
+.l-form-item .l-md-input,
+.l-form-item .l-input {
+  width: 100%;
+}
+
+.l-form--left .l-form-item__label {
+  text-align: left;
+}
+.l-form--top {
+  grid-template-columns: 1fr;
+}
+.l-form--top .l-form-item {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+.l-form--top .l-form-item__label {
+  text-align: left;
+}
+.l-form--top .l-form-item__label:empty {
+  display: none;
+}
+
+/** 行内表单 */
+.l-form-inline {
+  display: flex;
+  gap: 20px;
+  flex-flow: row wrap;
+}
+
+.l-form-inline .l-form-item {
+  display: inline-flex;
+  vertical-align: middle;
+}

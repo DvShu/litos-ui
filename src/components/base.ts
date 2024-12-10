@@ -17,11 +17,18 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  // eslint-disable-next-line
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {}
+  attributeChangedCallback(
+    _name: string,
+    _oldValue: string,
+    _newValue: string
+  ) {}
 
   get shadow() {
     return this.shadowRoot as ShadowRoot;
+  }
+
+  get root(): ShadowRoot | HTMLElement {
+    return this.shadowRoot || this;
   }
 
   public createStyle(text: string) {
@@ -42,7 +49,7 @@ export default class BaseComponent extends HTMLElement {
     if (import.meta.env.MODE !== "browser") {
       for (let i = 0, len = styleNames.length; i < len; i++) {
         const styleName = styleNames[i];
-        import(`./${styleName}/index.css?inline`).then((res) => {
+        import(`./${styleName}/index.less?inline`).then((res) => {
           this.createStyle(res.default);
         });
       }
@@ -73,6 +80,10 @@ export default class BaseComponent extends HTMLElement {
         });
       }
     }
+  }
+
+  public loadStyleText(styleText: string) {
+    this.createStyle(styleText);
   }
 
   public setProperty(key: string, value: any) {
