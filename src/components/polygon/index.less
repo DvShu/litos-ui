@@ -1,0 +1,71 @@
+.l-polygon {
+  --l-polygen-size: 10px;
+  --l-polygen-width: var(--l-polygen-size);
+  --l-polygen-height: var(--l-polygen-size);
+  --l-polygen-background: #666;
+  display: inline-block;
+  width: var(--l-polygen-width);
+  height: var(--l-polygen-height);
+  background: var(--l-polygen-background);
+  transition: background 0.3s ease-in-out;
+}
+
+.l-polygon-triangle-top {
+  clip-path: polygon(
+    calc(var(--l-polygen-width) / 2) 0,
+    var(--l-polygen-width) var(--l-polygen-height),
+    0 var(--l-polygen-height)
+  );
+}
+
+.l-polygon-triangle-top-left {
+  clip-path: polygon(0 0, var(--l-polygen-width) 0, 0 var(--l-polygen-height));
+}
+
+.l-polygon-triangle-top-right {
+  clip-path: polygon(
+    0 0,
+    var(--l-polygen-width) 0,
+    var(--l-polygen-width) var(--l-polygen-height)
+  );
+}
+
+.l-polygon-triangle-right {
+  clip-path: polygon(
+    0 0,
+    var(--l-polygen-width) calc(var(--l-polygen-height) / 2),
+    0 var(--l-polygen-height)
+  );
+}
+
+.l-polygon-triangle-left {
+  clip-path: polygon(
+    var(--l-polygen-width) 0,
+    var(--l-polygen-width) var(--l-polygen-height),
+    0 calc(var(--l-polygen-height) / 2)
+  );
+}
+
+.l-polygon-triangle-bottom {
+  clip-path: polygon(
+    0 0,
+    var(--l-polygen-width) 0,
+    calc(var(--l-polygen-width) / 2) var(--l-polygen-height)
+  );
+}
+
+.l-polygon-triangle-bottom-left {
+  clip-path: polygon(
+    0 0,
+    0 var(--l-polygen-height),
+    var(--l-polygen-width) var(--l-polygen-height)
+  );
+}
+
+.l-polygon-triangle-bottom-right {
+  clip-path: polygon(
+    var(--l-polygen-width) 0,
+    var(--l-polygen-width) var(--l-polygen-height),
+    0 var(--l-polygen-height)
+  );
+}

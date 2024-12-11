@@ -120,3 +120,28 @@ l-button[type="gradient"]::part(default) {
   --l-btn-hover-background: linear-gradient(90deg, #2af06a 0%, #fbf478 100%);
   --l-btn-active-background: linear-gradient(90deg, #0a9036 0%, #ece008 100%);
 }
+
+.mt-15 {
+  margin-top: 15px;
+}
+
+.grid {
+  display: grid;
+}
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.flex-col {
+  flex-flow: column nowrap;
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.grid-cols-5 {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+.grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}

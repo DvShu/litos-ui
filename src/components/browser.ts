@@ -14,7 +14,9 @@ import Form from "./form";
 import FormItem from "./form/form_item";
 import Radio from "./radio";
 import List from "./list";
+import Polygon from "./polygon";
 //Web Components Import
+regist(Polygon)
 regist(List);
 
 regist(Radio);
@@ -57,3 +59,4 @@ import "./input/index.less";
 import "./form/index.less";
 import "./radio/index.less";
 import "./list/index.less";
+import "./polygon/index.less";
