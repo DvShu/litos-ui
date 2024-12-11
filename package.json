@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.10.2",
     "eslint": "^9.16.0",
     "globals": "^15.13.0",
     "less": "^4.2.1",
@@ -62,7 +62,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ph-utils": "^0.11.4",
-    "shiki": "^1.24.1"
+    "ph-utils": "^0.11.5",
+    "shiki": "^1.24.2"
   }
 }
