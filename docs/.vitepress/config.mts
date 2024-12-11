@@ -76,6 +76,10 @@ export default defineConfig({
             text: "Icon 图标",
             link: "/components/icon",
           },
+          {
+            text: "Polygon 多边形",
+            link: "/components/polygon",
+          },
         ],
       },
       {

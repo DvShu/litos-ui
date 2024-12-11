@@ -38,7 +38,7 @@ function docsTemplate(name, sname) {
     "<ClientOnly>",
     "<l-code-preview>",
     '<textarea lang="html">',
-    ` <l-${sname}></l-${sname}>`,
+    `  <l-${sname}></l-${sname}>`,
     "</textarea>",
     '<div class="source">',
     '<textarea lang="html">',
