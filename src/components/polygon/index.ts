@@ -5,7 +5,15 @@ import { initAttr } from "../util";
 export default class Polygon extends BaseComponent {
   public static baseName = "polygon";
 
-  public shape = "triangle-top";
+  public shape:
+    | "triangle-top"
+    | "triangle-bottom"
+    | "triangle-left"
+    | "triangle-right"
+    | "triangle-top-right"
+    | "triangle-top-left"
+    | "triangle-bottom-right"
+    | "triangle-bottom-left" = "triangle-top";
   public background?: string;
 
   constructor() {
@@ -24,6 +32,6 @@ export default class Polygon extends BaseComponent {
     const styleStr = formatStyle([
       this.background ? `--l-polygen-background: ${this.background}` : "",
     ]);
-    this.root.innerHTML = `<div class="${classStr}" style="${styleStr}"></div>`;
+    this.root.innerHTML = `<div part="default" class="${classStr}" style="${styleStr}"></div>`;
   }
 }
