@@ -131,3 +131,23 @@ export function tagAttr(attr: string, value: string | undefined | boolean) {
   }
   return res;
 }
+
+export function tagAttrs(attr: [string, string | undefined | boolean][]) {
+  const res = attr.map((item) => tagAttr(item[0], item[1]));
+  return res.join("");
+}
+
+export function setAttrs(
+  el: HTMLElement,
+  attrs: [string, string | undefined | boolean][]
+) {
+  for (const attr of attrs) {
+    const value = attr[1];
+    const key = attr[0];
+    if (value === true) {
+      el.setAttribute(key, "");
+    } else if (typeof value === "string" && !isBlank(value)) {
+      el.setAttribute(key, value);
+    }
+  }
+}

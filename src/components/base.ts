@@ -1,4 +1,4 @@
-import { getAttr } from "ph-utils/dom";
+import { $, getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
   public static baseName: string = "base-component";
@@ -31,14 +31,14 @@ export default class BaseComponent extends HTMLElement {
   public createStyle(text: string) {
     const style = document.createElement("style");
     style.textContent = text.trim();
-    this.shadow.appendChild(style);
+    this.root.appendChild(style);
   }
 
   public createLink(href: string) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = href;
-    this.shadow.appendChild(link);
+    this.root.appendChild(link);
   }
 
   loadStyle(styleNames: string[]) {
@@ -83,16 +83,6 @@ export default class BaseComponent extends HTMLElement {
     this.createStyle(styleText);
   }
 
-  public setProperty(key: string, value: any) {
-    (this as any)[key] = value;
-  }
-
-  public setProperties(properties: Record<string, any>) {
-    for (const key in properties) {
-      this.setProperty(key, properties[key]);
-    }
-  }
-
   /**
    * 获取属性值
    * @param key 属性名称
@@ -114,12 +104,28 @@ export default class BaseComponent extends HTMLElement {
     return getAttr(this, key, defaultValue as any);
   }
 
+  public appendToRoot(el?: HTMLElement | HTMLElement[] | string) {
+    console.log(el);
+    if (el) {
+      if (typeof el === "string") {
+        let $tmp = document.createElement("div");
+        $tmp.innerHTML = el;
+        this.root.append(...$tmp.children);
+        $tmp = undefined as any;
+      } else if (el instanceof HTMLElement) {
+        this.root.append(el);
+      } else {
+        this.root.append(...el);
+      }
+    }
+  }
+
   connectedCallback() {
-    this.render();
+    this.appendToRoot(this.render() as any);
     this.rendered = true;
   }
 
   disconnectedCallback() {}
 
-  render() {}
+  render(): void | string | HTMLElement | HTMLElement[] {}
 }

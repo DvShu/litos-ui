@@ -99,6 +99,14 @@ export default defineConfig({
             link: "/components/radio",
           },
           {
+            text: "SelectOri 下拉框",
+            link: "/components/select_ori",
+          },
+          {
+            text: "Switch 开关",
+            link: "/components/switch",
+          },
+          {
             text: "Form 表单",
             link: "/components/form",
           },
