@@ -9,6 +9,8 @@ import CaretBottomIcon from "./icon/caret_bottom";
 import FontIcon from "./icon/font_icon";
 import LoadingIcon from "./icon/loading";
 import SearchIcon from "./icon/search";
+import SunIcon from "./icon/sun";
+import MoonIcon from "./icon/moon";
 import Message from "./message";
 import Form from "./form";
 import FormItem from "./form/form_item";
@@ -18,8 +20,8 @@ import Polygon from "./polygon";
 import SelectOri from "./select_ori";
 import Switch from "./switch";
 //Web Components Import
-regist(Switch)
-regist(SelectOri)
+regist(Switch);
+regist(SelectOri);
 regist(Polygon);
 regist(List);
 regist(Radio);
@@ -34,6 +36,8 @@ regist(CaretBottomIcon);
 regist(FontIcon);
 regist(LoadingIcon);
 regist(SearchIcon);
+regist(SunIcon);
+regist(MoonIcon);
 
 // @ts-expect-error x
 globalThis.LMessage = Message;

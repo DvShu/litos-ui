@@ -105,7 +105,6 @@ export default class BaseComponent extends HTMLElement {
   }
 
   public appendToRoot(el?: HTMLElement | HTMLElement[] | string) {
-    console.log(el);
     if (el) {
       if (typeof el === "string") {
         let $tmp = document.createElement("div");
