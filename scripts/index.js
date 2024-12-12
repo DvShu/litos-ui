@@ -1,20 +1,21 @@
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { write } from "ph-utils/file";
+import { snakeCaseStyle } from "ph-utils";
 import { styleText } from "node:util";
 
-function sourceTemplate(name, sname) {
+function sourceTemplate(name, componentName, fileName) {
   const res = [
     'import BaseComponent from "../base"',
     'import { initAttr } from "../util";\r\n',
     `export default class ${name} extends BaseComponent {`,
-    `  public static baseName = "${sname}";`,
+    `  public static baseName = "${componentName}";`,
     "  constructor() {",
     "    super();",
     "    initAttr(this);",
     "  }",
     "  connectedCallback(): void {",
-    `    this.loadStyle(["${sname}"]);`,
+    `    this.loadStyle(["${fileName}"]);`,
     "    super.connectedCallback();",
     "  }",
     "  render() {}",
@@ -23,7 +24,7 @@ function sourceTemplate(name, sname) {
   return res.join("\r\n");
 }
 
-function docsTemplate(name, sname) {
+function docsTemplate(name, componentName) {
   const res = [
     `# ${name}\r\n`,
     `${name}\r\n`,
@@ -38,11 +39,11 @@ function docsTemplate(name, sname) {
     "<ClientOnly>",
     "<l-code-preview>",
     '<textarea lang="html">',
-    `  <l-${sname}></l-${sname}>`,
+    `  <l-${componentName}></l-${componentName}>`,
     "</textarea>",
     '<div class="source">',
     '<textarea lang="html">',
-    `  <l-${sname}></l-${sname}>`,
+    `  <l-${componentName}></l-${componentName}>`,
     "</textarea>",
     "</div>",
     "</l-code-preview>",
@@ -80,12 +81,13 @@ function docsTemplate(name, sname) {
 function createComponentTemplate(name) {
   console.log(styleText("blue", "开始创建组件模板..."));
 
-  const sName = name[0].toLowerCase() + name.slice(1);
+  const componetName = snakeCaseStyle(name, "-");
+  const fileName = snakeCaseStyle(name, "_");
 
   const cwd = process.cwd();
   const compoentsPath = path.join(cwd, "src/components");
   // 创建源码目录
-  const sourcePath = path.join(compoentsPath, sName);
+  const sourcePath = path.join(compoentsPath, fileName);
   mkdir(sourcePath)
     .then(() => {
       write(
@@ -94,7 +96,7 @@ function createComponentTemplate(name) {
       ).then();
       write(
         path.join(sourcePath, "index.ts"),
-        sourceTemplate(name, sName)
+        sourceTemplate(name, componetName, fileName)
       ).then();
     })
     .catch(() => {
@@ -102,14 +104,14 @@ function createComponentTemplate(name) {
     });
 
   // 文档
-  const docsPath = path.join(cwd, "docs/components", `${sName}.md`);
-  write(docsPath, docsTemplate(name, sName)).then();
+  const docsPath = path.join(cwd, "docs/components", `${fileName}.md`);
+  write(docsPath, docsTemplate(name, componetName)).then();
 
   // 增加导出
   const exportPath = path.join(compoentsPath, "index.ts");
   readFile(exportPath, "utf-8")
     .then((content) => {
-      content += `\r\nexport { default as ${name} } from "./${sName}";\r\n`;
+      content += `\r\nexport { default as ${name} } from "./${fileName}";\r\n`;
       return write(exportPath, content);
     })
     .then();
@@ -121,7 +123,7 @@ function createComponentTemplate(name) {
         "/* TemplateItem */",
         `{
             text: "${name}",
-            link: "/components/${sName}",
+            link: "/components/${fileName}",
           },
           /* TemplateItem */`
       );
@@ -135,9 +137,9 @@ function createComponentTemplate(name) {
     .then((content) => {
       content = content.replace(
         "//Web Components Import",
-        `import ${name} from "./${sName}";\n//Web Components Import\nregist(${name})`
+        `import ${name} from "./${fileName}";\n//Web Components Import\nregist(${name})`
       );
-      content = content.trim() + `\nimport "./${sName}/index.less";\n`;
+      content = content.trim() + `\nimport "./${fileName}/index.less";\n`;
       return write(iifePath, content);
     })
     .then();

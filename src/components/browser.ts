@@ -15,10 +15,13 @@ import FormItem from "./form/form_item";
 import Radio from "./radio";
 import List from "./list";
 import Polygon from "./polygon";
+import SelectOri from "./select_ori";
+import Switch from "./switch";
 //Web Components Import
-regist(Polygon)
+regist(Switch)
+regist(SelectOri)
+regist(Polygon);
 regist(List);
-
 regist(Radio);
 regist(Form);
 regist(FormItem);
@@ -60,3 +63,5 @@ import "./form/index.less";
 import "./radio/index.less";
 import "./list/index.less";
 import "./polygon/index.less";
+import "./select_ori/index.less";
+import "./switch/index.less";

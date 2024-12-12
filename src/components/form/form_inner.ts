@@ -80,7 +80,7 @@ export default class FormInner extends BaseComponent {
         this._formAttributeChanged
       );
     }
-    this.render();
+    super.connectedCallback();
   }
 
   disconnectedCallback(): void {

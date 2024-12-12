@@ -19,3 +19,7 @@ export { default as Input } from "./input";
 export { default as List } from "./list";
 
 export { default as Polygon } from "./polygon";
+
+export { default as SelectOri } from "./select_ori";
+
+export { default as Switch } from "./switch";
