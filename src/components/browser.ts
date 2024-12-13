@@ -19,7 +19,9 @@ import List from "./list";
 import Polygon from "./polygon";
 import SelectOri from "./select_ori";
 import Switch from "./switch";
+import ColorPicker from "./color_picker";
 //Web Components Import
+regist(ColorPicker)
 regist(Switch);
 regist(SelectOri);
 regist(Polygon);
@@ -69,3 +71,4 @@ import "./list/index.less";
 import "./polygon/index.less";
 import "./select_ori/index.less";
 import "./switch/index.less";
+import "./color_picker/index.less";

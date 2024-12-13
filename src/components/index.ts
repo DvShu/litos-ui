@@ -23,3 +23,5 @@ export { default as Switch } from "./switch";
 export { default as List } from "./list";
 
 export { default as Polygon } from "./polygon";
+
+export { default as ColorPicker } from "./color_picker";
