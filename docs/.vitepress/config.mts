@@ -137,6 +137,16 @@ export default defineConfig({
           },
         ],
       },
+      {
+        text: "导航",
+        collapsed: true,
+        items: [
+          {
+            text: "Tabbar 标签栏",
+            link: "/components/tabbar",
+          },
+        ],
+      },
     ],
     socialLinks: [
       {

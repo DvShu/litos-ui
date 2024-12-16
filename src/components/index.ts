@@ -11,6 +11,10 @@ export { default as LoadingIcon } from "./icon/loading";
 export { default as SearchIcon } from "./icon/search";
 export { default as SunIcon } from "./icon/sun";
 export { default as MoonIcon } from "./icon/moon";
+export { default as ReductionIcon } from "./icon/reduction";
+export { default as RefreshLeftIcon } from "./icon/refresh_left";
+export { default as RefreshRightIcon } from "./icon/refresh_right";
+export { default as SortIcon } from "./icon/sort";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";
@@ -25,3 +29,5 @@ export { default as List } from "./list";
 export { default as Polygon } from "./polygon";
 
 export { default as ColorPicker } from "./color_picker";
+
+export { default as Tabbar } from "./tabbar";
