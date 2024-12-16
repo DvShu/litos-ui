@@ -111,10 +111,10 @@ export default class BaseComponent extends HTMLElement {
         $tmp.innerHTML = el;
         this.root.append(...$tmp.children);
         $tmp = undefined as any;
-      } else if (el instanceof HTMLElement) {
-        this.root.append(el);
+      } else if (!(el as any).length) {
+        this.root.append(el as HTMLElement);
       } else {
-        this.root.append(...el);
+        this.root.append(...(el as HTMLElement[]));
       }
     }
   }

@@ -11,6 +11,10 @@ import LoadingIcon from "./icon/loading";
 import SearchIcon from "./icon/search";
 import SunIcon from "./icon/sun";
 import MoonIcon from "./icon/moon";
+import ReductionIcon from "./icon/reduction";
+import RefreshLeftIcon from "./icon/refresh_left";
+import RefreshRightIcon from "./icon/refresh_right";
+import SortIcon from "./icon/sort";
 import Message from "./message";
 import Form from "./form";
 import FormItem from "./form/form_item";
@@ -20,8 +24,10 @@ import Polygon from "./polygon";
 import SelectOri from "./select_ori";
 import Switch from "./switch";
 import ColorPicker from "./color_picker";
+import Tabbar from "./tabbar";
 //Web Components Import
-regist(ColorPicker)
+regist(Tabbar);
+regist(ColorPicker);
 regist(Switch);
 regist(SelectOri);
 regist(Polygon);
@@ -40,6 +46,10 @@ regist(LoadingIcon);
 regist(SearchIcon);
 regist(SunIcon);
 regist(MoonIcon);
+regist(ReductionIcon);
+regist(RefreshLeftIcon);
+regist(RefreshRightIcon);
+regist(SortIcon);
 
 // @ts-expect-error x
 globalThis.LMessage = Message;
@@ -72,3 +82,4 @@ import "./polygon/index.less";
 import "./select_ori/index.less";
 import "./switch/index.less";
 import "./color_picker/index.less";
+import "./tabbar/index.less";
