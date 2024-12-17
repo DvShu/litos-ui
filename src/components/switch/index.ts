@@ -30,7 +30,7 @@ export default class Switch extends FormInner {
     this.pushValueChange();
     this._$root = $one(".l-switch", this.root);
     this._renderAction();
-    on(this._$root, "click", this._handleClick);
+    on(this._$root as HTMLElement, "click", this._handleClick);
   }
 
   disconnectedCallback(): void {

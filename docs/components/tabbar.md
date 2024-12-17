@@ -23,34 +23,45 @@ regist(Tabbar);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-tabbar style="border: 1px solid #dedede">
-    <div l-tabbar-item="">
+  <l-tabbar style="border: 1px solid #dedede" name="Search">
+    <div l-name="Reduction">
       <l-reduction-icon l-icon></l-reduction-icon>
       <span>Reduction</span>
     </div>
-    <div l-tabbar-item>
+    <div l-name="RefreshLieft">
       <l-refresh-left-icon l-icon></l-refresh-left-icon>
       <span>RefreshLieft</span>
     </div>
-    <div l-tabbar-item>
+    <div l-name="Search">
       <l-search-icon l-icon></l-search-icon>
       <span>Search</span>
     </div>
-    <div l-tabbar-item>
+    <div l-name="RefreshRight">
       <l-refresh-right-icon l-icon></l-refresh-right-icon>
       <span>RefreshRight</span>
     </div>
-    <div l-tabbar-item>
+    <div l-name="Sort">
       <l-sort-icon l-icon></l-sort-icon>
       <span>Sort</span>
     </div>
   </l-tabbar>
 </textarea>
-<div class="source">
+</l-code-preview>
+</ClientOnly>
+
+### 选项卡模式
+
+基础的、简洁的选项卡，设置 `type` 为 `bar`。
+
+<ClientOnly>
+<l-code-preview>
 <textarea lang="html">
-  <l-tabbar></l-tabbar>
+  <l-tabbar type="bar" name="2">
+    <span l-name="1">选项1</span>
+    <span l-name="2">选项2</span>
+    <span l-name="3">选项3</span>
+  </l-tabbar>
 </textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 
