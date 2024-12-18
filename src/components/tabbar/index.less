@@ -15,6 +15,7 @@
   flex-wrap: nowrap;
   height: 100%;
   align-items: stretch;
+  gap: var(--l-tabbar-item-gap);
 }
 
 .l-tabbar-item {
@@ -68,9 +69,6 @@
   white-space: nowrap;
 }
 
-:host(.l-tabbar--bar) .l-tabbar-item:not(:first-child) {
-  margin-left: var(--l-tabbar-item-gap);
-}
 .l-tabbar--bar-line {
   position: absolute;
   width: 32px;
@@ -83,39 +81,36 @@
 }
 
 /* card */
-.nt-tabbar--card {
-  --nt-tabbar-card-border-color: #f5f7fa;
-  --nt-tabbar-line-color: #fff;
-  --nt-tabbar-item-gap: 0;
-  --nt-tabbar-card-border-radius: 5px;
+:host(.l-tabbar--card) {
+  --l-tabbar-card-border-color: #f5f7fa;
+  --l-tabbar-line-color: #fff;
+  --l-tabbar-item-gap: 0;
+  --l-tabbar-card-border-radius: 5px;
 }
-.nt-tabbar-card-border {
+.l-tabbar-card-border {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   height: 1px;
-  background-color: var(--nt-tabbar-card-border-color);
+  background-color: var(--l-tabbar-card-border-color);
 }
-.nt-tabbar--card .nt-tabbar-item {
+:host(.l-tabbar--card) .l-tabbar-item {
   padding: 0 15px;
   background: #f5f7fa;
   border: 1px solid #f0f0f0;
 }
 
-.nt-tabbar--card .nt-tabbar-item:first-child {
-  border-top-left-radius: var(--nt-tabbar-card-border-radius);
+:host(.l-tabbar--card) .l-tabbar-item:first-child {
+  border-top-left-radius: var(--l-tabbar-card-border-radius);
 }
-.nt-tabbar--card .nt-tabbar-item:last-child {
-  border-top-right-radius: var(--nt-tabbar-card-border-radius);
+:host(.l-tabbar--card) .l-tabbar-item:last-child {
+  border-top-right-radius: var(--l-tabbar-card-border-radius);
 }
-.nt-tabbar-gap .nt-tabbar-item {
-  border-top-left-radius: var(--nt-tabbar-card-border-radius);
-  border-top-right-radius: var(--nt-tabbar-card-border-radius);
+:host(.l-tabbar-gap) .l-tabbar-item {
+  border-top-left-radius: var(--l-tabbar-card-border-radius);
+  border-top-right-radius: var(--l-tabbar-card-border-radius);
 }
-.nt-tabbar--card .nt-tabbar-item:not(:first-child) {
-  margin-left: var(--nt-tabbar-item-gap);
-}
-.nt-tabbar--card .nt-tabbar-item.active {
+:host(.l-tabbar--card) .l-tabbar-item.active {
   background: #fff;
 }

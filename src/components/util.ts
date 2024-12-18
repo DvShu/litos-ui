@@ -53,7 +53,7 @@ export function hideTransition(el?: string | HTMLElement, remove = false) {
 export function useId() {
   return `${uiConfig.prefix}-${++seed}`;
 }
-
+export function parseAttrValue(value: string, defaultValue?: string): string;
 export function parseAttrValue(
   value: string,
   defaultValue?: boolean,
@@ -64,11 +64,6 @@ export function parseAttrValue(
   defaultValue?: number,
   key?: string
 ): number;
-export function parseAttrValue(
-  value: string,
-  defaultValue: string,
-  key?: string
-): string;
 export function parseAttrValue(
   value: string,
   defaultValue: any,
