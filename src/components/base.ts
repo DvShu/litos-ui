@@ -2,6 +2,7 @@ import { $, getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
   public static baseName: string = "base-component";
+  /** 组件是否渲染完成, 是否已经调用 connectedCallback */
   public rendered: boolean = false;
   public constructor(shadow = true) {
     super();
