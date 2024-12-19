@@ -19,7 +19,7 @@ regist(SelectOri);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select-ori>
+  <l-select-ori value="2">
     <option value="1">选项一</option>
     <option value="2">选项二</option>
     <option value="3">选项三</option>
@@ -35,9 +35,9 @@ regist(SelectOri);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
+| `value` | 选中项绑定值 | `string` | - |
 | `name` | 原生的 `name` 属性 | `string` | - |
 | `disabled` | 是否禁用 | `boolean` | `false` |
-| `value` | 选中项绑定值 | `string` | - |
 
 ### SelectOri Slots
 

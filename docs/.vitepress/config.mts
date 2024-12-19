@@ -80,6 +80,11 @@ export default defineConfig({
             text: "Polygon 多边形",
             link: "/components/polygon",
           },
+
+          {
+            text: "Theme 主题切换",
+            link: "/components/theme",
+          },
         ],
       },
       {

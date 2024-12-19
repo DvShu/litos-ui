@@ -25,7 +25,7 @@ import { add, remove } from "../form/form_events";
  * @method focus - 输入框获取焦点
  */
 export default class Input extends FormInner {
-  public static baseName: string = "input";
+  public static componentName: string = "input";
   /** 原生 input 的 type */
   public type: string = "text";
   public placeholder: string | undefined = undefined;

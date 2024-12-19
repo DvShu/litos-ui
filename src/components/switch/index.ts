@@ -55,6 +55,7 @@ export default class Switch extends FormInner {
         : this.uncheckedText || "";
       $children.push(`<span class="l-switch-text">${text}</span>`);
     }
+    $root.setAttribute("part", "default");
     $root.innerHTML = $children.join("");
     return $root;
   }
