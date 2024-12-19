@@ -32,7 +32,6 @@ export default class BaseIcon extends BaseComponent {
         for (let i = 0, len = $children.length; i < len; i++) {
           const $child = $children[i];
           childrenStr.push($child.outerHTML);
-          $svg.appendChild($child);
         }
         $svg.innerHTML = childrenStr.join("");
       } else {

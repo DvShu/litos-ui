@@ -31,3 +31,5 @@ export { default as Polygon } from "./polygon";
 export { default as ColorPicker } from "./color_picker";
 
 export { default as Tabbar } from "./tabbar";
+
+export { default as Theme } from "./theme";

@@ -20,10 +20,13 @@ export function config(cfg: Partial<UIConfig>) {
  * @param component Web Components 组件
  * @param name 组件名称, 如果不填, 则根据组件的 baseName 生成
  */
-export function regist(component: typeof HTMLElement, name?: string) {
-  const cmName = name || `${uiConfig.prefix}-${(component as any).baseName}`;
-  if (!customElements.get(cmName)) {
-    customElements.define(cmName, component);
+export function regist(component: any | any[], name?: string) {
+  const comts = Array.isArray(component) ? component : [component];
+  for (const comt of comts) {
+    const cmName = name || `${uiConfig.prefix}-${comt.baseName}`;
+    if (!customElements.get(cmName)) {
+      customElements.define(cmName, comt);
+    }
   }
 }
 

@@ -25,7 +25,9 @@ import SelectOri from "./select_ori";
 import Switch from "./switch";
 import ColorPicker from "./color_picker";
 import Tabbar from "./tabbar";
+import Theme from "./theme";
 //Web Components Import
+regist(Theme);
 regist(Tabbar);
 regist(ColorPicker);
 regist(Switch);
@@ -83,3 +85,4 @@ import "./select_ori/index.less";
 import "./switch/index.less";
 import "./color_picker/index.less";
 import "./tabbar/index.less";
+import "./theme_switch/index.less";

@@ -1,0 +1,28 @@
+@import "../styles/component_base.less";
+
+.l-theme-btn {
+  --l-btn-background: transparent;
+  --l-btn-hover-background: transparent;
+  --l-btn-text-color: rgb(156, 163, 175);
+  --l-btn-hover-text-color: #666666;
+}
+
+.l-theme-btn::part(default) {
+  width: var(--l-form-edit-height, 32px);
+  padding: 0;
+  font-size: 18px;
+}
+
+.l-theme-switch::part(default) {
+  background-color: rgba(101, 117, 113, 0.16);
+  border-color: #3c3f44;
+}
+
+.nt-theme-switch.nt-switch--checked .nt-switch-action {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+html.dark .l-theme-btn {
+  --l-btn-hover-text-color: #ffffff;
+}
