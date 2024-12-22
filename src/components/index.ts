@@ -15,6 +15,7 @@ export { default as ReductionIcon } from "./icon/reduction";
 export { default as RefreshLeftIcon } from "./icon/refresh_left";
 export { default as RefreshRightIcon } from "./icon/refresh_right";
 export { default as SortIcon } from "./icon/sort";
+export { default as ThemeDefaultIcon } from "./icon/theme_default";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";

@@ -1,6 +1,6 @@
 @import "../styles/component_base.less";
 
-.l-switch {
+:host {
   --l-switch-height: 22px;
   --l-switch-width: 40px;
   display: inline-flex;
@@ -19,12 +19,12 @@
   border: 1px solid #c2c2c2;
 }
 
-.l-switch:hover,
-.l-switch.l-switch--checked:hover {
+:host(:hover),
+:host(.l-switch--checked):hover {
   border-color: var(--l-primary-color, #722ed1);
 }
 
-.l-switch--checked {
+:host(.l-switch--checked) {
   background-color: var(--l-primary-color, #722ed1);
   border-color: var(--l-primary-color, #722ed1);
 }
@@ -52,9 +52,9 @@
   transition: padding-left 0.3s ease-in-out;
 }
 
-.l-switch--checked .l-switch-action {
+:host(.l-switch--checked) .l-switch-action {
   left: calc(var(--l-switch-width) - var(--l-switch-height) + 3px);
 }
-.l-switch--checked .l-switch-text {
+:host(.l-switch--checked) .l-switch-text {
   padding-left: 5px;
 }

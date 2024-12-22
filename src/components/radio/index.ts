@@ -108,6 +108,33 @@ export default class Radio extends FormInner {
     this.root.innerHTML = childrens.join("");
   }
 
+  public setValue(value: any): void {
+    super.setValue(value);
+    let base = "";
+    if (typeof value !== "boolean") {
+      base = `[l-value="${value}"]`;
+    }
+    const $prev = $one(".is-checked", this.root);
+    if ($prev) {
+      removeClass($prev, "is-checked");
+    }
+    const $el = $one(`label${base}`, this.root);
+    if ($el) {
+      const $inner = $one("input", $el) as HTMLInputElement;
+      if (typeof value === "boolean") {
+        if (value) {
+          addClass($el, "is-checked");
+        } else {
+          removeClass($el, "is-checked");
+        }
+        $inner.checked = value;
+      } else {
+        addClass($el, "is-checked");
+        $inner.checked = true;
+      }
+    }
+  }
+
   private _renderItems(items: RadioItem[]) {
     const $itemNodes = [];
     for (let i = 0, len = items.length; i < len; i++) {
@@ -142,8 +169,9 @@ export default class Radio extends FormInner {
     const nameAttr = tagAttr("name", this.getName());
     const innerAttr = `${nameAttr}${valueAttr}${innerDisabled}${checkedAttr}`;
     const labelPartAttr = tagAttr("part", labelPart);
+    const lValue = tagAttr("l-value", value);
     const htmlStr = [
-      `<label class="${classStr}">`,
+      `<label class="${classStr}"${lValue}>`,
       `<input type="radio" class="l-radio__input"${innerAttr} />`,
     ];
     if (this.type !== "button") {

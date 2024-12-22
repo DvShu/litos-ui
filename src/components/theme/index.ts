@@ -1,11 +1,18 @@
 import BaseComponent from "../base";
 import { initAttr } from "../util";
-import { $one, create, off, on } from "ph-utils/dom";
+import { $, $one, create, off, on } from "ph-utils/dom";
 import { getTheme, applyTheme } from "ph-utils/theme";
+
+const RADIO_ITEMS = [
+  { value: "auto", text: "跟随系统", icon: "l-theme-default-icon" },
+  { value: "light", text: "浅色模式", icon: "l-sun-icon" },
+  { value: "dark", text: "深色模式", icon: "l-moon-icon" },
+];
 
 export default class Theme extends BaseComponent {
   public static baseName = "theme";
   public type: "button" | "select" | "switch" | "radio" = "button";
+  public label?: "text" | "icon" = "text";
   public theme;
   #$inner?: HTMLElement;
   constructor() {
@@ -75,10 +82,41 @@ export default class Theme extends BaseComponent {
     return $inner;
   }
 
-  #radioRender() {}
+  #radioRender() {
+    const $inner = create("l-radio", {
+      class: "l-theme-inner",
+    }) as HTMLInputElement;
+    $inner.value = this.theme;
+    $inner.type = "button";
+    const children = RADIO_ITEMS.map((item) => {
+      if (this.label === "icon") {
+        return `<${item.icon} radio-value="${item.value}"></${item.icon}>`;
+      } else {
+        return `<span radio-value="${item.value}">${item.text}</span>`;
+      }
+    });
+    $inner.innerHTML = children.join("");
+    return $inner;
+  }
 
-  #handle = (e: Event) => {
-    console.log(e.target);
+  #handle = async (e: Event) => {
+    let newTheme;
+    if (this.type === "button") {
+      newTheme = this.theme === "dark" ? "auto" : "dark";
+    } else {
+      const value: any = (e.target as any).value;
+      if (this.type !== "switch") {
+        newTheme = value;
+      } else {
+        newTheme = value ? "dark" : "light";
+      }
+    }
+    await applyTheme(newTheme);
+    this.theme = newTheme;
+    if (this.type === "button") {
+      this.#updateButtonChild(this.#$inner as any);
+    }
+    this.dispatchEvent(new CustomEvent("change", { detail: newTheme }));
   };
 
   #initEvents() {
