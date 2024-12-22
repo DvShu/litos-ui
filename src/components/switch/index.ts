@@ -1,4 +1,4 @@
-import { formatClass, on, off, $one, toggleClass } from "ph-utils/dom";
+import { on, off, $one, addClass, removeClass } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../util";
 
@@ -11,9 +11,6 @@ export default class Switch extends FormInner {
   public checkedText?: string;
   public uncheckedText?: string;
 
-  private _changeEmit: CustomEvent;
-  private _$root?: HTMLElement;
-
   constructor() {
     super(false);
     initAttr(this);
@@ -22,72 +19,68 @@ export default class Switch extends FormInner {
       : false;
     this._resetValue = oriValue;
     this.value = oriValue;
-    this._changeEmit = new CustomEvent("change");
   }
   connectedCallback(): void {
     this.loadStyle(["switch"]);
     super.connectedCallback();
     this.pushValueChange();
-    this._$root = $one(".l-switch", this.root);
-    this._renderAction();
-    on(this._$root as HTMLElement, "click", this._handleClick);
+    this.#renderAction();
+    on(this, "click", this.#click);
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this._$root) {
-      off(this._$root, "click", this._handleClick);
-    }
+    off(this, "click", this.#click);
     this.actionRender = undefined;
   }
 
   render() {
-    const $root = document.createElement("div");
-    $root.className = formatClass({
-      "l-switch": true,
-      "l-switch--disabled": this.isDisabled(),
-      "l-switch--checked": this.value,
-    });
-    const $children = ['<div class="l-switch-action"></div>'];
+    if (this.isDisabled()) {
+      this.classList.add("l-switch--disabled");
+    }
+    if (this.value) {
+      this.classList.add("l-switch--checked");
+    }
+    const $children = ['<div class="l-switch-action" part="action"></div>'];
     if (this.checkedText || this.uncheckedText) {
       const text = this.value
         ? this.checkedText || ""
         : this.uncheckedText || "";
       $children.push(`<span class="l-switch-text">${text}</span>`);
     }
-    $root.setAttribute("part", "default");
-    $root.innerHTML = $children.join("");
-    return $root;
+    return $children.join("");
   }
 
-  private _handleClick = (e: Event) => {
+  #click = (e: Event) => {
     if (this.isDisabled()) return;
     this.setValue(!this.value);
-    this.dispatchEvent(this._changeEmit);
+    this.dispatchEvent(new CustomEvent("change"));
   };
 
   public setValue(value: boolean) {
     super.setValue(value);
-    if (this._$root) {
-      toggleClass(this._$root, "l-switch--checked");
-      const $text = $one(".l-switch-text", this._$root);
-      if ($text) {
-        $text.textContent = this.value
-          ? this.checkedText || ""
-          : this.uncheckedText || "";
-      }
-      this._renderAction();
+    if (value) {
+      addClass(this, "l-switch--checked");
+    } else {
+      removeClass(this, "l-switch--checked");
     }
+    const $text = $one(".l-switch-text", this.root);
+    if ($text) {
+      $text.textContent = this.value
+        ? this.checkedText || ""
+        : this.uncheckedText || "";
+    }
+    this.#renderAction();
   }
 
   public setActionRender(render: ActionRenderFn) {
     this.actionRender = render;
-    this._renderAction();
+    this.#renderAction();
   }
 
-  private _renderAction() {
-    if (!this._$root) return;
-    const $action = $one(".l-switch-action", this._$root) as HTMLElement;
+  #renderAction() {
+    const $action = $one(".l-switch-action", this.root) as HTMLElement;
+    if (!$action) return;
     if (this.actionRender) {
       const rendered = this.actionRender({ checked: this.value });
       if (typeof rendered === "string") {

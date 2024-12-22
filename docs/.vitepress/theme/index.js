@@ -28,9 +28,13 @@ export default {
         "../../../src/app_components/source_code"
       );
       const IconList = await import("../../../src/app_components/icon_list");
+      const CustomTheme = await import(
+        "../../../src/app_components/custom_theme"
+      );
       module.regist(CodePreview.default, "l-code-preview");
       module.regist(SourceCode.default, "l-source-code");
       module.regist(IconList.default, "l-icon-list");
+      module.regist(CustomTheme.default, "l-custom-theme");
     }
   },
 };

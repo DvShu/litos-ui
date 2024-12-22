@@ -14,6 +14,7 @@ import MoonIcon from "./icon/moon";
 import ReductionIcon from "./icon/reduction";
 import RefreshLeftIcon from "./icon/refresh_left";
 import RefreshRightIcon from "./icon/refresh_right";
+import ThemeDefaultIcon from "./icon/theme_default";
 import SortIcon from "./icon/sort";
 import Message from "./message";
 import Form from "./form";
@@ -27,6 +28,7 @@ import ColorPicker from "./color_picker";
 import Tabbar from "./tabbar";
 import Theme from "./theme";
 //Web Components Import
+regist(ThemeDefaultIcon);
 regist(Theme);
 regist(Tabbar);
 regist(ColorPicker);

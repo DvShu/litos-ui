@@ -1,11 +1,6 @@
 @import "../styles/component_base.less";
 
 :host {
-  display: inline-block;
-}
-
-/* 默认按钮，按钮的基础样式 */
-.l-btn {
   /* 按钮的文字颜色 */
   --l-btn-text-color: #ffffff;
   --l-btn-hover-text-color: var(--l-btn-text-color);
@@ -24,6 +19,11 @@
   --l-btn-disabled-color: #c9c9c9;
   --l-btn-disabled-background: #fbfbfb;
   --l-btn-disabled-border-color: #e6e6e6;
+  display: inline-block;
+}
+
+/* 默认按钮，按钮的基础样式 */
+.l-btn {
   display: inline-flex;
   justify-content: center;
   align-items: center;
