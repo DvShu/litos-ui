@@ -125,7 +125,10 @@ export default class BaseComponent extends HTMLElement {
     this.rendered = true;
   }
 
-  disconnectedCallback() {}
+  disconnectedCallback() {
+    this.root.innerHTML = "";
+    this.rendered = false;
+  }
 
   render(): void | string | HTMLElement | HTMLElement[] {}
 }

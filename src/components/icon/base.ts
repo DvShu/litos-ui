@@ -13,6 +13,7 @@ export default class BaseIcon extends BaseComponent {
   connectedCallback() {
     this.loadStyle(["icon"]);
     this.render();
+    this.rendered = true;
   }
 
   render() {

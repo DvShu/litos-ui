@@ -19,6 +19,7 @@ import {
 } from "litos-ui";
 
 regist(Theme);
+// 颜色主题
 regist(ThemeColor);
 // 根据风格注册以下组件
 regist([Button, SunIcon, MoonIcon]); // 按钮风格
@@ -93,39 +94,54 @@ initTheme().then();
 </l-code-preview>
 </ClientOnly>
 
+### 主题色更改
+
+除了修改主题风格，还可以修改主题色，通过修改 `ThemeColor` 来实现。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-theme-color></l-theme-color>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+生成的主题色代码如下:
+
+```CSS
+:root {
+  --l-primary-color: #722ed1;
+  --l-primary-color-light1: #9254de;
+  --l-primary-color-light2: #b37feb;
+  --l-primary-color-light3: #d3adf7;
+  --l-primary-color-light4: #efdbff;
+  --l-primary-color-light5: #f9f0ff;
+  --l-primary-color-dark1: #531dab;
+}
+```
+
+> 跟主题模式一样，如果想要再下次启动时也应用选择的主题色，需要在应用启动时，调用 `initColorTheme()` 函数
+
+```javascript
+// main.js
+import { initColorTheme } from "ph-utils/theme";
+
+initColorTheme().then();
+```
+
 ## API
 
-### ThemeSwitch Attibutes
+### Theme Attibutes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `type` | 主题切换按钮风格 | `button` \| `select` \| "`switch` \| `radio` | `button` |
+| `label` | 当 `type="radio"` 时是使用文字还是图标 | `text` \| `icon` | `text` |
 
-### ThemeSwitch Slots
-
-<!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
-
-### ThemeSwitch Events
+### Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-
-### ThemeSwitch Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `x` | x | `(x: number): string` |
-
-### ThemeSwitch CSS Variables
-
-<!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-| `--l` | x | `#fff` |
+| `change` | 主题改变时触发, 可以通过 `e.detail` 获取值 | `(event: CustomEvent)` |
