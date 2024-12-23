@@ -6,12 +6,10 @@ export default class ColorPicker extends FormInner {
   public static baseName = "color-picker";
   public $picker?: HTMLInputElement;
   public _value = "#000000";
-  private _changeEmit: CustomEvent;
 
   constructor() {
     super();
     initAttr(this);
-    this._changeEmit = new CustomEvent("change");
   }
   public setValue(value: any): void {
     super.setValue(value);
@@ -52,7 +50,8 @@ export default class ColorPicker extends FormInner {
   }
 
   private _handleChange = (e: Event) => {
-    super.setValue((e.target as HTMLInputElement).value);
-    this.dispatchEvent(this._changeEmit);
+    const value = (e.target as HTMLInputElement).value;
+    super.setValue(value);
+    this.dispatchEvent(new CustomEvent("change", { detail: value }));
   };
 }

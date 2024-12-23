@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { initAttr } from "../util";
-import { $, $one, create, off, on } from "ph-utils/dom";
+import { $one, create, off, on } from "ph-utils/dom";
 import { getTheme, applyTheme } from "ph-utils/theme";
 
 const RADIO_ITEMS = [

@@ -95,6 +95,7 @@ export default class FormInner extends BaseComponent {
         this._formAttributeChanged
       );
     }
+    super.disconnectedCallback();
   }
 
   public isDisabled() {
