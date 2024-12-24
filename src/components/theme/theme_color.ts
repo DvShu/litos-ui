@@ -8,7 +8,6 @@ export default class ThemeColor extends BaseComponent {
 
   public constructor() {
     super();
-    console.log(getColorTheme());
     this.color = getColorTheme() || "#722ed1";
   }
 

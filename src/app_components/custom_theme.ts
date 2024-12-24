@@ -1,5 +1,5 @@
 import { elem, on, text, $one, off } from "ph-utils/dom";
-import { getTheme } from "ph-utils/theme";
+import { getTheme, toggleTheme, applyTheme } from "ph-utils/theme";
 
 export default class CustomTheme extends HTMLElement {
   connectedCallback() {
@@ -15,6 +15,24 @@ export default class CustomTheme extends HTMLElement {
   }
 
   #handle = (e: Event) => {
-    console.log((e.target as any).value);
+    const newTheme = (e.target as any).value;
+    //@ts-ignore
+    const transition = document.startViewTransition(() => {
+      toggleTheme(newTheme, false).then();
+    });
+
+    transition.ready.then(() => {
+      // 圆形动画扩散开始
+      document.documentElement.animate(
+        {
+          clipPath: [`circle(0% at center)`, `circle(100% at center)`],
+        },
+        // 设置时间，已经目标伪元素
+        {
+          duration: 300,
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    });
   };
 }

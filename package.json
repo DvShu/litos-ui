@@ -13,7 +13,8 @@
     "source:build": "vite build",
     "iife:build": "vite build -c vite_iife.config.ts --mode browser",
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
-    "lib:build": "pnpm source:build && pnpm dts:build && pnpm iife:build"
+    "lib:build": "pnpm source:build && pnpm dts:build && pnpm iife:build",
+    "vp": "scripts/publish.sh"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -24,8 +25,8 @@
     "lightningcss": "^1.28.2",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
-    "typescript-eslint": "^8.18.1",
-    "vite": "^6.0.4",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5",
     "vitepress": "^1.5.0"
   },
   "files": [
@@ -62,7 +63,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ph-utils": "^0.12.6",
-    "shiki": "^1.24.3"
+    "ph-utils": "^0.12.8",
+    "shiki": "^1.24.4"
   }
 }

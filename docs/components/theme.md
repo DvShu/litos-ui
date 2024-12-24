@@ -81,6 +81,7 @@ initTheme().then();
 
 如果想要实现自定义的排版或者自定义的动画完全可以通过自定义来实现，下面通过 `Radio` + 简单文字实现
 
+<!-- prettier-ignore -->
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
@@ -88,7 +89,67 @@ initTheme().then();
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button>按钮</l-button>
+  <l-radio id="customThemeRadio">
+    <span radio-value="auto">自</span>+
+    <span radio-value="light">浅</span>
+    <span radio-value="dark">深</span>
+  </l-radio>
+</textarea>
+<textarea lang="js">
+  import { applyTheme } from "ph-utils/theme";
+  //-
+  const $radio = document.querySelector('#customThemeRadio');
+  //-
+  $radio.addEventListener('change', (e) => {
+    const newTheme = (e.target as any).value;
+    const transition = document.startViewTransition(() => {
+      // 应用主题
+      applyTheme(newTheme, true, false).then();
+    });
+    //-
+    transition.ready.then(() => {
+      /*
+        如果在 click 事件中想根据鼠标位置来设置圆形扩散效果
+        // 获取鼠标的坐标
+        const { clientX, clientY } = e;
+        a: (clientX, clientY)        
+                              b: (innerWidth, innerHeight)
+        a -> b 的距离就是最大半径
+        //-
+        // 计算最大半径
+        const radius = Math.hypot(
+          Math.max(clientX, innerWidth - clientX),
+          Math.max(clientY, innerHeight - clientY)
+        );
+      */
+      //-
+      // 圆形动画扩散开始
+      document.documentElement.animate(
+        /*
+          // 应用鼠标位置扩展
+          clipPath: [
+             `circle(0% at ${clientX}px ${clientY}px)`,
+             `circle(${radius}px at ${clientX}px ${clientY}px)`,
+          ]
+        */
+        {
+          clipPath: [`circle(0% at center)`, `circle(100% at center)`],
+        },
+        // 设置时间，已经目标伪元素
+        {
+          duration: 300,
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    });
+  });
+</textarea>
+<textarea lang="css">
+  ::view-transition-new(root),
+  ::view-transition-old(root) {
+    /* 关闭默认动画 */
+    animation: none;
+  }
 </textarea>
 </div>
 </l-code-preview>
