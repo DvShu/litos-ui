@@ -4,6 +4,9 @@ import Button from "./button";
 import Input from "./input";
 import BaseIcon from "./icon/base";
 import ArrowDownIcon from "./icon/arrow_down";
+import ArrowLeftIcon from "./icon/arrow_left";
+import ArrowRightIcon from "./icon/arrow_right";
+import ArrowUpIcon from "./icon/arrow_up";
 import CaretTopIcon from "./icon/caret_top";
 import CaretBottomIcon from "./icon/caret_bottom";
 import FontIcon from "./icon/font_icon";
@@ -56,6 +59,7 @@ regist(ReductionIcon);
 regist(RefreshLeftIcon);
 regist(RefreshRightIcon);
 regist(SortIcon);
+regist([ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon]);
 
 // @ts-expect-error x
 globalThis.LMessage = Message;
@@ -90,4 +94,3 @@ import "./switch/index.less";
 import "./color_picker/index.less";
 import "./tabbar/index.less";
 import "./theme_switch/index.less";
-import reg from "shiki/dist/langs/1c-query.mjs";

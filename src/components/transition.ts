@@ -2,7 +2,7 @@ import BaseComponent from "./base";
 import { startTransition, endTransition } from "ph-utils/dom";
 
 export class Transition extends BaseComponent {
-  static tagName: string = "transition";
+  static baseName: string = "transition";
   /** 应用过滤动画的属性值, 例如: opacity: 0; transform: xx; */
   sheetRec: [string, string][];
 
