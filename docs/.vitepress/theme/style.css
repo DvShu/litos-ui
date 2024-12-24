@@ -149,3 +149,9 @@ l-button[type="gradient"]::part(default) {
 .polygon-rhombus::part(default) {
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
+
+::view-transition-new(root),
+::view-transition-old(root) {
+  /* 关闭默认动画 */
+  animation: none;
+}
