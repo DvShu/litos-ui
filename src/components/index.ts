@@ -4,6 +4,9 @@ export { default as Message } from "./message";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
+export { default as ArrowLeftIcon } from "./icon/arrow_left";
+export { default as ArrowRightIcon } from "./icon/arrow_right";
+export { default as ArrowUpIcon } from "./icon/arrow_up";
 export { default as CaretTopIcon } from "./icon/caret_top";
 export { default as CaretBottomIcon } from "./icon/caret_bottom";
 export { default as FontIcon } from "./icon/font_icon";
