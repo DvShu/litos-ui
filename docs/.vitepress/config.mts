@@ -72,6 +72,7 @@ export default defineConfig({
         text: "通用",
         collapsed: true,
         items: [
+          { text: "Base 基础组件", link: "/components/base" },
           {
             text: "Icon 图标",
             link: "/components/icon",

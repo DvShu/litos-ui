@@ -1,4 +1,4 @@
-import { $, getAttr } from "ph-utils/dom";
+import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
   public static baseName: string = "base-component";
