@@ -4,52 +4,111 @@
   import { $one } from 'ph-utils/dom';
   import { nextTick, onMounted } from 'vue';
 
-  function startTransition(
-    target: HTMLElement,
-    properties: [string, string][] | string,
-    duration?: string
-  ) {
-    const trans: string[] = [];
-    if (typeof properties === 'string') {
-      target.classList.add(`${properties}-enter-from`, `${properties}-enter-active`);
+  function toggleCssProperty(
+  el: HTMLElement,
+  properties: [string, string][],
+  method: "set" | "remove" = "set"
+) {
+  for (let i = 0, len = properties.length; i < len; i++) {
+    const rec = properties[i];
+    if (method === "set") {
+      el.style.setProperty(rec[0], rec[1]);
     } else {
-      for (let i = 0, len = properties.length; i < len; i++) {
-        const rec = properties[i];
-        target.style.setProperty(rec[0], rec[1]);
-        trans.push(`${rec[0]} ${duration}`);
+      el.style.removeProperty(rec[0]);
+    }
+  }
+}
+
+function transition(
+  el: HTMLElement,
+  nameOrProperties: string | [string, string, string][],
+  dir: "leave" | "enter" = "enter",
+  finish?: () => void
+) {
+  const p = dir === "enter" ? "from" : "to";
+  let nameClass = "",
+    activeClass = "";
+  const trans: string[] = [];
+  if (typeof nameOrProperties === "string") {
+    nameClass = `${nameOrProperties}-${dir}-${p}`;
+    activeClass = `${nameOrProperties}-${dir}-active`;
+  } else {
+    for (let i = 0, len = nameOrProperties.length; i < len; i++) {
+      const rec = nameOrProperties[i];
+      if (rec.length >= 3) {
+        trans.push(`${rec[0]} ${rec[2]}`);
       }
-      if (duration) {
-        target.style.setProperty("transition", trans.join(", "));
+    }
+  }
+  if (dir === "enter") {
+    if (nameClass) {
+      el.classList.add(nameClass, activeClass);
+    } else {
+      toggleCssProperty(el, nameOrProperties as any, "set");
+      if (trans.length > 0) {
+        el.style.setProperty("transition", trans.join(", "));
       }
     }
     requestAnimationFrame(() => {
-      if (typeof properties === 'string') {
-        target.classList.remove(`${properties}-enter-from`);
+      if (nameClass) {
+        el.classList.remove(nameClass);
       } else {
-        for (let i = 0, len = properties.length; i < len; i++) {
-          const rec = properties[i];
-          target.style.removeProperty(rec[0]);
-        }
+        toggleCssProperty(el, nameOrProperties as any, "remove");
       }
     });
-    target.addEventListener('transitionend', () => {
-      if (typeof properties === 'string') {
-        target.classList.remove(`${properties}-enter-active`);
-      } else if (duration) {
-        target.style.removeProperty('transition');
+  } else {
+    if (nameClass) {
+      el.classList.add(activeClass);
+      requestAnimationFrame(() => {
+        el.classList.add(nameClass);
+      });
+    } else {
+      if (trans.length > 0) {
+        el.style.setProperty("transition", trans.join(", "));
       }
-    }, { once: true });
-  }
-
-  function transition(target: HTMLElement,
-    properties: [string, string][] | string,
-    duration?: string, finish?: () => void) {
-      
+      requestAnimationFrame(() => {
+        toggleCssProperty(el, nameOrProperties as any, "set");
+      });
     }
+  }
+  el.addEventListener(
+    "transitionend",
+    () => {
+      if (nameClass) {
+        el.classList.remove(activeClass);
+        requestAnimationFrame(() => {
+          el.classList.remove(nameClass);
+        });
+      } else {
+        if (trans) {
+          el.style.removeProperty("transition");
+        }
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            toggleCssProperty(el, nameOrProperties as any, "remove");
+          });
+        });
+      }
+      if (finish) {
+        finish();
+      }
+    },
+    { once: true }
+  );
+}
 
   onMounted(() => {
     const $text = $one('#text');
-    startTransition($text, 'nt-opacity');
+    const p = [
+      ["opacity", "0", "0.3s"],
+    ]
+    transition($text, p, 'enter');
+
+    setTimeout(() => {
+      transition($text, p, 'leave', () => {
+        $text.remove()
+      });
+    }, 5000);
   })
 </script>
 

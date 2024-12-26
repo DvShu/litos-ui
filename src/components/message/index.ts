@@ -1,5 +1,5 @@
 import { useId, regist } from "../util";
-import { endTransition, startTransition } from "ph-utils/dom";
+import { transition } from "ph-utils/dom";
 import MaskClose from "../icon/mask_close";
 import Success from "../icon/success";
 import Warn from "../icon/warn";
@@ -11,9 +11,9 @@ regist(Warn);
 regist(Info);
 
 const instances: HTMLElement[] = []; // 保存所有的消息体
-const transitionSheet: [string, string][] = [
-  ["opacity", "0"],
-  ["transform", "translate3d(-50%, -100%, 0)"],
+const transitionSheet: [string, string, string][] = [
+  ["opacity", "0", "0.3s"],
+  ["transform", "translate3d(-50%, -100%, 0)", "0.3s"],
 ];
 
 /** 消息配置 */
@@ -51,7 +51,7 @@ function close(id: string) {
   // 从消息列表中移除消息
   const removedVm = instances.splice(idx, 1)[0];
   if (removedVm == null) return;
-  endTransition(removedVm, transitionSheet, () => {
+  transition(removedVm, transitionSheet, "leave", () => {
     removedVm.remove();
   });
   const removedHeight = 15 + removedVm.offsetHeight;
@@ -111,7 +111,7 @@ const Message: MessageInstance = ((option: string | MessageOption) => {
   const $msg = renderBody(props);
   instances.push($msg);
   document.body.appendChild($msg);
-  startTransition($msg, transitionSheet, undefined);
+  transition($msg, transitionSheet, "enter");
   let duration = props.duration;
   if (duration == null) {
     duration = 3000;

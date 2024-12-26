@@ -1,4 +1,5 @@
 import { isBlank } from "ph-utils";
+import { $, iterate, transition } from "ph-utils/dom";
 
 type UIConfig = {
   /** 注册应用的前缀, 默认: lt */
@@ -148,4 +149,23 @@ export function setAttrs(
       el.setAttribute(key, value);
     }
   }
+}
+
+export function initTransition(els?: HTMLElement[]) {
+  if (els == null) {
+    els = $("[l-transition]") as HTMLElement[];
+  }
+  let observer: MutationObserver;
+  if (els != null && els.length > 0) {
+    iterate(els, (el) => {
+      const transitionName = el.getAttribute("l-transition");
+      if (transitionName) {
+        transition(el, transitionName, "enter");
+      }
+    });
+  }
+
+  function destroy() {}
+
+  return { destroy };
 }
