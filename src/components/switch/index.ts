@@ -1,6 +1,6 @@
 import { on, off, $one, addClass, removeClass } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
-import { initAttr, parseAttrValue } from "../util";
+import { initAttr, parseAttrValue } from "../utils";
 
 type ActionRenderFn = (cfg: { checked: boolean }) => string | HTMLElement;
 

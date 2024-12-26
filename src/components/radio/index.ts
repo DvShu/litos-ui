@@ -1,4 +1,4 @@
-import { initAttr, parseAttrValue, tagAttr } from "../util";
+import { initAttr, parseAttrValue, tagAttr } from "../utils";
 import FormInner from "../form/form_inner";
 import {
   formatClass,

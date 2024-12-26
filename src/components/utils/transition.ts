@@ -1,5 +1,5 @@
-import { initAttr } from ".";
-import BaseComponent from "./base";
+import { initAttr } from "..";
+import BaseComponent from "../base";
 import { transition } from "ph-utils/dom";
 
 export class Transition extends BaseComponent {

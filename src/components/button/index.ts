@@ -1,4 +1,4 @@
-import { initAttr, parseAttrValue, regist } from "../util";
+import { initAttr, parseAttrValue, regist } from "../utils";
 import BaseComponent from "../base";
 import {
   formatClass,

@@ -1,5 +1,5 @@
 import FormInner from "../form/form_inner";
-import { initAttr, tagAttrs } from "../util";
+import { initAttr, tagAttrs } from "../utils";
 import { $one, on, off } from "ph-utils/dom";
 
 type Option = { label: string; value: string };

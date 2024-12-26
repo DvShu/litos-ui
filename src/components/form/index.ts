@@ -1,6 +1,6 @@
 import { formatClass, formatStyle, $one } from "ph-utils/dom";
 import BaseComponent from "../base";
-import { initAttr, parseAttrValue } from "../util";
+import { initAttr, parseAttrValue } from "../utils";
 import { random } from "ph-utils";
 import { emit, add, clear } from "./form_events";
 import type { SchemaType } from "ph-utils/validator";

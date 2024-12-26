@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { initAttr, parseAttrValue, regist } from "../util";
+import { initAttr, parseAttrValue, regist } from "../utils";
 import LoadingIcon from "../icon/loading";
 import { $one } from "ph-utils/dom";
 

@@ -7,7 +7,7 @@ import {
   addClass,
   removeClass,
 } from "ph-utils/dom";
-import { initAttr, parseAttrValue, tagAttr } from "../util";
+import { initAttr, parseAttrValue, tagAttr } from "../utils";
 import FormInner from "../form/form_inner";
 import { add, remove } from "../form/form_events";
 

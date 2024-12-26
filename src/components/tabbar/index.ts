@@ -1,6 +1,6 @@
 import { isBlank, isNumeric } from "ph-utils";
 import BaseComponent from "../base";
-import { initAttr, parseAttrValue } from "../util";
+import { initAttr, parseAttrValue } from "../utils";
 import {
   $,
   iterate,

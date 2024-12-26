@@ -1,6 +1,6 @@
 import { formatClass, formatStyle } from "ph-utils/dom";
 import BaseComponent from "../base";
-import { initAttr } from "../util";
+import { initAttr } from "../utils";
 
 export default class Polygon extends BaseComponent {
   public static baseName = "polygon";

@@ -1,5 +1,5 @@
 import { formatClass, $one, addClass, removeClass } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../util";
+import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import { emit, clear, add, remove } from "./form_events";
 import { random } from "ph-utils";

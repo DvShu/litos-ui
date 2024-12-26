@@ -1,6 +1,6 @@
 import { $one, on, off } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
-import { initAttr, setAttrs } from "../util";
+import { initAttr, setAttrs } from "../utils";
 
 export default class ColorPicker extends FormInner {
   public static baseName = "color-picker";
