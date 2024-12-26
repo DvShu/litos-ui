@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { initAttr } from "../util";
+import { initAttr } from "../utils";
 import { $one, create, off, on } from "ph-utils/dom";
 import { getTheme, applyTheme } from "ph-utils/theme";
 

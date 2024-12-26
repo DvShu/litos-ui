@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 import type Form from "../form";
 import type FormItem from "../form/form_item";
-import { parseAttrValue } from "../util";
+import { parseAttrValue } from "../utils";
 import { emit, add, remove } from "./form_events";
 
 export default class FormInner extends BaseComponent {

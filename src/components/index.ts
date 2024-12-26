@@ -1,4 +1,4 @@
-export * from "./util";
+export * from "./utils";
 export { default as BaseComponent } from "./base";
 
 export { default as Message } from "./message";

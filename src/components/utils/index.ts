@@ -1,5 +1,5 @@
 import { isBlank } from "ph-utils";
-import { $, iterate, transition } from "ph-utils/dom";
+import { $, attr, iterate, transition } from "ph-utils/dom";
 
 type UIConfig = {
   /** 注册应用的前缀, 默认: lt */
@@ -32,27 +32,9 @@ export function regist(component: any | any[], name?: string) {
 }
 
 /**
- * 隐藏 Transition 组件
- * @param el Transition 组件或者选择器, 不传则为: l-transition
- * @param remove 是否在隐藏后移除元素, 对应 vue-vIf
- */
-export function hideTransition(el?: string | HTMLElement, remove = false) {
-  el = el || "l-transition";
-  let $el: HTMLElement = el as HTMLElement;
-  if (typeof el === "string") {
-    $el = document.querySelector(el) as HTMLElement;
-  }
-  if ($el) {
-    ($el as any).hide(() => {
-      if (remove) $el.remove();
-    });
-  }
-}
-
-/**
  * 生成一个唯一标识符，格式为：`uiConfig.prefix-递增的seed值`。
  * 此函数用于在组件或应用中生成唯一的ID。
- * @returns {string} 唯一标识符字符串
+ * @returns 唯一标识符字符串
  */
 export function useId() {
   return `${uiConfig.prefix}-${++seed}`;
@@ -151,11 +133,23 @@ export function setAttrs(
   }
 }
 
+/**
+ * 初始化元素过渡, 同时会监听 l-transition-emit 变化自动执行隐藏动画, show - 显示元素, hide - 隐藏元素
+ *
+ * 注意需要在页面结束后调用 destroy 销毁监听
+ *
+ * @param els 需要初始化的元素列表
+ * @returns
+ */
 export function initTransition(els?: HTMLElement[]) {
   if (els == null) {
     els = $("[l-transition]") as HTMLElement[];
   }
-  let observer: MutationObserver;
+  let observer: MutationObserver = undefined as any;
+  const observerConfig = {
+    attributes: true,
+    attributeFilter: ["l-transition-emit"],
+  };
   if (els != null && els.length > 0) {
     iterate(els, (el) => {
       const transitionName = el.getAttribute("l-transition");
@@ -165,7 +159,61 @@ export function initTransition(els?: HTMLElement[]) {
     });
   }
 
-  function destroy() {}
+  const observerHandler: MutationCallback = (mutationsList) => {
+    for (let mutation of mutationsList) {
+      if (mutation.type === "attributes" && mutation.attributeName) {
+        const target = mutation.target as HTMLElement;
+        const emit = target.getAttribute(mutation.attributeName) || "show";
+        // 动画名称
+        const transitionName = target.getAttribute("l-transition");
+        // 结束动画完成后的操作, remove - 删除节点, hide - 隐藏节点
+        const method = target.getAttribute("l-transition-method") || "remove";
+        if (transitionName) {
+          if (emit === "show") {
+            target.style.removeProperty("display");
+            // 显示节点
+            transition(target, transitionName, "enter");
+          } else {
+            // 隐藏节点
+            transition(target, transitionName, "leave", () => {
+              if (method === "remove") {
+                target.remove();
+              } else {
+                target.style.display = "none";
+              }
+            });
+          }
+        }
+      }
+    }
+  };
 
-  return { destroy };
+  /**
+   * 添加过渡元素
+   * @param elems 过渡元素列表
+   */
+  function add(elems: HTMLElement[]) {
+    if (elems && elems.length > 0) {
+      if (observer == null) {
+        observer = new MutationObserver(observerHandler);
+      }
+      iterate(elems, (el) => {
+        const transitionName = el.getAttribute("l-transition");
+        if (transitionName) {
+          transition(el, transitionName, "enter");
+          observer.observe(el, observerConfig);
+        }
+      });
+    }
+  }
+
+  /** 销毁过渡元素监听, 通常需要在页面删除时调用 */
+  function destroy() {
+    if (observer) {
+      observer.disconnect();
+      observer = undefined as any;
+    }
+  }
+
+  return { destroy, add };
 }
