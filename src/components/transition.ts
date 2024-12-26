@@ -1,10 +1,12 @@
+import { initAttr } from ".";
 import BaseComponent from "./base";
-import { startTransition, endTransition } from "ph-utils/dom";
+import { transition } from "ph-utils/dom";
 
 export class Transition extends BaseComponent {
   static baseName: string = "transition";
   /** 应用过滤动画的属性值, 例如: opacity: 0; transform: xx; */
-  sheetRec: [string, string][];
+  sheetRec: [string, string, string][];
+  public duration = "0.3s";
 
   static get observedAttributes() {
     return ["sheets"];
@@ -12,6 +14,7 @@ export class Transition extends BaseComponent {
 
   constructor() {
     super();
+    initAttr(this);
     this.sheetRec = this._parseSheets(this.getAttr("sheets", "opacity: 0"));
   }
 
@@ -33,23 +36,22 @@ export class Transition extends BaseComponent {
   private show() {
     const target = this._getSlotFirstChild();
     if (!target) return;
-    const duration = this.getAttr("duration", "0.3s");
-    startTransition(target, this.sheetRec, duration);
+    transition(target, this.sheetRec, "enter");
   }
 
   public hide(finish?: () => void) {
     const target = this._getSlotFirstChild();
     if (!target) return;
-    endTransition(target, this.sheetRec, finish);
+    transition(target, this.sheetRec, "leave", finish);
   }
 
   private _parseSheets(sheets: string) {
     const sheetsArr = sheets.split(";");
-    const sheetsObj: [string, string][] = [];
+    const sheetsObj: [string, string, string][] = [];
     sheetsArr.forEach((sheet) => {
       if (sheet) {
         const [key, value] = sheet.split(":");
-        sheetsObj.push([key.trim(), value.trim()]);
+        sheetsObj.push([key.trim(), value.trim(), this.duration]);
       }
     });
     return sheetsObj;
