@@ -156,12 +156,12 @@ l-button[type="gradient"]::part(default) {
   animation: none;
 }
 
-.nt-opacity-enter-active,
-.nt-opacity-leave-active {
+.l-opacity-enter-active,
+.l-opacity-leave-active {
   transition: opacity 0.3s ease;
 }
 
-.nt-opacity-enter-from,
-.nt-opacity-leave-to {
+.l-opacity-enter-from,
+.l-opacity-leave-to {
   opacity: 0;
 }
