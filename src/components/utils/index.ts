@@ -1,5 +1,5 @@
 import { isBlank } from "ph-utils";
-import { $, attr, iterate, transition } from "ph-utils/dom";
+import { $, iterate, transition } from "ph-utils/dom";
 
 type UIConfig = {
   /** 注册应用的前缀, 默认: lt */
@@ -138,26 +138,30 @@ export function setAttrs(
  *
  * 注意需要在页面结束后调用 destroy 销毁监听
  *
- * @param els 需要初始化的元素列表
+ * @param els 需要初始化的元素列表, 如果不传则会自动查找页面中带有 l-transition 属性的元素
  * @returns
+ *
+ * @example
+ * // html
+ * <div
+ *  l-transition="l-opacity"
+ *  l-transition-emit="show"
+ *  l-transition-method="hide"
+ * >
+ *  Hello World
+ * </div>
+ * // js
+ * const trans = createTransition();
+ *
+ * // 销毁监听
+ * transition.destroy();
  */
-export function initTransition(els?: HTMLElement[]) {
-  if (els == null) {
-    els = $("[l-transition]") as HTMLElement[];
-  }
+export function createTransition() {
   let observer: MutationObserver = undefined as any;
   const observerConfig = {
     attributes: true,
     attributeFilter: ["l-transition-emit"],
   };
-  if (els != null && els.length > 0) {
-    iterate(els, (el) => {
-      const transitionName = el.getAttribute("l-transition");
-      if (transitionName) {
-        transition(el, transitionName, "enter");
-      }
-    });
-  }
 
   const observerHandler: MutationCallback = (mutationsList) => {
     for (let mutation of mutationsList) {
@@ -165,7 +169,7 @@ export function initTransition(els?: HTMLElement[]) {
         const target = mutation.target as HTMLElement;
         const emit = target.getAttribute(mutation.attributeName) || "show";
         // 动画名称
-        const transitionName = target.getAttribute("l-transition");
+        const transitionName = target.getAttribute("l-transition") || "l";
         // 结束动画完成后的操作, remove - 删除节点, hide - 隐藏节点
         const method = target.getAttribute("l-transition-method") || "remove";
         if (transitionName) {
@@ -207,6 +211,13 @@ export function initTransition(els?: HTMLElement[]) {
     }
   }
 
+  function init(els?: HTMLElement[]) {
+    if (els == null) {
+      els = $("[l-transition]") as HTMLElement[];
+      add(els);
+    }
+  }
+
   /** 销毁过渡元素监听, 通常需要在页面删除时调用 */
   function destroy() {
     if (observer) {
@@ -215,5 +226,5 @@ export function initTransition(els?: HTMLElement[]) {
     }
   }
 
-  return { destroy, add };
+  return { destroy, add, init };
 }

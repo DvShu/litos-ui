@@ -73,6 +73,7 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: "Base 基础组件", link: "/components/base" },
+          { text: "Transition 过渡动画", link: "/components/transition" },
           {
             text: "Icon 图标",
             link: "/components/icon",

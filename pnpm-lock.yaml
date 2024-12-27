@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       ph-utils:
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.13.1
+        version: 0.13.1
       shiki:
         specifier: ^1.24.4
         version: 1.24.4
@@ -1330,8 +1330,8 @@ packages:
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
-  ph-utils@0.13.0:
-    resolution: {integrity: sha512-ud6Y9xqG0OFEHeB4CWPgHkCfbneox12HBpNdgPapMIlk/QgVNvDxPsLHYrcy0p0qd/HxrzhQi+f93dPoS4MBeA==}
+  ph-utils@0.13.1:
+    resolution: {integrity: sha512-ENyPFgA8UA5w9TwsG6bcg9U4vy5ZMD40xhrinEurRG1eWm9flBrHRfPHSXHgG46Og/mVrS7lapVzOrUqZQSrEw==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -1373,14 +1373,14 @@ packages:
   queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  regex-recursion@5.0.0:
-    resolution: {integrity: sha512-UwyOqeobrCCqTXPcsSqH4gDhOjD5cI/b8kjngWgSZbxYh5yVjAwTjO5+hAuPRNiuR70+5RlWSs+U9PVcVcW9Lw==}
+  regex-recursion@5.1.1:
+    resolution: {integrity: sha512-ae7SBCbzVNrIjgSbh7wMznPcQel1DNlDtzensnFxpiNpXt1U2ju/bHugH422r+4LAVS1FpW1YCwilmnNsjum9w==}
 
   regex-utilities@2.3.0:
     resolution: {integrity: sha512-8VhliFJAWRaUiVvREIiW2NXXTmHs4vMNnSzuJVhscgmGav3g9VDxLrQndI3dZZVVdp0ZO/5v0xmX516/7M9cng==}
 
-  regex@5.0.2:
-    resolution: {integrity: sha512-/pczGbKIQgfTMRV0XjABvc5RzLqQmwqxLHdQao2RTXPk+pmTXB2P0IaUHYdYyk412YLwUIkaeMd5T+RzVgTqnQ==}
+  regex@5.1.1:
+    resolution: {integrity: sha512-dN5I359AVGPnwzJm2jN1k0W9LPZ+ePvoOeVMMfqIMFz53sSwXkxaJoxr50ptnsC771lK95BnTrVSZxq0b9yCGw==}
 
   resolve-from@4.0.0:
     resolution: {integrity: sha512-pb/MYmXstAkysRFx8piNI1tGFNQIFA3vkE3Gq4EuA1dF6gHp/+vgZqsCGJapvy8N3Q+4o7FwvquPJcnZ7RYy4g==}
@@ -2822,8 +2822,8 @@ snapshots:
   oniguruma-to-es@0.8.1:
     dependencies:
       emoji-regex-xs: 1.0.0
-      regex: 5.0.2
-      regex-recursion: 5.0.0
+      regex: 5.1.1
+      regex-recursion: 5.1.1
 
   optionator@0.9.4:
     dependencies:
@@ -2854,7 +2854,7 @@ snapshots:
 
   perfect-debounce@1.0.0: {}
 
-  ph-utils@0.13.0: {}
+  ph-utils@0.13.1: {}
 
   picocolors@1.1.1: {}
 
@@ -2884,13 +2884,14 @@ snapshots:
 
   queue-microtask@1.2.3: {}
 
-  regex-recursion@5.0.0:
+  regex-recursion@5.1.1:
     dependencies:
+      regex: 5.1.1
       regex-utilities: 2.3.0
 
   regex-utilities@2.3.0: {}
 
-  regex@5.0.2:
+  regex@5.1.1:
     dependencies:
       regex-utilities: 2.3.0
 
