@@ -3,6 +3,9 @@ import "./style.css";
 // import "../../../styles/vars.css";
 import "../../../styles/message.css";
 import "../../../styles/reset.css";
+import "../../../styles/transition.css";
+import "../../../styles/animation.css";
+import "../../../styles/scrollbar.css";
 import { add } from "../../../src/icons";
 
 export default {

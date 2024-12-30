@@ -124,7 +124,12 @@ l-button[type="gradient"]::part(default) {
 .mt-15 {
   margin-top: 15px;
 }
-
+.ml-10 {
+  margin-left: 10px;
+}
+.inline {
+  display: inline-block;
+}
 .grid {
   display: grid;
 }
