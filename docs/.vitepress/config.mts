@@ -66,6 +66,7 @@ export default defineConfig({
             text: "样式重置",
             link: "/reset",
           },
+          { text: "工具样式", link: "/css_util" },
         ],
       },
       {

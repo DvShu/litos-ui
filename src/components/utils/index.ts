@@ -171,7 +171,7 @@ export function createTransition() {
         // 动画名称
         const transitionName = target.getAttribute("l-transition") || "l";
         // 结束动画完成后的操作, remove - 删除节点, hide - 隐藏节点
-        const method = target.getAttribute("l-transition-method") || "remove";
+        const method = target.getAttribute("l-transition-method") || "hide";
         if (transitionName) {
           if (emit === "show") {
             target.style.removeProperty("display");
