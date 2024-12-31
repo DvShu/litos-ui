@@ -40,6 +40,9 @@
   border: 1px solid #e2e2e3;
   border-radius: 5px;
 }
+l-code-preview {
+  display: block;
+}
 l-code-preview .source {
   display: none;
 }
@@ -62,6 +65,17 @@ l-code-preview .source {
 }
 .code-preview .open .collapse-icon {
   transform: rotate3d(0, 0, 1, 0);
+}
+
+.code-preview .l-header,
+.code-preview .l-footer {
+  background-color: #c5e2ff;
+}
+.code-preview .l-main {
+  background-color: #ecf5ff;
+}
+.code-preview .l-aside {
+  background-color: #d9ecff;
 }
 
 #app .vp-doc .code-preview div[class*="language-"] {

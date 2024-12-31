@@ -6,6 +6,7 @@ import "../../../styles/reset.css";
 import "../../../styles/transition.css";
 import "../../../styles/animation.css";
 import "../../../styles/scrollbar.css";
+import "../../../styles/container.css";
 import { add } from "../../../src/icons";
 
 export default {
