@@ -2,6 +2,7 @@ export * from "./utils";
 export { default as BaseComponent } from "./base";
 
 export { default as Message } from "./message";
+export { default as Popover } from "./popover";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
