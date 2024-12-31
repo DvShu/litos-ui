@@ -31,7 +31,9 @@ import ColorPicker from "./color_picker";
 import Tabbar from "./tabbar";
 import Theme from "./theme";
 import ThemeColor from "./theme/theme_color";
+import Popover from "./popover";
 //Web Components Import
+regist(Popover)
 regist(ThemeDefaultIcon);
 regist(ThemeColor);
 regist(Theme);
@@ -94,3 +96,4 @@ import "./switch/index.less";
 import "./color_picker/index.less";
 import "./tabbar/index.less";
 import "./theme_switch/index.less";
+import "./popover/index.less";

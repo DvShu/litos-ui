@@ -7,7 +7,7 @@ import { styleText } from "node:util";
 function sourceTemplate(name, componentName, fileName) {
   const res = [
     'import BaseComponent from "../base"',
-    'import { initAttr } from "../util";\r\n',
+    'import { initAttr } from "../utils";\r\n',
     `export default class ${name} extends BaseComponent {`,
     `  public static baseName = "${componentName}";`,
     "  constructor() {",

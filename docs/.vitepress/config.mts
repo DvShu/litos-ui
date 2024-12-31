@@ -144,6 +144,10 @@ export default defineConfig({
             text: "Message 消息提示",
             link: "/components/message",
           },
+          {
+            text: "Popover 弹出气泡",
+            link: "/components/popover",
+          },
         ],
       },
       {
