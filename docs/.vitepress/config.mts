@@ -75,6 +75,7 @@ export default defineConfig({
         items: [
           { text: "Base 基础组件", link: "/components/base" },
           { text: "Transition 过渡动画", link: "/components/transition" },
+          { text: "Container 容器布局", link: "/components/container" },
           {
             text: "Icon 图标",
             link: "/components/icon",
