@@ -39,12 +39,10 @@ export function set(el: HTMLElement, handler: ClickHandler) {
   }
   const handlers = nodeList.get(el);
   if (handlers) {
-    handlers.push({ el: el, handler });
+    handlers.push({ el, handler });
   }
-  if (!(import.meta as any).env.SSR) {
-    if (nodeList.size === 1) {
-      document.addEventListener("click", documentClick, true);
-    }
+  if (nodeList.size === 1) {
+    document.addEventListener("click", documentClick, true);
   }
 }
 

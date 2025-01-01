@@ -105,7 +105,9 @@ export default class BaseComponent extends HTMLElement {
     return getAttr(this, key, defaultValue as any);
   }
 
-  public appendToRoot(el?: HTMLElement | HTMLElement[] | string) {
+  public appendToRoot(
+    el?: HTMLElement | HTMLElement[] | string | DocumentFragment
+  ) {
     if (el) {
       if (typeof el === "string") {
         let $tmp = document.createElement("div");
@@ -130,5 +132,5 @@ export default class BaseComponent extends HTMLElement {
     this.rendered = false;
   }
 
-  render(): void | string | HTMLElement | HTMLElement[] {}
+  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
 }

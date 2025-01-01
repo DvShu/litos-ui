@@ -1,4 +1,9 @@
 export * from "./utils";
+export {
+  set as addClickOutside,
+  remove as removeClickOutside,
+} from "./utils/clickoutside";
+
 export { default as BaseComponent } from "./base";
 
 export { default as Message } from "./message";
