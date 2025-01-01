@@ -11,5 +11,11 @@ export default class Popover extends BaseComponent {
     this.loadStyle(["popover"]);
     super.connectedCallback();
   }
-  render() {}
+  render() {
+    const fragment = document.createDocumentFragment();
+    const $trigger = document.createElement("slot");
+    $trigger.setAttribute("name", "trigger");
+    fragment.appendChild($trigger);
+    return fragment;
+  }
 }

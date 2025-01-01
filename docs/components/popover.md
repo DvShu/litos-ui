@@ -12,6 +12,17 @@ regist(Popover);
 
 ## 演示
 
+<script setup>
+  import { set } from '../../src/components/utils/clickoutside';
+  import { onMounted, nextTick } from 'vue';
+  import { $one } from 'ph-utils/dom';
+
+  onMounted(() => {
+    nextTick(() => {
+    });
+  });
+</script>
+
 ### 基础用法
 
 最简单的用法，通过 `content` 传递浮层内容。
@@ -19,7 +30,9 @@ regist(Popover);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-popover content="悬浮提示"></l-popover>
+  <l-popover content="悬浮提示">
+    <l-button slot="trigger">提示</l-button>
+  </l-popover>
 </textarea>
 <div class="source">
 <textarea lang="html">
