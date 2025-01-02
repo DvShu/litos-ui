@@ -1,1 +1,122 @@
-@import "../styles/component_base.less";
+:host {
+  width: max-content;
+  position: relative;
+}
+
+.l-popover--content {
+  --l-popover-border-color: #e4e4e4;
+  --l-popover-color: #666666;
+  --l-popover-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+  --l-popover-background: #ffffff;
+  position: absolute;
+  width: max-content;
+  box-shadow: var(--l-popover-box-shadow);
+  background: var(--l-popover-background);
+  border: 1px solid var(--l-popover-border-color);
+  border-radius: 4px;
+  padding: 10px;
+  z-index: 30;
+  color: var(--l-popover-color);
+  box-sizing: border-box;
+}
+
+.l-popover--arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  z-index: -1;
+}
+.l-popover--arrow::before {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  transform: rotate3d(0, 0, 1, 45deg);
+  background-color: var(--l-popover-background);
+  border-width: 1px;
+  border-style: solid;
+}
+
+.l-popover-top .l-popover--arrow,
+.l-popover-bottom .l-popover--arrow {
+  left: 50%;
+  margin-left: -4px;
+}
+
+.l-popover-top .l-popover--arrow::before,
+.l-popover-top-start .l-popover--arrow::before,
+.l-popover-top-end .l-popover--arrow::before {
+  border-color: transparent var(--l-popover-border-color)
+    var(--l-popover-border-color) transparent;
+}
+.l-popover-bottom .l-popover--arrow::before,
+.l-popover-bottom-start .l-popover--arrow::before,
+.l-popover-bottom-end .l-popover--arrow::before {
+  border-color: var(--l-popover-border-color) transparent transparent
+    var(--l-popover-border-color);
+}
+
+.l-popover-top .l-popover--arrow,
+.l-popover-top-start .l-popover--arrow,
+.l-popover-top-end .l-popover--arrow {
+  bottom: -4px;
+}
+
+.l-popover-top-start .l-popover--arrow,
+.l-popover-bottom-start .l-popover--arrow {
+  left: 10px;
+}
+.l-popover-top-end .l-popover--arrow,
+.l-popover-bottom-end .l-popover--arrow {
+  right: 7px;
+}
+
+.l-popover-bottom .l-popover--arrow,
+.l-popover-bottom-start .l-popover--arrow,
+.l-popover-bottom-end .l-popover--arrow {
+  top: -4px;
+}
+
+/* left-right */
+
+.l-popover-left .l-popover--arrow,
+.l-popover-left-start .l-popover--arrow,
+.l-popover-left-end .l-popover--arrow {
+  margin-top: -4px;
+  right: -4px;
+}
+
+.l-popover-left-start .l-popover--arrow::before,
+.l-popover-left .l-popover--arrow::before,
+.l-popover-left-end .l-popover--arrow::before {
+  border-color: var(--l-popover-border-color) var(--l-popover-border-color)
+    transparent transparent;
+}
+
+.l-popover-right .l-popover--arrow,
+.l-popover-right-start .l-popover--arrow,
+.l-popover-right-end .l-popover--arrow {
+  margin-top: -4px;
+  left: -4px;
+}
+.l-popover-right-start .l-popover--arrow::before,
+.l-popover-right .l-popover--arrow::before,
+.l-popover-right-end .l-popover--arrow::before {
+  border-color: transparent transparent var(--l-popover-border-color)
+    var(--l-popover-border-color);
+}
+
+.l-popover-left .l-popover--arrow,
+.l-popover-right .l-popover--arrow {
+  top: 50%;
+}
+
+.l-popover-left-start .l-popover--arrow,
+.l-popover-right-start .l-popover--arrow {
+  top: 10px;
+}
+
+.l-popover-left-end .l-popover--arrow,
+.l-popover-right-end .l-popover--arrow {
+  bottom: 10px;
+}

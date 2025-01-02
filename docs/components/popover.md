@@ -30,7 +30,7 @@ regist(Popover);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-popover content="悬浮提示">
+  <l-popover content="悬浮提示" inline>
     <l-button slot="trigger">提示</l-button>
   </l-popover>
 </textarea>
