@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
-import { $$ } from "ph-utils/dom";
+import { $$, $one, on, off } from "ph-utils/dom";
 
 type PlacementProp =
   | "top-start"
@@ -26,6 +26,7 @@ export default class Popover extends BaseComponent {
   public showArrow = true;
   public show = false;
   public trigger: TriggerProp = "hover";
+  public disabled = false;
   public isShow = false;
   constructor() {
     super();
@@ -71,7 +72,29 @@ export default class Popover extends BaseComponent {
     this.root.appendChild($content);
   }
 
-  #initEvents() {}
+  #initEvents() {
+    if (this.trigger === "hover" || this.trigger === "click") {
+      const $trigger = $one('[slot="trigger"]', this);
+      if ($trigger) {
+        if (this.trigger === "hover") {
+          on($trigger, "mouseenter", this.#handleMouseEnter);
+          on($trigger, "mouseleave", this.#hanldeMouseLeave);
+        } else {
+          on($trigger, "click", this.#handleClick);
+        }
+      }
+    }
+  }
 
   #removeEvents() {}
+
+  #handleMouseEnter = (e: Event) => {
+    this.#showFn(e.target as HTMLElement);
+  };
+
+  #hanldeMouseLeave = () => {};
+
+  #handleClick = () => {};
+
+  #showFn($referece: HTMLElement) {}
 }
