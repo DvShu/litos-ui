@@ -5,6 +5,7 @@ import {
   getPopoverOffsetY,
   impactDetect,
 } from "../utils";
+import { set, remove } from "../utils/clickoutside";
 import { $$, $one, on, off, $ } from "ph-utils/dom";
 
 type PlacementProp =
@@ -29,7 +30,6 @@ export default class Popover extends BaseComponent {
   public contentClass?: string;
   public content?: string;
   public showArrow = true;
-  public show = false;
   public trigger: TriggerProp = "hover";
   public disabled = false;
   public isShow = false;
@@ -45,7 +45,6 @@ export default class Popover extends BaseComponent {
     super();
     initAttr(this);
     this.style.display = this.inline ? "inline-block" : "block";
-    this.isShow = this.show;
   }
   connectedCallback(): void {
     this.loadStyle(["popover"]);
@@ -74,7 +73,7 @@ export default class Popover extends BaseComponent {
         `l-popover-${this.placement}`,
         this.contentClass,
       ],
-      style: `--l-popover-offset: ${this.offset};`,
+      style: `--l-popover-offset: ${this.offset}px;`,
     });
     $content.innerHTML = this.content ? this.content : "<slot></slot>";
     if (this.showArrow) {
@@ -83,43 +82,60 @@ export default class Popover extends BaseComponent {
       });
       $content.appendChild($arrow);
     }
+    if (this.trigger === "hover") {
+      on($content, "mouseenter", this.#handleMouseEnter);
+      on($content, "mouseleave", this.#hanldeMouseLeave);
+    }
     this.root.appendChild($content);
   }
 
   hideContent() {
     const $content = $one(".l-popover--content", this.root);
     if ($content) {
+      if (this.trigger === "hover") {
+        off($content, "mouseenter", this.#handleMouseEnter);
+        off($content, "mouseleave", this.#hanldeMouseLeave);
+      }
       this.root.removeChild($content);
     }
   }
 
   #initEvents() {
-    if (this.trigger === "hover" || this.trigger === "click") {
-      const $trigger = $one('[slot="trigger"]', this);
-      if ($trigger) {
-        if (this.trigger === "hover") {
-          on($trigger, "mouseenter", this.#handleMouseEnter);
-          on($trigger, "mouseleave", this.#hanldeMouseLeave);
-        } else {
-          on($trigger, "click", this.#handleClick);
-        }
+    const $trigger = $one('[slot="trigger"]', this);
+    if ($trigger) {
+      if (this.trigger === "hover") {
+        on($trigger, "mouseenter", this.#handleMouseEnter);
+        on($trigger, "mouseleave", this.#hanldeMouseLeave);
+      } else if (this.trigger === "click" || this.trigger === "focus") {
+        on($trigger, "click", this.#handleClick);
+        set($trigger, this.#handleTriggerOutside);
       }
     }
   }
 
   #removeEvents() {}
 
+  #handleTriggerOutside = () => {
+    this.hide();
+  };
+
   #handleMouseEnter = (e: Event) => {
-    this.#showFn(e.target as HTMLElement);
+    this.show(e.target as HTMLElement);
   };
 
   #hanldeMouseLeave = () => {
-    this.#hideFn();
+    this.hide();
   };
 
-  #handleClick = () => {};
+  #handleClick = (e: Event) => {
+    if (this.trigger === "click") {
+      this.toggle(e.target as HTMLElement);
+    } else if (this.trigger === "focus") {
+      this.show(e.target as HTMLElement);
+    }
+  };
 
-  #showFn($referece: HTMLElement) {
+  show($referece?: HTMLElement) {
     if (this.disabled) return;
     if (this.isShow) {
       this.#clearHide();
@@ -130,11 +146,19 @@ export default class Popover extends BaseComponent {
     this.#updatePosition($referece);
   }
 
-  #hideFn() {
+  hide() {
     this._t = setTimeout(() => {
       this.isShow = false;
       this.hideContent();
     }, 50) as unknown as any;
+  }
+
+  toggle($referece?: HTMLElement) {
+    if (this.isShow) {
+      this.hide();
+    } else {
+      this.show($referece);
+    }
   }
 
   #clearHide() {
@@ -144,7 +168,7 @@ export default class Popover extends BaseComponent {
     }
   }
 
-  #updatePosition($referece: HTMLElement) {
+  #updatePosition($referece?: HTMLElement) {
     // 获取水平和垂直方向的位置
     let mainPos = "bottom";
     let crossPos = "";
@@ -154,6 +178,9 @@ export default class Popover extends BaseComponent {
       crossPos = poss[1] || "";
     }
     let width: number | undefined = undefined;
+    if ($referece == null) {
+      $referece = $one('[slot="trigger"]', this) as HTMLElement;
+    }
     const $content = $one(".l-popover--content", this.root);
     if ($content) {
       let popoverRect = $content.getBoundingClientRect();
@@ -208,7 +235,12 @@ export default class Popover extends BaseComponent {
 
       if (width != null) {
         $content.style.setProperty("width", `${width}px`);
-        const placement = `${mainPos}${crossPos === "" ? "" : "-" + crossPos}`;
+      }
+      const placement = `l-popover-${mainPos}${crossPos === "" ? "" : "-" + crossPos}`;
+      const classList = $content.className.split(" ");
+      if (classList[1] !== placement) {
+        classList[1] = `${placement}`;
+        $content.className = classList.join(" ");
       }
     }
   }

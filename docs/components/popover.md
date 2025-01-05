@@ -25,18 +25,38 @@ regist(Popover);
 
 ### 基础用法
 
-最简单的用法，通过 `content` 传递浮层内容。
+最简单的用法，通过 `content` 传递浮层内容。`inline` 属性表明 `l-popover` 标签是行级元素。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-popover content="悬浮提示" inline>
-    <l-button slot="trigger">提示</l-button>
+    <a slot="trigger">提示</a>
+  </l-popover>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 触发方式
+
+四种触发方式：鼠标移入[`hover`]、点击[`click`]、焦点[`focus`]、手动控制[`manual`]；通过 `trigger` 属性设置触发方式。默认为：`hover`；
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-popover content="悬浮提示" inline>
+    <l-button slot="trigger">悬浮提示</l-button>
+  </l-popover>
+  <l-popover content="点击提示" inline trigger="click">
+    <l-button slot="trigger">点击提示</l-button>
+  </l-popover>
+  <l-popover content="焦点提示" inline trigger="focus">
+    <l-button slot="trigger">焦点提示</l-button>
   </l-popover>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-popover></l-popover>
+  <l-button>按钮</l-button>
 </textarea>
 </div>
 </l-code-preview>
