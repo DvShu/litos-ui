@@ -38,7 +38,11 @@
 }
 
 /* placement */
-.l-popover0
+.l-popover-bottom {
+  top: calc(100% + var(--l-popover-offset, 10px));
+  left: 50%;
+  transform: translate3d(-50%, 0, 0);
+}
 
 /* arrow */
 .l-popover-top .l-popover--arrow,
