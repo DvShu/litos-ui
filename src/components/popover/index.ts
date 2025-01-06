@@ -28,7 +28,6 @@ export default class Popover extends BaseComponent {
   public static baseName = "popover";
   public inline = false;
   public placement: PlacementProp = "top";
-  public contentClass?: string;
   public content?: string;
   public showArrow = true;
   public trigger: TriggerProp = "hover";
@@ -36,10 +35,13 @@ export default class Popover extends BaseComponent {
   public isShow = false;
   /** 宽度, 'trigger' 表示 popover 的宽度会和它的触发元素一致 */
   public width?: string | number;
+  /** 隐藏时销毁 DOM 结构 */
+  public destroyOnHide = false;
   /** 浮层偏移量 */
-  public offset = 10;
+  public offset?: number;
   /** 浮层定位方式 */
   public position: "absolute" | "fixed" = "absolute";
+  public theme: "default" | "tooltip" = "default";
 
   private _t?: number;
   constructor() {
@@ -70,15 +72,24 @@ export default class Popover extends BaseComponent {
 
   renderContent() {
     if (!this.isShow) return;
+    let $content = $one(".l-popover--content", this.root);
+    if ($content) {
+      $content.style.removeProperty("display");
+      return;
+    }
     // content
-    const $content = $$("div", {
+    $content = $$("div", {
       class: [
         "l-popover--content",
         `l-popover-${this.placement}`,
-        this.contentClass,
+        this.theme === "tooltip" ? "l-popover-tooltip" : undefined,
       ],
-      style: `--l-popover-offset: ${this.offset}px;`,
     });
+    if (this.offset) {
+      $content.style.cssText = "--l-popover-offset: ${this.offset}px;";
+    }
+    // @ts-ignore
+    $content.part = "content";
     $content.innerHTML = this.content ? this.content : "<slot></slot>";
     if (this.showArrow) {
       const $arrow = $$("div", {
@@ -96,11 +107,15 @@ export default class Popover extends BaseComponent {
   hideContent() {
     const $content = $one(".l-popover--content", this.root);
     if ($content) {
-      if (this.trigger === "hover") {
-        off($content, "mouseenter", this.#handleMouseEnter);
-        off($content, "mouseleave", this.#hanldeMouseLeave);
+      if (this.destroyOnHide) {
+        if (this.trigger === "hover") {
+          off($content, "mouseenter", this.#handleMouseEnter);
+          off($content, "mouseleave", this.#hanldeMouseLeave);
+        }
+        this.root.removeChild($content);
+      } else {
+        $content.style.display = "none";
       }
-      this.root.removeChild($content);
     }
   }
 
@@ -117,7 +132,18 @@ export default class Popover extends BaseComponent {
     }
   }
 
-  #removeEvents() {}
+  #removeEvents() {
+    const $trigger = $one('[slot="trigger"]', this);
+    if ($trigger) {
+      if (this.trigger === "hover") {
+        off($trigger, "mouseenter", this.#handleMouseEnter);
+        off($trigger, "mouseleave", this.#hanldeMouseLeave);
+      } else if (this.trigger === "click" || this.trigger === "focus") {
+        off($trigger, "click", this.#handleClick);
+        remove($trigger);
+      }
+    }
+  }
 
   #handleTriggerOutside = (e: Event) => {
     const targetId = (e.target as HTMLElement).id;

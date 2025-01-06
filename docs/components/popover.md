@@ -144,6 +144,25 @@ regist(Popover);
 
 > `l-popover` 组件整体是一个相对定位的标签，所以如果需要对 `l-popover` 设置定位的话，需要在外围包裹一个 `div` 标签，然后对 `div` 标签设置定位。
 
+### Tooltip
+
+`tooltip` 相对于 `popover` 只是样式进行了小调整；只需要设置 `theme="tooltip"` 属性就能即可。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-popover content="提示内容" theme="tooltip" placement="top">
+    <l-button slot="trigger">提示</l-button>
+  </l-popover>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button>按钮</l-button>
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Popover Attibutes
@@ -155,11 +174,11 @@ regist(Popover);
 | `content` | `l-popover` 的内容 | `string` | `-` |
 | `placement` | 位置 | `string` | `top` |
 | `trigger` | 触发方式 | `hover`、`click`、`focus` | `hover` |
-| `content-class` | 内容的类名 | `string` | `-` |
 | `offset` | 偏移量 | `number` | `10` |
 | `show-arrow` | 是否显示箭头 | `boolean` | `true` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `width` | 宽度 | `string`、`number` | `-` |
+| `destroy-on-hide` | 隐藏时销毁 `DOM` 结构; `false` 隐藏时未销毁只是设置 `display: none` | `boolean` | `false` |
 
 ### Popover Slots
 
@@ -168,6 +187,13 @@ regist(Popover);
 | --- | --- |
 | `default` | 内容 |
 | `trigger` | 触发按钮 |
+
+### Popover Slots
+
+<!-- prettier-ignore -->
+| 名称 | 说明 |
+| --- | --- |
+| `content` | 内容区域 |
 
 ### Popover CSS Variables
 
