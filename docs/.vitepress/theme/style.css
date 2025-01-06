@@ -184,3 +184,12 @@ l-button[type="gradient"]::part(default) {
 .l-opacity-leave-to {
   opacity: 0;
 }
+
+.popover-p-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.popover-p-row:not(:first-child) {
+  margin-top: 10px;
+}
