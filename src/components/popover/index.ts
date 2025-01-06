@@ -4,6 +4,7 @@ import {
   getPopoverOffsetX,
   getPopoverOffsetY,
   impactDetect,
+  useId,
 } from "../utils";
 import { set, remove } from "../utils/clickoutside";
 import { $$, $one, on, off, $ } from "ph-utils/dom";
@@ -21,12 +22,12 @@ type PlacementProp =
   | "right"
   | "right-start"
   | "right-end";
-type TriggerProp = "hover" | "click" | "focus" | "manual";
+type TriggerProp = "hover" | "click" | "focus";
 
 export default class Popover extends BaseComponent {
   public static baseName = "popover";
   public inline = false;
-  public placement: PlacementProp = "bottom";
+  public placement: PlacementProp = "top";
   public contentClass?: string;
   public content?: string;
   public showArrow = true;
@@ -44,6 +45,9 @@ export default class Popover extends BaseComponent {
   constructor() {
     super();
     initAttr(this);
+    if (!this.id) {
+      this.id = `${useId()}-popover`;
+    }
     this.style.display = this.inline ? "inline-block" : "block";
   }
   connectedCallback(): void {
@@ -115,8 +119,11 @@ export default class Popover extends BaseComponent {
 
   #removeEvents() {}
 
-  #handleTriggerOutside = () => {
-    this.hide();
+  #handleTriggerOutside = (e: Event) => {
+    const targetId = (e.target as HTMLElement).id;
+    if (targetId !== this.id) {
+      this.hide();
+    }
   };
 
   #handleMouseEnter = (e: Event) => {
