@@ -33,7 +33,7 @@ import Theme from "./theme";
 import ThemeColor from "./theme/theme_color";
 import Popover from "./popover";
 //Web Components Import
-regist(Popover)
+regist(Popover);
 regist(ThemeDefaultIcon);
 regist(ThemeColor);
 regist(Theme);
@@ -95,5 +95,5 @@ import "./select_ori/index.less";
 import "./switch/index.less";
 import "./color_picker/index.less";
 import "./tabbar/index.less";
-import "./theme_switch/index.less";
+import "./theme/index.less";
 import "./popover/index.less";
