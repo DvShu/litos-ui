@@ -59,7 +59,6 @@ export default class Tabbar extends BaseComponent {
   constructor() {
     super();
     initAttr(this);
-    this.root;
   }
   connectedCallback(): void {
     this.loadStyle(["tabbar"]);
