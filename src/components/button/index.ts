@@ -31,7 +31,7 @@ export default class Button extends BaseComponent {
 
   // 当属性发生变化时调用的回调函数
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const $btn = $one(".l-button", this.root) as HTMLButtonElement;
+    const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
     if ($btn) {
       if (name === "loading") {
         const loading = parseAttrValue(newValue, false, name);
@@ -61,6 +61,9 @@ export default class Button extends BaseComponent {
     if (this.htmlType === "reset" || this.htmlType === "submit") {
       on(this, "click", this._handleClick);
     }
+    setTimeout(() => {
+      this.removeAttribute("disabled");
+    }, 500);
   }
 
   disconnectedCallback(): void {
