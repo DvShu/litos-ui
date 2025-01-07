@@ -26,7 +26,7 @@ export default class Button extends BaseComponent {
 
   // 初始化属性观察器
   static get observedAttributes() {
-    return ["loading", "color"];
+    return ["loading", "color", "disabled"];
   }
 
   // 当属性发生变化时调用的回调函数
@@ -48,6 +48,8 @@ export default class Button extends BaseComponent {
         const text = this.getAttr("text", false);
         const ghost = this.getAttr("ghost", false);
         $btn.style.cssText = this.applyColor(newValue, text, ghost);
+      } else if (name === "disabled") {
+        $btn.disabled = this.getAttr("disabled", false);
       }
     }
   }
