@@ -145,7 +145,7 @@ regist(Tabbar);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 选项卡切换时触发 | `(event: Event)` |
+| `change` | 选项卡切换时触发, `e.detail.name` 获取选中值 | `(e: Event)` |
 
 ### Tabbar Methods
 
