@@ -61,9 +61,6 @@ export default class Button extends BaseComponent {
     if (this.htmlType === "reset" || this.htmlType === "submit") {
       on(this, "click", this._handleClick);
     }
-    setTimeout(() => {
-      this.removeAttribute("disabled");
-    }, 500);
   }
 
   disconnectedCallback(): void {
