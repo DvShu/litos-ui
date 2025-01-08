@@ -136,6 +136,7 @@ export default class Tabbar extends BaseComponent {
           if (name) {
             const $clone = $item.cloneNode(true) as HTMLElement;
             $clone.classList.add("l-tabbar-item");
+            $clone.setAttribute("part", "item");
             if (name === this.name) {
               $clone.classList.add("active");
             }
@@ -286,6 +287,7 @@ export default class Tabbar extends BaseComponent {
           this.name === item.name ? "active" : undefined,
         ]),
         "l-name": item.name,
+        part: "item",
       });
       const iconRender = item.icon;
       if (iconRender) {
