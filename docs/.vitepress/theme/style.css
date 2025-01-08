@@ -193,3 +193,14 @@ l-button[type="gradient"]::part(default) {
 .popover-p-row:not(:first-child) {
   margin-top: 10px;
 }
+
+.custom-tabbar {
+  --l-tabbar-line-color: #4998f4;
+  --l-tabbar-height: auto;
+}
+.custom-tabbar-item {
+  padding: 10px 0;
+}
+.custom-tabbar-item.active {
+  color: #4998f4;
+}

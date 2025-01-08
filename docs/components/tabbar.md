@@ -121,6 +121,43 @@ regist(Tabbar);
 </l-code-preview>
 </ClientOnly>
 
+### 自定义内容
+
+通过设置 `custom-content` 属性可以自定义选项卡的内容。这样的话，选项卡每一项的样式完全可控。给每一项添加 `l-name` 属性。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-tabbar type="bar" name="1" custom-content class="custom-tabbar">
+    <div l-name="1" class="custom-tabbar-item">选项1</div>
+    <div l-name="2" class="custom-tabbar-item">选项2</div>
+    <div l-name="3" class="custom-tabbar-item">选项3</div>
+  </l-tabbar>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-tabbar type="bar" name="1" custom-content class="custom-tabbar">
+    <div l-name="1" class="custom-tabbar-item">选项1</div>
+    <div l-name="2" class="custom-tabbar-item">选项2</div>
+    <div l-name="3" class="custom-tabbar-item">选项3</div>
+  </l-tabbar>
+</textarea>
+<textarea lang="css">
+  .custom-tabbar {
+    --l-tabbar-line-color: #4998f4;
+    --l-tabbar-height: auto;
+  }
+  .custom-tabbar-item {
+    padding: 10px 0;
+  }
+  .custom-tabbar-item.active {
+    color: #4998f4;
+  }
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Tabbar Attibutes

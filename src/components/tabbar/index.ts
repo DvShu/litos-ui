@@ -53,7 +53,6 @@ export default class Tabbar extends BaseComponent {
    */
   public type: "nav" | "bar" | "card" = "nav";
   public name?: string;
-  public justifyContent?: string;
   public gap?: string;
   private $line?: HTMLElement;
   constructor() {
@@ -120,36 +119,42 @@ export default class Tabbar extends BaseComponent {
     this._destroy();
   }
   render() {
-    const $items = $("[l-name]", this);
     const $root = document.createDocumentFragment();
     const $wrapper = document.createElement("div");
     $wrapper.className = "l-tabbar-wrapper";
     $wrapper.style.cssText = this.#getWrapperStyle();
     $wrapper.setAttribute("part", "default");
-    if ($items.length > 0) {
-      iterate($items, ($item) => {
-        const name = $item.getAttribute("l-name");
-        if (name) {
-          const $clone = $item.cloneNode(true) as HTMLElement;
-          $clone.classList.add("l-tabbar-item");
-          if (name === this.name) {
-            $clone.classList.add("active");
+    const customeContent = this.getAttr("custom-content", false);
+    if (customeContent) {
+      const $slot = document.createElement("slot");
+      $wrapper.appendChild($slot);
+    } else {
+      const $items = $("[l-name]", this);
+      if ($items.length > 0) {
+        iterate($items, ($item) => {
+          const name = $item.getAttribute("l-name");
+          if (name) {
+            const $clone = $item.cloneNode(true) as HTMLElement;
+            $clone.classList.add("l-tabbar-item");
+            if (name === this.name) {
+              $clone.classList.add("active");
+            }
+            const $icon = $one("[l-icon]", $clone);
+            const $default = $(":not([l-icon])", $clone);
+            if ($icon) {
+              const $iconWrapper = create("div", {
+                class: [
+                  "l-tabbar-item-icon",
+                  $default.length === 0 ? "only" : undefined,
+                ],
+              });
+              $iconWrapper.appendChild($icon.cloneNode(true));
+              $icon.replaceWith($iconWrapper);
+            }
+            $wrapper.appendChild($clone);
           }
-          const $icon = $one("[l-icon]", $clone);
-          const $default = $(":not([l-icon])", $clone);
-          if ($icon) {
-            const $iconWrapper = create("div", {
-              class: [
-                "l-tabbar-item-icon",
-                $default.length === 0 ? "only" : undefined,
-              ],
-            });
-            $iconWrapper.appendChild($icon.cloneNode(true));
-            $icon.replaceWith($iconWrapper);
-          }
-          $wrapper.appendChild($clone);
-        }
-      });
+        });
+      }
     }
     $root.appendChild($wrapper);
     if (this.type === "card") {
@@ -215,11 +220,13 @@ export default class Tabbar extends BaseComponent {
   };
 
   private _updateActive() {
-    const $active = $one(".active", this.root);
+    const custom = this.getAttr("custom-content", false);
+    const ctx = custom ? this : this.root;
+    const $active = $one(".active", ctx);
     if ($active) {
       removeClass($active, "active");
     }
-    const $target = $one(`[l-name="${this.name}"]`, this.root);
+    const $target = $one(`[l-name="${this.name}"]`, ctx);
     if ($target) {
       addClass($target, "active");
     }
@@ -231,12 +238,15 @@ export default class Tabbar extends BaseComponent {
   private _updateLine() {
     queueMicrotask(() => {
       if (!this.name || this.type === "nav" || !this.rendered) return;
-      const $curr = $one(".active", this.root) as HTMLElement;
+      const custom = this.getAttr("custom-content", false);
+      const $curr = $one(".active", custom ? this : this.root) as HTMLElement;
       if (!$curr) return;
       const offsetLeft = $curr.offsetLeft;
       if (!this.$line) {
         // 初始化线条
         const $tmpLine = create("div", { class: "l-tabbar--bar-line" });
+        // @ts-ignore
+        $tmpLine.part = "line";
         this.root.appendChild($tmpLine);
         this.$line = $one(".l-tabbar--bar-line", this.root) as HTMLElement;
       }
@@ -252,8 +262,9 @@ export default class Tabbar extends BaseComponent {
 
   #getWrapperStyle() {
     const res: { [index: string]: string } = {};
-    if (!isBlank(this.justifyContent)) {
-      res["justify-content"] = this.justifyContent as string;
+    const justify = this.getAttr("justify-content");
+    if (!isBlank(justify)) {
+      res["justify-content"] = justify;
     }
     if (!isBlank(this.gap)) {
       let gap = this.gap as string;
