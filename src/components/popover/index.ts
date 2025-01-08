@@ -77,12 +77,13 @@ export default class Popover extends BaseComponent {
       $content.style.removeProperty("display");
       return;
     }
+    const theme = this.getAttr("theme", "default");
     // content
     $content = $$("div", {
       class: [
         "l-popover--content",
         `l-popover-${this.placement}`,
-        this.theme === "tooltip" ? "l-popover-tooltip" : undefined,
+        theme === "default" ? undefined : `l-popover-${theme}`,
       ],
     });
     if (this.offset) {

@@ -163,6 +163,27 @@ regist(Popover);
 </l-code-preview>
 </ClientOnly>
 
+### `Popconfirm`
+
+气泡确认框: 点击元素，弹出简单的气泡式的确认框
+
+只需将设置 `theme="popconfirm"` 就能变为 `Popconfirm` 风格
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-popover content="提示内容" theme="popconfirm">
+    <l-button slot="trigger">提示</l-button>
+  </l-popover>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button>按钮</l-button>
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Popover Attibutes
