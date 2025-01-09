@@ -8,8 +8,11 @@ import {
 } from "../utils";
 import { set, remove } from "../utils/clickoutside";
 import { $$, $one, on, off } from "ph-utils/dom";
+<<<<<<< HEAD
 //@ts-ignore
 import css from "./index.less?inline";
+=======
+>>>>>>> dcc9351 (feat(Popconfirm): 气泡确认框)
 
 type PlacementProp =
   | "top-start"

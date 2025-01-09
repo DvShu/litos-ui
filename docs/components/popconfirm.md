@@ -5,9 +5,15 @@
 ## 引用
 
 ```js
+<<<<<<< HEAD
 import { Popconfirm, regist, Button, WarnIcon } from "litos-ui";
 
 regist([Popconfirm, Button, WarnIcon]);
+=======
+import { Popconfirm, regist } from "litos-ui";
+
+regist(Popconfirm);
+>>>>>>> dcc9351 (feat(Popconfirm): 气泡确认框)
 ```
 
 ## 演示
