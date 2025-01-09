@@ -32,7 +32,9 @@ import Tabbar from "./tabbar";
 import Theme from "./theme";
 import ThemeColor from "./theme/theme_color";
 import Popover from "./popover";
+import Popconfirm from "./popconfirm";
 //Web Components Import
+regist(Popconfirm)
 regist(Popover);
 regist(ThemeDefaultIcon);
 regist(ThemeColor);
@@ -97,3 +99,4 @@ import "./color_picker/index.less";
 import "./tabbar/index.less";
 import "./theme/index.less";
 import "./popover/index.less";
+import "./popconfirm/index.less";

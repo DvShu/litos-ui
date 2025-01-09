@@ -46,5 +46,9 @@ export { default as Tabbar } from "./tabbar";
 export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
 
+export { default as registButton } from "./button/regist";
 export { default as registTabbar } from "./tabbar/regist";
 export { default as registPopover } from "./popover/regist";
+
+export { default as Popconfirm } from "./popconfirm";
+export { default as registPopconfirm } from "./popconfirm/regist";

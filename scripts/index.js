@@ -126,7 +126,7 @@ function createComponentTemplate(name) {
   const exportPath = path.join(compoentsPath, "index.ts");
   readFile(exportPath, "utf-8")
     .then((content) => {
-      content += `\r\nexport { default as ${name} } from "./${fileName}";\r\n`;
+      content += `\r\nexport { default as ${name} } from "./${fileName}";`;
       content += `\r\nexport { default as regist${name} } from "./${fileName}/regist";\r\n`;
       return write(exportPath, content);
     })
