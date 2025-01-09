@@ -42,25 +42,12 @@ export default class BaseComponent extends HTMLElement {
     this.root.appendChild(link);
   }
 
-<<<<<<< HEAD
   public loadStyleText(styleText: string | string[]) {
     let text = styleText;
     if (Array.isArray(text)) {
       text = text.join("");
     }
     this.createStyle(text);
-=======
-  loadStyle(styleNames: string[]) {
-    //@ts-ignore
-  }
-
-  loadExternalStyle(styleNames: string[]) {
-    //@ts-ignore
-  }
-
-  public loadStyleText(styleText: string) {
-    this.createStyle(styleText);
->>>>>>> 4c4a6c8 (fix: 修复tree shaking)
   }
 
   /**
