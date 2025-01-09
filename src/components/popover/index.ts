@@ -7,7 +7,7 @@ import {
   useId,
 } from "../utils";
 import { set, remove } from "../utils/clickoutside";
-import { $$, $one, on, off, $ } from "ph-utils/dom";
+import { $$, $one, on, off } from "ph-utils/dom";
 
 type PlacementProp =
   | "top-start"
@@ -26,7 +26,6 @@ type TriggerProp = "hover" | "click" | "focus";
 
 export default class Popover extends BaseComponent {
   public static baseName = "popover";
-  public inline = false;
   public placement: PlacementProp = "top";
   public content?: string;
   public showArrow = true;
@@ -41,19 +40,19 @@ export default class Popover extends BaseComponent {
   public offset?: number;
   /** 浮层定位方式 */
   public position: "absolute" | "fixed" = "absolute";
-  public theme: "default" | "tooltip" = "default";
+  public theme: "default" | "tooltip" | "popconfirm" = "default";
+  /**
+   * @property inline = false
+   */
 
   private _t?: number;
   constructor() {
     super();
     initAttr(this);
-    if (!this.id) {
-      this.id = `${useId()}-popover`;
-    }
-    this.style.display = this.inline ? "inline-block" : "block";
   }
   connectedCallback(): void {
     this.loadStyle(["popover"]);
+    this.#initAttr();
     super.connectedCallback();
     this.renderContent();
     this.#initEvents();
@@ -77,13 +76,12 @@ export default class Popover extends BaseComponent {
       $content.style.removeProperty("display");
       return;
     }
-    const theme = this.getAttr("theme", "default");
     // content
     $content = $$("div", {
       class: [
         "l-popover--content",
         `l-popover-${this.placement}`,
-        theme === "default" ? undefined : `l-popover-${theme}`,
+        this.theme === "default" ? undefined : `l-popover-${this.theme}`,
       ],
     });
     if (this.offset) {
@@ -91,7 +89,8 @@ export default class Popover extends BaseComponent {
     }
     // @ts-ignore
     $content.part = "content";
-    $content.innerHTML = this.content ? this.content : "<slot></slot>";
+    $content.innerHTML = this.contentHTML();
+
     if (this.showArrow) {
       const $arrow = $$("div", {
         class: "l-popover--arrow",
@@ -103,6 +102,18 @@ export default class Popover extends BaseComponent {
       on($content, "mouseleave", this.#hanldeMouseLeave);
     }
     this.root.appendChild($content);
+  }
+
+  protected contentHTML() {
+    return this.content ? `<span>${this.content}</span>` : "<slot></slot>";
+  }
+
+  #initAttr() {
+    const inline = this.getAttr("inline", false);
+    this.style.display = inline ? "inline-block" : "block";
+    if (!this.id) {
+      this.id = `${useId()}-popover`;
+    }
   }
 
   hideContent() {
