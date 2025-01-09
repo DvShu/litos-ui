@@ -1,9 +1,6 @@
 import BaseComponent from "../base";
-import { initAttr, parseAttrValue, regist } from "../utils";
-import LoadingIcon from "../icon/loading";
+import { initAttr, parseAttrValue } from "../utils";
 import { $one } from "ph-utils/dom";
-
-regist(LoadingIcon);
 
 export default class List extends BaseComponent {
   public static baseName = "list";

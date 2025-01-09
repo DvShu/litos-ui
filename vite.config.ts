@@ -17,20 +17,4 @@ for (const filename of entryFiles) {
   entries[path.join(filepath.dir, filepath.name)] = fileAbsName;
 }
 
-export default defineConfig({
-  build: {
-    outDir: "lib",
-    lib: {
-      entry: entries,
-      name: "LitosUI",
-      formats: ["es"],
-    },
-    rollupOptions: {
-      // 确保外部化处理那些
-      // 你不想打包进库的依赖
-      external: [/ph-utils\/*/],
-    },
-    emptyOutDir: true,
-    copyPublicDir: false,
-  },
-});
+export default defineConfig({});

@@ -1,4 +1,4 @@
-import { initAttr, parseAttrValue, regist } from "../utils";
+import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import {
   formatClass,
@@ -10,11 +10,8 @@ import {
   getAttr,
   $one,
 } from "ph-utils/dom";
-import LoadingIcon from "../icon/loading";
 import { adjust } from "ph-utils/color";
 import type Form from "../form";
-
-regist(LoadingIcon);
 
 export default class Button extends BaseComponent {
   public static baseName = "button";

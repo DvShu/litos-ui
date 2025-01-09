@@ -44,40 +44,10 @@ export default class BaseComponent extends HTMLElement {
 
   loadStyle(styleNames: string[]) {
     //@ts-ignore
-    if (import.meta.env.MODE !== "browser") {
-      for (let i = 0, len = styleNames.length; i < len; i++) {
-        const styleName = styleNames[i];
-        import(`./${styleName}/index.less?inline`).then((res) => {
-          this.createStyle(res.default);
-        });
-      }
-    }
-    //@ts-ignore
-    if (import.meta.env.MODE === "browser") {
-      let $style = document.querySelector("#litos-ui-style") as HTMLLinkElement;
-      if ($style) {
-        this.createLink($style.href);
-      } else {
-        queueMicrotask(() => {
-          $style = document.querySelector("#litos-ui-style") as HTMLLinkElement;
-          if ($style) {
-            this.createLink($style.href);
-          }
-        });
-      }
-    }
   }
 
   loadExternalStyle(styleNames: string[]) {
     //@ts-ignore
-    if (import.meta.env.MODE !== "browser") {
-      for (let i = 0, len = styleNames.length; i < len; i++) {
-        const styleName = styleNames[i];
-        import(`./styles/${styleName}.css?inline`).then((res) => {
-          this.createStyle(res.default);
-        });
-      }
-    }
   }
 
   public loadStyleText(styleText: string) {

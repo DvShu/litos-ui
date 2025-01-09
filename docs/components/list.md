@@ -5,9 +5,9 @@
 ## 引用
 
 ```js
-import { List, regist } from "litos-ui";
+import { List, regist, LoadingIcon } from "litos-ui";
 
-regist(List);
+regist([List, LoadingIcon]);
 ```
 
 ## 演示

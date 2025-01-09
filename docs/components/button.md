@@ -3,9 +3,11 @@
 ## 引用
 
 ```js
-import { Button, regist } from "litos-ui";
+import { Button, regist, LoadingIcon } from "litos-ui";
 
 regist(Button);
+// 如果需要使用加载状态
+regist(LoadingIcon);
 ```
 
 ## 基础使用
