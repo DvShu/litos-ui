@@ -8,6 +8,7 @@ export { default as BaseComponent } from "./base";
 
 export { default as Message } from "./message";
 export { default as Popover } from "./popover";
+export { default as Popconfirm } from "./popconfirm";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
@@ -45,10 +46,3 @@ export { default as Tabbar } from "./tabbar";
 
 export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
-
-export { default as registButton } from "./button/regist";
-export { default as registTabbar } from "./tabbar/regist";
-export { default as registPopover } from "./popover/regist";
-
-export { default as Popconfirm } from "./popconfirm";
-export { default as registPopconfirm } from "./popconfirm/regist";

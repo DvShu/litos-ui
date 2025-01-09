@@ -5,11 +5,6 @@ import Success from "../icon/success";
 import Warn from "../icon/warn";
 import Info from "../icon/info";
 
-regist(MaskClose);
-regist(Success);
-regist(Warn);
-regist(Info);
-
 const instances: HTMLElement[] = []; // 保存所有的消息体
 const transitionSheet: [string, string, string][] = [
   ["opacity", "0", "0.3s"],
@@ -96,6 +91,7 @@ function renderBody(props: any) {
 }
 
 const Message: MessageInstance = ((option: string | MessageOption) => {
+  regist([MaskClose, Success, Warn, Info]);
   // 计算消息的位置
   const offset = instances.reduce(
     (prev, curr) => prev + curr.offsetHeight + 15,
@@ -124,6 +120,15 @@ const Message: MessageInstance = ((option: string | MessageOption) => {
   return id;
 }) as any;
 
+function show(
+  options: string | MessageOption,
+  type: "info" | "success" | "error" | "warn" = "info"
+) {
+  const opts: MessageOption =
+    typeof options === "string" ? { message: options } : options;
+  opts.type = type as any;
+  return Message(opts);
+}
 for (const type of ["info", "success", "error", "warn", "show"]) {
   Message[type] = (options: string | MessageOption) => {
     const opts: MessageOption =
@@ -136,7 +141,11 @@ for (const type of ["info", "success", "error", "warn", "show"]) {
     return Message(opts);
   };
 }
-
+Message.info = (options: string | MessageOption) => show(options, "info");
+Message.success = (options: string | MessageOption) => show(options, "success");
+Message.error = (options: string | MessageOption) => show(options, "error");
+Message.warn = (options: string | MessageOption) => show(options, "warn");
+Message.show = (options: string | MessageOption) => show(options);
 Message.close = close;
 
 export default Message;
