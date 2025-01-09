@@ -36,8 +36,8 @@ import Popconfirm from "./popconfirm";
 import Checkbox from "./checkbox";
 import MdInput from "./md_input";
 //Web Components Import
-regist(MdInput)
-regist(Checkbox)
+regist(MdInput);
+regist(Checkbox);
 regist(Popconfirm);
 regist(Popover);
 regist(ThemeDefaultIcon);
