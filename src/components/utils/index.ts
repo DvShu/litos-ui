@@ -89,10 +89,12 @@ export function initAttr(el: HTMLElement) {
       return item[0].toUpperCase() + item.slice(1);
     });
     const attrName = nameItems.join("");
-    const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
-    (el as any)[attrName] = parsedValue;
-    if (name === "value") {
-      (el as any)._resetValue = parsedValue;
+    if (Object.hasOwn(el, attrName)) {
+      const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
+      (el as any)[attrName] = parsedValue;
+      if (name === "value") {
+        (el as any)._resetValue = parsedValue;
+      }
     }
   }
 }
