@@ -18,6 +18,7 @@ for (const filename of entryFiles) {
   entries[path.join(filepath.dir, filepath.name)] = fileAbsName;
 }
 
+<<<<<<< HEAD
 export default defineConfig({
   plugins: [
     dts({
@@ -41,3 +42,6 @@ export default defineConfig({
     copyPublicDir: false,
   },
 });
+=======
+export default defineConfig({});
+>>>>>>> 4c4a6c8 (fix: 修复tree shaking)
