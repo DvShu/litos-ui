@@ -14,6 +14,8 @@ import {
   formatStyle,
   formatClass,
 } from "ph-utils/dom";
+//@ts-ignore
+import css from "./index.less?inline";
 
 type TabbarItem = {
   name: string;
@@ -60,7 +62,7 @@ export default class Tabbar extends BaseComponent {
     initAttr(this);
   }
   connectedCallback(): void {
-    this.loadStyle(["tabbar"]);
+    this.loadStyleText(css);
     addClass(this, `l-tabbar--${this.type}`);
     if (!isBlank(this.gap) && !(this.gap as string).startsWith("0")) {
       addClass(this, `l-tabbar-gap`);

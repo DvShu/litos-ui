@@ -37,7 +37,10 @@ regist(Form);
 
   onUnmounted(() => {
     const $positionRadio = $one('#positionRadio');
-    off($positionRadio, 'change', handlePositionChange);
+    if ($positionRadio) {
+      off($positionRadio, 'change', handlePositionChange);
+    }
+    
   })
 </script>
 

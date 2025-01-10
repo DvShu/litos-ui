@@ -21,8 +21,6 @@ export default {
             add(component.baseName);
           }
           module.regist(component);
-        } else if (key === "Message") {
-          window.LMessage = component;
         }
       }
       const CodePreview = await import(

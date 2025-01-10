@@ -5,6 +5,8 @@ import { random } from "ph-utils";
 import { emit, add, clear } from "./form_events";
 import type { SchemaType } from "ph-utils/validator";
 import Validator from "ph-utils/validator";
+//@ts-ignore
+import css from "./index.less?inline";
 
 export default class Form extends BaseComponent {
   public static baseName = "form";
@@ -56,7 +58,7 @@ export default class Form extends BaseComponent {
   }
 
   connectedCallback(): void {
-    this.loadStyle(["form"]);
+    this.loadStyleText([css]);
     super.connectedCallback();
     add(this.id, "ruleChange", this.ruleChange);
     add(this.id, "valueChange", this._valueChange);
@@ -76,7 +78,7 @@ export default class Form extends BaseComponent {
     const styleStr = formatStyle({
       "--l-form-label-width": this.labelWidth ? this.labelWidth : "",
     });
-    this.shadow.innerHTML = `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
+    return `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
   }
 
   ruleChange = (schema: SchemaType) => {

@@ -1,6 +1,10 @@
 import { $one, on, off } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { initAttr, setAttrs } from "../utils";
+//@ts-ignore
+import inputCss from "../input/index.less?inline";
+//@ts-ignore
+import css from "./index.less?inline";
 
 export default class ColorPicker extends FormInner {
   public static baseName = "color-picker";
@@ -18,7 +22,7 @@ export default class ColorPicker extends FormInner {
     }
   }
   connectedCallback(): void {
-    this.loadStyle(["input", "color_picker"]);
+    this.loadStyleText([inputCss, css]);
     super.connectedCallback();
     this.$picker = $one("input", this.root) as HTMLInputElement;
     on(this.$picker, "change", this._handleChange);

@@ -56,6 +56,27 @@ regist(ArrowDownIcon);
 </l-code-preview>
 </ClientOnly>
 
+> 当前也可以通过继承 `BaseIcon` 来自定义图标
+
+```js
+import { BaseIcon, regist } from "litos-ui";
+
+class MyIcon extends BaseIcon {
+  constructor() {
+    super();
+    this.viewBox = "0 0 1024 1024"; // 默认
+  }
+
+  renderChildren() {
+    return '<path fill="currentColor" d="M512 320 192 704h639.936z"></path>';
+  }
+}
+
+regist(MyIcon, "my-icon");
+
+// <my-icon></my-icon>
+```
+
 ### 颜色和尺寸
 
 修改颜色和尺寸可以通过 `color` 和 `font-size` 修改
@@ -69,3 +90,10 @@ regist(ArrowDownIcon);
 </ClientOnly>
 
 > 这里是通过 `style` 属性来修改的，也可以通过 `class` 来修改
+
+### Icon Attribute
+
+<!-- prettier-ignore -->
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `view-box` | svg view box  | `string` | `0 0 1024 1024` |

@@ -34,7 +34,7 @@ import ThemeColor from "./theme/theme_color";
 import Popover from "./popover";
 import Popconfirm from "./popconfirm";
 //Web Components Import
-regist(Popconfirm)
+regist(Popconfirm);
 regist(Popover);
 regist(ThemeDefaultIcon);
 regist(ThemeColor);
@@ -93,7 +93,6 @@ import "./form/index.less";
 import "./radio/index.less";
 import "./list/index.less";
 import "./polygon/index.less";
-import "./select_ori/index.less";
 import "./switch/index.less";
 import "./color_picker/index.less";
 import "./tabbar/index.less";

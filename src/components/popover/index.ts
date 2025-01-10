@@ -8,6 +8,8 @@ import {
 } from "../utils";
 import { set, remove } from "../utils/clickoutside";
 import { $$, $one, on, off } from "ph-utils/dom";
+//@ts-ignore
+import css from "./index.less?inline";
 
 type PlacementProp =
   | "top-start"
@@ -51,7 +53,7 @@ export default class Popover extends BaseComponent {
     initAttr(this);
   }
   connectedCallback(): void {
-    this.loadStyle(["popover"]);
+    this.loadStyleText(css);
     this.#initAttr();
     super.connectedCallback();
     this.renderContent();

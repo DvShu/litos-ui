@@ -10,6 +10,8 @@ import {
 import { initAttr, parseAttrValue, tagAttr } from "../utils";
 import FormInner from "../form/form_inner";
 import { add, remove } from "../form/form_events";
+//@ts-ignore
+import css from "./index.less?inline";
 
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
@@ -25,7 +27,7 @@ import { add, remove } from "../form/form_events";
  * @method focus - 输入框获取焦点
  */
 export default class Input extends FormInner {
-  public static componentName: string = "input";
+  public static baseName: string = "input";
   /** 原生 input 的 type */
   public type: string = "text";
   public placeholder: string | undefined = undefined;
@@ -63,7 +65,7 @@ export default class Input extends FormInner {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.loadStyle(["input"]);
+    this.loadStyleText([css]);
   }
 
   disconnectedCallback(): void {

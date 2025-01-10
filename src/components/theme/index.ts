@@ -2,6 +2,8 @@ import BaseComponent from "../base";
 import { initAttr } from "../utils";
 import { $one, create, off, on } from "ph-utils/dom";
 import { getTheme, applyTheme } from "ph-utils/theme";
+//@ts-ignore
+import css from "./index.less?inline";
 
 const RADIO_ITEMS = [
   { value: "auto", text: "跟随系统", icon: "l-theme-default-icon" },
@@ -21,7 +23,7 @@ export default class Theme extends BaseComponent {
     this.theme = getTheme();
   }
   connectedCallback(): void {
-    this.loadStyle(["theme"]);
+    this.loadStyleText(css);
     super.connectedCallback();
     this.#initEvents();
   }

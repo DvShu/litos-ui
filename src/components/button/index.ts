@@ -12,6 +12,10 @@ import {
 } from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
 import type Form from "../form";
+//@ts-ignore
+import buttonCss from "./index.less?inline";
+//@ts-ignore
+import animationCss from "../styles/animation.css?inline";
 
 export default class Button extends BaseComponent {
   public static baseName = "button";
@@ -52,8 +56,7 @@ export default class Button extends BaseComponent {
   }
 
   connectedCallback(): void {
-    this.loadStyle(["button"]);
-    this.loadExternalStyle(["animation"]);
+    this.loadStyleText([buttonCss, animationCss]);
     this.render();
     if (this.htmlType === "reset" || this.htmlType === "submit") {
       on(this, "click", this._handleClick);

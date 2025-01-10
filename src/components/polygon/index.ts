@@ -1,6 +1,8 @@
 import { formatClass, formatStyle } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
+//@ts-ignore
+import css from "./index.less?inline";
 
 export default class Polygon extends BaseComponent {
   public static baseName = "polygon";
@@ -21,7 +23,7 @@ export default class Polygon extends BaseComponent {
     initAttr(this);
   }
   connectedCallback(): void {
-    this.loadStyle(["polygon"]);
+    this.loadStyleText(css);
     super.connectedCallback();
   }
   render() {
@@ -32,6 +34,6 @@ export default class Polygon extends BaseComponent {
     const styleStr = formatStyle([
       this.background ? `--l-polygen-background: ${this.background}` : "",
     ]);
-    this.root.innerHTML = `<div part="default" class="${classStr}" style="${styleStr}"></div>`;
+    return `<div part="default" class="${classStr}" style="${styleStr}"></div>`;
   }
 }

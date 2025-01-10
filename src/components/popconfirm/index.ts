@@ -1,9 +1,7 @@
-import { regist } from "../utils";
-import Button from "../button";
 import Popover from "../popover";
-import WarnIcon from "../icon/warn";
 import { $one, on, shouldEventNext } from "ph-utils/dom";
-regist([Button, WarnIcon]);
+//@ts-ignore
+import css from "./index.less?inline";
 
 export default class Popconfirm extends Popover {
   public static baseName = "popconfirm";
@@ -11,7 +9,7 @@ export default class Popconfirm extends Popover {
     super();
   }
   connectedCallback(): void {
-    this.loadStyle(["popconfirm"]);
+    this.loadStyleText(css);
     this.trigger = "click";
     this.theme = "popconfirm";
     super.connectedCallback();

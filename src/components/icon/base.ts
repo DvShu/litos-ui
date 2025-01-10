@@ -1,4 +1,6 @@
 import BaseComponent from "../base";
+//@ts-ignore
+import css from "./index.less?inline";
 
 export default class BaseIcon extends BaseComponent {
   public static baseName = "base-icon";
@@ -11,7 +13,7 @@ export default class BaseIcon extends BaseComponent {
   }
 
   connectedCallback() {
-    this.loadStyle(["icon"]);
+    this.loadStyleText([css]);
     this.render();
     this.rendered = true;
   }
