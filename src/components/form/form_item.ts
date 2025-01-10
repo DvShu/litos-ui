@@ -4,6 +4,8 @@ import BaseComponent from "../base";
 import { emit, clear, add, remove } from "./form_events";
 import { random } from "ph-utils";
 import type { RuleType } from "ph-utils/validator";
+//@ts-ignore
+import css from "./form_item.less?inline";
 
 export default class FormItem extends BaseComponent {
   public static baseName = "form-item";
@@ -59,7 +61,7 @@ export default class FormItem extends BaseComponent {
 
   connectedCallback(): void {
     super.connectedCallback();
-    this.loadStyle(["form"]);
+    this.loadStyleText([css]);
     this.formId = this._getFormId();
     if (this.name && this.formId) {
       let rules: any[] = this.verify?.split("|") || [];
@@ -116,7 +118,7 @@ export default class FormItem extends BaseComponent {
     const errorStr = this.error
       ? `<div class="l-form-item__error">${this.error}</div>`
       : "";
-    this.shadow.innerHTML = [
+    return [
       `<div class="${formatClass(classObj)}">${labelStr}`,
       '<div class="l-form-item__content">',
       `<slot></slot>${errorStr}</div></div>`,

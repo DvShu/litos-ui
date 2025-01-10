@@ -58,8 +58,8 @@ trans.init();
 
   onUnmounted(() => {
     trans.destroy();
-    off($$one('#toggle1'), 'click', toggle)
-    off($$one('#toggle2'), 'click', toggle2)
+    off($one('#toggle1'), 'click', toggle)
+    off($one('#toggle2'), 'click', toggle2)
   })
 </script>
 

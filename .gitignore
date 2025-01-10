@@ -4,3 +4,4 @@ docs/.vitepress/dist
 lib
 scripts/version.js
 scripts/version.sh
+dist

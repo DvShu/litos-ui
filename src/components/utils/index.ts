@@ -80,7 +80,8 @@ export function initAttr(el: HTMLElement) {
       name.startsWith("data-") ||
       name.startsWith("aria-") ||
       name.startsWith("_") ||
-      name.startsWith("$")
+      name.startsWith("$") ||
+      ["id", "class", "style"].includes(name)
     ) {
       continue;
     }
@@ -89,12 +90,17 @@ export function initAttr(el: HTMLElement) {
       return item[0].toUpperCase() + item.slice(1);
     });
     const attrName = nameItems.join("");
-    if (Object.hasOwn(el, attrName)) {
-      const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
+    const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
+    const attrs = Object.getOwnPropertyNames(el);
+    const ignoreInitAttrs = (el as any)._ignoreInitAttrs || [];
+    if (name === "value") {
       (el as any)[attrName] = parsedValue;
-      if (name === "value") {
-        (el as any)._resetValue = parsedValue;
-      }
+      (el as any)._resetValue = parsedValue;
+    } else if (
+      attrs.includes(attrName) &&
+      !ignoreInitAttrs.includes(attrName)
+    ) {
+      (el as any)[attrName] = parsedValue;
     }
   }
 }

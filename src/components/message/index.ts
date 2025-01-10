@@ -10,6 +10,7 @@ const transitionSheet: [string, string, string][] = [
   ["opacity", "0", "0.3s"],
   ["transform", "translate3d(-50%, -100%, 0)", "0.3s"],
 ];
+let isFirstOpen = true;
 
 /** 消息配置 */
 interface MessageOption {
@@ -91,7 +92,11 @@ function renderBody(props: any) {
 }
 
 const Message: MessageInstance = ((option: string | MessageOption) => {
-  regist([MaskClose, Success, Warn, Info]);
+  if (isFirstOpen) {
+    regist([MaskClose, Success, Warn, Info]);
+    isFirstOpen = false;
+  }
+
   // 计算消息的位置
   const offset = instances.reduce(
     (prev, curr) => prev + curr.offsetHeight + 15,
@@ -126,20 +131,8 @@ function show(
 ) {
   const opts: MessageOption =
     typeof options === "string" ? { message: options } : options;
-  opts.type = type as any;
+  if (!opts.type) opts.type = type as any;
   return Message(opts);
-}
-for (const type of ["info", "success", "error", "warn", "show"]) {
-  Message[type] = (options: string | MessageOption) => {
-    const opts: MessageOption =
-      typeof options === "string" ? { message: options } : options;
-    if (type !== "show") {
-      opts.type = type as any;
-    } else if (opts.type == null) {
-      opts.type = "info";
-    }
-    return Message(opts);
-  };
 }
 Message.info = (options: string | MessageOption) => show(options, "info");
 Message.success = (options: string | MessageOption) => show(options, "success");

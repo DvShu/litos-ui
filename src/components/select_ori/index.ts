@@ -1,6 +1,8 @@
 import FormInner from "../form/form_inner";
 import { initAttr, tagAttrs } from "../utils";
 import { $one, on, off } from "ph-utils/dom";
+//@ts-ignore
+import css from "../input/index.less?inline";
 
 type Option = { label: string; value: string };
 
@@ -16,7 +18,7 @@ export default class SelectOri extends FormInner {
     this.changeEmit = new CustomEvent("change");
   }
   connectedCallback(): void {
-    this.loadStyle(["input"]);
+    this.loadStyleText(css);
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
     if (this.value) {
@@ -39,7 +41,7 @@ export default class SelectOri extends FormInner {
       ["name", this.getName()],
       ["disabled", this.isDisabled()],
     ]);
-    this.root.innerHTML = `<select class="l-input"${attrs}>${$children}</select>`;
+    return `<select class="l-input"${attrs}>${$children}</select>`;
   }
 
   protected _changeDisabled(): void {

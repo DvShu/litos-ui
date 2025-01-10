@@ -13,6 +13,8 @@ import {
   removeClass,
 } from "ph-utils/dom";
 import { random } from "ph-utils";
+//@ts-ignore
+import css from "./index.less?inline";
 
 type RadioItem = {
   value: string;
@@ -26,7 +28,8 @@ export default class Radio extends FormInner {
   public type?: "button";
   public label?: string;
   public checked = false;
-  private _changeEvent: CustomEvent;
+
+  private _ignoreInitAttrs = [];
 
   public setItems(items: RadioItem[]) {
     this._removeEvents();
@@ -36,12 +39,12 @@ export default class Radio extends FormInner {
 
   constructor() {
     super(false);
+    console.log();
     initAttr(this);
-    this._changeEvent = new CustomEvent("change");
   }
   connectedCallback(): void {
     super.connectedCallback();
-    this.loadStyle(["radio"]);
+    this.loadStyleText(css);
     this._initEvents();
   }
 
@@ -105,7 +108,7 @@ export default class Radio extends FormInner {
       });
       this.pushValueChange();
     }
-    this.root.innerHTML = childrens.join("");
+    return childrens.join("");
   }
 
   public setValue(value: any): void {
@@ -221,6 +224,6 @@ export default class Radio extends FormInner {
     if ($radio) {
       addClass($radio, "is-checked");
     }
-    this.dispatchEvent(this._changeEvent);
+    this.dispatchEvent(new CustomEvent("change"));
   };
 }

@@ -5,9 +5,9 @@
 ## 引用
 
 ```js
-import { Popconfirm, regist } from "litos-ui";
+import { Popconfirm, regist, Button, WarnIcon } from "litos-ui";
 
-regist(Popconfirm);
+regist([Popconfirm, Button, WarnIcon]);
 ```
 
 ## 演示

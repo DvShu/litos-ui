@@ -1,6 +1,10 @@
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
 import { $one } from "ph-utils/dom";
+//@ts-ignore
+import css from "./index.less?inline";
+//@ts-ignore
+import animationCss from "../styles/animation.css?inline";
 
 export default class List extends BaseComponent {
   public static baseName = "list";
@@ -38,8 +42,7 @@ export default class List extends BaseComponent {
   }
 
   connectedCallback(): void {
-    this.loadStyle(["list"]);
-    this.loadExternalStyle(["animation"]);
+    this.loadStyleText([css, animationCss]);
     super.connectedCallback();
     if (this.infinite) {
       this.observer = new IntersectionObserver((entries) => {
@@ -80,7 +83,7 @@ export default class List extends BaseComponent {
         `<span class="l-list-loadmore-text">${this._loadingText()}</span></div>`
       );
     }
-    this.root.innerHTML = content.join("");
+    return content.join("");
   }
 
   _loadingText() {

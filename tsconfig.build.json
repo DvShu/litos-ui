@@ -11,5 +11,6 @@
     "emitDeclarationOnly": true,
     "outDir": "lib"
   },
-  "include": ["src/components/*.ts"]
+  "include": ["src/components/*.ts"],
+  "exclude": ["node_modules", "lib", "src/components/browser.ts"]
 }

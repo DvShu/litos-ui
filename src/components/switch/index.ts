@@ -1,6 +1,8 @@
 import { on, off, $one, addClass, removeClass } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
+//@ts-ignore
+import css from "./index.less?inline";
 
 type ActionRenderFn = (cfg: { checked: boolean }) => string | HTMLElement;
 
@@ -21,7 +23,7 @@ export default class Switch extends FormInner {
     this.value = oriValue;
   }
   connectedCallback(): void {
-    this.loadStyle(["switch"]);
+    this.loadStyleText(css);
     super.connectedCallback();
     this.pushValueChange();
     this.#renderAction();

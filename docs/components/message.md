@@ -14,6 +14,7 @@ import "litos-ui/styles/message.css";
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import { elem, iterate, on } from 'ph-utils/dom';
+  import LMessage from '../../src/components/message'
 
   let $btns;
   let id;
