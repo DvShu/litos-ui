@@ -25,6 +25,7 @@ export default defineConfig({
     }),
   ],
   build: {
+    target: "esnext",
     outDir: "lib",
     lib: {
       entry: entries,
