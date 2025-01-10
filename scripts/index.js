@@ -7,7 +7,8 @@ import { styleText } from "node:util";
 function sourceTemplate(name, componentName, fileName) {
   const res = [
     'import BaseComponent from "../base"',
-    'import { initAttr } from "../utils";\r\n',
+    'import { initAttr } from "../utils";',
+    'import css from "./index.less?inline"\r\n',
     `export default class ${name} extends BaseComponent {`,
     `  public static baseName = "${componentName}";`,
     "  constructor() {",
@@ -15,7 +16,7 @@ function sourceTemplate(name, componentName, fileName) {
     "    initAttr(this);",
     "  }",
     "  connectedCallback(): void {",
-    `    this.loadStyle(["${fileName}"]);`,
+    `    this.loadStyleText(css);`,
     "    super.connectedCallback();",
     "  }",
     "  render() {}",

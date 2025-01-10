@@ -1,4 +1,7 @@
-import { regist } from "./components/index";
-import Button from "./components/button";
+class Button {
+  public static baseName = "button";
+  #abc() {}
+}
 
-regist([Button]);
+const a = new Button();
+console.log(Button.baseName);
