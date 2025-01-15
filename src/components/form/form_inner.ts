@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import type Form from "../form";
 import type FormItem from "../form/form_item";
 import { parseAttrValue } from "../utils";
-import { emit, add, remove } from "./form_events";
+import { emit, add, remove } from "../utils/event";
 
 export default class FormInner extends BaseComponent {
   public disabled = false;

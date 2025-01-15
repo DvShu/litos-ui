@@ -1,7 +1,7 @@
 import { formatClass, $one, addClass, removeClass } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
-import { emit, clear, add, remove } from "./form_events";
+import { emit, clear, add, remove } from "../utils/event";
 import { random } from "ph-utils";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore

@@ -25,16 +25,6 @@ function sourceTemplate(name, componentName, fileName) {
   return res.join("\r\n");
 }
 
-function registTemplate(name) {
-  const res = [
-    'import { regist } from "../utils";',
-    `import ${name} from "./index";`,
-    `\r\nregist(${name});\r\n`,
-    "export default {};",
-  ];
-  return res.join("\r\n");
-}
-
 function docsTemplate(name, componentName) {
   const res = [
     `# ${name}\r\n`,
@@ -109,11 +99,6 @@ function createComponentTemplate(name) {
         path.join(sourcePath, "index.ts"),
         sourceTemplate(name, componetName, fileName)
       ).then();
-      write(
-        path.join(sourcePath, "index.ts"),
-        sourceTemplate(name, componetName, fileName)
-      ).then();
-      write(path.join(sourcePath, "regist.ts"), registTemplate(name)).then();
     })
     .catch(() => {
       console.log("");
@@ -127,8 +112,7 @@ function createComponentTemplate(name) {
   const exportPath = path.join(compoentsPath, "index.ts");
   readFile(exportPath, "utf-8")
     .then((content) => {
-      content += `\r\nexport { default as ${name} } from "./${fileName}";`;
-      content += `\r\nexport { default as regist${name} } from "./${fileName}/regist";\r\n`;
+      content += `\r\nexport { default as ${name} } from "./${fileName}";\r\n`;
       return write(exportPath, content);
     })
     .then();

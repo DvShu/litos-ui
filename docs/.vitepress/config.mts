@@ -108,6 +108,10 @@ export default defineConfig({
             link: "/components/radio",
           },
           {
+            text: "Checkbox 复选框",
+            link: "/components/checkbox",
+          },
+          {
             text: "SelectOri 原生下拉框",
             link: "/components/select_ori",
           },

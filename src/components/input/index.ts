@@ -9,7 +9,7 @@ import {
 } from "ph-utils/dom";
 import { initAttr, parseAttrValue, tagAttr } from "../utils";
 import FormInner from "../form/form_inner";
-import { add, remove } from "../form/form_events";
+import { add, remove } from "../utils/event";
 //@ts-ignore
 import css from "./index.less?inline";
 

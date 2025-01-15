@@ -39,7 +39,6 @@ export default class Radio extends FormInner {
 
   constructor() {
     super(false);
-    console.log();
     initAttr(this);
   }
   connectedCallback(): void {
