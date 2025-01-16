@@ -49,7 +49,7 @@ regist([Checkbox]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox value="CD">
+  <l-checkbox value="CD&BJ">
     <span check-value="CD">成都</span>
     <span check-value="BJ">北京</span>
     <span check-value="SZ">深圳</span>

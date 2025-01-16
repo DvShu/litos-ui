@@ -34,7 +34,9 @@ import ThemeColor from "./theme/theme_color";
 import Popover from "./popover";
 import Popconfirm from "./popconfirm";
 import Checkbox from "./checkbox";
+import MdInput from "./md_input";
 //Web Components Import
+regist(MdInput)
 regist(Checkbox)
 regist(Popconfirm);
 regist(Popover);
@@ -102,3 +104,4 @@ import "./theme/index.less";
 import "./popover/index.less";
 import "./popconfirm/index.less";
 import "./checkbox/index.less";
+import "./md_input/index.less";
