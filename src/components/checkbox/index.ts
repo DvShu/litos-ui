@@ -1,4 +1,5 @@
 import { initAttr, parseAttrValue } from "../utils";
+// @ts-ignore
 import css from "./index.less?inline";
 import FormInner from "../form/form_inner";
 import { random, isBlank } from "ph-utils";

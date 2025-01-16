@@ -1,6 +1,7 @@
 import { $$, addClass, removeClass, $one, on, off } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { initAttr } from "../utils";
+// @ts-ignore
 import css from "./index.less?inline";
 import { isBlank, random } from "ph-utils";
 
