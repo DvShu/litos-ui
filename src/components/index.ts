@@ -47,3 +47,5 @@ export { default as Tabbar } from "./tabbar";
 
 export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
+
+export { default as MdInput } from "./md_input";

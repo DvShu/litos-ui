@@ -49,6 +49,7 @@ export default class FormInner extends BaseComponent {
     oldValue: string,
     newValue: string
   ): void {
+    if (!this.rendered) return;
     if (name === "disabled") {
       const val = parseAttrValue(newValue, false, name);
       if (val !== this.disabled) {

@@ -104,6 +104,10 @@ export default defineConfig({
             link: "/components/input",
           },
           {
+            text: "MdInput Material输入框",
+            link: "/components/md_input",
+          },
+          {
             text: "Radio 单选框",
             link: "/components/radio",
           },

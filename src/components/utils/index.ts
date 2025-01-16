@@ -93,13 +93,13 @@ export function initAttr(el: HTMLElement) {
     const parsedValue = parseAttrValue(value, (el as any)[attrName], name);
     const attrs = Object.getOwnPropertyNames(el);
     const ignoreInitAttrs = (el as any)._ignoreInitAttrs || [];
+    if (ignoreInitAttrs.includes(attrName)) {
+      continue;
+    }
     if (name === "value") {
       (el as any)[attrName] = parsedValue;
       (el as any)._resetValue = parsedValue;
-    } else if (
-      attrs.includes(attrName) &&
-      !ignoreInitAttrs.includes(attrName)
-    ) {
+    } else if (attrs.includes(attrName)) {
       (el as any)[attrName] = parsedValue;
     }
   }
