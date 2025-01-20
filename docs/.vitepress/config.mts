@@ -2,7 +2,7 @@ import { defineConfig } from "vitepress";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  base: "/litos_ui/",
+  base: "/litos-ui/",
   title: "LitosUI",
   description: "基于 Web Component 的 UI 组件库",
   lastUpdated: true,
