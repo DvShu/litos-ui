@@ -57,21 +57,25 @@ regist([List, LoadingIcon]);
 
   onMounted(() => {
     nextTick(() => {
-      $list = $one('#list');
-      if ($list) {
-        on($list, 'load-more', handleLoadmore);
-      }
+      if (!import.meta.env.SSR) {
+        $list = $one('#list');
+        if ($list) {
+          on($list, 'load-more', handleLoadmore);
+        }
 
-      $list1 = $one('#list1');
-      if ($list1) {
-        $list1.append(createRenderFragemnt(0, 100));
+        $list1 = $one('#list1');
+        if ($list1) {
+          $list1.append(createRenderFragemnt(0, 100));
+        }
       }
     });
   });
 
   onUnmounted(() => {
-    if ($list) {
-      off($list, 'load-more', handleLoadmore);
+    if (!import.meta.env.SSR) {
+      if ($list) {
+        off($list, 'load-more', handleLoadmore);
+      }
     }
   });
 </script>

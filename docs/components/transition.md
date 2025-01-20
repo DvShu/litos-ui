@@ -20,7 +20,7 @@ trans.init();
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { createTransition } from '../../src/components/utils';
 
-  const trans = createTransition();
+  let trans;
 
   function toggle() {
     const $text = $one('#text1');
@@ -48,18 +48,23 @@ trans.init();
   }
 
   onMounted(() => {
-    nextTick(() => {
-      // 初始化, 加载带有 l-transition 属性的元素动画
-      trans.init();
-      on($one('#toggle1'), 'click', toggle);
-      on($one('#toggle2'), 'click', toggle2);
-    })
+    if (!import.meta.env.SSR) {
+      nextTick(() => {
+        trans = createTransition();
+        // 初始化, 加载带有 l-transition 属性的元素动画
+        trans.init();
+        on($one('#toggle1'), 'click', toggle);
+        on($one('#toggle2'), 'click', toggle2);
+      })
+    }
   })
 
   onUnmounted(() => {
-    trans.destroy();
-    off($one('#toggle1'), 'click', toggle)
-    off($one('#toggle2'), 'click', toggle2)
+    if (!import.meta.env.SSR) {
+      trans.destroy();
+      off($one('#toggle1'), 'click', toggle);
+      off($one('#toggle2'), 'click', toggle2);
+    }
   })
 </script>
 

@@ -12,17 +12,6 @@ regist(Popover);
 
 ## 演示
 
-<script setup>
-  import { set } from '../../src/components/utils/clickoutside';
-  import { onMounted, nextTick } from 'vue';
-  import { $one } from 'ph-utils/dom';
-
-  onMounted(() => {
-    nextTick(() => {
-    });
-  });
-</script>
-
 ### 基础用法
 
 最简单的用法，通过 `content` 传递浮层内容。`inline` 属性表明 `l-popover` 标签是行级元素。

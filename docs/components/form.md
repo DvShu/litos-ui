@@ -24,23 +24,26 @@ regist(Form);
 
   onMounted(() => {
     nextTick(() => {
-      const $form = $one('#lform');
-      $form.addEventListener('submit', (event) => {
-        const $target = event.target;
-        console.log($target.getData());
-      });
+      if (!import.meta.env.SSR) {
+        const $form = $one('#lform');
+        $form.addEventListener('submit', (event) => {
+          const $target = event.target;
+          console.log($target.getData());
+        });
 
-      const $positionRadio = $one('#positionRadio');
-      on($positionRadio, 'change', handlePositionChange);
+        const $positionRadio = $one('#positionRadio');
+        on($positionRadio, 'change', handlePositionChange);
+      }
     })
   });
 
   onUnmounted(() => {
-    const $positionRadio = $one('#positionRadio');
-    if ($positionRadio) {
-      off($positionRadio, 'change', handlePositionChange);
+    if (!import.meta.env.SSR) {
+      const $positionRadio = $one('#positionRadio');
+      if ($positionRadio) {
+        off($positionRadio, 'change', handlePositionChange);
+      }
     }
-    
   })
 </script>
 

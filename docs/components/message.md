@@ -33,18 +33,22 @@ import "litos-ui/styles/message.css";
 
   onMounted(() => {
     nextTick(() => {
-      $btns = elem('.preview-container l-button');
-      iterate($btns, ($btn) => {
-        on($btn, 'click', showMessage);
-      });
+      if (!import.meta.env.SSR) {
+        $btns = elem('.preview-container l-button');
+        iterate($btns, ($btn) => {
+          on($btn, 'click', showMessage);
+        });
+      }
     });
   });
 
   onUnmounted(() => {
-    if ($btns) {
-      iterate($btns, ($btn) => {
-        $btn.removeEventListener('click', showMessage);
-      });
+    if (!import.meta.env.SSR) {
+      if ($btns) {
+        iterate($btns, ($btn) => {
+          $btn.removeEventListener('click', showMessage);
+        });
+      }
     }
   })
 </script>

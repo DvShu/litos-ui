@@ -28,13 +28,12 @@ regist(Input);
 
   onMounted(() => {
     nextTick(() => {
-      $input = $one('#input');
-      $input.setParser(numericParse);
+      if (!import.meta.env.SSR) {
+        $input = $one('#input');
+        $input.setParser(numericParse);
+      }
     })
   });
-
-  onUnmounted(() => {
-  })
 </script>
 
 ### 基础用法
