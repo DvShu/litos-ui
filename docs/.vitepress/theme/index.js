@@ -33,14 +33,10 @@ export default {
       const CustomTheme = await import(
         "../../../src/app_components/custom_theme"
       );
-      const HelloWorld = await import(
-        "../../../src/app_components/hello_world"
-      );
       module.regist(CodePreview.default, "l-code-preview");
       module.regist(SourceCode.default, "l-source-code");
       module.regist(IconList.default, "l-icon-list");
       module.regist(CustomTheme.default, "l-custom-theme");
-      module.regist(HelloWorld.default, "l-hello-world");
     }
   },
 };
