@@ -21,6 +21,16 @@ ol {
   margin: 0;
   padding: 0;
 }
+dialog {
+  border: none;
+  outline: none;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 3s;
+}
+dialog[open] {
+  opacity: 1;
+}
 /* 统一采用盒子模式 */
 div {
   box-sizing: border-box;

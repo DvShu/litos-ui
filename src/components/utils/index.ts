@@ -1,5 +1,5 @@
 import { isBlank } from "ph-utils";
-import { $, iterate, transition } from "ph-utils/dom";
+import { $, iterate, transition, $one } from "ph-utils/dom";
 
 type UIConfig = {
   /** 注册应用的前缀, 默认: lt */

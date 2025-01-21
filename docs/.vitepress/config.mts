@@ -160,6 +160,10 @@ export default defineConfig({
             text: "Popconfirm 气泡确认框",
             link: "/components/popconfirm",
           },
+          {
+            text: "Dialog 对话框",
+            link: "/components/dialog",
+          },
         ],
       },
       {
