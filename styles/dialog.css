@@ -1,0 +1,28 @@
+.l-dialog {
+  transform: scale3d(0, 0, 0);
+  border: none;
+  outline: none;
+  opacity: 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  width: 30%;
+  border-radius: 5px;
+  margin: 0 auto;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
+}
+.l-dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.l-dialog--open {
+  transform: scale3d(1, 1, 1) translate3d(0, 80px, 0);
+  opacity: 1;
+}
+.l-dialog--open::backdrop {
+  opacity: 1;
+}
+.l-body--dialog-open {
+  overflow: hidden;
+}

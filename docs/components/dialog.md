@@ -7,12 +7,14 @@
 <script setup>
   import { $one, on, off } from 'ph-utils/dom';
   import { onMounted, nextTick } from 'vue';
+  import Dialog from '../../src/components/dialog'
 
+  let dialog;
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        const $dialog = $one('#dialog');
-        $dialog.showModal();
+        dialog = Dialog({ el: '#dialog' });
+        dialog.open();
       }
     })
   });
