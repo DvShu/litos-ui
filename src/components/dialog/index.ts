@@ -6,10 +6,20 @@ import {
   hasClass,
   addClass,
   removeClass,
+  getAttr,
 } from "ph-utils/dom";
 
+type DialogProps = {
+  /** 对话框在垂直方向位置 */
+  verticalAlign?: "top" | "bottom" | "middle";
+  /** css translate, 例如: 0,0,0 -> translate3d(0,0,0) */
+  translate?: string;
+  /** 对话框宽度 */
+  width?: string;
+};
+
 /** 初始化对话框配置 */
-type DialogInitialParams = {
+type DialogInitialParams = DialogProps & {
   /** dialog 节点 */
   el: HTMLDialogElement | string;
   /** 是否在点击 esc 时关闭弹窗 */
@@ -32,14 +42,33 @@ const Dialog = (option?: DialogInitialParams) => {
    */
   function init(option: DialogInitialParams) {
     if (!config) {
-      config = { escClose: true, ...option };
-      $dialog = $one(config.el) as HTMLDialogElement;
+      let tmpconfig = { escClose: true, verticalAlign: "top", ...option };
+      $dialog = $one(tmpconfig.el) as HTMLDialogElement;
       if ($dialog) {
         if (!hasClass($dialog, "l-dialog")) {
           addClass($dialog, "l-dialog");
         }
+        // 垂直方向位置
+        const verticalAlign = getAttr($dialog, "vertical-align");
+        tmpconfig.verticalAlign = verticalAlign || "top";
+        addClass($dialog, `l-dialog--vertical-${tmpconfig.verticalAlign}`);
+        // traslate
+        const translate = getAttr($dialog, "translate") || tmpconfig.translate;
+        if (translate) {
+          $dialog.style.setProperty(
+            "--l-dialog-translate",
+            `translate3d(${translate})`
+          );
+        }
+        // width
+        const width = getAttr($dialog, "width") || tmpconfig.width;
+        if (width) {
+          $dialog.style.setProperty("--l-dialog-width", width);
+        }
+        // 监听 esc
         on($dialog, "keydown", handleKeydown as any);
       }
+      config = tmpconfig as any;
     }
   }
 
@@ -79,6 +108,47 @@ const Dialog = (option?: DialogInitialParams) => {
     }
   }
 
+  function setProp(
+    key: keyof DialogProps,
+    value: DialogProps[keyof DialogProps]
+  ) {
+    if (config) {
+      config[key as "verticalAlign"] = value as "top";
+      if ($dialog) {
+        if (key === "verticalAlign") {
+          const newClassName = $dialog.className.replace(
+            /l-dialog--vertical-\w+/g,
+            function () {
+              return `l-dialog--vertical-${value || "top"}`;
+            }
+          );
+          $dialog.className = newClassName;
+        } else if (key === "translate") {
+          if (value) {
+            $dialog.style.setProperty(
+              "--l-dialog-translate",
+              `translate3d(${value})`
+            );
+          } else {
+            $dialog.style.removeProperty("--l-dialog-translate");
+          }
+        } else if (key === "width") {
+          if (value) {
+            $dialog.style.setProperty("--l-dialog-width", value);
+          } else {
+            $dialog.style.removeProperty("--l-dialog-width");
+          }
+        }
+      }
+    }
+  }
+
+  function setProps(props: DialogProps) {
+    for (const key in props) {
+      setProp(key as "verticalAlign", props[key as "verticalAlign"]);
+    }
+  }
+
   if (option != null) {
     init(option);
   }
@@ -87,6 +157,9 @@ const Dialog = (option?: DialogInitialParams) => {
     init,
     open,
     close,
+    destroy,
+    setProp,
+    setProps,
   };
 };
 

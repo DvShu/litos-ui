@@ -1,15 +1,28 @@
 .l-dialog {
+  --l-dialog-translate: translate3d(0, 80px, 0);
+  --l-dialog-width: 30%;
   transform: scale3d(0, 0, 0);
   border: none;
   outline: none;
   opacity: 0;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-  width: 30%;
+  width: var(--l-dialog-width);
   border-radius: 5px;
   margin: 0 auto;
   transition:
     transform 0.3s,
     opacity 0.3s;
+  max-width: 100%;
+}
+.l-dialog--vertical-middle {
+  --l-dialog-offset: translate3d(0, 0, 0);
+  margin: auto;
+}
+.l-dialog--vertical-bottom {
+  --l-dialog-translate: translate3d(0, -100%, 0);
+  top: 100%;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .l-dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
@@ -17,7 +30,7 @@
   transition: opacity 0.3s;
 }
 .l-dialog--open {
-  transform: scale3d(1, 1, 1) translate3d(0, 80px, 0);
+  transform: scale3d(1, 1, 1) var(--l-dialog-translate);
   opacity: 1;
 }
 .l-dialog--open::backdrop {

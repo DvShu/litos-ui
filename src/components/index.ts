@@ -10,6 +10,7 @@ export { default as Message } from "./message";
 export { default as Popover } from "./popover";
 export { default as Popconfirm } from "./popconfirm";
 export { default as Dialog } from "./dialog";
+export { default as DialogContainer } from "./dialog/dialog_container";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
