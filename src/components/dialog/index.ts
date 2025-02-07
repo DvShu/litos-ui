@@ -16,14 +16,16 @@ type DialogProps = {
   translate?: string;
   /** 对话框宽度 */
   width?: string;
+  /** 是否在点击 esc 时关闭弹窗 */
+  escClose?: boolean;
+  /** 是否可以通过点击 mask 关闭对话框 */
+  maskClosable?: boolean;
 };
 
 /** 初始化对话框配置 */
 type DialogInitialParams = DialogProps & {
   /** dialog 节点 */
   el: HTMLDialogElement | string;
-  /** 是否在点击 esc 时关闭弹窗 */
-  escClose?: boolean;
 };
 const Dialog = (option?: DialogInitialParams) => {
   let $dialog: HTMLDialogElement;
@@ -36,13 +38,27 @@ const Dialog = (option?: DialogInitialParams) => {
     }
   }
 
+  function handleClick(e: Event) {
+    if ($dialog.isSameNode(e.target as HTMLDialogElement)) {
+      // 点击的是遮罩
+      if (config && config.maskClosable) {
+        close();
+      }
+    }
+  }
+
   /**
    * 初始化对话框
    * @param option 配置项
    */
   function init(option: DialogInitialParams) {
     if (!config) {
-      let tmpconfig = { escClose: true, verticalAlign: "top", ...option };
+      let tmpconfig = {
+        escClose: true,
+        verticalAlign: "top",
+        maskClosable: true,
+        ...option,
+      };
       $dialog = $one(tmpconfig.el) as HTMLDialogElement;
       if ($dialog) {
         if (!hasClass($dialog, "l-dialog")) {
@@ -67,6 +83,7 @@ const Dialog = (option?: DialogInitialParams) => {
         }
         // 监听 esc
         on($dialog, "keydown", handleKeydown as any);
+        on($dialog, "click", handleClick);
       }
       config = tmpconfig as any;
     }
@@ -105,6 +122,7 @@ const Dialog = (option?: DialogInitialParams) => {
     if ($dialog) {
       close();
       off($dialog, "keydown", handleKeydown as any);
+      off($dialog, "click", handleClick);
     }
   }
 
@@ -134,7 +152,7 @@ const Dialog = (option?: DialogInitialParams) => {
           }
         } else if (key === "width") {
           if (value) {
-            $dialog.style.setProperty("--l-dialog-width", value);
+            $dialog.style.setProperty("--l-dialog-width", value as string);
           } else {
             $dialog.style.removeProperty("--l-dialog-width");
           }

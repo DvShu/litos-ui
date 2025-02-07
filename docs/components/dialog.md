@@ -25,7 +25,11 @@
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <dialog id="dialog" vertical-align="bottom" width="100%"><p>这是一个对话框示例。</p></dialog>
+  <dialog id="dialog">
+    <l-dialog-container>
+      <p>这是一个对话框示例。</p>
+    </l-dialog-container>
+  </dialog>
 </textarea>
 <div class="source">
 <textarea lang="html">

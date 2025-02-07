@@ -8,4 +8,8 @@ export default class DialogContainer extends BaseComponent {
     this.loadStyleText(css);
     super.connectedCallback();
   }
+
+  render() {
+    return "<slot></slot>";
+  }
 }
