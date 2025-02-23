@@ -2,3 +2,54 @@
   display: block;
   position: relative;
 }
+:host(.l-container-close-outside) {
+  padding-top: 10px;
+  padding-right: 10px;
+}
+.l-dialog-main {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  background-color: #ffffff;
+}
+.l-dialog-header {
+  padding: 10px;
+  font-size: 16px;
+  border-bottom: 1px solid var(--l-dialog-line-color, rgba(0, 0, 0, 0.06));
+  font-weight: 600;
+}
+.l-dialog-footer {
+  padding: 10px;
+  border-top: 1px solid var(--l-dialog-line-color, rgba(0, 0, 0, 0.06));
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.l-dialog-container {
+  padding: 15px 10px;
+  font-size: 14px;
+}
+.l-btn-dialog-close {
+  --nt-form-edit-height: auto;
+  position: absolute;
+}
+.l-dialog-close1 {
+  right: 5px;
+  top: 6px;
+}
+.l-dialog-close1::part(default) {
+  width: auto;
+  height: auto;
+  padding: 5px;
+  border: none;
+  font-size: 16px;
+}
+.l-dialog-close2 {
+  right: 0;
+  top: 0;
+}
+.l-dialog-close2::part(default) {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background-color: #ffffff;
+}

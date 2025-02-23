@@ -5,24 +5,32 @@
   border: none;
   outline: none;
   opacity: 0;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   width: var(--l-dialog-width);
-  border-radius: 5px;
   margin: 0 auto;
   transition:
     transform 0.3s,
     opacity 0.3s;
   max-width: 100%;
+  background-color: transparent;
+}
+.l-dialog-close-outside {
+  --l-dialog-translate: translate3d(5px, 90px, 0);
 }
 .l-dialog--vertical-middle {
-  --l-dialog-offset: translate3d(0, 0, 0);
+  --l-dialog-translate: translate3d(0, 0, 0);
   margin: auto;
+}
+.l-dialog-close-outside.l-dialog--vertical-middle {
+  --l-dialog-translate: translate3d(5px, 0, 0);
 }
 .l-dialog--vertical-bottom {
   --l-dialog-translate: translate3d(0, -100%, 0);
   top: 100%;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
+}
+.l-dialog-close-outside.l-dialog--vertical-bottom {
+  --l-dialog-translate: translate3d(5px, -100%, 0);
 }
 .l-dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
@@ -38,4 +46,11 @@
 }
 .l-body--dialog-open {
   overflow: hidden;
+}
+
+@media screen and (max-width: 768px) {
+  .l-dialog {
+    width: 80%;
+    max-width: 300px;
+  }
 }

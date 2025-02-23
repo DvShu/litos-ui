@@ -20,6 +20,8 @@ type DialogProps = {
   escClose?: boolean;
   /** 是否可以通过点击 mask 关闭对话框 */
   maskClosable?: boolean;
+  /** 是否显示右上角关闭按钮, 1 - 显示在框内， 2 - 显示在框角, 0 - 不显示 */
+  showClose?: number;
 };
 
 /** 初始化对话框配置 */
@@ -29,6 +31,7 @@ type DialogInitialParams = DialogProps & {
 };
 const Dialog = (option?: DialogInitialParams) => {
   let $dialog: HTMLDialogElement;
+  let $container: HTMLElement | undefined;
   let config: Required<DialogInitialParams>;
 
   function handleKeydown(e: KeyboardEvent) {
@@ -57,13 +60,15 @@ const Dialog = (option?: DialogInitialParams) => {
         escClose: true,
         verticalAlign: "top",
         maskClosable: true,
+        showClose: 1,
         ...option,
       };
-      $dialog = $one(tmpconfig.el) as HTMLDialogElement;
+      $dialog = $one(option.el) as HTMLDialogElement;
       if ($dialog) {
         if (!hasClass($dialog, "l-dialog")) {
           addClass($dialog, "l-dialog");
         }
+        $container = $one("l-dialog-container", $dialog);
         // 垂直方向位置
         const verticalAlign = getAttr($dialog, "vertical-align");
         tmpconfig.verticalAlign = verticalAlign || "top";
@@ -81,6 +86,15 @@ const Dialog = (option?: DialogInitialParams) => {
         if (width) {
           $dialog.style.setProperty("--l-dialog-width", width);
         }
+        // showClose
+        const showClose = getAttr($dialog, "show-close", 1);
+        if (showClose === 2) {
+          addClass($dialog, "l-dialog-close-outside");
+        }
+        if ($container) {
+          $container.setAttribute("show-close", `${showClose}`);
+        }
+        tmpconfig.showClose = showClose;
         // 监听 esc
         on($dialog, "keydown", handleKeydown as any);
         on($dialog, "click", handleClick);
@@ -123,6 +137,8 @@ const Dialog = (option?: DialogInitialParams) => {
       close();
       off($dialog, "keydown", handleKeydown as any);
       off($dialog, "click", handleClick);
+      $container = undefined;
+      $dialog = undefined as any;
     }
   }
 
@@ -155,6 +171,10 @@ const Dialog = (option?: DialogInitialParams) => {
             $dialog.style.setProperty("--l-dialog-width", value as string);
           } else {
             $dialog.style.removeProperty("--l-dialog-width");
+          }
+        } else if (key === "showClose") {
+          if ($container) {
+            $container.setAttribute("show-close", `${value}`);
           }
         }
       }
