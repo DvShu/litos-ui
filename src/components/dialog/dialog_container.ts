@@ -1,7 +1,16 @@
 import BaseComponent from "../base";
 //@ts-ignore
 import css from "./dialog_container.css?inline";
-import { $$, formatClass, $one } from "ph-utils/dom";
+import {
+  $$,
+  formatClass,
+  $one,
+  $,
+  iterate,
+  on,
+  off,
+  shouldEventNext,
+} from "ph-utils/dom";
 import { initAttr } from "../utils";
 
 export default class DialogContainer extends BaseComponent {
@@ -34,6 +43,31 @@ export default class DialogContainer extends BaseComponent {
     super.connectedCallback();
   }
 
+  initEvents(): void {
+    const $actions = $("[data-action]", this.root);
+    iterate($actions, ($action) => {
+      on($action, "click", this.#handleEvent);
+    });
+  }
+
+  removeEvents(): void {
+    const $actions = $("[data-action]", this.root);
+    iterate($actions, ($action) => {
+      off($action, "click", this.#handleEvent);
+    });
+  }
+
+  #handleEvent(e: Event) {
+    const [next, action] = shouldEventNext(e, "data-action");
+    if (next) {
+      this.dispatchEvent(
+        new CustomEvent("dialogAction", {
+          detail: { action },
+        })
+      );
+    }
+  }
+
   static get observedAttributes(): string[] | null | undefined {
     return ["show-close"];
   }
@@ -53,12 +87,14 @@ export default class DialogContainer extends BaseComponent {
         }
         let $close = $one(".l-btn-dialog-close", this.root);
         if (this.showClose === 0 && $close) {
+          off($close, "click", this.#handleEvent);
           $close.remove();
         } else {
           if ($close) {
             $close.className = this.#closeBtnClass();
           } else {
             $close = this.#createCloseBtn();
+            on($close, "click", this.#handleEvent);
             this.root.appendChild($close);
           }
         }
@@ -75,6 +111,7 @@ export default class DialogContainer extends BaseComponent {
       shape: "circle",
       type: "normal",
       class: this.#closeBtnClass(),
+      "data-action": "close",
     });
     const $closeIcon = $$("l-close-icon");
     $close.appendChild($closeIcon);
@@ -109,12 +146,12 @@ export default class DialogContainer extends BaseComponent {
       const $footer = $$("div", { class: "l-dialog-footer" });
       const $footerSlot = $$("slot", { name: "footer" });
       if (this.showCancel) {
-        const $cancelBtn = $$("l-button");
+        const $cancelBtn = $$("l-button", { "data-action": "cancel" });
         $cancelBtn.textContent = this.cancelText;
         $footerSlot.appendChild($cancelBtn);
       }
       if (this.showOk) {
-        const $okBtn = $$("l-button", { type: "primary" });
+        const $okBtn = $$("l-button", { type: "primary", "data-action": "ok" });
         $okBtn.textContent = this.okText;
         $footerSlot.appendChild($okBtn);
       }

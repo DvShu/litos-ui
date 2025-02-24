@@ -90,13 +90,21 @@ export default class BaseComponent extends HTMLElement {
 
   connectedCallback() {
     this.appendToRoot(this.render() as any);
+    this.initEvents();
     this.rendered = true;
   }
 
   disconnectedCallback() {
+    this.removeEvents();
     this.root.innerHTML = "";
     this.rendered = false;
   }
 
   render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
+
+  /** 初始化事件 */
+  initEvents() {}
+
+  /** 移除事件 */
+  removeEvents() {}
 }

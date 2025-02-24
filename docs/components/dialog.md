@@ -13,19 +13,45 @@ regist([DialogContainer, Button, CloseIcon]);
 ## 演示
 
 <script setup>
-  import { $one, on, off } from 'ph-utils/dom';
-  import { onMounted, nextTick } from 'vue';
+  import { $one, on, off, $, iterate } from 'ph-utils/dom';
+  import { onMounted, nextTick, onUnmounted } from 'vue';
   import Dialog from '../../src/components/dialog'
 
-  let dialog;
+  let dialogs = {};
+  let $btns;
+
+  function showDialog(e) {
+    const $target = e.target;
+    const id = $target.getAttribute('data-id');
+    dialogs[id].open();
+  }
+
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        dialog = Dialog({ el: '#dialog' });
-        dialog.open();
+        dialogs['dialog'] = Dialog({ el: '#dialog' });
+
+        $btns = $('l-button[data-id]');
+        iterate($btns, ($btn) => {
+          on($btn, 'click', showDialog);
+        });
       }
     })
   });
+
+  onUnmounted(() => {
+    if (!import.meta.env.SSR) {
+      if ($btns) {
+        iterate($btns, ($btn) => {
+          off($btn, 'click', showDialog);
+        });
+        for (const id in dialogs) {
+          dialogs[id].destroy();
+        }
+        dialogs = {};
+      }
+    }
+  })
 </script>
 
 ### 基本用法
@@ -35,8 +61,8 @@ regist([DialogContainer, Button, CloseIcon]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button type="primary" >显示 Dialog</l-button>
-  <dialog id="dialog" show-close="1">
+  <l-button type="primary" data-id="dialog" >显示 Dialog</l-button>
+  <dialog id="dialog" show-close="2">
     <l-dialog-container header="Title">
       <div>这是一个对话框示例。</div>
     </l-dialog-container>
