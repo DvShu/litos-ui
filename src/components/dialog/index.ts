@@ -28,6 +28,8 @@ type DialogProps = {
 type DialogInitialParams = DialogProps & {
   /** dialog 节点 */
   el: HTMLDialogElement | string;
+  /** 返回 true 表明手动调用 done 关闭 */
+  onAction?: (action: string, done: () => void) => boolean;
 };
 const Dialog = (option?: DialogInitialParams) => {
   let $dialog: HTMLDialogElement;
@@ -48,6 +50,14 @@ const Dialog = (option?: DialogInitialParams) => {
         close();
       }
     }
+  }
+
+  function handleContainerAction(e: CustomEvent) {
+    const action = e.detail.action;
+    if (config.onAction != null) {
+      config.onAction(action, close);
+    }
+    close();
   }
 
   /**
@@ -98,6 +108,9 @@ const Dialog = (option?: DialogInitialParams) => {
         // 监听 esc
         on($dialog, "keydown", handleKeydown as any);
         on($dialog, "click", handleClick);
+        if ($container) {
+          on($container, "dialogAction", handleContainerAction as any);
+        }
       }
       config = tmpconfig as any;
     }
@@ -137,6 +150,9 @@ const Dialog = (option?: DialogInitialParams) => {
       close();
       off($dialog, "keydown", handleKeydown as any);
       off($dialog, "click", handleClick);
+      if ($container) {
+        off($container, "dialogAction", handleContainerAction as any);
+      }
       $container = undefined;
       $dialog = undefined as any;
     }

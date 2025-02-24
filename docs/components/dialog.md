@@ -5,7 +5,7 @@
 ## 引用
 
 ```js
-import { DialogContainer, regist, Button, Dialog, CloseIcon } from "litos-ui";
+import { DialogContainer, regist, Button, CloseIcon } from "litos-ui";
 
 regist([DialogContainer, Button, CloseIcon]);
 ```
@@ -29,7 +29,11 @@ regist([DialogContainer, Button, CloseIcon]);
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        dialogs['dialog'] = Dialog({ el: '#dialog' });
+        dialogs['dialog'] = Dialog({ el: '#dialog', onAction: (action, done) => {
+          console.log(action);
+          done();
+        } });
+        dialogs['dialog2'] = Dialog({ el: '#dialog2' })
 
         $btns = $('l-button[data-id]');
         iterate($btns, ($btn) => {
@@ -62,7 +66,7 @@ regist([DialogContainer, Button, CloseIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-button type="primary" data-id="dialog" >显示 Dialog</l-button>
-  <dialog id="dialog" show-close="2">
+  <dialog id="dialog">
     <l-dialog-container header="Title">
       <div>这是一个对话框示例。</div>
     </l-dialog-container>
@@ -70,7 +74,59 @@ regist([DialogContainer, Button, CloseIcon]);
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button>按钮</l-button>
+  <dialog id="dialog">
+    <l-dialog-container header="Title">
+      <div>这是一个对话框示例。</div>
+    </l-dialog-container>
+  </dialog>
+</textarea>
+<textarea lang="js">
+  const dialog = LDialog({ 
+    el: '#dialog', 
+    onAction: (action, done) => {
+      console.log(action);
+      done();
+    } 
+  });
+  dialog.open(); // 打开弹窗
+  // 在页面结束时 onUnmounted 中调用 dialog.destroy() 方法销毁弹窗
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> 切记在页面关闭时，如 `onUnmounted` 中调用 `dialog.destroy()` 方法销毁弹窗
+
+### 自定义头部
+
+除了使用 `header` 属性定义头部内容外，也可以通过传递 `header-slot` 插槽自定义头部内容。通过传递 `width` 属性改变宽度；通常当需要在头部显示图标时有用, 比如：`confirm` 弹窗
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button type="primary" data-id="dialog2" >显示 Dialog</l-button>
+  <dialog id="dialog2" width="300px">
+    <l-dialog-container>
+      <l-info-icon slot="header"></l-info-icon>
+      <span slot="header">Header</span>
+      <div>这是一个对话框示例。</div>
+    </l-dialog-container>
+  </dialog>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <dialog id="dialog" width="300px">
+    <l-dialog-container>
+      <l-info-icon slot="header"></l-info-icon>
+      <span slot="header">Header</span>
+      <div>这是一个对话框示例。</div>
+    </l-dialog-container>
+  </dialog>
+</textarea>
+<textarea lang="js">
+  const dialog = LDialog({ el: '#dialog' });
+  dialog.open(); // 打开弹窗
+  // 在页面结束时 onUnmounted 中调用 dialog.destroy() 方法销毁弹窗
 </textarea>
 </div>
 </l-code-preview>

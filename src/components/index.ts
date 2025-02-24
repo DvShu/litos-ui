@@ -30,6 +30,9 @@ export { default as RefreshRightIcon } from "./icon/refresh_right";
 export { default as SortIcon } from "./icon/sort";
 export { default as ThemeDefaultIcon } from "./icon/theme_default";
 export { default as CloseIcon } from "./icon/close";
+export { default as InfoIcon } from "./icon/info";
+export { default as SuccessIcon } from "./icon/success";
+export { default as WarnIcon } from "./icon/warn";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";

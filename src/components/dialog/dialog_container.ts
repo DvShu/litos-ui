@@ -63,6 +63,7 @@ export default class DialogContainer extends BaseComponent {
       this.dispatchEvent(
         new CustomEvent("dialogAction", {
           detail: { action },
+          composed: true,
         })
       );
     }
