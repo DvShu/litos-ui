@@ -1,0 +1,100 @@
+.l-loading:not(.l-loading-fullscreen) {
+  position: relative;
+}
+.l-loading-mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: inherit;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.l-loading-spinner {
+  text-align: center;
+}
+.l-loading-spinner .circle {
+  display: inline;
+  width: 40px;
+  height: 40px;
+  animation: loading-rotate 1.5s linear infinite;
+}
+
+.l-loading-spinner .path {
+  stroke: var(--l-primary-color, #722ed1);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 90, 150;
+  stroke-dashoffset: 0px;
+}
+
+.l-loading-spinner .l-loading-text {
+  color: var(--l-primary-color, #722ed1);
+  margin: 0;
+  font-size: 14px;
+}
+
+/* 全屏组件 */
+.l-loading-fullscreen.l-loading-lock {
+  overflow: hidden;
+}
+.l-loading-fullscreen > .l-loading-mask {
+  position: fixed;
+  z-index: 100;
+}
+
+/* 进度条样式 */
+.l-loading-bar.l-loading-mask {
+  bottom: auto;
+  height: 2px;
+  border-radius: inherit;
+  background-color: transparent;
+  justify-content: flex-start;
+  opacity: 1;
+}
+.l-loading-bar > .l-loading-spinner {
+  width: 100%;
+  height: 100%;
+  max-width: 0;
+  opacity: 1;
+  transition:
+    max-width 4s linear,
+    background-color 0.2s linear,
+    opacity 0.2s linear;
+  background-color: var(--l-primary-color, #722ed1);
+}
+.l-loading-bar--start .l-loading-spinner {
+  max-width: 90%;
+}
+
+.l-loading-bar--finish .l-loading-spinner {
+  transition:
+    max-width 0.2s linear,
+    background-color 0.2s linear,
+    opacity 0.2s linear;
+  max-width: 100%;
+  opacity: 0;
+}
+
+.l-loading-bar--error .l-loading-spinner {
+  transition:
+    max-width 0.2s linear,
+    background-color 0.2s linear,
+    opacity 0.2s linear;
+  max-width: 100%;
+  background-color: var(--l-error-color, #d03050);
+  opacity: 0;
+}
+
+@keyframes loading-rotate {
+  100% {
+    transform: rotate3d(0, 0, 1, 360deg);
+  }
+}

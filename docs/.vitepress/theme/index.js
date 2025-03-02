@@ -8,6 +8,7 @@ import "../../../styles/animation.css";
 import "../../../styles/scrollbar.css";
 import "../../../styles/container.css";
 import "../../../styles/dialog.css";
+import "../../../styles/loading.css";
 import { add } from "../../../src/icons";
 
 export default {

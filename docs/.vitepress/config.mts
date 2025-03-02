@@ -141,6 +141,10 @@ export default defineConfig({
             text: "List 滚动列表",
             link: "/components/list",
           },
+          {
+            text: "Loading 加载",
+            link: "/components/loading",
+          },
           /* TemplateItem */
         ],
       },
