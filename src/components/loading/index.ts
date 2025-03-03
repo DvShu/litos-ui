@@ -19,7 +19,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   if (hasClass(el, "l-loading")) return;
   let $mask: HTMLElement;
   if (option.fullscreen) {
-    $mask = $one(".l-loading-mask") as HTMLElement;
+    $mask = $one("#l-loading-mask") as HTMLElement;
     if ($mask != null) return;
   }
   addClass(el, "l-loading");
@@ -27,7 +27,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   // mask
   $mask = $$("div", { class: "l-loading-mask" });
   if (option.background) {
-    el.style.backgroundColor = option.background;
+    $mask.style.backgroundColor = option.background;
   }
 
   // spinner
@@ -71,7 +71,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
     }
     el.classList.add(...fullClasses);
     // 全屏保证唯一, 设置id用于区分
-    $mask.id = "nt-loading-mask";
+    $mask.id = "l-loading-mask";
   }
 
   $mask.appendChild($spinner);
@@ -87,28 +87,36 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
 }
 
 function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
-  const $masks = $(".l-loading-mask", el);
+  const prefix = option.fullscreen ? "#" : ".";
+  const $masks = $(`${prefix}l-loading-mask`, el);
   iterate($masks, ($mask) => {
     function transitionEnd() {
-      el.classList.remove(
-        "l-loading",
-        "l-loading-lock",
-        "l-loading-fullscreen",
-        "l-loading-bar--finish",
-        "l-loading-bar--start"
-      );
-      if ($mask != null) {
+      console.log(el);
+      const removedClass = ["l-loading-bar--start", "l-loading-bar--finish"];
+      if (el.tagName === "BODY") {
+        removedClass.push(
+          "l-loading",
+          "l-loading-fullscreen",
+          "l-loading-lock"
+        );
+      }
+      el.classList.remove(...removedClass);
+      if ($mask != null && el.contains($mask)) {
         el.removeChild($mask);
         $mask = undefined as any;
       }
     }
+    let _t = -1;
     $mask.addEventListener(
       "transitionend",
       () => {
-        transitionEnd();
+        cancelAnimationFrame(_t);
+        _t = requestAnimationFrame(() => {
+          transitionEnd();
+        });
       },
       { once: true }
-    );el.removeChild($mask);
+    );
     if (option.bar) {
       el.classList.add("l-loading-bar--finish");
     } else {
@@ -117,7 +125,7 @@ function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
     // 检测避免因为错误导致无法移除
     setTimeout(() => {
       transitionEnd();
-    }, 1000);
+    }, 500);
   });
 }
 
@@ -145,12 +153,8 @@ class LoadingInstance {
         $to = to;
       }
     }
-    if ($to == null) {
+    if ($to == null || this.option.fullscreen) {
       $to = document.body;
-    }
-    // 判断挂载节点是否为 body, 如果不是则表明不是 fullscreen
-    if ($to.tagName !== "BODY") {
-      this.option.fullscreen = false;
     }
     this.el = $to;
     this.show();
@@ -190,10 +194,16 @@ export default {
   },
 
   /** 根据指令参数初始化进度条 */
-  init() {
-    const $els = $("[l-loading]");
+  init(id?: string) {
+    // 根据是否提供了 id，选择性地构建 CSS 选择器
+    const selector = id ? `[l-loading="${id}"]` : "[l-loading]";
+    const $els = $(selector);
     iterate($els, (el) => {
-      addLoading(el, getElementLoadingParams(el));
+      const params = getElementLoadingParams(el);
+      addLoading(
+        params.fullscreen ? document.body : el,
+        getElementLoadingParams(el)
+      );
     });
   },
 
@@ -214,7 +224,11 @@ export default {
 
     // 遍历每个匹配的元素，执行移除加载中的操作
     iterate($els, (el) => {
-      removeLoading(el, getElementLoadingParams(el));
+      const params = getElementLoadingParams(el);
+      removeLoading(
+        params.fullscreen ? document.body : el,
+        getElementLoadingParams(el)
+      );
     });
   },
 };
