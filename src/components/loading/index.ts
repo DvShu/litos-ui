@@ -91,7 +91,6 @@ function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
   const $masks = $(`${prefix}l-loading-mask`, el);
   iterate($masks, ($mask) => {
     function transitionEnd() {
-      console.log(el);
       const removedClass = ["l-loading-bar--start", "l-loading-bar--finish"];
       if (el.tagName === "BODY") {
         removedClass.push(
@@ -189,7 +188,7 @@ function getElementLoadingParams(el: HTMLElement) {
 
 export default {
   /** 创建并显示进度条 */
-  create(option: LoadingInstanceParams) {
+  create(option?: LoadingInstanceParams) {
     return new LoadingInstance(option);
   },
 

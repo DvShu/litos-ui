@@ -16,18 +16,28 @@
     }, 3000);
   }
 
+  function handleStartLoading() {
+    const loading = Loading.create();
+
+    setTimeout(() => {
+      loading.hide();
+    }, 3000)
+  }
+
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
         Loading.init('loading1');
         Loading.init('loading2');
         on($one('[l-loading="loading3"]'), 'click', handleLoading);
+        on($one('#startLoading'), 'click', handleStartLoading);
       }
     })
   });
 
   onUnmounted(() => {
     off($one('[l-loading="loading3"]'), 'click', handleLoading);
+    off($one('#startLoading'), 'click', handleStartLoading);
   });
 </script>
 
@@ -105,3 +115,79 @@
 </div>
 </l-code-preview>
 </ClientOnly>
+
+### 编程式调用
+
+> 编程式调用依赖于自动引入
+
+通过调用 `create()` 函数来显示加载动画，例如：
+
+```js
+const loading = LLoading.create(options);
+```
+
+其中 `options` 参数为 `Loading` 的配置项，具体见下表。该会返回一个 `Loading` 实例，可通过调用该实例的 `hide()` 方法来关闭它：
+
+```js
+const loading = LLoading.create({});
+
+setTimeout(() => {
+  loading.hide();
+}, 3000);
+```
+
+需要注意的是，以编程方式创建的 `Loading` 默认为全屏的且该全屏 `Loading` 是单例的。 若在前一个全屏 `Loading` 关闭前再次调用全屏 `Loading`，并不会创建一个新的 `Loading` 实例，而是返回现有全屏 `Loading` 的实例，只要其中一个实例关闭，其它都关闭：
+
+```js
+const loading1 = LLoading.create();
+const loading2 = LLoading.create();
+
+loading2.hide();
+```
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button id="startLoading">开始</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button id="startLoading">按钮</l-button>
+</textarea>
+<textarea lang="js">
+  const $startLoading = document.getElementById('startLoading');
+  $startLoading.addEventListener('click', () => {
+    const loading = LLoading.create();
+    setTimeout(() => {
+      loading.hide();
+    }, 3000);
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+## API
+
+### 配置项
+
+<!-- prettier-ignore -->
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `to` | 加载条的挂载位置；可传入一个 `DOM` 对象或字符串；若传入字符串，则会将其作为参数传入 `document.querySelector` 以获取到对应 `DOM` 节点 | `string` \| `HTMLElement` | `body` |
+| `text` | 显示在加载图标下方的加载文案; 通过传递空字符串可以用于不显示文本 | `string` | `加载中……` |
+| `background` | 遮罩层背景色 | `string` | `rgba(0, 0, 0, .6)` |
+| `fullscreen` | 是否显示全屏加载动画 | `boolean` | `true` |
+| `lock` | 是否禁止滚动 | `boolean` | `true` |
+| `bar` | 加载条是否显示为进度条样式 | `boolean` | `false` |
+
+### 节点属性
+
+<!-- prettier-ignore -->
+| 属性 | 说明 | 默认值 |
+| --- | --- | --- |
+| `l-loading-text` | 显示在加载图标下方的加载文案; 当值为 `false` 时则不显示文本 | `加载中……` |
+| `l-loading-background` | 遮罩层背景色 | `rgba(0, 0, 0, .6)` |
+| `l-loading-fullscreen` | 是否显示全屏加载动画 | `-` |
+| `l-loading-lock` | 是否禁止滚动, 当值为 `false` 或 `0` 时则允许滚动 | `true` |
+| `l-loading-bar` | 加载条是否显示为进度条样式 | `-` |
