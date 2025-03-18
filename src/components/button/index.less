@@ -19,7 +19,13 @@
   --l-btn-disabled-border-color: #e6e6e6;
   display: inline-block;
   width: auto;
+  height: var(--l-form-edit-height, 32px);
   font-size: 0;
+}
+
+/* 使按钮适合其父宽度，100% */
+:host([block]) {
+  width: 100%;
 }
 
 /* 默认按钮，按钮的基础样式 */
@@ -34,7 +40,7 @@
   vertical-align: middle;
   padding: 0 15px;
   line-height: 1;
-  height: var(--l-form-edit-height, 32px);
+  height: 100%;
   border-radius: 3px;
   font-size: 14px;
   color: var(--l-btn-text-color);
@@ -143,11 +149,6 @@
   border-radius: 50%;
   width: var(--l-form-edit-height, 32px);
   padding: 0;
-}
-
-/* 使按钮适合其父宽度，100% */
-.l-btn-block {
-  width: 100%;
 }
 
 .l-btn:not(.l-btn-text) + .l-btn {

@@ -1,5 +1,4 @@
 import {
-  $,
   $one,
   on,
   off,
@@ -57,7 +56,6 @@ const Dialog = (option?: DialogInitialParams) => {
     if (config.onAction != null) {
       config.onAction(action, close);
     }
-    close();
   }
 
   /**

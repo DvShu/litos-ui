@@ -28,6 +28,7 @@ import css from "./index.less?inline";
  */
 export default class Input extends FormInner {
   public static baseName: string = "input";
+  static tagName: string = "l-input";
   /** 原生 input 的 type */
   public type: string = "text";
   public placeholder: string | undefined = undefined;

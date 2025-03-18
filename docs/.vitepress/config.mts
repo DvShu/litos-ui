@@ -12,7 +12,7 @@ export default defineConfig({
       "link",
       {
         rel: "icon",
-        href: "/litos_ui/logo.svg",
+        href: "/litos-ui/logo.svg",
         type: "image/svg+xml",
       },
     ],

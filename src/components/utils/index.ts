@@ -1,20 +1,7 @@
 import { isBlank } from "ph-utils";
-import { $, iterate, transition, $one } from "ph-utils/dom";
+import { $, iterate, transition } from "ph-utils/dom";
 
-type UIConfig = {
-  /** 注册应用的前缀, 默认: lt */
-  prefix: string;
-};
 let seed = -1; // 用于构建多个id，避免重复
-/** UI 配置 */
-let uiConfig = {
-  /** 注册应用的前缀 */
-  prefix: "l",
-};
-
-export function config(cfg: Partial<UIConfig>) {
-  uiConfig = { ...uiConfig, ...cfg };
-}
 
 /**
  * 注册 Web Components 组件
@@ -24,7 +11,7 @@ export function config(cfg: Partial<UIConfig>) {
 export function regist(component: any | any[], name?: string) {
   const comts = Array.isArray(component) ? component : [component];
   for (const comt of comts) {
-    const cmName = name || `${uiConfig.prefix}-${comt.baseName}`;
+    const cmName = name || comt.tabName || `l-${comt.baseName}`;
     if (!customElements.get(cmName)) {
       customElements.define(cmName, comt);
     }
@@ -37,7 +24,7 @@ export function regist(component: any | any[], name?: string) {
  * @returns 唯一标识符字符串
  */
 export function useId() {
-  return `${uiConfig.prefix}-${++seed}`;
+  return `l-${++seed}`;
 }
 export function parseAttrValue(value: string, defaultValue?: string): string;
 export function parseAttrValue(

@@ -19,6 +19,7 @@ import animationCss from "../styles/animation.css?inline";
 
 export default class Button extends BaseComponent {
   public static baseName = "button";
+  static tagName = "l-button";
   public htmlType: "submit" | "reset" | "button" = "button";
   constructor() {
     super();
@@ -81,7 +82,6 @@ export default class Button extends BaseComponent {
     const classes = [
       "l-btn",
       `l-btn-${type}`,
-      this.getAttr("block", false) ? "l-btn-block" : "",
       shape === "round" ? "l-btn-round" : "",
       shape === "circle" ? "l-btn-circle" : "",
       ghost ? "l-btn-ghost" : "",

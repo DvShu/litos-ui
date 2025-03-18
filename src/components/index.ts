@@ -11,6 +11,7 @@ export { default as Popover } from "./popover";
 export { default as Popconfirm } from "./popconfirm";
 export { default as Dialog } from "./dialog";
 export { default as DialogContainer } from "./dialog/dialog_container";
+export { default as Loading } from "./loading";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
@@ -42,6 +43,7 @@ export { default as Button } from "./button";
 export { default as Input } from "./input";
 export { default as SelectOri } from "./select_ori";
 export { default as Switch } from "./switch";
+export { default as MdInput } from "./md_input";
 
 export { default as List } from "./list";
 
@@ -53,5 +55,3 @@ export { default as Tabbar } from "./tabbar";
 
 export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
-
-export { default as MdInput } from "./md_input";
