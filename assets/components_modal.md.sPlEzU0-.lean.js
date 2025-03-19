@@ -1,0 +1,3 @@
+import{_ as o,C as l,c as s,o as i,ag as e,G as n,w as r,j as a}from"./chunks/framework.BCyZWppQ.js";const x=JSON.parse('{"title":"Modal 对话框","description":"","frontmatter":{},"headers":[],"relativePath":"components/modal.md","filePath":"components/modal.md","lastUpdated":1742404665000}'),h={name:"components/modal.md"};function c(b,t,p,m,u,k){const d=l("ClientOnly");return i(),s("div",null,[t[1]||(t[1]=e("",7)),n(d,null,{default:r(()=>t[0]||(t[0]=[a("l-code-preview",null,[a("textarea",{lang:"html"},`  <l-modal open></l-modal>
+`),a("div",{class:"source"},[a("textarea",{lang:"html"},`  <l-modal></l-modal>
+`)])],-1)])),_:1}),t[2]||(t[2]=e("",11))])}const f=o(h,[["render",c]]);export{x as __pageData,f as default};
