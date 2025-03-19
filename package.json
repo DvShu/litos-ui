@@ -10,11 +10,9 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "inspect:eslint": "eslint --inspect-config",
-    "new_version": "node scripts/version.js",
     "create": "node scripts/index.js create",
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
-    "lib:build": "pnpm build && pnpm dts:build",
-    "vp": "scripts/publish.sh"
+    "lib:build": "pnpm build && pnpm dts:build"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

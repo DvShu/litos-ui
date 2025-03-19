@@ -15,7 +15,7 @@
   background: #f0faff;
   color: var(--l-primary-color, #722ed1);
   border: 1px solid #d4eeff;
-  z-index: 1000;
+  z-index: 500;
 }
 .l-message .l-message-icon {
   margin-right: 5px;

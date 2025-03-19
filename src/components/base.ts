@@ -1,7 +1,8 @@
 import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
-  public static baseName: string = "base-component";
+  public static tagName: string = "l-base-component";
+  static baseName = "base-component";
   /** 组件是否渲染完成, 是否已经调用 connectedCallback */
   public rendered: boolean = false;
   public constructor(shadow = true) {
@@ -78,7 +79,7 @@ export default class BaseComponent extends HTMLElement {
       if (typeof el === "string") {
         let $tmp = document.createElement("div");
         $tmp.innerHTML = el;
-        this.root.append(...$tmp.children);
+        this.root.append(...$tmp.childNodes);
         $tmp = undefined as any;
       } else if (!(el as any).length) {
         this.root.append(el as HTMLElement);

@@ -168,6 +168,10 @@ export default defineConfig({
             text: "Dialog 对话框",
             link: "/components/dialog",
           },
+          {
+            text: "Modal 对话框",
+            link: "/components/modal",
+          },
         ],
       },
       {

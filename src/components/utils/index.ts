@@ -11,7 +11,7 @@ let seed = -1; // 用于构建多个id，避免重复
 export function regist(component: any | any[], name?: string) {
   const comts = Array.isArray(component) ? component : [component];
   for (const comt of comts) {
-    const cmName = name || comt.tabName || `l-${comt.baseName}`;
+    const cmName = name || comt.tagName || `l-${comt.baseName}`;
     if (!customElements.get(cmName)) {
       customElements.define(cmName, comt);
     }

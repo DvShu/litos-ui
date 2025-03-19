@@ -44,11 +44,6 @@ export default class Input extends FormInner {
   public error = false;
   private $input: HTMLInputElement | undefined = undefined;
 
-  constructor() {
-    super();
-    initAttr(this);
-  }
-
   set value(value: any) {
     this.setValue(value);
     if (this.$input != null) {
@@ -65,6 +60,7 @@ export default class Input extends FormInner {
   }
 
   connectedCallback(): void {
+    initAttr(this);
     super.connectedCallback();
     this.loadStyleText([css]);
   }

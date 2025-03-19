@@ -18,7 +18,7 @@ export default {
       const module = await import("../../../src/components");
       for (const key in module) {
         const component = module[key];
-        if (component.baseName) {
+        if (component.baseName || component.tagName) {
           if (component.baseName.endsWith("-icon")) {
             add(component.baseName);
           }

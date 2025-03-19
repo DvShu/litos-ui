@@ -11,7 +11,7 @@ function sourceTemplate(name, componentName, fileName) {
     "// @ts-ignore",
     'import css from "./index.less?inline"\r\n',
     `export default class ${name} extends BaseComponent {`,
-    `  public static baseName = "${componentName}";\r\n`,
+    `  public static tagName = "l-${componentName}";\r\n`,
     "  connectedCallback(): void {",
     "    initAttr(this);",
     `    this.loadStyleText(css);`,
@@ -110,12 +110,7 @@ function createComponentTemplate(name) {
   const exportPath = path.join(compoentsPath, "index.ts");
   readFile(exportPath, "utf-8")
     .then((content) => {
-<<<<<<< HEAD
       content += `\r\nexport { default as ${name} } from "./${fileName}";\r\n`;
-=======
-      content += `\r\nexport { default as ${name} } from "./${fileName}";`;
-      content += `\r\nexport { default as regist${name} } from "./${fileName}/regist";\r\n`;
->>>>>>> dcc9351 (feat(Popconfirm): 气泡确认框)
       return write(exportPath, content);
     })
     .then();

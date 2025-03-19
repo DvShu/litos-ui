@@ -35,7 +35,9 @@ import Popover from "./popover";
 import Popconfirm from "./popconfirm";
 import Checkbox from "./checkbox";
 import MdInput from "./md_input";
+import Modal from "./modal";
 //Web Components Import
+regist(Modal)
 regist(MdInput);
 regist(Checkbox);
 regist(Popconfirm);
@@ -105,3 +107,4 @@ import "./popover/index.less";
 import "./popconfirm/index.less";
 import "./checkbox/index.less";
 import "./md_input/index.less";
+import "./modal/index.less";
