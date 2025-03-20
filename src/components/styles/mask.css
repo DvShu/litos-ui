@@ -1,6 +1,6 @@
 .l-mask {
   position: fixed;
-  z-index: 100;
+  z-index: var(--l-mask-zindex, 100);
   left: 0;
   top: 0;
   bottom: 0;

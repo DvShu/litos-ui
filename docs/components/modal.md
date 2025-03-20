@@ -12,6 +12,57 @@ regist(Modal);
 
 ## 演示
 
+<script setup>
+  import { $one, on, off, $, iterate } from 'ph-utils/dom';
+  import { onMounted, nextTick, onUnmounted } from 'vue';
+
+  let $btns;
+  let $modals;
+
+  function showDialog(e) {
+    const $target = e.target;
+    const id = $target.id;
+    const $modal = $one(`l-modal[for="${id}"]`);
+    $modal.setAttribute('open', 'true');
+  }
+
+  function onCancel(e) {
+    e.target.removeAttribute('open');
+  }
+
+  onMounted(() => {
+    nextTick(() => {
+      if (!import.meta.env.SSR) {
+        $btns = $('l-button[id]');
+        $modals = $('l-modal');
+        iterate($btns, ($btn) => {
+          on($btn, 'click', showDialog);
+        });
+        iterate($modals, ($modal) => {
+          on($modal, 'cancel', onCancel);
+        });
+      }
+    })
+  });
+
+  onUnmounted(() => {
+    if (!import.meta.env.SSR) {
+      if ($btns) {
+        iterate($btns, ($btn) => {
+          off($btn, 'click', showDialog);
+        });
+        $btns = undefined;
+      }
+      if ($modals) {
+        iterate($modals, ($modal) => {
+          off($modal, 'cancel', onCancel);
+        });
+        $modals = undefined;
+      }
+    }
+  })
+</script>
+
 ### 基础用法
 
 需要设置 `open` 属性，它接收 `Boolean`，当为 `true` 时显示 `Dialog`。`title` 属性用于定义标题，它是可选的，默认值为空。
@@ -19,7 +70,8 @@ regist(Modal);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal open></l-modal>
+  <l-modal for="open1"></l-modal>
+  <l-button id="open1" type="primary">open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
@@ -50,7 +102,7 @@ regist(Modal);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `cancel` | 点击遮罩层或右上角叉或取消按钮的回调 | `(event: CustomEvent)` |
 
 ### Modal Methods
 
