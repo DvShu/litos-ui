@@ -65,12 +65,14 @@ regist(Modal);
 
 ### 基础用法
 
-需要设置 `open` 属性，它接收 `Boolean`，当为 `true` 时显示 `Dialog`。`title` 属性用于定义标题，它是可选的，默认值为空。
+需要设置 `open` 属性，它接收 `Boolean`，当为 `true` 时显示 `Modal`。`title` 属性用于定义标题，它是可选的，默认值为空。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open1"></l-modal>
+  <l-modal for="open1" title="Title">
+    <span>这是内容</span>
+  </l-modal>
   <l-button id="open1" type="primary">open</l-button>
 </textarea>
 <div class="source">
