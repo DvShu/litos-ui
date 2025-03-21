@@ -1,7 +1,6 @@
 import { getAttr } from "ph-utils/dom";
 
 export default class BaseComponent extends HTMLElement {
-  public static tagName: string = "l-base-component";
   static baseName = "base-component";
   /** 组件是否渲染完成, 是否已经调用 connectedCallback */
   public rendered: boolean = false;

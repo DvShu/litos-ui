@@ -94,15 +94,21 @@
   --l-btn-hover-background: var(--l-primary-color-light1, #9254de);
   /* 按钮的点击颜色 */
   --l-btn-active-background: var(--l-primary-color-dark1, #531dab);
+  --l-btn-disabled-border-color: var(--l-primary-color-light2, #b37feb);
+  --l-btn-disabled-background: var(--l-primary-color-light2, #b37feb);
+  --l-btn-disabled-color: #ffffff;
 }
 
 /* 按钮禁用时的样式 */
-.l-btn:not(.l-btn-loading):disabled {
+.l-btn:disabled {
   border-color: var(--l-btn-disabled-border-color);
   background: var(--l-btn-disabled-background);
   color: var(--l-btn-disabled-color);
   cursor: not-allowed;
   opacity: 1;
+}
+.l-btn.l-btn-loading {
+  cursor: default;
 }
 
 /* 文本按钮样式 */

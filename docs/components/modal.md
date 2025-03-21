@@ -30,6 +30,20 @@ regist(Modal);
     e.target.removeAttribute('open');
   }
 
+  function onOk(e) {
+    const $target = e.target;
+    const forAttr = $target.getAttribute('for');
+    if (forAttr === 'open3') {
+      $target.setAttribute('confirm-loading', 'true');
+      $target.innerHTML = "<span>正在提交内容……</span>";
+      setTimeout(() => {
+        $target.innerHTML = "<span>对话框内容</span>";
+        $target.removeAttribute('confirm-loading');
+        e.target.removeAttribute('open');
+      }, 1500);
+    }
+  }
+
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
@@ -40,6 +54,7 @@ regist(Modal);
         });
         iterate($modals, ($modal) => {
           on($modal, 'cancel', onCancel);
+          on($modal, 'ok', onOk);
         });
       }
     })
@@ -70,14 +85,145 @@ regist(Modal);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open1" title="Title">
+  <l-modal for="open1" title="Title" vertical-align="middle">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal></l-modal>
+  <l-modal for="open1" title="Title">
+    <span>这是内容</span>
+  </l-modal>
+  <l-button id="open1" type="primary">open</l-button>
+</textarea>
+<textarea lang="js">
+  const $open1Btn = document.getElementById('open1');
+  const $modal1 = document.querySelector('l-modal[for="open1"]');
+  $open1Btn.addEventListener('click', () => {
+    $modal1.setAttribute('open', 'true');
+  });
+  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  $modal1.addEventListener('cancel', () => {
+    $modal1.removeAttribute('open');
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 自定义头部
+
+除了使用 `title` 属性定义头部内容外，也可以通过传递 `header-slot` 插槽自定义头部内容。通过传递 `width` 属性改变宽度
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-modal for="open2" width="300px">
+    <l-info-icon slot="header"></l-info-icon>
+    <span slot="header">提示</span>
+    <span>内容</span>
+  </l-modal>
+  <l-button id="open2" type="primary">打开-自定义头部</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-modal for="open2" width="300px">
+    <l-info-icon slot="header"></l-info-icon>
+    <span slot="header">提示</span>
+    <span>内容</span>
+  </l-modal>
+  <l-button id="open2" type="primary">打开-自定义头部</l-button>
+</textarea>
+<textarea lang="js">
+  const $open2Btn = document.getElementById('open2');
+  const $modal2 = document.querySelector('l-modal[for="open2"]');
+  $open2Btn.addEventListener('click', () => {
+    $modal2.setAttribute('open', 'true');
+  });
+  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  $modal2.addEventListener('cancel', () => {
+    $modal2.removeAttribute('open');
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> 注意：实际使用 `l-info-icon` 时, 需要 `regist` 注册
+
+### 异步关闭
+
+点击确定后异步关闭对话框，例如提交表单。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-modal for="open3" title="异步关闭">
+    <span>对话框内容</span>
+  </l-modal>
+  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-modal for="open3" title="异步关闭">
+    <span>对话框内容</span>
+  </l-modal>
+  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+</textarea>
+<textarea lang="js">
+  const $open3Btn = document.getElementById('open3');
+  const $modal3 = document.querySelector('l-modal[for="open3"]');
+  $open3Btn.addEventListener('click', () => {
+    $modal3.setAttribute('open', 'true');
+  });
+  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  $modal3.addEventListener('cancel', () => {
+    $modal3.removeAttribute('open');
+  });
+  $modal3.addEventListener('ok', () => {
+    $modal3.setAttribute('confirm-loading', 'true');
+    $modal3.innerHTML = "<span>正在提交内容……</span>";
+    setTimeout(() => {
+      $modal3.innerHTML = "<span>对话框内容</span>";
+      $modal3.removeAttribute('confirm-loading');
+      $modal3.removeAttribute('open');
+    }, 1500);
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 关闭按钮
+
+通过设置 `close` 来控制关闭按钮的显示以及位置；`0` - 不显示, `1` - 显示在框内(默认), `2` - 显示在边角
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-modal for="open4" title="Title" close="2">
+    <span>对话框内容</span>
+  </l-modal>
+  <l-button id="open4" type="primary">打开</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-modal for="open3" title="异步关闭">
+    <span>对话框内容</span>
+  </l-modal>
+  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+</textarea>
+<textarea lang="js">
+  const $open4Btn = document.getElementById('open4');
+  const $modal4 = document.querySelector('l-modal[for="open4"]');
+  $open4Btn.addEventListener('click', () => {
+    $modal4.setAttribute('open', 'true');
+  });
+  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  $modal4.addEventListener('cancel', () => {
+    $modal4.removeAttribute('open');
+  });
 </textarea>
 </div>
 </l-code-preview>

@@ -16,15 +16,25 @@
 .l-modal {
   background-color: #ffffff;
   border-radius: 5px;
-  width: 30%;
+  width: var(--l-modal-width, 27%);
   margin: auto;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   position: relative;
-  transform: translate3d(0, 80px, 0) scale3d(1, 1, 1);
   opacity: 1;
   transition:
     opacity 0.3s,
     transform 0.3s;
+}
+.l-modal--top {
+  transform: translate3d(0, 80px, 0) scale3d(1, 1, 1);
+}
+.l-modal--middle {
+  top: 50%;
+  transform: translate3d(0, -50%, 0) scale3d(1, 1, 1);
+}
+.l-modal--bottom {
+  transform: translate3d(0, -100%, 0) scale3d(1, 1, 1);
+  top: 100%;
 }
 .l-modal-header {
   display: block;
@@ -48,6 +58,32 @@
   font-size: 14px;
 }
 
+.l-btn-modal-close {
+  --l-form-edit-height: auto;
+  position: absolute;
+}
+.l-modal-close1 {
+  right: 5px;
+  top: 8px;
+}
+.l-modal-close1::part(default) {
+  width: auto;
+  height: auto;
+  padding: 5px;
+  border: none;
+  font-size: 16px;
+}
+.l-modal-close2 {
+  right: -10px;
+  top: -10px;
+}
+.l-modal-close2::part(default) {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background-color: #ffffff;
+}
+
 /* transition */
 .mask-transition-enter-from,
 .mask-transition-leave-to {
@@ -61,8 +97,7 @@
 }
 
 @media screen and (max-width: 768px) {
-  .l-modal {
-    width: 80%;
-    max-width: 300px;
+  :host {
+    --l-modal-width: 80%;
   }
 }

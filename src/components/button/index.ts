@@ -21,10 +21,9 @@ export default class Button extends BaseComponent {
   public static baseName = "button";
   static tagName = "l-button";
   public htmlType: "submit" | "reset" | "button" = "button";
-  constructor() {
-    super();
-    initAttr(this);
-  }
+  /** 加载中文本 */
+  loadingText = "";
+  disabled = false;
 
   // 初始化属性观察器
   static get observedAttributes() {
@@ -43,7 +42,7 @@ export default class Button extends BaseComponent {
           $btn.innerHTML = this.loadingBody();
         } else {
           removeClass($btn, "l-btn-loading");
-          $btn.disabled = this.getAttr("disabled", false);
+          $btn.disabled = this.disabled;
           $btn.innerHTML = "<slot></slot>";
         }
       } else if (name === "color") {
@@ -51,13 +50,14 @@ export default class Button extends BaseComponent {
         const ghost = this.getAttr("ghost", false);
         $btn.style.cssText = this.applyColor(newValue, text, ghost);
       } else if (name === "disabled") {
-        $btn.disabled = this.getAttr("disabled", false);
+        $btn.disabled = parseAttrValue(newValue, false, 'disabled');
       }
     }
   }
 
   connectedCallback(): void {
-    this.loadStyleText([buttonCss, animationCss]);
+    initAttr(this);
+    this.loadStyleText([animationCss, buttonCss]);
     this.render();
     if (this.htmlType === "reset" || this.htmlType === "submit") {
       on(this, "click", this._handleClick);
@@ -107,10 +107,10 @@ export default class Button extends BaseComponent {
   loadingBody() {
     const loadingText = this.getAttr("loading-text", "");
     const res = ['<l-loading-icon class="l-rotate-anim"></l-loading-icon>'];
-    if (loadingText === "") {
-      res.push("<slot></slot>");
-    } else {
+    if (loadingText) {
       res.push(`<span>${loadingText}</span>`);
+    } else {
+      res.push("<slot></slot>");
     }
     return res.join("");
   }

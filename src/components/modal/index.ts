@@ -2,7 +2,15 @@ import BaseComponent from "../base";
 import { initAttr } from "../utils";
 import css from "./index.less?inline";
 import maskCss from "../styles/mask.css?inline";
-import { $$, $one, on, off, transition } from "ph-utils/dom";
+import {
+  $$,
+  $one,
+  on,
+  off,
+  transition,
+  shouldEventNext,
+  addClass,
+} from "ph-utils/dom";
 import { parseAttrValue } from "../utils/index";
 
 export default class Modal extends BaseComponent {
@@ -26,11 +34,18 @@ export default class Modal extends BaseComponent {
   public cancelText = "取消";
   /** 确定按钮文本 */
   public okText = "确定";
+  /** 对话框宽度 */
+  width?: string;
+  /** 确认按钮加载中 */
+  confirmLoading = false;
+  /** 右上角关闭按钮, 1-显示在框内，2-显示在框角, 0-不显示 */
+  close = 1;
+  verticalAlign: "top" | "bottom" | "middle" = "top";
 
   #bodyOverflow = "";
 
   static get observedAttributes() {
-    return ["open"];
+    return ["open", "width", "confirm-loading"];
   }
 
   attributeChangedCallback(
@@ -46,6 +61,16 @@ export default class Modal extends BaseComponent {
       } else {
         this.#closeModal();
       }
+    } else if (name === "width") {
+      this.width = parseAttrValue(newValue, undefined);
+      this.#setWidth();
+    } else if (name === "confirm-loading") {
+      this.confirmLoading = parseAttrValue(newValue, false, "confirm-loading");
+      console.log(this.confirmLoading);
+      const $ok = $one('l-button[modal-action="ok"]', this.root);
+      if ($ok) {
+        $ok.setAttribute("loading", this.confirmLoading.toString());
+      }
     }
   }
 
@@ -53,10 +78,20 @@ export default class Modal extends BaseComponent {
     initAttr(this);
     this.loadStyleText([maskCss, css]);
     super.connectedCallback();
+    this.#setWidth();
   }
+
   render() {
     if (this.open) {
       this.#openModal();
+    }
+  }
+
+  #setWidth() {
+    if (this.width) {
+      this.style.setProperty("--l-modal-width", this.width);
+    } else {
+      this.style.removeProperty("--l-modal-width");
     }
   }
 
@@ -81,7 +116,23 @@ export default class Modal extends BaseComponent {
         fragment.appendChild($mask);
       }
       $wrapper = $$("div", { class: "l-modal-wrapper" });
-      const $modal = $$("div", { class: "l-modal" });
+      const $modal = $$("div", {
+        class: `l-modal l-modal--${this.verticalAlign}`,
+      });
+      $modal.setAttribute("modal-action", "modal");
+
+      // close
+      if (this.close !== 0) {
+        const $close = $$("l-button", {
+          shape: "circle",
+          type: "normal",
+          class: `l-btn-modal-close l-modal-close${this.close}`,
+          "modal-action": "close",
+        });
+        const $closeIcon = $$("l-close-icon");
+        $close.appendChild($closeIcon);
+        $modal.appendChild($close);
+      }
 
       // modal-header
       const $header = $$("header", { class: "l-modal-header" });
@@ -94,6 +145,7 @@ export default class Modal extends BaseComponent {
       const $body = $$("div", {
         class: "l-modal-container",
       });
+
       const $bodySlot = $$("slot");
       $body.appendChild($bodySlot);
       $modal.appendChild($body);
@@ -106,11 +158,16 @@ export default class Modal extends BaseComponent {
         if (this.cancel) {
           const $cancelBtn = $$("l-button");
           $cancelBtn.textContent = this.cancelText;
+          $cancelBtn.setAttribute("modal-action", "cancel");
           $footerSlot.appendChild($cancelBtn);
         }
 
-        const $okBtn = $$("l-button", { type: "primary" });
+        const $okBtn = $$("l-button", {
+          type: "primary",
+          loading: this.confirmLoading,
+        });
         $okBtn.textContent = this.okText;
+        $okBtn.setAttribute("modal-action", "ok");
         $footerSlot.appendChild($okBtn);
 
         $footer.appendChild($footerSlot);
@@ -119,7 +176,8 @@ export default class Modal extends BaseComponent {
 
       $wrapper.appendChild($modal);
       $wrapper.setAttribute("role", "dialog");
-      on($wrapper, "click", this.#handleMaskClick);
+      $wrapper.setAttribute("modal-action", "mask");
+      on($wrapper, "click", this.#handleWrapperClick);
       fragment.appendChild($wrapper);
       this.appendToRoot(fragment);
       transition($modal, "modal-transition");
@@ -134,14 +192,9 @@ export default class Modal extends BaseComponent {
     const $modal = $one(".l-modal", this.root) as HTMLElement;
     transition($modal, "modal-transition", "leave", () => {
       if (this.destroyOnClose) {
-        const $wrapper = $one(".l-modal-wrapper", this.root);
-        if ($wrapper) {
-          off($wrapper, "click", this.#handleMaskClick);
-        }
-        this.root.innerHTML = "";
-      } else {
-        this.classList.remove("open");
+        this.#destroy();
       }
+      this.classList.remove("open");
     });
     const $mask = $one(".l-mask", this.root);
     if ($mask) {
@@ -149,9 +202,43 @@ export default class Modal extends BaseComponent {
     }
   }
 
-  #handleMaskClick = () => {
-    if (this.maskClosable) {
-      this.dispatchEvent(new CustomEvent("cancel"));
+  disconnectedCallback(): void {
+    this.#destroy();
+    super.disconnectedCallback();
+  }
+
+  #destroy() {
+    const $wrapper = $one(".l-modal-wrapper", this.root);
+    if ($wrapper) {
+      off($wrapper, "click", this.#handleWrapperClick);
+      this.root.removeChild($wrapper);
+    }
+    const $mask = $one(".l-mask", this.root);
+    if ($mask) {
+      this.root.removeChild($mask);
+    }
+  }
+
+  #handleWrapperClick = (e: Event) => {
+    const [next, action] = shouldEventNext(e, "modal-action", this.root);
+    if (next) {
+      let eventName = "";
+      if (
+        (this.maskClosable && action === "mask") ||
+        action === "cancel" ||
+        action === "close"
+      ) {
+        eventName = "cancel";
+      } else if (action === "ok") {
+        eventName = "ok";
+      }
+      if (eventName) {
+        this.dispatchEvent(
+          new CustomEvent(eventName, {
+            detail: { action },
+          })
+        );
+      }
     }
   };
 }

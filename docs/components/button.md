@@ -48,6 +48,7 @@ regist(LoadingIcon);
 <l-code-preview>
 <textarea lang="html">
   <l-button disabled>Default</l-button>
+  <l-button disabled type="primary">Primary</l-button>
   <l-button text disabled>Text</l-button>
 </textarea>
 </l-code-preview>
