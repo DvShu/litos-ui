@@ -40,7 +40,10 @@ export default class Modal extends BaseComponent {
   confirmLoading = false;
   /** 右上角关闭按钮, 1-显示在框内，2-显示在框角, 0-不显示 */
   close = 1;
+  /** 对话框垂直方向位置 */
   verticalAlign: "top" | "bottom" | "middle" = "top";
+  /** 是否是移动风格弹出框 */
+  mobile = false;
 
   #bodyOverflow = "";
 
@@ -117,7 +120,7 @@ export default class Modal extends BaseComponent {
       }
       $wrapper = $$("div", { class: "l-modal-wrapper" });
       const $modal = $$("div", {
-        class: `l-modal l-modal--${this.verticalAlign}`,
+        class: `l-modal l-modal--${this.mobile ? "mobile" : "pc"} l-modal--${this.verticalAlign}`,
       });
       $modal.setAttribute("modal-action", "modal");
 
@@ -156,7 +159,10 @@ export default class Modal extends BaseComponent {
         const $footerSlot = $$("slot", { name: "footer" });
 
         if (this.cancel) {
-          const $cancelBtn = $$("l-button");
+          const $cancelBtn = $$("l-button", {
+            class: "l-modal-footer-btn",
+            text: this.mobile,
+          });
           $cancelBtn.textContent = this.cancelText;
           $cancelBtn.setAttribute("modal-action", "cancel");
           $footerSlot.appendChild($cancelBtn);
@@ -164,7 +170,9 @@ export default class Modal extends BaseComponent {
 
         const $okBtn = $$("l-button", {
           type: "primary",
+          class: "l-modal-footer-btn",
           loading: this.confirmLoading,
+          text: this.mobile,
         });
         $okBtn.textContent = this.okText;
         $okBtn.setAttribute("modal-action", "ok");

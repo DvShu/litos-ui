@@ -85,7 +85,7 @@ regist(Modal);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open1" title="Title" vertical-align="middle">
+  <l-modal for="open1" title="Title">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
@@ -223,6 +223,40 @@ regist(Modal);
   // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
   $modal4.addEventListener('cancel', () => {
     $modal4.removeAttribute('open');
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 移动风格
+
+默认情况下对话框为 `pc` 端风格，可以通过传递 `mobile` 属性将对话框变为移动风格；设置 `vertical-align="middle"` 让对话框垂直居中显示;具体表现为：文本居中，下方按钮平铺
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-modal for="open5" title="Title" mobile close="0" vertical-align="middle">
+    <span>这是内容</span>
+  </l-modal>
+  <l-button id="open5" type="primary">open</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-modal for="open5" title="Title" mobile close="0" vertical-align="middle">
+    <span>这是内容</span>
+  </l-modal>
+  <l-button id="open5" type="primary">open</l-button>
+</textarea>
+<textarea lang="js">
+  const $open5Btn = document.getElementById('open5');
+  const $modal5 = document.querySelector('l-modal[for="open5"]');
+  $open5Btn.addEventListener('click', () => {
+    $modal5.setAttribute('open', 'true');
+  });
+  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  $modal5.addEventListener('cancel', () => {
+    $modal5.removeAttribute('open');
   });
 </textarea>
 </div>
