@@ -1,16 +1,10 @@
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
+
 import css from "./index.less?inline";
 import maskCss from "../styles/mask.css?inline";
-import {
-  $$,
-  $one,
-  on,
-  off,
-  transition,
-  shouldEventNext,
-  addClass,
-} from "ph-utils/dom";
+
+import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/dom";
 import { parseAttrValue } from "../utils/index";
 
 export default class Modal extends BaseComponent {
@@ -44,6 +38,8 @@ export default class Modal extends BaseComponent {
   verticalAlign: "top" | "bottom" | "middle" = "top";
   /** 是否是移动风格弹出框 */
   mobile = false;
+  /** 设置 Modal 的 z-index */
+  zIndex?: string;
 
   #bodyOverflow = "";
 
@@ -69,7 +65,6 @@ export default class Modal extends BaseComponent {
       this.#setWidth();
     } else if (name === "confirm-loading") {
       this.confirmLoading = parseAttrValue(newValue, false, "confirm-loading");
-      console.log(this.confirmLoading);
       const $ok = $one('l-button[modal-action="ok"]', this.root);
       if ($ok) {
         $ok.setAttribute("loading", this.confirmLoading.toString());
@@ -82,6 +77,9 @@ export default class Modal extends BaseComponent {
     this.loadStyleText([maskCss, css]);
     super.connectedCallback();
     this.#setWidth();
+    if (this.zIndex) {
+      this.style.setProperty("--l-modal-zindex", this.zIndex);
+    }
   }
 
   render() {
@@ -115,12 +113,13 @@ export default class Modal extends BaseComponent {
       const fragment = document.createDocumentFragment();
       let $mask: HTMLElement | null = null;
       if (this.mask) {
-        $mask = $$("div", { class: "l-mask" });
+        $mask = $$("div", { class: "l-mask", part: "mask" });
         fragment.appendChild($mask);
       }
-      $wrapper = $$("div", { class: "l-modal-wrapper" });
+      $wrapper = $$("div", { class: "l-modal-wrapper", part: "wrapper" });
       const $modal = $$("div", {
         class: `l-modal l-modal--${this.mobile ? "mobile" : "pc"} l-modal--${this.verticalAlign}`,
+        part: "default",
       });
       $modal.setAttribute("modal-action", "modal");
 
@@ -138,7 +137,7 @@ export default class Modal extends BaseComponent {
       }
 
       // modal-header
-      const $header = $$("header", { class: "l-modal-header" });
+      const $header = $$("header", { class: "l-modal-header", part: "header" });
       const $headerSlot = $$("slot", { name: "header" });
       $headerSlot.textContent = this.title || "";
       $header.appendChild($headerSlot);
@@ -147,6 +146,7 @@ export default class Modal extends BaseComponent {
       // modal-body
       const $body = $$("div", {
         class: "l-modal-container",
+        part: "container",
       });
 
       const $bodySlot = $$("slot");
@@ -155,7 +155,10 @@ export default class Modal extends BaseComponent {
 
       // modal-footer
       if (this.footer) {
-        const $footer = $$("footer", { class: "l-modal-footer" });
+        const $footer = $$("footer", {
+          class: "l-modal-footer",
+          part: "footer",
+        });
         const $footerSlot = $$("slot", { name: "footer" });
 
         if (this.cancel) {

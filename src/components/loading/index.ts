@@ -143,6 +143,7 @@ class LoadingInstance {
       ...option,
     };
     const to = (option || {}).to;
+    console.log(to);
     /** 最终挂载节点 */
     let $to: HTMLElement | null = null;
     if (to != null) {
@@ -156,6 +157,7 @@ class LoadingInstance {
       $to = document.body;
     }
     this.el = $to;
+    console.log(this.el);
     this.show();
   }
 

@@ -85,7 +85,7 @@ regist(Modal);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open1" title="Title">
+  <l-modal for="open1" title="Title" vertical-align="middle">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
@@ -270,14 +270,42 @@ regist(Modal);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `open` | 是否显示对话框 | `boolean` | `false` |
+| `destroy-on-close` | 关闭时销毁 Modal 里的子元素 | `boolean` | `false` |
+| `mask-closable` | 点击蒙层是否允许关闭 | `boolean` | `true` |
+| `mask` | 是否显示遮罩层 | `boolean` | `true` |
+| `title` | 标题 | `string` | `""` |
+| `footer` | 是否展示底部 | `boolean` | `true` |
+| `cancel-text` | 取消按钮文字 | `string` | `取消` |
+| `ok-text` | 确定按钮文字 | `string` | `确定` |
+| `close` | 关闭按钮显示位置, `0` - 不显示, `1` - 显示在框内(默认), `2` - 显示在边角 | `0` \| `1` \| `2` | `1` |
+| `mobile` | 是否为移动风格 | `boolean` | `false` |
+| `vertical-align` | 对话框垂直对齐方式, `top` - 顶部, `middle` - 居中 | `top` \| `middle` \| `bottom` | `top` |
+| `confirm-loading` | 确定按钮 `loading` | `boolean` | `false` |
+| `cancel` | 是否显示取消按钮 | `boolean` | `true` |
+| `width` | 对话框宽度 | `string` | `27%` |
+| `z-index` | 对话框层级 | `string` | `100` |
+
+### Modal Parts
+
+<!-- prettier-ignore -->
+| 名称 | 说明 |
+| --- | --- |
+| `mask` | 遮罩层 |
+| `wrapper` | 对话框外层 |
+| `default` | 对话框主体 |
+| `header` | 对话框头部 |
+| `container` | 对话框内容 |
+| `footer` | 对话框底部 |
 
 ### Modal Slots
 
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
+| `default` | 对话框内容 |
+| `header` | 对话框标题 |
+| `footer` | 对话框底部 |
 
 ### Modal Events
 
@@ -285,17 +313,12 @@ regist(Modal);
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `cancel` | 点击遮罩层或右上角叉或取消按钮的回调 | `(event: CustomEvent)` |
-
-### Modal Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `x` | x | `(x: number): string` |
+| `ok` | 点击确定回调 | `(event: CustomEvent)` |
 
 ### Modal CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l` | x | `#fff` |
+| `--l-modal-zindex` | 对话框的层级 `z-index` | `100` |
+| `--l-modal-width` | 对话框宽度 | `27%` |
