@@ -12,6 +12,7 @@ export { default as Popconfirm } from "./popconfirm";
 export { default as Dialog } from "./dialog";
 export { default as DialogContainer } from "./dialog/dialog_container";
 export { default as Loading } from "./loading";
+export { default as Modal } from "./modal";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
@@ -55,5 +56,3 @@ export { default as Tabbar } from "./tabbar";
 
 export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
-
-export { default as Modal } from "./modal";

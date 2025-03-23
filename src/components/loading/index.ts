@@ -5,8 +5,8 @@ type LoadingInstanceParams = {
   fullscreen?: boolean;
   /** 全屏显示时，是否隐藏滚动条; 默认: true */
   lock?: boolean;
-  /** 是否为条形, 默认: false */
-  bar?: boolean;
+  /** 进度条形状, bar - 进度条, circle - 圆形, border - 边框进度 */
+  shape?: "circle" | "bar" | "border";
   /** 进度条挂载容器 */
   to?: string | HTMLElement | null;
   /** 显示的文本; 默认: 加载中…… */
@@ -33,7 +33,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   // spinner
   const $spinner = $$("div", { class: "l-loading-spinner" });
 
-  if (option.bar) {
+  if (option.shape === "bar") {
     addClass($mask, "l-loading-bar");
   } else {
     const $circular = document.createElementNS(
@@ -78,7 +78,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   el.appendChild($mask);
 
   setTimeout(() => {
-    if (option.bar) {
+    if (option.shape === "bar") {
       addClass($mask, "l-loading-bar--start");
     } else {
       $mask.style.opacity = "1";
@@ -116,7 +116,7 @@ function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
       },
       { once: true }
     );
-    if (option.bar) {
+    if (option.shape === "bar") {
       el.classList.add("l-loading-bar--finish");
     } else {
       $mask.style.opacity = "0";
@@ -137,13 +137,12 @@ class LoadingInstance {
     this.option = {
       fullscreen: true,
       lock: true,
-      bar: false,
+      shape: "circle",
       text: "加载中……",
       background: "",
       ...option,
     };
     const to = (option || {}).to;
-    console.log(to);
     /** 最终挂载节点 */
     let $to: HTMLElement | null = null;
     if (to != null) {
@@ -157,7 +156,6 @@ class LoadingInstance {
       $to = document.body;
     }
     this.el = $to;
-    console.log(this.el);
     this.show();
   }
 

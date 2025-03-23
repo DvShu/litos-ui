@@ -5,9 +5,13 @@
 ## 引用
 
 ```js
-import { Modal, regist } from "litos-ui";
+import { Modal, regist, Button, CloseIcon } from "litos-ui";
 
-regist(Modal);
+regist([Modal]);
+// 当显示底部时调用
+regist(Button);
+// 当需要显示关闭按钮时
+regist(CloseIcon);
 ```
 
 ## 演示
