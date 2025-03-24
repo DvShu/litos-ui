@@ -24,6 +24,16 @@
     }, 3000)
   }
 
+  function handleStartBarLoading(e) {
+    const id = e.target.getAttribute('data-loading');
+    Loading.init(id);
+  }
+
+  function handleEndBarLoading(e) {
+    const id = e.target.getAttribute('data-loading');
+    Loading.close(id);
+  }
+
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
@@ -31,6 +41,8 @@
         Loading.init('loading2');
         on($one('[l-loading="loading3"]'), 'click', handleLoading);
         on($one('#startLoading'), 'click', handleStartLoading);
+        on($one('#startBarLoading'), 'click', handleStartBarLoading);
+        on($one('#endBarLoading'), 'click', handleEndBarLoading);
       }
     })
   });
@@ -38,6 +50,8 @@
   onUnmounted(() => {
     off($one('[l-loading="loading3"]'), 'click', handleLoading);
     off($one('#startLoading'), 'click', handleStartLoading);
+    off($one('#startBarLoading'), 'click', handleStartBarLoading);
+    off($one('#endBarLoading'), 'click', handleEndBarLoading);
   });
 </script>
 
@@ -110,6 +124,33 @@
 </textarea>
 <div class="source">
 <textarea lang="html">
+  <l-button l-loading="loading3" l-loading-fullscreen>加载</l-button>
+</textarea>
+<textarea lang="js">
+  LLoading.init();
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 进度条风格
+
+通过传递 `l-loading-shape="bar"` 参数可以将圆形加载变为进度条风格。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div 
+    style="height:150px;border:1px solid #dedede;padding:5px;" 
+    l-loading="loading4" 
+    l-loading-shape="bar"
+  >
+    <l-button id="startBarLoading" data-loading="loading4">开始</l-button>
+    <l-button id="endBarLoading" data-loading="loading4">结束</l-button>
+  </div>
+</textarea>
+<div class="source">
+<textarea lang="html">
   <l-button>按钮</l-button>
 </textarea>
 </div>
@@ -179,7 +220,10 @@ loading2.hide();
 | `background` | 遮罩层背景色 | `string` | `rgba(0, 0, 0, .6)` |
 | `fullscreen` | 是否显示全屏加载动画 | `boolean` | `true` |
 | `lock` | 是否禁止滚动 | `boolean` | `true` |
-| `bar` | 加载条是否显示为进度条样式 | `boolean` | `false` |
+| `shape` | 形状, circle - 圆形, bar - 进度条样式, border - 边框动画 | `string` | `circle` |
+| `color` | 颜色 | `string` | `var(--l-primary-color, #722ed1)` |
+| `mask` | 是否显示阴影, 0 - 不显示, 1 - 显示, 2 - 自动[circle-显示,bar-不显示] | `number` | `2` |
+| `zindex` | z-index 层级 | `string` | `10` |
 
 ### 节点属性
 
@@ -190,4 +234,7 @@ loading2.hide();
 | `l-loading-background` | 遮罩层背景色 | `rgba(0, 0, 0, .6)` |
 | `l-loading-fullscreen` | 是否显示全屏加载动画 | `-` |
 | `l-loading-lock` | 是否禁止滚动, 当值为 `false` 或 `0` 时则允许滚动 | `true` |
-| `l-loading-bar` | 加载条是否显示为进度条样式 | `-` |
+| `l-loading-shape` | 形状 | `circle` |
+| `l-loading-color` | 颜色 | `var(--l-primary-color, #722ed1)` |
+| `l-loading-mask` | 是否显示阴影, 0 - 不显示, 1 - 显示, 2 - 自动[circle-显示,bar-不显示] | `2` |
+| `l-loading-zindex` | z-index 层级 | `10` |

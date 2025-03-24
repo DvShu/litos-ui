@@ -50,7 +50,13 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   });
 
   if (option.shape === "bar") {
-    // addClass($mask, "l-loading-bar");
+    const $bar = $$("div", { class: "l-loading-progress" });
+    $spinner.style.setProperty(
+      "top",
+      `-${getComputedStyle(el).borderTopWidth}`
+    );
+    $spinner.appendChild($bar);
+    // addClass($spinner, "l-loading-bar--start");
   } else {
     const $circular = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -91,29 +97,46 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
     $spinner.id = "l-loading";
   }
 
-  setTimeout(() => {
+  requestAnimationFrame(() => {
     if ($mask) {
-      if (option.shape === "bar") {
-        addClass($mask, "l-loading-bar--start");
-      } else {
-        $mask.style.opacity = "1";
-      }
+      $mask.style.opacity = "1";
     }
-  }, 10);
+    $spinner.style.opacity = "1";
+    addClass($spinner, "l-loading-bar--start");
+  });
 }
 
 function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
   const prefix = el.tagName === "BODY" ? "body" : ".l-loading";
   const $mask = $one(`${prefix} > .l-loading-mask`, el);
   const $spinner = $one(`${prefix} > .l-loading-spinner`, el);
-  if ($mask) {
-    $mask.remove();
+
+  function transEnd() {
+    if ($mask) {
+      $mask.remove();
+    }
+    if ($spinner) {
+      $spinner.remove();
+    }
+    const removeClasses = ["l-loading"];
+    if (el.tagName === "BODY") {
+      removeClasses.push("l-loading-fullscreen", "l-loading-lock");
+    }
+    el.classList.remove(...removeClasses);
   }
+
+  requestAnimationFrame(() => {
+    if ($mask) {
+      $mask.style.opacity = "0";
+    }
+    if ($spinner) {
+      addClass($spinner, "l-loading-bar--finish");
+      $spinner.style.opacity = "0";
+    }
+  });
+
   if ($spinner) {
-    $spinner.remove();
-  }
-  if (el.tagName === "BODY") {
-    el.classList.remove("l-loading", "l-loading-fullscreen", "l-loading-lock");
+    $spinner.addEventListener("transitionend", transEnd, { once: true });
   }
 }
 

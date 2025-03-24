@@ -10,10 +10,7 @@
   z-index: var(--l-loading-zindex, 10);
   background: rgba(0, 0, 0, 0.6);
   border-radius: inherit;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  transition: opacity 0.3s ease-in-out;
+  transition: opacity 0.3s;
   opacity: 0;
 }
 
@@ -22,6 +19,8 @@
   text-align: center;
   position: absolute;
   z-index: calc(var(--l-loading-zindex, 10) + 1);
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 .l-loading-spinner.l-loading--circle {
   top: 50%;
@@ -64,30 +63,33 @@
 }
 
 /* 进度条样式 */
-.l-loading-bar.l-loading-mask {
-  bottom: auto;
+.l-loading--bar.l-loading-spinner {
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 2px;
   border-radius: inherit;
+  display: flex;
   background-color: transparent;
   justify-content: flex-start;
-  opacity: 1;
 }
-.l-loading-bar > .l-loading-spinner {
+.l-loading--bar > .l-loading-progress {
   width: 100%;
   height: 100%;
   max-width: 0;
   opacity: 1;
+  border-radius: 1px;
   transition:
     max-width 4s linear,
     background-color 0.2s linear,
     opacity 0.2s linear;
   background-color: var(--l-primary-color, #722ed1);
 }
-.l-loading-bar--start .l-loading-spinner {
+.l-loading-bar--start .l-loading-progress {
   max-width: 90%;
 }
 
-.l-loading-bar--finish .l-loading-spinner {
+.l-loading-bar--finish .l-loading-progress {
   transition:
     max-width 0.2s linear,
     background-color 0.2s linear,
