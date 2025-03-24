@@ -113,7 +113,7 @@ export default class Modal extends BaseComponent {
       const fragment = document.createDocumentFragment();
       let $mask: HTMLElement | null = null;
       if (this.mask) {
-        $mask = $$("div", { class: "l-mask", part: "mask" });
+        $mask = $$("div", { class: "l-mask l-modal-mask", part: "mask" });
         fragment.appendChild($mask);
       }
       $wrapper = $$("div", { class: "l-modal-wrapper", part: "wrapper" });

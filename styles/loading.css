@@ -7,6 +7,7 @@
   right: 0;
   bottom: 0;
   left: 0;
+  z-index: var(--l-loading-zindex, 10);
   background: rgba(0, 0, 0, 0.6);
   border-radius: inherit;
   display: flex;
@@ -17,8 +18,17 @@
 }
 
 .l-loading-spinner {
+  --l-loading-color: var(--l-primary-color, #722ed1);
   text-align: center;
+  position: absolute;
+  z-index: calc(var(--l-loading-zindex, 10) + 1);
 }
+.l-loading-spinner.l-loading--circle {
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+}
+
 .l-loading-spinner .circle {
   display: inline;
   width: 40px;
@@ -27,7 +37,7 @@
 }
 
 .l-loading-spinner .path {
-  stroke: var(--l-primary-color, #722ed1);
+  stroke: var(--l-loading-color);
   stroke-width: 2px;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -36,7 +46,7 @@
 }
 
 .l-loading-spinner .l-loading-text {
-  color: var(--l-primary-color, #722ed1);
+  color: var(--l-loading-color);
   margin: 0;
   font-size: 14px;
 }
@@ -44,10 +54,13 @@
 /* 全屏组件 */
 .l-loading-fullscreen.l-loading-lock {
   overflow: hidden;
+  --l-loading-zindex: 50;
 }
 .l-loading-fullscreen > .l-loading-mask {
   position: fixed;
-  z-index: 100;
+}
+.l-loading-fullscreen > .l-loading-spinner {
+  position: fixed;
 }
 
 /* 进度条样式 */

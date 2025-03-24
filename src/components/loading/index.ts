@@ -11,30 +11,46 @@ type LoadingInstanceParams = {
   to?: string | HTMLElement | null;
   /** 显示的文本; 默认: 加载中…… */
   text?: string;
-  /** 进度背景色 */
+  /** 阴影背景色 */
   background?: string;
+  /** 是否显示阴影, 0 - 不显示, 1 - 显示, 2 - 自动[circle-显示,bar-不显示], 默认: 2 */
+  mask?: number;
+  zindex?: number;
+  /** 前景文字颜色 */
+  color?: string;
 };
 
 function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   if (hasClass(el, "l-loading")) return;
   let $mask: HTMLElement;
   if (option.fullscreen) {
-    $mask = $one("#l-loading-mask") as HTMLElement;
-    if ($mask != null) return;
+    const $spinner = $one("#l-loading") as HTMLElement;
+    if ($spinner != null) return;
   }
   addClass(el, "l-loading");
 
   // mask
-  $mask = $$("div", { class: "l-loading-mask" });
-  if (option.background) {
-    $mask.style.backgroundColor = option.background;
+  if (option.mask === 1 || (option.mask === 2 && option.shape === "circle")) {
+    $mask = $$("div", {
+      class: "l-loading-mask",
+      style: {
+        "background-color": option.background,
+        "--l-loading-zindex": option.zindex as any,
+      },
+    });
+    el.appendChild($mask);
   }
 
   // spinner
-  const $spinner = $$("div", { class: "l-loading-spinner" });
+  const $spinner = $$("div", {
+    class: `l-loading-spinner l-loading--${option.shape}`,
+    style: {
+      "--l-loading-color": option.color,
+    },
+  });
 
   if (option.shape === "bar") {
-    addClass($mask, "l-loading-bar");
+    // addClass($mask, "l-loading-bar");
   } else {
     const $circular = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -62,6 +78,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
       $spinner.appendChild($text);
     }
   }
+  el.appendChild($spinner);
 
   // 全屏
   if (option.fullscreen) {
@@ -71,67 +88,39 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
     }
     el.classList.add(...fullClasses);
     // 全屏保证唯一, 设置id用于区分
-    $mask.id = "l-loading-mask";
+    $spinner.id = "l-loading";
   }
 
-  $mask.appendChild($spinner);
-  el.appendChild($mask);
-
   setTimeout(() => {
-    if (option.shape === "bar") {
-      addClass($mask, "l-loading-bar--start");
-    } else {
-      $mask.style.opacity = "1";
+    if ($mask) {
+      if (option.shape === "bar") {
+        addClass($mask, "l-loading-bar--start");
+      } else {
+        $mask.style.opacity = "1";
+      }
     }
   }, 10);
 }
 
 function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
-  const prefix = option.fullscreen ? "#" : ".";
-  const $masks = $(`${prefix}l-loading-mask`, el);
-  iterate($masks, ($mask) => {
-    function transitionEnd() {
-      const removedClass = ["l-loading-bar--start", "l-loading-bar--finish"];
-      if (el.tagName === "BODY") {
-        removedClass.push(
-          "l-loading",
-          "l-loading-fullscreen",
-          "l-loading-lock"
-        );
-      }
-      el.classList.remove(...removedClass);
-      if ($mask != null && el.contains($mask)) {
-        el.removeChild($mask);
-        $mask = undefined as any;
-      }
-    }
-    let _t = -1;
-    $mask.addEventListener(
-      "transitionend",
-      () => {
-        cancelAnimationFrame(_t);
-        _t = requestAnimationFrame(() => {
-          transitionEnd();
-        });
-      },
-      { once: true }
-    );
-    if (option.shape === "bar") {
-      el.classList.add("l-loading-bar--finish");
-    } else {
-      $mask.style.opacity = "0";
-    }
-    // 检测避免因为错误导致无法移除
-    setTimeout(() => {
-      transitionEnd();
-    }, 500);
-  });
+  const prefix = el.tagName === "BODY" ? "body" : ".l-loading";
+  const $mask = $one(`${prefix} > .l-loading-mask`, el);
+  const $spinner = $one(`${prefix} > .l-loading-spinner`, el);
+  if ($mask) {
+    $mask.remove();
+  }
+  if ($spinner) {
+    $spinner.remove();
+  }
+  if (el.tagName === "BODY") {
+    el.classList.remove("l-loading", "l-loading-fullscreen", "l-loading-lock");
+  }
 }
 
 class LoadingInstance {
   /** 加载容器 */
   public el!: HTMLElement;
-  public option!: Required<Omit<LoadingInstanceParams, "to">>;
+  public option!: Required<Omit<LoadingInstanceParams, "to" | "zindex">>;
 
   public constructor(option?: LoadingInstanceParams) {
     this.option = {
@@ -140,6 +129,8 @@ class LoadingInstance {
       shape: "circle",
       text: "加载中……",
       background: "",
+      color: "",
+      mask: 2,
       ...option,
     };
     const to = (option || {}).to;
@@ -182,7 +173,9 @@ function getElementLoadingParams(el: HTMLElement) {
       : "加载中……",
     fullscreen: el.hasAttribute("l-loading-fullscreen"),
     lock: lock === "0" || lock === "false" ? false : true,
-    bar: el.hasAttribute("l-loading-bar"),
+    mask: Number(el.hasAttribute("l-loading-mask") || 2),
+    shape: (el.getAttribute("l-loading-shape") as "circle") || "circle",
+    color: el.getAttribute("l-loading-color") as string,
   };
 }
 
