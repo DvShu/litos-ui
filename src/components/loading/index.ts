@@ -56,8 +56,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
       `-${getComputedStyle(el).borderTopWidth}`
     );
     $spinner.appendChild($bar);
-    // addClass($spinner, "l-loading-bar--start");
-  } else {
+  } else if (option.shape === "circle") {
     const $circular = document.createElementNS(
       "http://www.w3.org/2000/svg",
       "svg"
@@ -109,35 +108,29 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
 function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
   const prefix = el.tagName === "BODY" ? "body" : ".l-loading";
   const $mask = $one(`${prefix} > .l-loading-mask`, el);
-  const $spinner = $one(`${prefix} > .l-loading-spinner`, el);
+  const $spinner = $one(`${prefix} > .l-loading-spinner`, el) as HTMLElement;
+
+  if (!$spinner) return;
 
   function transEnd() {
     if ($mask) {
       $mask.remove();
     }
-    if ($spinner) {
-      $spinner.remove();
-    }
+    $spinner.remove();
     const removeClasses = ["l-loading"];
     if (el.tagName === "BODY") {
       removeClasses.push("l-loading-fullscreen", "l-loading-lock");
     }
     el.classList.remove(...removeClasses);
   }
-
+  $spinner.addEventListener("transitionend", transEnd, { once: true });
   requestAnimationFrame(() => {
     if ($mask) {
       $mask.style.opacity = "0";
     }
-    if ($spinner) {
-      addClass($spinner, "l-loading-bar--finish");
-      $spinner.style.opacity = "0";
-    }
+    addClass($spinner, "l-loading-bar--finish");
+    $spinner.style.opacity = "0";
   });
-
-  if ($spinner) {
-    $spinner.addEventListener("transitionend", transEnd, { once: true });
-  }
 }
 
 class LoadingInstance {

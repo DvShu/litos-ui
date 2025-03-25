@@ -39,6 +39,7 @@
       if (!import.meta.env.SSR) {
         Loading.init('loading1');
         Loading.init('loading2');
+        Loading.init('loading5');
         on($one('[l-loading="loading3"]'), 'click', handleLoading);
         on($one('#startLoading'), 'click', handleStartLoading);
         on($one('#startBarLoading'), 'click', handleStartBarLoading);
@@ -152,6 +153,39 @@
 <div class="source">
 <textarea lang="html">
   <l-button>按钮</l-button>
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 边框动画风格
+
+通过传递 `l-loading-shape="border"` 参数可以变为边框加载动画。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div 
+    style="height:150px;border:1px solid #dedede;padding:5px;border-radius:5px" 
+    l-loading="loading5"
+    l-loading-shape="border"
+  >
+    内容加载区域
+  </div>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <div 
+    style="height:150px;border:1px solid #dedede;padding:5px;border-radius:5px" 
+    l-loading="loading5" 
+    l-loading-mask="1"
+    l-loading-shape="border"
+  >
+    内容加载区域
+  </div>
+</textarea>
+<textarea lang="js">
+  LLoading.init();
 </textarea>
 </div>
 </l-code-preview>
