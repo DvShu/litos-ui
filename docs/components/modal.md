@@ -19,6 +19,7 @@ regist(CloseIcon);
 <script setup>
   import { $one, on, off, $, iterate } from 'ph-utils/dom';
   import { onMounted, nextTick, onUnmounted } from 'vue';
+  import LModalBox from '../../src/components/modal/modal_box'
 
   let $btns;
   let $modals;
@@ -26,8 +27,12 @@ regist(CloseIcon);
   function showDialog(e) {
     const $target = e.target;
     const id = $target.id;
-    const $modal = $one(`l-modal[for="${id}"]`);
-    $modal.setAttribute('open', 'true');
+    if (id === 'alert') {
+      LModalBox.alert('这是一段内容', '标题')
+    } else {
+      const $modal = $one(`l-modal[for="${id}"]`);
+      $modal.setAttribute('open', 'true');
+    }
   }
 
   function onCancel(e) {
@@ -262,6 +267,27 @@ regist(CloseIcon);
   $modal5.addEventListener('cancel', () => {
     $modal5.removeAttribute('open');
   });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 消息弹窗
+
+模拟系统的消息提示框而实现的一套模态对话框组件，用于消息提示、确认消息和提交内容。系统自带有3种消息弹窗：`alert`、`confirm`、`prompt` 但是其样式比较简陋不太美观，消息弹窗优化了样式。
+
+分别通过 `LModalBox.alert()`、`LModalBox.confirm()`、`LModalBox.prompt()` 调用
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button id="alert">alert</l-button>
+  <l-button id="confirm">confirm</l-button>
+  <l-button id="prompt">prompt</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button>按钮</l-button>
 </textarea>
 </div>
 </l-code-preview>

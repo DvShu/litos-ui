@@ -118,7 +118,11 @@ export default class Modal extends BaseComponent {
       }
       $wrapper = $$("div", { class: "l-modal-wrapper", part: "wrapper" });
       const $modal = $$("div", {
-        class: `l-modal l-modal--${this.mobile ? "mobile" : "pc"} l-modal--${this.verticalAlign}`,
+        class: [
+          "l-modal",
+          `l-modal--${this.mobile ? "mobile" : "pc"}`,
+          `l-modal--${this.verticalAlign}`,
+        ],
         part: "default",
       });
       $modal.setAttribute("modal-action", "modal");
@@ -206,6 +210,7 @@ export default class Modal extends BaseComponent {
         this.#destroy();
       }
       this.classList.remove("open");
+      this.dispatchEvent(new CustomEvent("close"));
     });
     const $mask = $one(".l-mask", this.root);
     if ($mask) {
