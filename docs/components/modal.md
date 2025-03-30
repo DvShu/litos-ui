@@ -17,7 +17,7 @@ regist(CloseIcon);
 ## 演示
 
 <script setup>
-  import { $one, on, off, $, iterate } from 'ph-utils/dom';
+  import { $one, on, off, $, iterate, $$ } from 'ph-utils/dom';
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import LModalBox from '../../src/components/modal/modal_box'
 
@@ -28,7 +28,13 @@ regist(CloseIcon);
     const $target = e.target;
     const id = $target.id;
     if (id === 'alert') {
-      LModalBox.alert('这是一段内容', '标题')
+      LModalBox.alert('这是一段内容', '标题').then(() => {
+        console.log("alert close")
+      })
+    } else if (id === 'confirm') {
+      LModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
+        console.log(ok)
+      })
     } else {
       const $modal = $one(`l-modal[for="${id}"]`);
       $modal.setAttribute('open', 'true');
