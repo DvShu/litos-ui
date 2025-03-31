@@ -180,6 +180,7 @@ export default class Input extends FormInner {
 
   private _getStyleObj() {
     const styleObj: Record<string, string> = {};
+    console.log(this._isBlock());
     if (this._isBlock()) {
       styleObj["--l-input-width"] = "100%";
     }
@@ -193,6 +194,7 @@ export default class Input extends FormInner {
     if (this.block === true) return true;
     if (this.formItemAttrs.innerBlock === true) return true;
     if (this.formAttrs.innerBlock === true) return true;
+    return false;
   }
 
   private _updateError() {

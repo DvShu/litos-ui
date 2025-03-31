@@ -10,6 +10,7 @@ import css from "./index.less?inline";
 
 export default class Form extends BaseComponent {
   public static baseName = "form";
+  tagName = "l-form";
   /** 是否行内表单 */
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";
@@ -21,17 +22,15 @@ export default class Form extends BaseComponent {
   public innerBlock = false;
   public novalidate = false;
   private _data?: Record<string, any>;
-  private emit: CustomEvent;
 
   constructor() {
     super();
-    initAttr(this);
+
     //@ts-ignore
     if (this.id == null) {
       this.id = `l-f${random(3)}-${random(6)}`;
     }
     this.validator = new Validator([]);
-    this.emit = new CustomEvent("submit");
   }
 
   static get observedAttributes() {
@@ -58,6 +57,7 @@ export default class Form extends BaseComponent {
   }
 
   connectedCallback(): void {
+    initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
     add(this.id, "ruleChange", this.ruleChange);
@@ -145,11 +145,11 @@ export default class Form extends BaseComponent {
 
   public submit() {
     if (this.novalidate) {
-      this.dispatchEvent(this.emit);
+      this.dispatchEvent(new CustomEvent("submit"));
     } else {
       this.validate().then((valid) => {
         if (valid) {
-          this.dispatchEvent(this.emit);
+          this.dispatchEvent(new CustomEvent("submit"));
         }
       });
     }

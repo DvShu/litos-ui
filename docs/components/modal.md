@@ -35,6 +35,10 @@ regist(CloseIcon);
       LModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
         console.log(ok)
       })
+    } else if (id === 'prompt') {
+      LModalBox.prompt('确定要保存更改？', '提示').then((text) => {
+        console.log(text)
+      })
     } else {
       const $modal = $one(`l-modal[for="${id}"]`);
       $modal.setAttribute('open', 'true');
