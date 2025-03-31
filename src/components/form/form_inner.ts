@@ -116,7 +116,7 @@ export default class FormInner extends BaseComponent {
     let formItemAttr: Record<string, any> = {};
     while ($parent != null) {
       const tagName = $parent.tagName;
-      if (tagName === "l-form") {
+      if (tagName === "L-FORM") {
         const sharedAttrs = ($parent as Form).sharedAttrs;
         for (let i = 0; i < sharedAttrs.length; i++) {
           const attr = sharedAttrs[i];
@@ -125,7 +125,7 @@ export default class FormInner extends BaseComponent {
         break;
       }
       if (tagName === "BODY") break;
-      if (tagName === "l-form-item") {
+      if (tagName === "L-FORM-ITEM") {
         const sharedAttrs = ($parent as FormItem).sharedAttrs;
         for (let i = 0; i < sharedAttrs.length; i++) {
           const attr = sharedAttrs[i];

@@ -9,7 +9,6 @@ import css from "./form_item.less?inline";
 
 export default class FormItem extends BaseComponent {
   public static baseName = "form-item";
-  tagName = "l-form-item";
   public disabled: boolean = false;
   public sharedAttrs: string[] = ["disabled", "id", "name", "innerBlock"];
   /** 是否必须 */

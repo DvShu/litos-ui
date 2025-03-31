@@ -19,7 +19,6 @@ import animationCss from "../styles/animation.css?inline";
 
 export default class Button extends BaseComponent {
   public static baseName = "button";
-  static tagName = "l-button";
   public htmlType: "submit" | "reset" | "button" = "button";
   /** 加载中文本 */
   loadingText = "";
@@ -50,7 +49,7 @@ export default class Button extends BaseComponent {
         const ghost = this.getAttr("ghost", false);
         $btn.style.cssText = this.applyColor(newValue, text, ghost);
       } else if (name === "disabled") {
-        $btn.disabled = parseAttrValue(newValue, false, 'disabled');
+        $btn.disabled = parseAttrValue(newValue, false, "disabled");
       }
     }
   }

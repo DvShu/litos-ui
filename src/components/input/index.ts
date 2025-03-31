@@ -28,7 +28,6 @@ import css from "./index.less?inline";
  */
 export default class Input extends FormInner {
   public static baseName: string = "input";
-  static tagName: string = "l-input";
   /** 原生 input 的 type */
   public type: string = "text";
   public placeholder: string | undefined = undefined;
@@ -180,7 +179,6 @@ export default class Input extends FormInner {
 
   private _getStyleObj() {
     const styleObj: Record<string, string> = {};
-    console.log(this._isBlock());
     if (this._isBlock()) {
       styleObj["--l-input-width"] = "100%";
     }

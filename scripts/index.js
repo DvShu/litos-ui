@@ -11,7 +11,7 @@ function sourceTemplate(name, componentName, fileName) {
     "// @ts-ignore",
     'import css from "./index.less?inline"\r\n',
     `export default class ${name} extends BaseComponent {`,
-    `  public static tagName = "l-${componentName}";\r\n`,
+    `  public static baseName = "${componentName}";\r\n`,
     "  connectedCallback(): void {",
     "    initAttr(this);",
     `    this.loadStyleText(css);`,

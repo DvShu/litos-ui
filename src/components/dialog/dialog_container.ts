@@ -15,7 +15,6 @@ import { initAttr } from "../utils";
 
 export default class DialogContainer extends BaseComponent {
   public static baseName = "dialog-container";
-  static tagName: string = "l-dialog-container";
 
   /** 是否显示标题栏 */
   public showHeader = true;

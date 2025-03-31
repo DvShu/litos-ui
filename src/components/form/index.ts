@@ -10,7 +10,6 @@ import css from "./index.less?inline";
 
 export default class Form extends BaseComponent {
   public static baseName = "form";
-  tagName = "l-form";
   /** 是否行内表单 */
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";

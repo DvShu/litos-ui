@@ -1,3 +1,7 @@
 .l-modal-box {
   --l-modal-width: 340px;
 }
+
+.l-modal-box.l-modal-box--prompt {
+  --l-modal-container-padding: 5px 10px 15px 10px;
+}

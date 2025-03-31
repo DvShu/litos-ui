@@ -3,8 +3,7 @@ import Button from "../button/index";
 import CloseIcon from "../icon/close";
 import InfoIcon from "../icon/info";
 import { regist } from "../utils/index";
-import { $$, on } from "ph-utils/dom";
-import Form from "../form/index";
+import { $$, on, $one } from "ph-utils/dom";
 import FormItem from "../form/form_item";
 import Input from "../input";
 
@@ -26,7 +25,7 @@ type PromptOptions = AlertOptions & {
 function renderModal(
   title: string,
   content: string,
-  options: AlertOptions,
+  options: PromptOptions,
   type = "alert"
 ): Promise<boolean | string> {
   return new Promise((resolve) => {
@@ -38,10 +37,13 @@ function renderModal(
     }
     inner.push(`<span slot="header">${title}</span>`);
     if (type === "prompt") {
-      inner.push('<l-form label-position="top" inner-block>');
-      inner.push('<l-form-item label="用户名">');
-      inner.push('<l-input placeholder="请输入用户名"></l-input>');
-      inner.push("</l-form-item></l-form>");
+      inner.push(
+        `<l-form-item label="${content}" label-position="top" inner-block>`
+      );
+      inner.push(
+        `<l-input placeholder="${options.placeholder || ""}"></l-input>`
+      );
+      inner.push("</l-form-item>");
     } else {
       inner.push(`<span>${content}</span>`);
     }
@@ -49,7 +51,7 @@ function renderModal(
       cancel: `${options.showCancel}`,
       innerHTML: inner.join(""),
       open: true,
-      class: "l-modal-box",
+      class: `l-modal-box l-modal-box--${type}`,
       close: `${options.close}`,
       "mask-closable": `${options.maskClosable}`,
     });
@@ -66,8 +68,13 @@ function renderModal(
       $modal,
       "ok",
       () => {
+        let value: boolean | string = true;
+        if (type === "prompt") {
+          const $input = $one(".l-modal-box l-input") as HTMLInputElement;
+          value = $input.value;
+        }
         $modal.removeAttribute("open");
-        resolve(true);
+        resolve(value);
       },
       { once: true }
     );
@@ -115,7 +122,7 @@ function confirm(content: string, title?: string, option?: AlertOptions) {
 }
 
 function prompt(label: string, title?: string, option?: PromptOptions) {
-  regist([Button, Modal, CloseIcon, InfoIcon, Form, FormItem, Input]);
+  regist([Button, Modal, CloseIcon, InfoIcon, FormItem, Input]);
   const opts = {
     showCancel: true,
     close: 0,

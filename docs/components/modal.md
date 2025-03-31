@@ -36,7 +36,7 @@ regist(CloseIcon);
         console.log(ok)
       })
     } else if (id === 'prompt') {
-      LModalBox.prompt('确定要保存更改？', '提示').then((text) => {
+      LModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
         console.log(text)
       })
     } else {

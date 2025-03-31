@@ -8,7 +8,7 @@ import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/dom";
 import { parseAttrValue } from "../utils/index";
 
 export default class Modal extends BaseComponent {
-  public static tagName = "l-modal";
+  static baseName: string = "modal";
 
   /** 是否显示对话框 */
   public open: boolean = false;
