@@ -296,8 +296,19 @@ regist(CloseIcon);
   <l-button id="prompt">prompt</l-button>
 </textarea>
 <div class="source">
-<textarea lang="html">
-  <l-button>按钮</l-button>
+<textarea lang="js">
+  // alert
+  LModalBox.alert('这是一段内容', '标题').then(() => {
+    console.log("alert close")
+  });
+  // confirm
+  LModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
+    console.log(ok);
+  })
+  // prompt
+  LModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
+    console.log(text);
+  });
 </textarea>
 </div>
 </l-code-preview>
@@ -362,3 +373,23 @@ regist(CloseIcon);
 | --- | --- | --- |
 | `--l-modal-zindex` | 对话框的层级 `z-index` | `100` |
 | `--l-modal-width` | 对话框宽度 | `27%` |
+
+### ModalBox Methods
+
+<!-- prettier-ignore -->
+| 方法名 | 说明 | 参数 | 返回值 |
+| --- | --- | --- | --- |
+| `alert` | 展示消息提示框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise` |
+| `confirm` | 展示消息确认框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise<boolean>` |
+| `prompt` | 展示输入框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise<string>` |
+
+### ModalBoxOptions
+
+<!-- prettier-ignore -->
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `showCancel` | 是否显示取消按钮 | `boolean` | `true`(`alert`默认`false`) |
+| `close` | 关闭按钮显示位置, `0` - 不显示, `1` - 显示在框内(默认), `2` - 显示在边角 | `0` \| `1` \| `2` | `0` |
+| `maskClosable` | 点击蒙层是否允许关闭 | `boolean` | `true`(`alert`默认`false`) |
+| `icon` | 自定义图标 | `() => HTMLElement` | `-` |
+| `placeholder` | 输入框占位符, `prompt` 时有效 | `string` | `-` |
