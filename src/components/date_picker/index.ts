@@ -3,6 +3,7 @@ import { initAttr } from "../utils";
 import css from "./index.less?inline";
 import FormInner from "../form/form_inner";
 import { $$, formatStyle, $, iterate, on, off } from "ph-utils/dom";
+import { parse } from "ph-utils/date";
 
 export default class DatePicker extends FormInner {
   public static baseName = "date-picker";
@@ -34,10 +35,10 @@ export default class DatePicker extends FormInner {
     }
     this.style.cssText = formatStyle(styles);
     super.connectedCallback();
-    this.#inners = $("l-date-inner", this.root) as HTMLInputElement[];
   }
 
   initEvents(): void {
+    this.#inners = $(".l-date-inner", this.root) as HTMLInputElement[];
     on(this.#inners, "change", this.#change);
   }
 
@@ -79,5 +80,14 @@ export default class DatePicker extends FormInner {
     }
     this.#dateValues[index] = value;
     this.setValue(this.#dateValues.join(","));
+    this.dispatchEvent(
+      new CustomEvent("change", {
+        detail: {
+          value: this.getValue(),
+          dateStr: this.#dateValues,
+          dates: this.#dateValues.map((dateStr) => parse(dateStr)),
+        },
+      })
+    );
   };
 }

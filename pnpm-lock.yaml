@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       ph-utils:
-        specifier: ^0.15.0
-        version: 0.15.0
+        specifier: ^0.15.2
+        version: 0.15.2
       shiki:
         specifier: ^3.2.1
         version: 3.2.1
@@ -1685,8 +1685,8 @@ packages:
   perfect-debounce@1.0.0:
     resolution: {integrity: sha512-xCy9V055GLEqoFaHoC1SoLIaLmWctgCUaBaWxDZ7/Zx4CTyX7cJQLJOok/orfjZAh9kEYpjJa4d0KcJmCbctZA==}
 
-  ph-utils@0.15.0:
-    resolution: {integrity: sha512-kDncvIWnbgCEe0baYkozzidpILFZcs5+JPLJZJj2fCkF+BA1FDEavZ5FXbl4SVldBg2t3OwKvUbd+9AQuo9VVQ==}
+  ph-utils@0.15.2:
+    resolution: {integrity: sha512-xZcVg4Evj8RxTo2prtw6oRWuzX6ySWPaVR91bUfLX3RvBT8HeJ0FC7GUJe7P/Q4tUDQDCLCmLFl34Yksq6Agig==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -3839,7 +3839,7 @@ snapshots:
 
   perfect-debounce@1.0.0: {}
 
-  ph-utils@0.15.0: {}
+  ph-utils@0.15.2: {}
 
   picocolors@1.1.1: {}
 
