@@ -46,7 +46,7 @@ export function parseAttrValue(
   const type = typeof defaultValue;
   switch (type) {
     case "boolean":
-      return value === "" || value === "true" || value === "1" || value === key;
+      return ["", "true", "1", "on", key].includes(value);
     case "number":
       return Number(value);
     default:

@@ -1,0 +1,21 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  width: var(--l-date-picker-width, auto);
+}
+.l-date-inner {
+  height: var(--l-form-edit-height, 32px);
+  border-radius: 3px;
+  outline: none;
+  border: 1px solid #999999;
+  cursor: text;
+  padding: 0 5px;
+  flex-grow: 1;
+  transition: border-color 0.3s;
+  &:hover {
+    border-color: var(--l-primary-color-light1, #9254de);
+  }
+  &:focus {
+    border-color: var(--l-primary-color, #722ed1);
+  }
+}

@@ -42,6 +42,7 @@ export default class Input extends FormInner {
   public block = false;
   public error = false;
   private $input: HTMLInputElement | undefined = undefined;
+  
 
   set value(value: any) {
     this.setValue(value);

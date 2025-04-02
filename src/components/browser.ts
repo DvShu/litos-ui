@@ -36,7 +36,9 @@ import Popconfirm from "./popconfirm";
 import Checkbox from "./checkbox";
 import MdInput from "./md_input";
 import Modal from "./modal";
+import DatePicker from "./date_picker";
 //Web Components Import
+regist(DatePicker)
 regist(Modal)
 regist(MdInput);
 regist(Checkbox);
@@ -108,3 +110,4 @@ import "./popconfirm/index.less";
 import "./checkbox/index.less";
 import "./md_input/index.less";
 import "./modal/index.less";
+import "./date_picker/index.less";
