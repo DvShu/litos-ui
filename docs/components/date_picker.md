@@ -12,6 +12,32 @@ regist(DatePicker);
 
 ## 演示
 
+<script setup>
+  import { onMounted, onUnmounted, nextTick } from 'vue';
+  import { $one, on, off } from 'ph-utils/dom';
+
+  let $picker;
+
+  function handleChange(e) {
+    console.log(e);
+  }
+
+  onMounted(() => {
+    nextTick(() => {
+      if (!import.meta.env.SSR) {
+        $picker = $one('#picker');
+        on($picker, 'change', handleChange);
+      }
+    })
+  });
+
+  onUnmounted(() => {
+    if ($picker) {
+      off($picker, 'change', handleChange);
+    }
+  });
+</script>
+
 ### 基础用法
 
 通过 `type` 属性指定类型，`date`、`datetime-local`、`time`、`month`、`week`。`value` 设置初始值。
@@ -19,7 +45,7 @@ regist(DatePicker);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-date-picker value="2025-04-02"></l-date-picker>
+  <l-date-picker id="picker" value="2025-04-02"></l-date-picker>
   <l-date-picker type="datetime-local" value="2025-05-02 17:00"></l-date-picker>
   <l-date-picker type="time" value="17:00"></l-date-picker>
   <l-date-picker type="month"></l-date-picker>

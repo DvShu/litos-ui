@@ -51,7 +51,7 @@ export default class DatePicker extends FormInner {
     oldValue: string,
     newValue: string
   ): void {
-    if (name === "value") {
+    if (name === "value" && newValue !== this._value) {
       this.value = newValue;
     }
   }
