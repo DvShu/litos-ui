@@ -42,7 +42,6 @@ export default class Input extends FormInner {
   public block = false;
   public error = false;
   private $input: HTMLInputElement | undefined = undefined;
-  
 
   set value(value: any) {
     this.setValue(value);
@@ -146,7 +145,7 @@ export default class Input extends FormInner {
     this.setValue(value);
   };
 
-  _changeDisabled() {
+  disabledChange() {
     if (this.$input != null) {
       this.$input.disabled = this.isDisabled();
     }

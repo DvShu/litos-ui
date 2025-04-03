@@ -19,7 +19,11 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {}
+  attributeChangedCallback(
+    _name: string,
+    _oldValue: string,
+    _newValue: string
+  ) {}
 
   get shadow() {
     return this.shadowRoot as ShadowRoot;
@@ -91,20 +95,31 @@ export default class BaseComponent extends HTMLElement {
   connectedCallback() {
     this.appendToRoot(this.render() as any);
     this.initEvents();
+    this.afterInit();
     this.rendered = true;
   }
 
   disconnectedCallback() {
     this.removeEvents();
+    this.beforeDestroy();
     this.root.innerHTML = "";
     this.rendered = false;
   }
 
   render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
 
-  /** 初始化事件 */
+  /**
+   * 初始化事件
+   * @deprecated 自0.12.0起弃用，使用 afterInit() 替代
+   */
   initEvents() {}
+  afterInit() {}
 
   /** 移除事件 */
+  /**
+   * 移除事件
+   * @deprecated 自0.12.0起弃用，使用 beforeDestroy() 替代
+   */
   removeEvents() {}
+  beforeDestroy() {}
 }

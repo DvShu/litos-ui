@@ -54,6 +54,7 @@ export default class FormInner extends BaseComponent {
       const val = parseAttrValue(newValue, false, name);
       if (val !== this.disabled) {
         this._changeDisabled();
+        this.disabledChange();
         this.disabled = val;
       }
     } else {
@@ -61,7 +62,11 @@ export default class FormInner extends BaseComponent {
     }
   }
 
-  protected attributeChange(name: string, oldValue: string, newValue: string) {}
+  protected attributeChange(
+    _name: string,
+    _oldValue: string,
+    _newValue: string
+  ) {}
 
   connectedCallback(): void {
     const formInfo = this._getForm();
@@ -149,11 +154,17 @@ export default class FormInner extends BaseComponent {
     }
     if (name === "disabled") {
       this._changeDisabled();
+      this.disabledChange();
     }
   };
 
-  /** disable 属性改变时回调 */
+  /**  */
+  /**
+   * disable 属性改变时回调
+   * @deprecated 使用 disabledChange 代替
+   */
   protected _changeDisabled() {}
+  protected disabledChange() {}
 
   protected pushValueChange() {
     const name = this.getName();

@@ -7,7 +7,7 @@
   height: var(--l-form-edit-height, 32px);
   border-radius: 3px;
   outline: none;
-  border: 1px solid #999999;
+  border: 1px solid var(--l-border-color, #dedede);
   cursor: text;
   padding: 0 5px;
   flex-grow: 1;
@@ -18,4 +18,8 @@
   &:focus {
     border-color: var(--l-primary-color, #722ed1);
   }
+}
+
+.l-date-range-divider {
+  margin: 0 10px;
 }
