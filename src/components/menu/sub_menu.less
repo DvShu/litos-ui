@@ -1,0 +1,29 @@
+@import "./base.less";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.l-submenu-title {
+  .menu_item();
+  &:hover {
+    background-color: var(--l-primary-color-light5);
+  }
+}
+
+.l-menu {
+  --l-menu-level: 1;
+  .menu();
+}
+
+.icon_wrapper();
+
+.l-submenu-arrow-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transition: transform 0.3s;
+  transform: translate3d(0, -50%, 0) rotate(0);
+  color: var(--l-info-color);
+}

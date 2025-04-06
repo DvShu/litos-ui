@@ -63,6 +63,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "iconify-icon": "^2.3.0",
     "ph-utils": "^0.15.3",
     "shiki": "^3.2.1"
   }
