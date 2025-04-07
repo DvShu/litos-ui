@@ -1,4 +1,4 @@
-import { $$, on } from "ph-utils/dom";
+import { $$, on, $one } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
 // @ts-ignore
@@ -29,15 +29,17 @@ export default class Menu extends BaseComponent {
       const { type, key, keyPaths, target } = this.#clickTarget(
         e.target as HTMLElement
       );
-      console.log(target);
+
       if (type === 2) {
         // 展开/折叠菜单
         if (this.#selectedKeys.has(key)) {
           console.log("折叠菜单");
+          target?.setAttribute("collapse", "on");
           // 折叠菜单
           this.#selectedKeys.delete(key);
         } else {
           console.log("展开菜单");
+          target?.setAttribute("collapse", "off");
           // 展开菜单
           this.#selectedKeys.add(key);
         }
@@ -45,6 +47,7 @@ export default class Menu extends BaseComponent {
       console.log(this.#clickTarget(e.target as HTMLElement));
     });
   }
+
   render() {
     return $$("slot");
   }

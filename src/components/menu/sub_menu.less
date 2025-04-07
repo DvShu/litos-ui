@@ -3,6 +3,7 @@
 :host {
   display: block;
   width: 100%;
+  overflow: hidden;
 }
 
 .l-submenu-title {
@@ -24,6 +25,17 @@
   top: 50%;
   right: 10px;
   transition: transform 0.3s;
-  transform: translate3d(0, -50%, 0) rotate(0);
+  transform: translate3d(0, -50%, 0) rotate(90deg);
   color: var(--l-info-color);
+}
+
+/* 折叠 */
+:host(.collapse) {
+  .l-menu {
+    display: none;
+  }
+
+  .l-submenu-arrow-icon {
+    transform: translate3d(0, -50%, 0) rotate(0);
+  }
 }
