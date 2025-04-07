@@ -1,30 +1,16 @@
-import { $$, $one, addClass, removeClass } from "ph-utils/dom";
+import {
+  $$,
+  $one,
+  addClass,
+  removeClass,
+  queryHideNodeSize,
+  on,
+  off,
+} from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
 // @ts-ignore
 import css from "./sub_menu.less?inline";
-
-function getHiddenElementHeight(el) {
-  // 保存原来的样式
-  const originalDisplay = el.style.display;
-  const originalVisibility = el.style.visibility;
-  const originalPosition = el.style.position;
-
-  // 设置为可见但不可见状态，不影响布局
-  el.style.display = "block";
-  el.style.visibility = "hidden";
-  el.style.position = "absolute";
-
-  // 读取高度
-  const height = el.getBoundingClientRect().height;
-
-  // 恢复原样式
-  el.style.display = originalDisplay;
-  el.style.visibility = originalVisibility;
-  el.style.position = originalPosition;
-
-  return height;
-}
 
 export default class Menu extends BaseComponent {
   static baseName = "sub-menu";
@@ -43,6 +29,16 @@ export default class Menu extends BaseComponent {
     super.connectedCallback();
   }
 
+  afterInit(): void {
+    const $menu = $one(".l-menu", this.root) as HTMLElement;
+    on($menu, "transitionend", this.#menuTransitionEnd as any);
+  }
+
+  beforeDestroy(): void {
+    const $menu = $one(".l-menu", this.root) as HTMLElement;
+    off($menu, "transitionend", this.#menuTransitionEnd as any);
+  }
+
   static get observedAttributes() {
     return ["collapse"];
   }
@@ -52,20 +48,23 @@ export default class Menu extends BaseComponent {
     _oldValue: string,
     newValue: string
   ): void {
+    if (!this.rendered) return;
     if (name === "collapse") {
-      const value = parseAttrValue(newValue, true, "collapse");
-      if (value) {
+      this.collapse = parseAttrValue(newValue, true, "collapse");
+      // 计算子菜单实际高度
+      const $menu = $one(".l-menu", this.root) as HTMLElement;
+      if (this.collapse) {
         addClass(this, "collapse");
+        $menu.style.height = "0";
       } else {
-        // removeClass(this, "collapse");
-        // 计算子菜单实际高度
-        const $menu = $one(".l-menu", this.root) as HTMLElement;
-        const h = getHiddenElementHeight($menu);
-        console.log(h);
-        if ($menu) {
-          const rect = $menu.getBoundingClientRect();
-          const height = rect.height;
-        }
+        removeClass(this, "collapse");
+
+        const size = queryHideNodeSize($menu, null as any);
+        $menu.style.height = "0";
+        removeClass($menu, "l-menu--collapse");
+        requestAnimationFrame(() => {
+          $menu.style.height = `${size.height}px`;
+        });
       }
     }
   }
@@ -87,9 +86,19 @@ export default class Menu extends BaseComponent {
     $title.appendChild($arrow);
     fragment.appendChild($title);
     // content
-    const $content = $$("div", { class: "l-menu" });
+    const $content = $$("div", {
+      class: ["l-menu", this.collapse ? "l-menu--collapse" : undefined],
+    });
     $content.appendChild($$("slot"));
     fragment.appendChild($content);
     return fragment;
   }
+
+  #menuTransitionEnd = (e: TransitionEvent) => {
+    if (this.collapse) {
+      const target = e.target as HTMLElement;
+      target.style.removeProperty("height");
+      addClass(target, "l-menu--collapse");
+    }
+  };
 }
