@@ -43,16 +43,12 @@ export default class Popover extends BaseComponent {
   /** 浮层定位方式 */
   public position: "absolute" | "fixed" = "absolute";
   public theme: "default" | "tooltip" | "popconfirm" = "default";
-  /**
-   * @property inline = false
-   */
+  inline = false;
 
   private _t?: number;
-  constructor() {
-    super();
-    initAttr(this);
-  }
+
   connectedCallback(): void {
+    initAttr(this);
     this.loadStyleText(css);
     this.#initAttr();
     super.connectedCallback();
@@ -111,8 +107,7 @@ export default class Popover extends BaseComponent {
   }
 
   #initAttr() {
-    const inline = this.getAttr("inline", false);
-    this.style.display = inline ? "inline-block" : "block";
+    this.style.display = this.inline ? "inline-block" : "block";
     if (!this.id) {
       this.id = `${useId()}-popover`;
     }

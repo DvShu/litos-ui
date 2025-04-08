@@ -28,15 +28,6 @@ export default class FormItem extends BaseComponent {
   public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
 
-  public constructor() {
-    super();
-    initAttr(this);
-    //@ts-ignore
-    if (this.id == null) {
-      this.id = `l-fi${random(3)}-${random(6)}`;
-    }
-  }
-
   static get observedAttributes() {
     return ["error", "label", "disabled"];
   }
@@ -60,8 +51,13 @@ export default class FormItem extends BaseComponent {
   }
 
   connectedCallback(): void {
-    super.connectedCallback();
+    initAttr(this);
+    //@ts-ignore
+    if (this.id == null) {
+      this.id = `l-fi${random(3)}-${random(6)}`;
+    }
     this.loadStyleText([css]);
+    super.connectedCallback();
     this.formId = this._getFormId();
     if (this.name && this.formId) {
       let rules: any[] = this.verify?.split("|") || [];

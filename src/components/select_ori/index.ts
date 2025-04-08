@@ -10,14 +10,9 @@ export default class SelectOri extends FormInner {
   public static baseName = "select-ori";
 
   private $select?: HTMLSelectElement;
-  private changeEmit: CustomEvent;
 
-  constructor() {
-    super();
-    initAttr(this);
-    this.changeEmit = new CustomEvent("change");
-  }
   connectedCallback(): void {
+    initAttr(this);
     this.loadStyleText(css);
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
@@ -32,7 +27,6 @@ export default class SelectOri extends FormInner {
     if (this.$select) {
       off(this.$select, "change", this._handleChange);
     }
-    this.changeEmit = undefined as any;
     this.$select = undefined;
   }
   render() {
@@ -84,6 +78,6 @@ export default class SelectOri extends FormInner {
   private _handleChange = (e: Event) => {
     const value = (e.target as HTMLSelectElement).value;
     super.setValue(value);
-    this.dispatchEvent(this.changeEmit);
+    this.dispatchEvent(new CustomEvent("change", { detail: value }));
   };
 }

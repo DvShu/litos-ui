@@ -15,14 +15,12 @@ export default class Theme extends BaseComponent {
   public static baseName = "theme";
   public type: "button" | "select" | "switch" | "radio" = "button";
   public label?: "text" | "icon" = "text";
-  public theme;
+  public theme?: string;
   #$inner?: HTMLElement;
-  constructor() {
-    super();
+
+  connectedCallback(): void {
     initAttr(this);
     this.theme = getTheme();
-  }
-  connectedCallback(): void {
     this.loadStyleText(css);
     super.connectedCallback();
     this.#initEvents();
@@ -63,7 +61,7 @@ export default class Theme extends BaseComponent {
     const $inner = create("l-select-ori", {
       class: "l-theme-inner",
     }) as HTMLSelectElement;
-    $inner.value = this.theme;
+    $inner.value = this.theme as string;
     const children: string[] = [
       '<option value="auto">跟随系统</option>',
       '<option value="light">浅色模式</option>',
@@ -88,7 +86,7 @@ export default class Theme extends BaseComponent {
     const $inner = create("l-radio", {
       class: "l-theme-inner",
     }) as HTMLInputElement;
-    $inner.value = this.theme;
+    $inner.value = this.theme as string;
     $inner.type = "button";
     const children = RADIO_ITEMS.map((item) => {
       if (this.label === "icon") {

@@ -1,6 +1,6 @@
 import { on, off, $one, addClass, removeClass } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
-import { initAttr, parseAttrValue } from "../utils";
+import { initAttr } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 
@@ -13,16 +13,8 @@ export default class Switch extends FormInner {
   public checkedText?: string;
   public uncheckedText?: string;
 
-  constructor() {
-    super(false);
-    initAttr(this);
-    const oriValue = this.value
-      ? parseAttrValue(this.value, false, "value")
-      : false;
-    this._resetValue = oriValue;
-    this.value = oriValue;
-  }
   connectedCallback(): void {
+    initAttr(this);
     this.loadStyleText(css);
     super.connectedCallback();
     this.pushValueChange();
@@ -53,7 +45,7 @@ export default class Switch extends FormInner {
     return $children.join("");
   }
 
-  #click = (e: Event) => {
+  #click = (_e: Event) => {
     if (this.isDisabled()) return;
     this.setValue(!this.value);
     this.dispatchEvent(new CustomEvent("change"));
