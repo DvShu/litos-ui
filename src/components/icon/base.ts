@@ -1,18 +1,15 @@
 import BaseComponent from "../base";
+import { initAttr } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 
 export default class BaseIcon extends BaseComponent {
   public static baseName = "base-icon";
-  public useLink: boolean;
-  public viewBox: string;
-  public constructor() {
-    super();
-    this.useLink = false;
-    this.viewBox = "0 0 1024 1024";
-  }
+  public useLink = false;
+  public viewBox = "0 0 1024 1024";
 
   connectedCallback() {
+    initAttr(this);
     this.loadStyleText([css]);
     this.render();
     this.rendered = true;
@@ -20,11 +17,9 @@ export default class BaseIcon extends BaseComponent {
 
   render() {
     const $svg = this.createEl("svg");
-    const useLink = this.getAttr("useLink", this.useLink);
-    const viewBox = this.getAttr("viewBox", this.viewBox);
     $svg.classList.add("l-icon");
-    if (!useLink) {
-      $svg.setAttribute("viewBox", viewBox);
+    if (!this.useLink) {
+      $svg.setAttribute("viewBox", this.viewBox);
     }
     const $children = this.renderChildren();
     if (typeof $children === "string") {

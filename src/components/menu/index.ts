@@ -1,4 +1,4 @@
-import { $$, on, $one } from "ph-utils/dom";
+import { $$, on, $one, off, $, iterate } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
 // @ts-ignore
@@ -8,51 +8,79 @@ export default class Menu extends BaseComponent {
   public static baseName = "menu";
 
   /** 当前选中的菜单项 key 数组, 用 , 分割 */
-  selectedKeys = "";
+  selectedKey = "";
   /** 水平/垂直菜单 */
   orientation: "horizontal" | "vertical" = "vertical";
   /** 主题 */
   theme: "light" | "dark" = "light";
-  // eslint-disable-next-line
-  #selectedKeys: Set<string> = new Set();
+
+  /** 展开的菜单项数组 */
+  #expandedKeys: Set<string> = new Set();
 
   connectedCallback(): void {
     initAttr(this);
-    this.#selectedKeys = new Set(this.selectedKeys.split(","));
-    this.className = `l-menu l-menu--${this.orientation} l-menu-${this.theme}`;
+    this.classList.add(
+      "l-menu",
+      `l-menu--${this.orientation}`,
+      `l-menu-${this.theme}`
+    );
     this.loadStyleText(css);
     super.connectedCallback();
   }
 
-  afterInit(): void {
-    on(this, "click", (e) => {
-      const { type, key, keyPaths, target } = this.#clickTarget(
-        e.target as HTMLElement
-      );
+  static get observedAttributes() {
+    return ["selectedKeys", "orientation"];
+  }
 
-      if (type === 2) {
-        // 展开/折叠菜单
-        if (this.#selectedKeys.has(key)) {
-          console.log("折叠菜单");
-          target?.setAttribute("collapse", "on");
-          // 折叠菜单
-          this.#selectedKeys.delete(key);
-        } else {
-          console.log("展开菜单");
-          target?.setAttribute("collapse", "off");
-          // 展开菜单
-          this.#selectedKeys.add(key);
-        }
-      }
-      console.log(this.#clickTarget(e.target as HTMLElement));
-    });
+  attributeChangedCallback(
+    name: string,
+    oldValue: string,
+    newValue: string
+  ): void {
+    if (!this.rendered) return;
+    if (name === "selectedKeys") {
+      this.selectedKey = newValue;
+    } else if (name === "orientation") {
+      const classes = this.classList;
+      classes.remove(`l-menu--${oldValue}`);
+      classes.add(`l-menu--${newValue}`);
+    }
+  }
+
+  afterInit(): void {
+    on(this, "click", this.#handleClick);
+    this.updateSelectedKeys(this.selectedKey);
+  }
+
+  beforeDestroy(): void {
+    off(this, "click", this.#handleClick);
   }
 
   render() {
     return $$("slot");
   }
 
-  #clickTarget(target: HTMLElement) {
+  #handleClick = (e: Event) => {
+    const { type, key, keyPaths, target } = this.#nodeKeys(
+      e.target as HTMLElement
+    );
+    if (target) {
+      if (type === 2) {
+        // 展开/折叠菜单
+        if (this.#expandedKeys.has(key)) {
+          target.setAttribute("collapse", "on");
+          // 折叠菜单
+          this.#expandedKeys.delete(key);
+        } else {
+          target.setAttribute("collapse", "off");
+          // 展开菜单
+          this.#expandedKeys.add(key);
+        }
+      }
+    }
+  };
+
+  #nodeKeys(target: HTMLElement) {
     let type = 0;
     let key = "";
     let currentTarget;
@@ -79,5 +107,37 @@ export default class Menu extends BaseComponent {
       target = target.parentElement as HTMLElement;
     } while (type >= 0);
     return { type, key, keyPaths, target: currentTarget };
+  }
+
+  /**
+   * 展开与提供的 keys 对应的子菜单。
+   *
+   * 此方法会在当前上下文中选择所有带有 `l-sub-menu` 标签和 `key` 属性的元素，
+   * 并对其进行迭代。如果子菜单的 `key` 属性与提供的 keys 中的任意一个匹配，
+   * 则通过将其 `collapse` 属性设置为 "off" 来展开子菜单，并将该 key 添加到 `#selectedKeys` 集合中。
+   *
+   * @param keys - 表示要展开的子菜单的 key 的字符串数组。
+   * @param collapseOther - 可选参数，默认为 false。是否折叠其他子菜单。
+   */
+  expandSubmenus(keys: string[], collapseOther = false) {
+    const $submenus = $("l-sub-menu[key]", this) as HTMLElement[];
+    iterate($submenus, ($submenu) => {
+      const keyValue = $submenu.getAttribute("key") || "";
+      if (keys.includes(keyValue)) {
+        $submenu.setAttribute("collapse", "off");
+      } else if (collapseOther) {
+        // 折叠其它子菜单
+        $submenu.setAttribute("collapse", "on");
+      }
+    });
+  }
+
+  updateSelectedKeys(key: string) {
+    this.selectedKey = key;
+    const $item = $one(`l-menu-item[key="${key}"]`, this) as HTMLElement;
+    if ($item) {
+      $item.setAttribute("active", "on");
+      const { keyPaths } = this.#nodeKeys($item);
+    }
   }
 }

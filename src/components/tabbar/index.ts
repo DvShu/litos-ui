@@ -13,6 +13,7 @@ import {
   addClass,
   formatStyle,
   formatClass,
+  shouldEventNext,
 } from "ph-utils/dom";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -22,28 +23,6 @@ type TabbarItem = {
   text?: string | (() => string | HTMLElement);
   icon?: string | (() => string | HTMLElement);
 };
-
-export function shouldEventNext(
-  e: Event,
-  eventFlag: string,
-  endRoot?: HTMLElement | ShadowRoot
-): [boolean, string, HTMLElement] {
-  let target = e.target as HTMLElement;
-  let flag = "";
-  do {
-    if ((endRoot && endRoot.isSameNode(target)) || target.tagName === "BODY") {
-      break;
-    }
-    if (target.getAttribute) {
-      flag = target.getAttribute(eventFlag) || "";
-    }
-    if (flag === "") {
-      target = target.parentNode as HTMLElement;
-    }
-    if (!target) break;
-  } while (flag === "");
-  return [flag !== "__stop__" && flag !== "", flag, target];
-}
 
 export default class Tabbar extends BaseComponent {
   public static baseName = "tabbar";
@@ -131,7 +110,7 @@ export default class Tabbar extends BaseComponent {
       const $slot = document.createElement("slot");
       $wrapper.appendChild($slot);
     } else {
-      const $items = $("[l-name]", this);
+      const $items = $("[l-name]", this) as HTMLElement[];
       if ($items.length > 0) {
         iterate($items, ($item) => {
           const name = $item.getAttribute("l-name");

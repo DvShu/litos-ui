@@ -24,11 +24,6 @@ export default class Form extends BaseComponent {
 
   constructor() {
     super();
-
-    //@ts-ignore
-    if (this.id == null) {
-      this.id = `l-f${random(3)}-${random(6)}`;
-    }
     this.validator = new Validator([]);
   }
 
@@ -57,6 +52,10 @@ export default class Form extends BaseComponent {
 
   connectedCallback(): void {
     initAttr(this);
+    //@ts-ignore
+    if (this.id == null) {
+      this.id = `l-f${random(3)}-${random(6)}`;
+    }
     this.loadStyleText([css]);
     super.connectedCallback();
     add(this.id, "ruleChange", this.ruleChange);

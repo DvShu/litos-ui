@@ -39,11 +39,11 @@ export default class Radio extends FormInner {
 
   constructor() {
     super(false);
-    initAttr(this);
   }
   connectedCallback(): void {
-    super.connectedCallback();
+    initAttr(this);
     this.loadStyleText(css);
+    super.connectedCallback();
     this._initEvents();
   }
 
