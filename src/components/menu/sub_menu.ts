@@ -50,21 +50,24 @@ export default class Menu extends BaseComponent {
   ): void {
     if (!this.rendered) return;
     if (name === "collapse") {
-      this.collapse = parseAttrValue(newValue, true, "collapse");
-      // 计算子菜单实际高度
-      const $menu = $one(".l-menu", this.root) as HTMLElement;
-      if (this.collapse) {
-        addClass(this, "collapse");
-        $menu.style.height = "0";
-      } else {
-        removeClass(this, "collapse");
+      const collapseValue = parseAttrValue(newValue, true, "collapse");
+      if (this.collapse !== collapseValue) {
+        this.collapse = collapseValue;
+        // 计算子菜单实际高度
+        const $menu = $one(".l-menu", this.root) as HTMLElement;
+        if (this.collapse) {
+          addClass(this, "collapse");
+          $menu.style.height = "0";
+        } else {
+          removeClass(this, "collapse");
 
-        const size = queryHideNodeSize($menu, null as any);
-        $menu.style.height = "0";
-        removeClass($menu, "l-menu--collapse");
-        requestAnimationFrame(() => {
-          $menu.style.height = `${size.height}px`;
-        });
+          const size = queryHideNodeSize($menu, null as any);
+          $menu.style.height = "0";
+          removeClass($menu, "l-menu--collapse");
+          requestAnimationFrame(() => {
+            $menu.style.height = `${size.height}px`;
+          });
+        }
       }
     }
   }

@@ -24,7 +24,7 @@
     "lightningcss": "^1.29.3",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
-    "typescript-eslint": "^8.29.0",
+    "typescript-eslint": "^8.29.1",
     "vite": "^6.2.5",
     "vite-plugin-dts": "^4.5.3",
     "vitepress": "^1.6.3"
