@@ -80,7 +80,7 @@ export default class Radio extends FormInner {
     }
     const childrens = [];
     const $label = $one('[slot="label"]', this);
-    const $default = $("[radio-value]", this);
+    const $default = $("[radio-value]", this) as HTMLElement[];
     if ($label != null || this.label) {
       this.value = this._isChecked();
       if ($label) {
@@ -193,13 +193,13 @@ export default class Radio extends FormInner {
   }
 
   private _initEvents() {
-    iterate($("input", this.root), (el) => {
+    iterate($("input", this.root) as HTMLElement[], (el) => {
       on(el, "change", this._radioChange);
     });
   }
 
   private _removeEvents() {
-    iterate($("input", this.root), (el) => {
+    iterate($("input", this.root) as HTMLElement[], (el) => {
       off(el, "change", this._radioChange);
     });
   }

@@ -44,14 +44,14 @@ export default class DialogContainer extends BaseComponent {
   }
 
   initEvents(): void {
-    const $actions = $("[data-action]", this.root);
+    const $actions = $("[data-action]", this.root) as HTMLElement[];
     iterate($actions, ($action) => {
       on($action, "click", this.#handleEvent);
     });
   }
 
   removeEvents(): void {
-    const $actions = $("[data-action]", this.root);
+    const $actions = $("[data-action]", this.root) as HTMLElement[];
     iterate($actions, ($action) => {
       off($action, "click", this.#handleEvent);
     });

@@ -105,7 +105,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
   });
 }
 
-function removeLoading(el: HTMLElement, option: LoadingInstanceParams) {
+function removeLoading(el: HTMLElement, _option: LoadingInstanceParams) {
   const prefix = el.tagName === "BODY" ? "body" : ".l-loading";
   const $mask = $one(`${prefix} > .l-loading-mask`, el);
   const $spinner = $one(`${prefix} > .l-loading-spinner`, el) as HTMLElement;
@@ -205,7 +205,7 @@ export default {
   init(id?: string) {
     // 根据是否提供了 id，选择性地构建 CSS 选择器
     const selector = id ? `[l-loading="${id}"]` : "[l-loading]";
-    const $els = $(selector);
+    const $els = $(selector) as HTMLElement[];
     iterate($els, (el) => {
       const params = getElementLoadingParams(el);
       addLoading(
@@ -228,7 +228,7 @@ export default {
     const selector = id ? `[l-loading="${id}"]` : "[l-loading]";
 
     // 使用 jQuery 选择器获取所有匹配的元素
-    const $els = $(selector);
+    const $els = $(selector) as HTMLElement[];
 
     // 遍历每个匹配的元素，执行移除加载中的操作
     iterate($els, (el) => {
