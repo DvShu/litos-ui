@@ -1,7 +1,9 @@
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
 
+// @ts-ignore
 import css from "./index.less?inline";
+// @ts-ignore
 import maskCss from "../styles/mask.css?inline";
 
 import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/dom";

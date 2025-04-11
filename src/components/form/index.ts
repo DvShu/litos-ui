@@ -14,7 +14,6 @@ export default class Form extends BaseComponent {
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";
   public labelWidth?: string;
-  public id: string;
   public disabled: boolean = false;
   public sharedAttrs: string[] = ["disabled", "id", "innerBlock"];
   public validator: Validator;

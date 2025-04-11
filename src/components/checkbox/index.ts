@@ -71,7 +71,7 @@ export default class Checkbox extends FormInner {
   render() {
     const fragment = document.createDocumentFragment();
     const $label = $one('[slot="label"]', this);
-    const $default = $("[check-value]", this);
+    const $default = $("[check-value]", this) as HTMLElement[];
     if ($label || this.label) {
       this.value = this.checked;
       if ($label) {
@@ -158,7 +158,7 @@ export default class Checkbox extends FormInner {
         }
       }
     } else {
-      const $labels = $("label[l-value]", this.root);
+      const $labels = $("label[l-value]", this.root) as HTMLElement[];
       iterate($labels, (el) => {
         const checkValue = getAttr(el, "l-value");
         if (value.includes(checkValue)) {
@@ -212,13 +212,13 @@ export default class Checkbox extends FormInner {
   };
 
   #initEvents() {
-    iterate($("input", this.root), (el) => {
+    iterate($("input", this.root) as HTMLElement[], (el) => {
       on(el, "change", this.#checkChange);
     });
   }
 
   #removeEvents() {
-    iterate($("input", this.root), (el) => {
+    iterate($("input", this.root) as HTMLElement[], (el) => {
       off(el, "change", this.#checkChange);
     });
   }

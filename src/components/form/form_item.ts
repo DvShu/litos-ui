@@ -16,7 +16,6 @@ export default class FormItem extends BaseComponent {
   public error?: string;
   /** 标签文本 */
   public label?: string;
-  public id: string;
   /** 内置验证规则: required - 必填, same:password - 一般用于验证确认密码和密码, phone - 验证电话号码 */
   public verify?: string;
   /** 验证失败错误信息 */
