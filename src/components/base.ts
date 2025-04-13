@@ -25,6 +25,7 @@ export default class BaseComponent extends HTMLElement {
     _newValue: string
   ) {}
 
+  /** @deprecated */
   get shadow() {
     return this.shadowRoot as ShadowRoot;
   }

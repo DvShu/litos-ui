@@ -1,13 +1,13 @@
 import {
-  formatClass,
   $one,
   on,
   off,
   formatStyle,
   addClass,
   removeClass,
+  $$,
 } from "ph-utils/dom";
-import { initAttr, parseAttrValue, tagAttr } from "../utils";
+import { initAttr, parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
 import { add, remove } from "../utils/event";
 //@ts-ignore
@@ -41,6 +41,8 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
+  /** clearable */
+  public clearable = false;
   private $input: HTMLInputElement | undefined = undefined;
 
   set value(value: any) {
@@ -60,8 +62,15 @@ export default class Input extends FormInner {
 
   connectedCallback(): void {
     initAttr(this);
-    super.connectedCallback();
     this.loadStyleText([css]);
+    super.connectedCallback();
+    this.$input = $one("input", this.root) as HTMLInputElement;
+    on(this.$input, "input", this._input);
+    this.style.cssText =
+      formatStyle(this._getStyleObj()) + this.getAttr("style", "");
+    if (this.getName() && this.formAttrs.id) {
+      add(this.formAttrs.id, "validateChange", this._validateChange);
+    }
   }
 
   disconnectedCallback(): void {
@@ -88,26 +97,24 @@ export default class Input extends FormInner {
   }
 
   render() {
-    let valStr = tagAttr("value", this.value);
-    const placeholderStr = tagAttr("placeholder", this.placeholder);
-    const disabledStr = tagAttr("disabled", this.isDisabled());
-    const classStr = formatClass({
-      "l-input": true,
-      "is-autosize": this.autosize,
-      "is-error": this.error,
+    const fragment = document.createDocumentFragment();
+    // prefix
+    const $prefix = $$("slot", {
+      name: "prefix",
     });
-    const name = this.getName();
-    const nameStr = tagAttr("name", name);
-    const attrStr = `${valStr}${nameStr}${placeholderStr}${disabledStr}`;
-    this.shadow.innerHTML = `<input part="default" type="${this.type}" class="${classStr}"${attrStr}></input>`;
-    this.$input = $one("input", this.root) as HTMLInputElement;
-
-    on(this.$input, "input", this._input);
-    this.style.cssText =
-      formatStyle(this._getStyleObj()) + this.getAttr("style", "");
-    if (name && this.formAttrs.id) {
-      add(this.formAttrs.id, "validateChange", this._validateChange);
-    }
+    fragment.appendChild($prefix);
+    // inner
+    const $inner = $$("input", {
+      class: "l-input",
+      value: this.value,
+      name: this.getName(),
+      placeholder: this.placeholder,
+      disabled: this.isDisabled(),
+      part: "default",
+      type: this.type,
+    });
+    fragment.appendChild($inner);
+    return fragment;
   }
   /**
    * 设置自定义的输入解析器
