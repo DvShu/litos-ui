@@ -1,6 +1,6 @@
 import { useId, regist } from "../utils";
 import { transition } from "ph-utils/dom";
-import MaskClose from "../icon/mask_close";
+import MaskClose from "../icon/close_filled";
 import Success from "../icon/success";
 import Warn from "../icon/warn";
 import Info from "../icon/info";
