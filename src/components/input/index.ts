@@ -6,6 +6,7 @@ import {
   addClass,
   removeClass,
   $$,
+  $,
 } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
@@ -43,13 +44,11 @@ export default class Input extends FormInner {
   public error = false;
   /** clearable */
   public clearable = false;
-  private $input: HTMLInputElement | undefined = undefined;
 
   set value(value: any) {
     this.setValue(value);
-    if (this.$input != null) {
-      this.$input.value = this.value;
-    }
+    const $inner = $one(".l-input__inner", this.root) as HTMLInputElement;
+    $inner.value = value;
   }
 
   get value() {
@@ -64,8 +63,8 @@ export default class Input extends FormInner {
     initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
-    this.$input = $one("input", this.root) as HTMLInputElement;
-    on(this.$input, "input", this._input);
+    this.disabledChange();
+    on(this.root, "input", this._input);
     this.style.cssText =
       formatStyle(this._getStyleObj()) + this.getAttr("style", "");
     if (this.getName() && this.formAttrs.id) {
@@ -78,8 +77,7 @@ export default class Input extends FormInner {
     if (this.formAttrs.id) {
       remove(this.formAttrs.id, "validateChange", this._validateChange);
     }
-    off(this.$input as any, "input", this._input);
-    this.$input = undefined;
+    off(this.root, "input", this._input);
   }
 
   protected attributeChange(
@@ -99,13 +97,22 @@ export default class Input extends FormInner {
   render() {
     const fragment = document.createDocumentFragment();
     // prefix
-    const $prefix = $$("slot", {
-      name: "prefix",
-    });
-    fragment.appendChild($prefix);
+    const $prefixChildren = $('[slot="prefix"]', this);
+    if ($prefixChildren.length > 0) {
+      const $prefix = $$("slot", {
+        name: "prefix",
+      });
+      const $prefixArea = $$("span", {
+        class: "l-input__prefix",
+        part: "prefix",
+      });
+      $prefixArea.appendChild($prefix);
+      fragment.appendChild($prefixArea);
+    }
+
     // inner
     const $inner = $$("input", {
-      class: "l-input",
+      class: "l-input__inner",
       value: this.value,
       name: this.getName(),
       placeholder: this.placeholder,
@@ -114,6 +121,20 @@ export default class Input extends FormInner {
       type: this.type,
     });
     fragment.appendChild($inner);
+
+    // suffix
+    const $suffixChildren = $('[slot="suffix"]', this);
+    if ($suffixChildren.length > 0) {
+      const $suffix = $$("slot", {
+        name: "suffix",
+      });
+      const $suffixArea = $$("span", {
+        class: "l-input__suffix",
+        part: "suffix",
+      });
+      $suffixArea.appendChild($suffix);
+      fragment.appendChild($suffixArea);
+    }
     return fragment;
   }
   /**
@@ -125,11 +146,13 @@ export default class Input extends FormInner {
   }
 
   public focus() {
-    this.$input?.focus();
+    const $inner = $one(".l-input__inner", this.root) as HTMLInputElement;
+    $inner.focus();
   }
 
   _input = (e: Event) => {
     const $target = e.target as HTMLInputElement;
+    console.log($target);
     let value = $target.value;
     if (this.allowInput != null) {
       let dotIndex = this.allowInput.indexOf(".");
@@ -153,9 +176,13 @@ export default class Input extends FormInner {
   };
 
   disabledChange() {
-    if (this.$input != null) {
-      this.$input.disabled = this.isDisabled();
+    if (this.isDisabled()) {
+      this.classList.add("is-disabled");
+    } else {
+      this.classList.remove("is-disabled");
     }
+    const $inner = $one(".l-input__inner", this.root) as HTMLInputElement;
+    $inner.disabled = this.isDisabled();
   }
 
   private _numberInputParse(
@@ -203,13 +230,13 @@ export default class Input extends FormInner {
   }
 
   private _updateError() {
-    if (this.$input) {
-      if (this.error) {
-        addClass(this.$input, "is-error");
-      } else {
-        removeClass(this.$input, "is-error");
-      }
-    }
+    // if (this.$input) {
+    //   if (this.error) {
+    //     addClass(this.$input, "is-error");
+    //   } else {
+    //     removeClass(this.$input, "is-error");
+    //   }
+    // }
   }
 
   private _validateChange = (

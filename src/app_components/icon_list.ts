@@ -1,6 +1,7 @@
 import { icons } from "../icons";
-import { $one, on, off } from "ph-utils/dom";
+import { $one, on, off, shouldEventNext } from "ph-utils/dom";
 import { copy } from "ph-utils/copy";
+import Message from "../components/message";
 
 export default class IconList extends HTMLElement {
   private handleItemClick: (
@@ -25,20 +26,18 @@ export default class IconList extends HTMLElement {
   }
 
   private _initEvents() {
-    on($one(".icon-list", this), "click", this.handleItemClick, {
-      eventFlag: "data-name",
-    });
+    on($one(".icon-list", this) as HTMLElement, "click", this.handleItemClick);
   }
 
   disconnectedCallback() {
-    off($one(".icon-list", this), "click", this.handleItemClick);
+    off($one(".icon-list", this) as HTMLElement, "click", this.handleItemClick);
   }
 
-  private _handleItemClick(_e: Event, currTarget?: HTMLElement, flag?: string) {
+  private _handleItemClick(e: Event) {
+    const [flag, tagName] = shouldEventNext(e, "data-name");
     if (flag) {
-      copy(`<${flag}></${flag}>`).then();
-      // @ts-expect-error: Unreachable code error
-      LMessage.success("复制成功");
+      copy(`<${tagName}></${tagName}>`).then();
+      Message.success("复制成功");
     }
   }
 }

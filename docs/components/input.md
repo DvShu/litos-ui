@@ -107,6 +107,21 @@ regist(Input);
 </l-code-preview>
 </ClientOnly>
 
+### 带图标的输入框
+
+要在输入框中添加图标，只需要使用 `prefix` 和 `suffix` 命名的插槽。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input placeholder="input something">
+    <l-reduction-icon slot="prefix"></l-reduction-icon>
+    <l-search-icon slot="suffix"></l-search-icon>
+  </l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Input Attributes
