@@ -43,7 +43,7 @@ regist(Input);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="请输入内容" autofocus="none"></l-input>
+  <l-input placeholder="请输入内容"></l-input>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -114,10 +114,22 @@ regist(Input);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="input something" error="on">
+  <l-input placeholder="input something">
     <l-reduction-icon slot="prefix"></l-reduction-icon>
     <l-search-icon slot="suffix"></l-search-icon>
   </l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 带清除图标
+
+使用 `clearable` 属性即可显示一个清除图标，点击图标删除所有内容。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input placeholder="input something" clearable></l-input>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -134,6 +146,8 @@ regist(Input);
 | `allow-input` | 允许输入的值; `number`、`integer`,前面包含 `-` 表明允许负数, 以 `.2` 结尾表明小数点后精度 | `string` | - |
 | `block` | 宽度是否铺满父元素 | `boolean` | `false` |
 | `width` | 宽度 | `string` | - |
+| `autofocus` | 原生属性，自动获取焦点 | `boolean` | `false` |
+| `clearable` | 是否显示清除按钮 | `boolean` | `false` |
 
 ### Input Methods
 
@@ -149,6 +163,8 @@ regist(Input);
 | 名称 | 说明 |
 | --- | --- |
 | `default` | 内容 |
+| `prefix` | 前缀图标 |
+| `suffix` | 后缀图标 |
 
 ### 样式变量
 

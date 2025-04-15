@@ -4,8 +4,6 @@ import {
   off,
   formatStyle,
   addClass,
-  removeClass,
-  hasClass,
   toggleClass,
   $$,
   $,
@@ -175,6 +173,36 @@ export default class Input extends FormInner {
       $target.value = value;
     }
     this.setValue(value);
+    this.#renderClearable();
+  };
+
+  #renderClearable() {
+    if (this.clearable) {
+      let $clearWrapper = $one(".l-clearable", this.root);
+      if (this.value.length > 0) {
+        if ($clearWrapper == null) {
+          // 创建清除按钮
+          $clearWrapper = $$("span", {
+            class: "l-input__suffix l-clearable",
+          });
+          const $clearIcon = $$("l-close-filled-icon");
+          $clearWrapper.appendChild($clearIcon);
+          this.root.appendChild($clearWrapper);
+          on($clearWrapper, "click", this.#handleClear);
+        }
+      } else {
+        if ($clearWrapper) {
+          off($clearWrapper, "click", this.#handleClear);
+          // 清除按钮
+          $clearWrapper.remove();
+        }
+      }
+    }
+  }
+
+  #handleClear = () => {
+    this.value = "";
+    this.#renderClearable();
   };
 
   disabledChange() {
