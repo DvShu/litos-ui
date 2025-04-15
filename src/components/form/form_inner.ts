@@ -19,7 +19,7 @@ export default class FormInner extends BaseComponent {
    * @param firstPushValue 是否第一次赋值 value 时, 推送数据到 Form, 默认: true
    */
   public constructor(firstPushValue = true) {
-    super();
+    super(true, { delegatesFocus: true });
     this._firstPushValue = firstPushValue;
   }
 

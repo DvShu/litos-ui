@@ -4,10 +4,10 @@ export default class BaseComponent extends HTMLElement {
   static baseName = "base-component";
   /** 组件是否渲染完成, 是否已经调用 connectedCallback */
   public rendered: boolean = false;
-  public constructor(shadow = true) {
+  public constructor(shadow = true, init: Partial<ShadowRootInit> = {}) {
     super();
     if (shadow) {
-      this.attachShadow({ mode: "open" });
+      this.attachShadow({ mode: "open", ...init });
     }
   }
 

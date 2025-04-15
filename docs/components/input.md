@@ -43,7 +43,7 @@ regist(Input);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="请输入内容"></l-input>
+  <l-input placeholder="请输入内容" autofocus="none"></l-input>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -114,7 +114,7 @@ regist(Input);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="input something">
+  <l-input placeholder="input something" error="on">
     <l-reduction-icon slot="prefix"></l-reduction-icon>
     <l-search-icon slot="suffix"></l-search-icon>
   </l-input>

@@ -5,6 +5,8 @@ import {
   formatStyle,
   addClass,
   removeClass,
+  hasClass,
+  toggleClass,
   $$,
   $,
 } from "ph-utils/dom";
@@ -45,10 +47,13 @@ export default class Input extends FormInner {
   /** clearable */
   public clearable = false;
 
+  $inner?: HTMLInputElement;
+
   set value(value: any) {
     this.setValue(value);
-    const $inner = $one(".l-input__inner", this.root) as HTMLInputElement;
-    $inner.value = value;
+    if (this.$inner) {
+      this.$inner.value = value;
+    }
   }
 
   get value() {
@@ -63,10 +68,13 @@ export default class Input extends FormInner {
     initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
-    this.disabledChange();
-    on(this.root, "input", this._input);
+    this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
+    on(this.$inner, "input", this._input);
     this.style.cssText =
       formatStyle(this._getStyleObj()) + this.getAttr("style", "");
+    if (this.error) {
+      addClass(this, "is-error");
+    }
     if (this.getName() && this.formAttrs.id) {
       add(this.formAttrs.id, "validateChange", this._validateChange);
     }
@@ -77,7 +85,7 @@ export default class Input extends FormInner {
     if (this.formAttrs.id) {
       remove(this.formAttrs.id, "validateChange", this._validateChange);
     }
-    off(this.root, "input", this._input);
+    off(this.$inner as HTMLInputElement, "input", this._input);
   }
 
   protected attributeChange(
@@ -145,14 +153,8 @@ export default class Input extends FormInner {
     this.parser = cb;
   }
 
-  public focus() {
-    const $inner = $one(".l-input__inner", this.root) as HTMLInputElement;
-    $inner.focus();
-  }
-
   _input = (e: Event) => {
     const $target = e.target as HTMLInputElement;
-    console.log($target);
     let value = $target.value;
     if (this.allowInput != null) {
       let dotIndex = this.allowInput.indexOf(".");
@@ -181,8 +183,9 @@ export default class Input extends FormInner {
     } else {
       this.classList.remove("is-disabled");
     }
-    const $inner = $one(".l-input__inner", this.root) as HTMLInputElement;
-    $inner.disabled = this.isDisabled();
+    if (this.$inner) {
+      this.$inner.disabled = this.isDisabled();
+    }
   }
 
   private _numberInputParse(
@@ -230,13 +233,7 @@ export default class Input extends FormInner {
   }
 
   private _updateError() {
-    // if (this.$input) {
-    //   if (this.error) {
-    //     addClass(this.$input, "is-error");
-    //   } else {
-    //     removeClass(this.$input, "is-error");
-    //   }
-    // }
+    toggleClass(this, "is-error");
   }
 
   private _validateChange = (
