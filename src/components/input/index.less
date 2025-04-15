@@ -1,16 +1,27 @@
 :host {
+  --l-input-border-color: var(--l-border-color, #dedede);
   display: inline-flex;
   width: var(--l-input-width, 170px);
   height: var(--l-form-edit-height, 32px);
   align-items: center;
   padding: 0 7px;
-  border: 1px solid var(--l-border-color, #dedede);
+  border: 1px solid var(--l-input-border-color, #dedede);
   transition: border-color 0.3s;
   border-radius: 4px;
   vertical-align: middle;
 }
+:host(:focus) {
+  --l-input-border-color: var(--l-primary-color, #722ed1);
+}
+
+/* disabled */
 :host(.is-disabled) {
   background-color: var(--l-disabled-color, #f5f7fa);
+}
+
+/* error */
+:host(.is-error) {
+  --l-input-border-color: #ed3f13;
 }
 
 .l-input__prefix,
