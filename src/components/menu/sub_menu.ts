@@ -16,15 +16,15 @@ export default class Menu extends BaseComponent {
   static baseName = "sub-menu";
 
   /** 默认折叠子菜单 */
-  collapse = true;
+  expanded = false;
 
   connectedCallback(): void {
     this.loadStyleText(css);
     initAttr(this);
-    if (this.collapse) {
-      addClass(this, "collapse");
+    if (!this.expanded) {
+      addClass(this, "collapsed");
     } else {
-      removeClass(this, "collapse");
+      removeClass(this, "collapsed");
     }
     super.connectedCallback();
   }
@@ -40,7 +40,7 @@ export default class Menu extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["collapse"];
+    return ["expanded"];
   }
 
   attributeChangedCallback(
@@ -49,21 +49,21 @@ export default class Menu extends BaseComponent {
     newValue: string
   ): void {
     if (!this.rendered) return;
-    if (name === "collapse") {
-      const collapseValue = parseAttrValue(newValue, true, "collapse");
-      if (this.collapse !== collapseValue) {
-        this.collapse = collapseValue;
+    if (name === "expanded") {
+      const expanded = parseAttrValue(newValue, false, "expanded");
+      if (this.expanded !== expanded) {
+        this.expanded = expanded;
         // 计算子菜单实际高度
         const $menu = $one(".l-menu", this.root) as HTMLElement;
-        if (this.collapse) {
-          addClass(this, "collapse");
+        if (!this.expanded) {
+          addClass(this, "collapsed");
           $menu.style.height = "0";
         } else {
-          removeClass(this, "collapse");
+          removeClass(this, "collapsed");
 
           const size = queryHideNodeSize($menu, null as any);
           $menu.style.height = "0";
-          removeClass($menu, "l-menu--collapse");
+          removeClass($menu, "l-menu--collapsed");
           requestAnimationFrame(() => {
             $menu.style.height = `${size.height}px`;
           });
@@ -90,7 +90,7 @@ export default class Menu extends BaseComponent {
     fragment.appendChild($title);
     // content
     const $content = $$("div", {
-      class: ["l-menu", this.collapse ? "l-menu--collapse" : undefined],
+      class: ["l-menu", !this.expanded ? "l-menu--collapsed" : undefined],
     });
     $content.appendChild($$("slot"));
     fragment.appendChild($content);
@@ -98,10 +98,10 @@ export default class Menu extends BaseComponent {
   }
 
   #menuTransitionEnd = (e: TransitionEvent) => {
-    if (this.collapse) {
+    if (!this.expanded) {
       const target = e.target as HTMLElement;
       target.style.removeProperty("height");
-      addClass(target, "l-menu--collapse");
+      addClass(target, "l-menu--collapsed");
     }
   };
 }

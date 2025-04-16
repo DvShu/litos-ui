@@ -14,9 +14,6 @@ export default class Menu extends BaseComponent {
   /** 主题 */
   theme: "light" | "dark" = "light";
 
-  /** 展开的菜单项数组 */
-  #expandedKeys: Set<string> = new Set();
-
   connectedCallback(): void {
     initAttr(this);
     this.classList.add(
@@ -67,14 +64,12 @@ export default class Menu extends BaseComponent {
     if (target) {
       if (type === 2) {
         // 展开/折叠菜单
-        if (this.#expandedKeys.has(key)) {
-          target.setAttribute("collapse", "on");
-          // 折叠菜单
-          this.#expandedKeys.delete(key);
-        } else {
-          target.setAttribute("collapse", "off");
+        if (target.hasAttribute("expanded")) {
           // 展开菜单
-          this.#expandedKeys.add(key);
+          target.removeAttribute("expanded");
+        } else {
+          // 折叠菜单
+          target.setAttribute("expanded", "");
         }
       }
     }
