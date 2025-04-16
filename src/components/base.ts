@@ -123,4 +123,16 @@ export default class BaseComponent extends HTMLElement {
    */
   removeEvents() {}
   beforeDestroy() {}
+
+  /**
+   * 触发自定义事件
+   * @param name 事件名称
+   * @param eventOption 自定义事件配置选项, 默认: bubbles: true
+   * @returns 是否成功触发事件
+   */
+  emit(name: string, eventOption: Partial<CustomEventInit>) {
+    return this.dispatchEvent(
+      new CustomEvent(name, { bubbles: true, composed: false, ...eventOption })
+    );
+  }
 }

@@ -30,6 +30,9 @@ regist(Input);
     nextTick(() => {
       if (!import.meta.env.SSR) {
         $input = $one('#input');
+        $input.addEventListener('change', function(e) {
+          console.log('input', e.target.value);
+        });
         $input.setParser(numericParse);
       }
     })
@@ -81,7 +84,7 @@ regist(Input);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input id="input" placeholder="请输入正整数"></l-input>
+  <l-input id="input" placeholder="请输入正整数" clearable></l-input>
 </textarea>
 <div class="source">
 <textarea lang="html">

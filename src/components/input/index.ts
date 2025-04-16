@@ -68,6 +68,7 @@ export default class Input extends FormInner {
     super.connectedCallback();
     this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
     on(this.$inner, "input", this._input);
+    on(this.$inner, "change", this.#handleChange);
     this.style.cssText =
       formatStyle(this._getStyleObj()) + this.getAttr("style", "");
     if (this.error) {
@@ -202,6 +203,9 @@ export default class Input extends FormInner {
 
   #handleClear = () => {
     this.value = "";
+    this.dispatchEvent(
+      new CustomEvent("input", { bubbles: true, detail: { value: this.value } })
+    );
     this.#renderClearable();
   };
 
@@ -280,5 +284,16 @@ export default class Input extends FormInner {
         this.focus();
       }
     }
+  };
+
+  #handleChange = (e: Event) => {
+    const $target = e.target as HTMLInputElement;
+    this.dispatchEvent(
+      new CustomEvent("change", {
+        bubbles: true,
+        composed: true,
+        detail: { value: $target.value },
+      })
+    );
   };
 }
