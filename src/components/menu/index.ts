@@ -75,8 +75,8 @@ export default class Menu extends BaseComponent {
     }
   };
 
-  #nodeKeys(target: HTMLElement) {
-    let type = 0;
+  #nodeKeys(target: HTMLElement, iterateItem?: (item: HTMLElement) => void) {
+    let type = 0; // 标记当前节点类型 0: 菜单, 1: 菜单项, 2: 子菜单
     let key = "";
     let currentTarget;
     const keyPaths = [];
@@ -89,6 +89,9 @@ export default class Menu extends BaseComponent {
       if (dataKey) {
         if (!key) key = dataKey;
         keyPaths.unshift(dataKey);
+        if (iterateItem) {
+          iterateItem(target);
+        }
       }
       if (type === 0) {
         if (tagName === "L-MENU-ITEM") {
@@ -119,10 +122,10 @@ export default class Menu extends BaseComponent {
     iterate($submenus, ($submenu) => {
       const keyValue = $submenu.getAttribute("key") || "";
       if (keys.includes(keyValue)) {
-        $submenu.setAttribute("collapse", "off");
+        $submenu.setAttribute("expanded", "");
       } else if (collapseOther) {
         // 折叠其它子菜单
-        $submenu.setAttribute("collapse", "on");
+        $submenu.removeAttribute("expanded");
       }
     });
   }
@@ -132,7 +135,10 @@ export default class Menu extends BaseComponent {
     const $item = $one(`l-menu-item[key="${key}"]`, this) as HTMLElement;
     if ($item) {
       $item.setAttribute("active", "on");
-      const { keyPaths } = this.#nodeKeys($item);
+      this.#nodeKeys($item, (item) => {
+        item.setAttribute("active", ""); // 激活菜单项
+        item.setAttribute("expanded", ""); // 展开父菜单
+      });
     }
   }
 }

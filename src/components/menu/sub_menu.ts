@@ -6,25 +6,30 @@ import {
   queryHideNodeSize,
   on,
   off,
+  hasClass,
 } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
 // @ts-ignore
 import css from "./sub_menu.less?inline";
 
-export default class Menu extends BaseComponent {
+export default class SubMenu extends BaseComponent {
   static baseName = "sub-menu";
 
   /** 默认折叠子菜单 */
   expanded = false;
+  /** 是否激活状态, 通常是下面的子菜单项被选中 */
+  active = false;
+  #transitionT?: number;
 
   connectedCallback(): void {
     this.loadStyleText(css);
     initAttr(this);
     if (!this.expanded) {
       addClass(this, "collapsed");
-    } else {
-      removeClass(this, "collapsed");
+    }
+    if (this.active) {
+      addClass(this, "is-active");
     }
     super.connectedCallback();
   }
@@ -37,6 +42,7 @@ export default class Menu extends BaseComponent {
   beforeDestroy(): void {
     const $menu = $one(".l-menu", this.root) as HTMLElement;
     off($menu, "transitionend", this.#menuTransitionEnd as any);
+    if (this.#transitionT) clearTimeout(this.#transitionT);
   }
 
   static get observedAttributes() {
@@ -68,6 +74,12 @@ export default class Menu extends BaseComponent {
             $menu.style.height = `${size.height}px`;
           });
         }
+        setTimeout(() => {
+          this.#menuTransitionEnd({
+            target: $menu,
+            propertyName: "height",
+          } as any);
+        }, 350);
       }
     }
   }
@@ -98,7 +110,7 @@ export default class Menu extends BaseComponent {
   }
 
   #menuTransitionEnd = (e: TransitionEvent) => {
-    if (!this.expanded) {
+    if (!this.expanded && e.propertyName === "height") {
       const target = e.target as HTMLElement;
       target.style.removeProperty("height");
       addClass(target, "l-menu--collapsed");
