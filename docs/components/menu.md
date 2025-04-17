@@ -19,7 +19,7 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-menu selected-key="A1">
+  <l-menu selected-key="A1" accordion>
     <l-sub-menu key="N1" active>
       <iconify-icon icon="tdesign:app" slot="icon"></iconify-icon>
       <span slot="title">导航一</span>

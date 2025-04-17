@@ -13,6 +13,8 @@ export default class Menu extends BaseComponent {
   orientation: "horizontal" | "vertical" = "vertical";
   /** 主题 */
   theme: "light" | "dark" = "light";
+  /** 是否手风琴模式, 只有一个子菜单展开 */
+  accordion = false;
 
   connectedCallback(): void {
     initAttr(this);
@@ -65,11 +67,14 @@ export default class Menu extends BaseComponent {
       if (type === 2) {
         // 展开/折叠菜单
         if (target.hasAttribute("expanded")) {
-          // 展开菜单
+          // 折叠菜单
           target.removeAttribute("expanded");
         } else {
-          // 折叠菜单
+          // 展开菜单
           target.setAttribute("expanded", "");
+          if (this.accordion) {
+            this.expandSubmenus(keyPaths, true);
+          }
         }
       }
     }

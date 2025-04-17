@@ -62,11 +62,14 @@ export default class SubMenu extends BaseComponent {
         // 计算子菜单实际高度
         const $menu = $one(".l-menu", this.root) as HTMLElement;
         if (!this.expanded) {
+          const rect = $menu.getBoundingClientRect();
+          $menu.style.height = `${rect.height}px`;
           addClass(this, "collapsed");
-          $menu.style.height = "0";
+          requestAnimationFrame(() => {
+            $menu.style.height = "0";
+          });
         } else {
           removeClass(this, "collapsed");
-
           const size = queryHideNodeSize($menu, null as any);
           $menu.style.height = "0";
           removeClass($menu, "l-menu--collapsed");
@@ -74,12 +77,12 @@ export default class SubMenu extends BaseComponent {
             $menu.style.height = `${size.height}px`;
           });
         }
-        setTimeout(() => {
+        this.#transitionT = setTimeout(() => {
           this.#menuTransitionEnd({
             target: $menu,
             propertyName: "height",
           } as any);
-        }, 350);
+        }, 350) as any;
       }
     }
   }
@@ -111,6 +114,9 @@ export default class SubMenu extends BaseComponent {
 
   #menuTransitionEnd = (e: TransitionEvent) => {
     if (!this.expanded && e.propertyName === "height") {
+      if (this.#transitionT) {
+        clearTimeout(this.#transitionT as any);
+      }
       const target = e.target as HTMLElement;
       target.style.removeProperty("height");
       addClass(target, "l-menu--collapsed");
