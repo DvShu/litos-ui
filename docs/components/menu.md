@@ -19,7 +19,7 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-menu selected-key="A1" accordion>
+  <l-menu id="menu" selected-key="A1" accordion>
     <l-sub-menu key="N1" active>
       <iconify-icon icon="tdesign:app" slot="icon"></iconify-icon>
       <span slot="title">导航一</span>
@@ -46,11 +46,6 @@ regist(Menu);
     </l-menu-item>
   </l-menu>
 </textarea>
-<div class="source">
-<textarea lang="html">
-  <l-menu></l-menu>
-</textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -61,28 +56,29 @@ regist(Menu);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `selected-key` | 当前选中的菜单项 | `string` | - |
+| `accordion` | 否手风琴模式, 只有一个子菜单展开 | `boolean` | - |
 
 ### Menu Slots
 
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
+| `default` | 菜单项 |
 
 ### Menu Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `select` | 菜单激活回调, `detail` 参数: `key,keyPaths` | `(event: CustomEvent)` |
 
 ### Menu Methods
 
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| `x` | x | `(x: number): string` |
+| `expandSubmenus` | 展开与提供的 `keys` 对应的子菜单。 | `(keys: string[], collapseOther = false): void` |
 
 ### Menu CSS Variables
 

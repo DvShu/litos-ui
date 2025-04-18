@@ -6,7 +6,7 @@ import {
   queryHideNodeSize,
   on,
   off,
-  hasClass,
+  toggleClass,
 } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
@@ -46,7 +46,7 @@ export default class SubMenu extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["expanded"];
+    return ["expanded", "active"];
   }
 
   attributeChangedCallback(
@@ -83,6 +83,12 @@ export default class SubMenu extends BaseComponent {
             propertyName: "height",
           } as any);
         }, 350) as any;
+      }
+    } else if (name === "active") {
+      const active = parseAttrValue(newValue, false, "active");
+      if (active !== this.active) {
+        this.active = active;
+        toggleClass(this, "is-active");
       }
     }
   }

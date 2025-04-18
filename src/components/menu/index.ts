@@ -38,7 +38,10 @@ export default class Menu extends BaseComponent {
   ): void {
     if (!this.rendered) return;
     if (name === "selectedKeys") {
-      this.selectedKey = newValue;
+      if (this.selectedKey !== newValue) {
+        this.selectedKey = newValue;
+        this.updateSelectedKeys(newValue);
+      }
     } else if (name === "orientation") {
       const classes = this.classList;
       classes.remove(`l-menu--${oldValue}`);
@@ -76,11 +79,19 @@ export default class Menu extends BaseComponent {
             this.expandSubmenus(keyPaths, true);
           }
         }
+      } else if (type === 1) {
+        // 点击菜单, 激活菜单项
+        this.#unselect(keyPaths);
+        this.updateSelectedKeys(key);
+        this.emit("select", { detail: { key, keyPaths } });
       }
     }
   };
 
-  #nodeKeys(target: HTMLElement, iterateItem?: (item: HTMLElement) => void) {
+  #nodeKeys(
+    target: HTMLElement,
+    iterateItem?: (item: HTMLElement, key: string) => void
+  ) {
     let type = 0; // 标记当前节点类型 0: 菜单, 1: 菜单项, 2: 子菜单
     let key = "";
     let currentTarget;
@@ -95,7 +106,7 @@ export default class Menu extends BaseComponent {
         if (!key) key = dataKey;
         keyPaths.unshift(dataKey);
         if (iterateItem) {
-          iterateItem(target);
+          iterateItem(target, dataKey);
         }
       }
       if (type === 0) {
@@ -139,10 +150,21 @@ export default class Menu extends BaseComponent {
     this.selectedKey = key;
     const $item = $one(`l-menu-item[key="${key}"]`, this) as HTMLElement;
     if ($item) {
-      $item.setAttribute("active", "on");
+      $item.setAttribute("active", "");
       this.#nodeKeys($item, (item) => {
         item.setAttribute("active", ""); // 激活菜单项
         item.setAttribute("expanded", ""); // 展开父菜单
+      });
+    }
+  }
+
+  #unselect(activePath: string[]) {
+    const $item = $one("l-menu-item[active]", this) as HTMLElement;
+    if ($item) {
+      this.#nodeKeys($item, (item, key) => {
+        if (!activePath.includes(key)) {
+          item.removeAttribute("active"); // 取消激活菜单项
+        }
       });
     }
   }
