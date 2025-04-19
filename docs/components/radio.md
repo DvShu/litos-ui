@@ -43,29 +43,16 @@ regist(Radio);
 
 ### 单选框组
 
-通过 `js` 设置 `items` 选项或者通过 `slot-default` 然后给每一项设置一个 `radio-value` 来配置单选框组; 可以通过 `part` 来修改样式
+结合 `l-radio-group` 组件实现单选框组
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-radio class="sex-radio" value="1">
-    <span radio-value="0" part="women">女</span>
-    <span radio-value="1" part="men">男</span>
+  <l-radio-group value="1">
+    <l-radio label="女" value="0"></l-radio>
+    <l-radio label="男" value="1"></l-radio>
   </l-radio>
 </textarea>
-<div class="source">
-<textarea lang="html">
-  <l-radio class="sex-radio" value="1">
-    <span radio-value="0" part="women">女</span>
-    <span radio-value="1" part="men">男</span>
-  </l-radio>
-</textarea>
-<textarea lang="css">
-  .sex-radio::part(men) {
-    /* 样式 */
-  }
-</textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -124,4 +111,4 @@ regist(Radio);
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| - | - | - |
+| `--l-radio-size` | 单选框尺寸 | `16px` |

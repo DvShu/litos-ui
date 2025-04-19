@@ -2,7 +2,7 @@
   /* button、input 元素高度 */
   --l-form-edit-height: 32px;
   /** 禁用状态颜色 */
-  --l-disabled-color: #f5f7fa;
+  --l-disabled-color: #e6e6e6;
   /* 主题(primary)颜色 */
   --l-primary-color: #722ed1;
   --l-primary-color-light1: #9254de;
