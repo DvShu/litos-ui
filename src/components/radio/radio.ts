@@ -91,7 +91,10 @@ export default class Radio extends FormInner {
     const $input = $one("input", this.root) as HTMLInputElement;
     if (!$input.checked) {
       this.setAttribute("checked", "");
-      this.emit("change", { detail: { value: this.value }, composed: true });
+      this.emit("change", {
+        detail: { value: this.value },
+        composed: true,
+      });
     }
   };
 }

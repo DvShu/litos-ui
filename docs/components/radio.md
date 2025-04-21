@@ -51,7 +51,7 @@ regist(Radio);
   <l-radio-group value="1">
     <l-radio label="女" value="0"></l-radio>
     <l-radio label="男" value="1"></l-radio>
-  </l-radio>
+  </l-radio-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -63,10 +63,10 @@ regist(Radio);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-radio type="button" value="1">
-    <span radio-value="0">女</span>
-    <span radio-value="1">男</span>
-  </l-radio>
+  <l-radio-group value="1" button>
+    <l-radio label="女" value="0"></l-radio>
+    <l-radio label="男" value="1"></l-radio>
+  </l-radio-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>

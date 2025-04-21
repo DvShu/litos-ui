@@ -21,11 +21,10 @@ export default class RadioGroup extends FormInner {
   public type?: "button";
   name?: string;
 
-  private _ignoreInitAttrs = [];
-
   constructor() {
     super(false);
   }
+
   connectedCallback(): void {
     initAttr(this);
     this.loadStyleText(css);
@@ -42,11 +41,11 @@ export default class RadioGroup extends FormInner {
         $radio.setAttribute("checked", "");
       }
     }
-    on(this, "change", this.#handleChange as any);
+    on(this.root, "change", this.#handleChange as any);
   }
 
   beforeDestroy(): void {
-    off(this, "change", this.#handleChange as any);
+    off(this.root, "change", this.#handleChange as any);
   }
 
   render() {

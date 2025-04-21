@@ -5,6 +5,9 @@
   cursor: pointer;
   width: auto;
 }
+:host(:not(:first-child)) {
+  margin-left: 10px;
+}
 .l-radio__input {
   margin: 0;
   position: absolute;
@@ -40,6 +43,7 @@
 .l-radio__label {
   transition: color 0.3s;
   cursor: inherit;
+  line-height: 1;
 }
 
 /* checked */
