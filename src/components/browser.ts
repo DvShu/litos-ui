@@ -22,7 +22,7 @@ import SortIcon from "./icon/sort";
 import Message from "./message";
 import Form from "./form";
 import FormItem from "./form/form_item";
-import Radio from "./radio";
+import Radio from "./check";
 import List from "./list";
 import Polygon from "./polygon";
 import SelectOri from "./select_ori";

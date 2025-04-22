@@ -3,9 +3,7 @@ import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
 import { $$, $one, on, off, addClass, toggleClass } from "ph-utils/dom";
 
-export default class Radio extends FormInner {
-  public static baseName = "radio";
-
+export default class Check extends FormInner {
   /** 是否选中 */
   checked = false;
   label?: string;
@@ -35,19 +33,39 @@ export default class Radio extends FormInner {
   }
 
   render() {
+    let $parent = this.parentElement;
+    let groupValue: string = "";
+    let isButton = false;
+    if ($parent) {
+      if ($parent.tagName.endsWith("RADIO-GROUP")) {
+        if (($parent as any).button) {
+          isButton = true;
+          addClass(this, "l-radio--button");
+        }
+        groupValue = ($parent as any).value;
+      }
+    }
     const fragment = document.createDocumentFragment();
+    let isChecked = this.checked;
+    if (!isChecked) {
+      if (groupValue && groupValue === this.value) {
+        isChecked = true;
+      }
+    }
     const $input = $$("input", {
       type: "radio",
       class: "l-radio__input",
       name: this.getName(),
       value: this.value,
       disabled: this.isDisabled(),
-      checked: this.checked,
+      checked: isChecked,
     });
     fragment.appendChild($input);
 
-    const $inner = $$("span", { class: "l-radio__inner" });
-    fragment.appendChild($inner);
+    if (!isButton) {
+      const $inner = $$("span", { class: "l-radio__inner" });
+      fragment.appendChild($inner);
+    }
 
     const $label = $$("label", {
       class: "l-radio__label",

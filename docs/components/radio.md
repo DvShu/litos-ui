@@ -1,13 +1,13 @@
-# Radio 单选框
+# Check 选择器
 
-在一组选项中进行单选
+在一组选项中进行单选或多选操作。
 
 ## 引用
 
 ```js
-import { Radio, regist } from "litos-ui";
+import { CheckGroup, CheckItem, regist } from "litos-ui";
 
-regist(Radio);
+regist([CheckItem, CheckGroup]);
 ```
 
 ## 演示
@@ -65,6 +65,7 @@ regist(Radio);
 <textarea lang="html">
   <l-radio-group value="1" button>
     <l-radio label="女" value="0"></l-radio>
+    <l-radio label="未知" value="-1"></l-radio>
     <l-radio label="男" value="1"></l-radio>
   </l-radio-group>
 </textarea>
