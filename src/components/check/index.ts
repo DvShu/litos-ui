@@ -1,6 +1,7 @@
-import { initAttr } from "../utils";
 import FormInner from "../form/form_inner";
-import { $one, on, off, $$ } from "ph-utils/dom";
+import { on, off, $$ } from "ph-utils/dom";
+import { initAttr } from "../utils";
+import css from "./index.less?inline";
 
 export default class CheckGroup extends FormInner {
   button = false; // 是否为按钮样式
@@ -14,6 +15,7 @@ export default class CheckGroup extends FormInner {
 
   connectedCallback(): void {
     initAttr(this);
+    this.loadStyleText([css]);
     super.connectedCallback();
   }
 
@@ -36,7 +38,6 @@ export default class CheckGroup extends FormInner {
   }
 
   #handleChange = (e: CustomEvent) => {
-    
     this.valueChange(e.detail.value);
     e.stopPropagation(); // 阻止事件传播
     this.emit("change", {
@@ -45,5 +46,5 @@ export default class CheckGroup extends FormInner {
     });
   };
 
-  public valueChange(value: string) {}
+  public valueChange(_value: string) {}
 }

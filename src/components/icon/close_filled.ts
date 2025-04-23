@@ -1,6 +1,6 @@
 import BaseIcon from "./base";
 
-export default class MaskClose extends BaseIcon {
+export default class CloseFilled extends BaseIcon {
   public static baseName = "close-filled-icon";
 
   constructor() {

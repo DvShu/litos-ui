@@ -1,7 +1,7 @@
-import css from "./radio.less?inline";
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
 import { $$, $one, on, off, addClass, toggleClass } from "ph-utils/dom";
+import css from "./check.less?inline";
 
 export default class Check extends FormInner {
   /** 是否选中 */
@@ -14,7 +14,7 @@ export default class Check extends FormInner {
 
   connectedCallback(): void {
     initAttr(this);
-    this.loadStyleText(css);
+    this.loadStyleText([css]);
     super.connectedCallback();
     if (this.checked) {
       addClass(this, "is-checked");
@@ -45,13 +45,19 @@ export default class Check extends FormInner {
         groupValue = ($parent as any).value;
       }
     }
-    const fragment = document.createDocumentFragment();
     let isChecked = this.checked;
     if (!isChecked) {
       if (groupValue && groupValue === this.value) {
         isChecked = true;
       }
     }
+    if (isChecked) {
+      this.setAttribute("checked", "");
+      this.checked = isChecked;
+      addClass(this, "is-checked");
+    }
+
+    const fragment = document.createDocumentFragment();
     const $input = $$("input", {
       type: "radio",
       class: "l-radio__input",
@@ -88,6 +94,7 @@ export default class Check extends FormInner {
   ): void {
     if (name === "checked") {
       const checked = parseAttrValue(newValue, false, "checked");
+      console.log("checked", checked);
       if (checked !== this.checked) {
         this.checked = checked;
 

@@ -39,8 +39,8 @@ export { default as CloseFilledIcon } from "./icon/close_filled";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";
-export { default as RadioGroup } from "./check";
-export { default as Radio } from "./check/check";
+export { default as RadioGroup } from "./check/radio_group";
+export { default as Radio } from "./check/radio";
 export { default as Checkbox } from "./checkbox";
 export { default as Button } from "./button";
 export { default as Input } from "./input";

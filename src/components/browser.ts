@@ -38,12 +38,10 @@ import MdInput from "./md_input";
 import Modal from "./modal";
 import DatePicker from "./date_picker";
 import Menu from "./menu";
-import docs:dev from "./docs:dev";
 //Web Components Import
-regist(docs:dev)
-regist(Menu)
-regist(DatePicker)
-regist(Modal)
+regist(Menu);
+regist(DatePicker);
+regist(Modal);
 regist(MdInput);
 regist(Checkbox);
 regist(Popconfirm);

@@ -2,31 +2,3 @@
   display: flex;
   align-items: center;
 }
-
-.l-radio--button .l-radio__label {
-  display: inline-flex;
-  height: var(--l-form-edit-height, 32px);
-  justify-content: center;
-  align-items: center;
-  padding: 0 15px;
-  border: 1px solid #c0c4cc;
-  border-left-width: 0;
-  margin-left: 0;
-}
-.l-radio--button:not(:first-of-type) {
-  margin-left: 0;
-}
-.l-radio--button:first-of-type .l-radio__label {
-  border-left-width: 1px;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-}
-.l-radio--button:last-of-type .l-radio__label {
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-}
-.is-checked.l-radio--button .l-radio__label {
-  background-color: var(--l-radio-checked-color);
-  color: #fff;
-  border-color: var(--l-radio-checked-color);
-}
