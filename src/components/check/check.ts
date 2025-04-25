@@ -72,7 +72,6 @@ export default class Check extends FormInner {
   ): void {
     if (name === "checked") {
       const checked = parseAttrValue(newValue, false, "checked");
-      console.log("checked", checked);
       if (checked !== this.checked) {
         this.checked = checked;
 
@@ -92,7 +91,6 @@ export default class Check extends FormInner {
   #handleClick = () => {
     if (this.isDisabled()) return;
     const $input = $one("input", this.root) as HTMLInputElement;
-    console.log($input.checked);
     if (!$input.checked) {
       this.setAttribute("checked", "");
       this.emit("change", {
