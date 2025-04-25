@@ -7,6 +7,8 @@ export default class Check extends FormInner {
   /** 是否选中 */
   checked = false;
   label?: string;
+  /** 是否为按钮样式 */
+  button = false;
 
   static get observedAttributes() {
     return ["disabled", "checked"];
@@ -33,30 +35,6 @@ export default class Check extends FormInner {
   }
 
   render() {
-    let $parent = this.parentElement;
-    let groupValue: string = "";
-    let isButton = false;
-    if ($parent) {
-      if ($parent.tagName.endsWith("RADIO-GROUP")) {
-        if (($parent as any).button) {
-          isButton = true;
-          addClass(this, "l-radio--button");
-        }
-        groupValue = ($parent as any).value;
-      }
-    }
-    let isChecked = this.checked;
-    if (!isChecked) {
-      if (groupValue && groupValue === this.value) {
-        isChecked = true;
-      }
-    }
-    if (isChecked) {
-      this.setAttribute("checked", "");
-      this.checked = isChecked;
-      addClass(this, "is-checked");
-    }
-
     const fragment = document.createDocumentFragment();
     const $input = $$("input", {
       type: "radio",
@@ -64,11 +42,11 @@ export default class Check extends FormInner {
       name: this.getName(),
       value: this.value,
       disabled: this.isDisabled(),
-      checked: isChecked,
+      checked: this.checked,
     });
     fragment.appendChild($input);
 
-    if (!isButton) {
+    if (!this.button) {
       const $inner = $$("span", { class: "l-radio__inner" });
       fragment.appendChild($inner);
     }
@@ -114,6 +92,7 @@ export default class Check extends FormInner {
   #handleClick = () => {
     if (this.isDisabled()) return;
     const $input = $one("input", this.root) as HTMLInputElement;
+    console.log($input.checked);
     if (!$input.checked) {
       this.setAttribute("checked", "");
       this.emit("change", {

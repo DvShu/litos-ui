@@ -63,10 +63,10 @@ regist([CheckItem, CheckGroup]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-radio-group value="1" button>
-    <l-radio label="女" value="0"></l-radio>
-    <l-radio label="未知" value="-1"></l-radio>
-    <l-radio label="男" value="1"></l-radio>
+  <l-radio-group value="1">
+    <l-radio label="女" value="0" button></l-radio>
+    <l-radio label="未知" value="-1" button></l-radio>
+    <l-radio label="男" value="1" button></l-radio>
   </l-radio-group>
 </textarea>
 </l-code-preview>

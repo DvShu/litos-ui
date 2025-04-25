@@ -78,7 +78,7 @@
 }
 
 /* button风格 */
-:host(.l-radio--button) {
+:host([button]) {
   height: var(--l-form-edit-height, 32px);
   justify-content: center;
   padding: 0 15px;
@@ -87,18 +87,18 @@
   margin-left: 0;
 }
 
-:host(.l-radio--button:first-child) {
+:host([button]:first-child) {
   border-left-width: 1px;
   border-top-left-radius: 3px;
   border-bottom-left-radius: 3px;
 }
 
-:host(.l-radio--button:last-child) {
+:host([button]:last-child) {
   border-top-right-radius: 3px;
   border-bottom-right-radius: 3px;
 }
 
-:host(.l-radio--button.is-checked) {
+:host([button].is-checked) {
   background-color: var(--l-primary-color, #722ed1);
   color: #fff;
   border-color: var(--l-primary-color, #722ed1);

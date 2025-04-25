@@ -15,15 +15,12 @@ export default class CheckGroup extends FormInner {
 
   connectedCallback(): void {
     initAttr(this);
+    this.attributeInitAfter();
     this.loadStyleText([css]);
     super.connectedCallback();
   }
 
-  public attributeInitAfter(): void {
-    if (this.value) {
-      this.checkedValues.add(this.value);
-    }
-  }
+  public attributeInitAfter(): void {}
 
   afterInit(): void {
     on(this.root, "change", this.#handleChange as any);
