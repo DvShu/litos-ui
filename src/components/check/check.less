@@ -12,7 +12,7 @@
 :host(:not(:first-child)) {
   margin-left: 10px;
 }
-.l-radio__input {
+.l-check__input {
   margin: 0;
   position: absolute;
   z-index: -1;
@@ -21,30 +21,7 @@
   opacity: 0;
 }
 
-.l-radio__inner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: var(--l-radio-size, 16px);
-  height: var(--l-radio-size, 16px);
-  border: 1px solid #dcddd9;
-  border-radius: 50%;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease-in-out;
-  margin-right: 5px;
-}
-
-.l-radio__inner::before {
-  content: "";
-  display: block;
-  width: 60%;
-  height: 60%;
-  background-color: transparent;
-  border-radius: 50%;
-  transition: background-color 0.3s ease-in-out;
-}
-
-.l-radio__label {
+.l-check__label {
   transition: color 0.3s;
   cursor: inherit;
   line-height: 1;
@@ -54,12 +31,6 @@
 :host(.is-checked) {
   color: var(--l-primary-color, #722ed1);
 }
-:host(.is-checked) .l-radio__inner {
-  border-color: var(--l-primary-color, #722ed1);
-}
-:host(.is-checked) .l-radio__inner::before {
-  background-color: var(--l-primary-color, #722ed1);
-}
 
 /**
  * disabled
@@ -67,14 +38,8 @@
 :host(.is-disabled) {
   cursor: not-allowed;
 }
-:host(.is-disabled) .l-radio__inner {
-  border-color: var(--l-disabled-color, #e6e6e6;);
-}
-:host(.is-disabled) .l-radio__label {
-  color: var(--l-disabled-color, #e6e6e6;);
-}
-:host(.is-disabled) .l-radio__inner::before {
-  background-color: var(--l-disabled-color, #e6e6e6;);
+:host(.is-disabled) .l-check__label {
+  color: var(--l-disabled-color, #e6e6e6);
 }
 
 /* button风格 */

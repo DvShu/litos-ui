@@ -1,7 +1,6 @@
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
 import { $$, $one, on, off, addClass, toggleClass } from "ph-utils/dom";
-import css from "./check.less?inline";
 
 export default class Check extends FormInner {
   /** 是否选中 */
@@ -9,6 +8,7 @@ export default class Check extends FormInner {
   label?: string;
   /** 是否为按钮样式 */
   button = false;
+  _inputType = "radio"; // input类型
 
   static get observedAttributes() {
     return ["disabled", "checked"];
@@ -16,7 +16,6 @@ export default class Check extends FormInner {
 
   connectedCallback(): void {
     initAttr(this);
-    this.loadStyleText([css]);
     super.connectedCallback();
     if (this.checked) {
       addClass(this, "is-checked");
@@ -37,8 +36,8 @@ export default class Check extends FormInner {
   render() {
     const fragment = document.createDocumentFragment();
     const $input = $$("input", {
-      type: "radio",
-      class: "l-radio__input",
+      type: this._inputType,
+      class: "l-check__input",
       name: this.getName(),
       value: this.value,
       disabled: this.isDisabled(),
@@ -47,16 +46,15 @@ export default class Check extends FormInner {
     fragment.appendChild($input);
 
     if (!this.button) {
-      const $inner = $$("span", { class: "l-radio__inner" });
+      const $inner = $$("span", { class: "l-check__inner" });
       fragment.appendChild($inner);
     }
 
     const $label = $$("label", {
-      class: "l-radio__label",
+      class: "l-check__label",
       part: "label",
     });
     const $labelSlot = $$("slot", {
-      name: "label",
       textContent: this.label,
     });
     $label.appendChild($labelSlot);
@@ -90,13 +88,8 @@ export default class Check extends FormInner {
 
   #handleClick = () => {
     if (this.isDisabled()) return;
-    const $input = $one("input", this.root) as HTMLInputElement;
-    if (!$input.checked) {
-      this.setAttribute("checked", "");
-      this.emit("change", {
-        detail: { value: this.value },
-        composed: true,
-      });
-    }
+    this._checkedChange();
   };
+
+  _checkedChange() {}
 }

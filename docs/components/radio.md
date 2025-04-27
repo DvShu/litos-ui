@@ -14,13 +14,13 @@ regist([CheckItem, CheckGroup]);
 
 ### 基础用法
 
-当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot-label` 来重写选项的文字。
+当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot` 来重写选项的文字。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
 <l-radio>
-  <span slot="label">
+  <span>
     <span>同意</span>
     <a href='#'>隐私协议</a>
   </span>
@@ -90,8 +90,7 @@ regist([CheckItem, CheckGroup]);
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 单选框组 |
-| `label` | 单选框选项文本 |
+| `default` | 单选框选项文本 |
 
 ### Radio Events
 
