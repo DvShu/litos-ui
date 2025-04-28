@@ -1,17 +1,8 @@
 .l-check__inner {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: var(--l-check-size, 16px);
-  height: var(--l-check-size, 16px);
-  border: 1px solid #dcddd9;
   border-radius: 50%;
-  box-sizing: border-box;
-  transition: border-color 0.3s ease-in-out;
-  margin-right: 5px;
 }
 
-.l-check__inner::before {
+.l-check__inner::after {
   content: "";
   display: block;
   width: 60%;
@@ -22,10 +13,7 @@
 }
 
 /* checked */
-:host(.is-checked) .l-check__inner {
-  border-color: var(--l-primary-color, #722ed1);
-}
-:host(.is-checked) .l-check__inner::before {
+:host(.is-checked) .l-check__inner::after {
   background-color: var(--l-primary-color, #722ed1);
 }
 
@@ -33,6 +21,6 @@
 :host(.is-disabled) .l-check__inner {
   border-color: var(--l-disabled-color, #e6e6e6;);
 }
-:host(.is-disabled) .l-check__inner::before {
+:host(.is-disabled) .l-check__inner::after {
   background-color: var(--l-disabled-color, #e6e6e6;);
 }

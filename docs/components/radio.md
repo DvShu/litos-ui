@@ -1,13 +1,13 @@
-# Check 选择器
+# Radio 单选框
 
-在一组选项中进行单选或多选操作。
+在一组选项中进行单选操作。
 
 ## 引用
 
 ```js
-import { CheckGroup, CheckItem, regist } from "litos-ui";
+import { RadioGroup, Radio, regist } from "litos-ui";
 
-regist([CheckItem, CheckGroup]);
+regist([RadioGroup, Radio]);
 ```
 
 ## 演示

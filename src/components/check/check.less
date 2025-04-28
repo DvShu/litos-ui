@@ -1,4 +1,5 @@
 :host {
+  --l-check-size: 16px;
   display: inline-flex;
   align-items: center;
   position: relative;
@@ -21,6 +22,20 @@
   opacity: 0;
 }
 
+.l-check__inner {
+  width: var(--l-check-size);
+  height: var(--l-check-size);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  border: 1px solid #dcddd9;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease-in-out;
+  position: relative;
+  margin-right: 5px;
+}
+
 .l-check__label {
   transition: color 0.3s;
   cursor: inherit;
@@ -30,6 +45,9 @@
 /* checked */
 :host(.is-checked) {
   color: var(--l-primary-color, #722ed1);
+}
+:host(.is-checked) .l-check__inner {
+  border-color: var(--l-primary-color, #722ed1);
 }
 
 /**

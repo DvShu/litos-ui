@@ -20,7 +20,7 @@ regist([Checkbox]);
 <l-code-preview>
 <textarea lang="html">
   <l-checkbox>
-    <span slot="label">
+    <span>
       <span>同意</span>
       <a href='#'>隐私协议</a>
     </span>
@@ -36,8 +36,7 @@ regist([Checkbox]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox label="禁用" disabled>
-  </l-checkbox>
+  <l-checkbox disabled >禁用</l-checkbox>
 </textarea>
 </l-code-preview>
 </ClientOnly>
