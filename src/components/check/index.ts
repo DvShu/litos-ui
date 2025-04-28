@@ -6,11 +6,11 @@ import css from "./index.less?inline";
 export default class CheckGroup extends FormInner {
   button = false; // 是否为按钮样式
 
-  checkedValues: Set<string>;
+  checkedValues: string[];
 
   constructor() {
     super(false);
-    this.checkedValues = new Set();
+    this.checkedValues = [];
   }
 
   connectedCallback(): void {
@@ -25,7 +25,7 @@ export default class CheckGroup extends FormInner {
 
   beforeDestroy(): void {
     off(this.root, "change", this.#handleChange as any);
-    this.checkedValues.clear();
+    this.checkedValues = [];
   }
 
   render() {

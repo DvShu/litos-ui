@@ -18,3 +18,9 @@
 :host(.is-checked) .l-check__inner::after {
   border-color: #ffffff;
 }
+
+/* disabled */
+:host(.is-disabled) .l-check__inner {
+  background-color: var(--l-disabled-color, #e6e6e6);
+  border-color: var(--l-disabled-color, #e6e6e6);
+}

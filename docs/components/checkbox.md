@@ -36,23 +36,23 @@ regist([Checkbox]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox disabled >禁用</l-checkbox>
+  <l-checkbox disabled checked>禁用</l-checkbox>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
 ### 多选框组
 
-通过 `slot-default` 然后给每一项设置一个 `check-value` 来配置单选框组每一项; 可以通过 `part` 来修改样式
+结合 `l-checkbox-group` 组件实现单选框组
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox value="CD&BJ">
-    <span check-value="CD">成都</span>
-    <span check-value="BJ">北京</span>
-    <span check-value="SZ">深圳</span>
-    <span check-value="HZ">杭州</span>
+  <l-checkbox-group value="CD&BJ">
+    <l-checkbox value="CD">成都</l-checkbox>
+    <l-checkbox value="BJ">北京</l-checkbox>
+    <l-checkbox value="SZ">深圳</l-checkbox>
+    <l-checkbox value="HZ">杭州</l-checkbox>
   </l-checkbox>
 </textarea>
 </l-code-preview>
