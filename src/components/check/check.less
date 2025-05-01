@@ -68,6 +68,7 @@
   border: 1px solid #c0c4cc;
   border-left-width: 0;
   margin-left: 0;
+  border-radius: inherit;
 }
 
 :host([button]:first-child) {
@@ -85,4 +86,8 @@
   background-color: var(--l-primary-color, #722ed1);
   color: #fff;
   border-color: var(--l-primary-color, #722ed1);
+  border-right-color: #fff;
+}
+:host([button].is-checked:last-child) {
+  border-right-color: var(--l-primary-color, #722ed1);
 }

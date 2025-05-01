@@ -86,7 +86,7 @@ export function initAttr(el: HTMLElement) {
     if (name === "value") {
       (el as any)[attrName] = parsedValue;
       (el as any)._resetValue = parsedValue;
-    } else if (attrs.includes(attrName)) {
+    } else if (attrs.includes(attrName) || attrs.includes(`_${attrName}`)) {
       (el as any)[attrName] = parsedValue;
     }
   }

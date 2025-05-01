@@ -1,14 +1,30 @@
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
-import { $$, $one, on, off, addClass, toggleClass } from "ph-utils/dom";
+import {
+  $$,
+  $one,
+  on,
+  off,
+  addClass,
+  toggleClass,
+  removeClass,
+} from "ph-utils/dom";
 
 export default class Check extends FormInner {
   /** 是否选中 */
-  checked = false;
+  private _checked = false;
   label?: string;
   /** 是否为按钮样式 */
   button = false;
   _inputType = "radio"; // input类型
+
+  get checked(): boolean {
+    return this._checked;
+  }
+  set checked(value: boolean) {
+    this._checked = value;
+    this.checkedChange();
+  }
 
   static get observedAttributes() {
     return ["disabled", "checked"];
@@ -72,13 +88,19 @@ export default class Check extends FormInner {
       const checked = parseAttrValue(newValue, false, "checked");
       if (checked !== this.checked) {
         this.checked = checked;
-
-        toggleClass(this, "is-checked");
-        const $input = $one("input", this.root) as HTMLInputElement;
-        if ($input) {
-          $input.checked = checked;
-        }
       }
+    }
+  }
+
+  protected checkedChange(): void {
+    if (this.checked) {
+      addClass(this, "is-checked");
+    } else {
+      removeClass(this, "is-checked");
+    }
+    const $input = $one("input", this.root) as HTMLInputElement;
+    if ($input) {
+      $input.checked = this.checked;
     }
   }
 
@@ -88,8 +110,8 @@ export default class Check extends FormInner {
 
   #handleClick = () => {
     if (this.isDisabled()) return;
-    this._checkedChange();
+    this._doChangeAction();
   };
 
-  _checkedChange() {}
+  _doChangeAction() {}
 }

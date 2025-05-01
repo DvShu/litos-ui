@@ -11,7 +11,7 @@ export default class Raido extends Check {
     super.connectedCallback();
   }
 
-  _checkedChange(): void {
+  _doChangeAction(): void {
     const $input = $one("input", this.root) as HTMLInputElement;
     if (!$input.checked) {
       this.setAttribute("checked", "");

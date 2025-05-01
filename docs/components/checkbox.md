@@ -58,6 +58,45 @@ regist([Checkbox]);
 </l-code-preview>
 </ClientOnly>
 
+> 注意：传递给 `l-checkbox-group` 的 `value` 为多选值的每一项 `encodeURIComponent` 后拼接 `&`
+
+### 按钮样式
+
+只需要为 `l-checkbox` 设置 `button` 属性，即可将复选框变为按钮样式
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-checkbox-group value="CD&BJ">
+    <l-checkbox value="CD" button>成都</l-checkbox>
+    <l-checkbox value="BJ" button>北京</l-checkbox>
+    <l-checkbox value="SZ" button>深圳</l-checkbox>
+    <l-checkbox value="HZ" button>杭州</l-checkbox>
+  </l-checkbox>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 中间状态
+
+设置 `indeterminate` 属性，表示不确定状态，一般用于实现部分选中的状态。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div style="margin-bottom: 10px;">
+    <l-checkbox value="CD" indeterminate>成都</l-checkbox>
+  </div>
+  <l-checkbox-group value="CD&BJ">
+    <l-checkbox value="CD" button>成都</l-checkbox>
+    <l-checkbox value="BJ" button>北京</l-checkbox>
+    <l-checkbox value="SZ" button>深圳</l-checkbox>
+    <l-checkbox value="HZ" button>杭州</l-checkbox>
+  </l-checkbox>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Checkbox Attibutes

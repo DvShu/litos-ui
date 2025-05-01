@@ -38,7 +38,7 @@ export default class SelectOri extends FormInner {
     return `<select class="l-input"${attrs}>${$children}</select>`;
   }
 
-  protected _changeDisabled(): void {
+  protected disabledChange(): void {
     if (this.$select) {
       this.$select.disabled = this.isDisabled();
     }

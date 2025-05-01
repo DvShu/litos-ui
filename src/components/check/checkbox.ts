@@ -14,10 +14,9 @@ export default class Checkbox extends Check {
   connectedCallback(): void {
     this.loadStyleText([css, checkbox_css]);
     super.connectedCallback();
-    console.log(this.value);
   }
 
-  _checkedChange(): void {
+  _doChangeAction(): void {
     const $input = $one("input", this.root) as HTMLInputElement;
     if ($input.checked) {
       $input.checked = false;

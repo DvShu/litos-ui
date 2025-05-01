@@ -47,7 +47,7 @@ export default class ColorPicker extends FormInner {
     return $picker;
   }
 
-  protected _changeDisabled(): void {
+  protected disabledChange(): void {
     if (this.$picker) {
       this.$picker.disabled = this.isDisabled();
     }

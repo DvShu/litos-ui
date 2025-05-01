@@ -49,13 +49,11 @@ export default class FormInner extends BaseComponent {
     oldValue: string,
     newValue: string
   ): void {
-    if (!this.rendered) return;
     if (name === "disabled") {
       const val = parseAttrValue(newValue, false, name);
       if (val !== this.disabled) {
-        this._changeDisabled();
-        this.disabledChange();
         this.disabled = val;
+        this.disabledChange();
       }
     } else {
       this.attributeChange(name, oldValue, newValue);
@@ -153,17 +151,10 @@ export default class FormInner extends BaseComponent {
       this.formItemAttrs[name] = value;
     }
     if (name === "disabled") {
-      this._changeDisabled();
       this.disabledChange();
     }
   };
 
-  /**  */
-  /**
-   * disable 属性改变时回调
-   * @deprecated 使用 disabledChange 代替
-   */
-  protected _changeDisabled() {}
   protected disabledChange() {}
 
   protected pushValueChange() {

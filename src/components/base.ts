@@ -6,6 +6,7 @@ export default class BaseComponent extends HTMLElement {
   public rendered: boolean = false;
   public constructor(shadow = true, init: Partial<ShadowRootInit> = {}) {
     super();
+    this.rendered = false;
     if (shadow) {
       this.attachShadow({ mode: "open", ...init });
     }
