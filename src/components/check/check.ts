@@ -21,8 +21,8 @@ export default class Check extends FormInner {
   get checked(): boolean {
     return this._checked;
   }
-  set checked(value: boolean) {
-    this._checked = value;
+  set checked(isChecked: boolean) {
+    this._checked = isChecked;
     this.checkedChange();
   }
 
@@ -85,6 +85,7 @@ export default class Check extends FormInner {
     newValue: string
   ): void {
     if (name === "checked") {
+      console.log("checked attr change");
       const checked = parseAttrValue(newValue, false, "checked");
       if (checked !== this.checked) {
         this.checked = checked;
@@ -93,6 +94,7 @@ export default class Check extends FormInner {
   }
 
   protected checkedChange(): void {
+    this.removeAttribute("indeterminate");
     if (this.checked) {
       addClass(this, "is-checked");
     } else {

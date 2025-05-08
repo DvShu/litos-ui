@@ -7,7 +7,7 @@ export default class CheckboxGroup extends CheckGroup {
   set value(value: string) {
     super.setValue(value);
     if (this.rendered) {
-      // ...
+      this.updateChangedStatus();
     }
   }
 
@@ -33,8 +33,8 @@ export default class CheckboxGroup extends CheckGroup {
       if (!value) {
         value = $checkbox.getAttribute("value") as string;
       }
-      if (value && this.checkedValues.includes(value)) {
-        ($checkbox as any).checked = true;
+      if (value) {
+        ($checkbox as any).checked = this.checkedValues.includes(value);
       }
     });
   }

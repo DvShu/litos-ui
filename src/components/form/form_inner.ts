@@ -23,12 +23,12 @@ export default class FormInner extends BaseComponent {
     this._firstPushValue = firstPushValue;
   }
 
-  set value(value: any) {
-    this.setValue(value);
+  get value () {
+    return this._value;
   }
 
-  get value() {
-    return this.getValue();
+  set value(value: any) {
+    this.setValue(value);
   }
 
   public setValue(value: any) {

@@ -1,7 +1,7 @@
 import Check from "./check";
 import css from "./check.less?inline";
 import checkbox_css from "./checkbox.less?inline";
-import { $one } from "ph-utils/dom";
+import { $one, addClass, removeClass } from "ph-utils/dom";
 
 export default class Checkbox extends Check {
   static baseName = "checkbox";
@@ -21,9 +21,11 @@ export default class Checkbox extends Check {
     if ($input.checked) {
       $input.checked = false;
       this.removeAttribute("checked");
+      removeClass(this, "is-checked");
     } else {
       $input.checked = true;
       this.setAttribute("checked", "");
+      addClass(this, "is-checked");
     }
     this.emit("change", {
       detail: {

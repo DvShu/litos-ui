@@ -12,6 +12,31 @@ regist([Checkbox]);
 
 ## 演示
 
+<script setup>
+  import { onMounted, onUnmounted, nextTick } from 'vue';
+  import { $one, on, off } from 'ph-utils/dom';
+
+  let $allCheck;
+
+  onMounted(() => {
+    nextTick(() => {
+      if (!import.meta.env.SSR) {
+        $allCheck = $one('#check-all');
+        const $group1 = $one("#kd");
+        $group1.checked = true;
+        console.log($group1._checked);
+        $allCheck.addEventListener('change', function(e) {
+          console.log('input', e.detail);
+          const $group = $one("#group");
+          const $group1 = $one("#kd");
+          $group1.checked = true;
+          // $group.value = e.detail.checked ? 'CD&BJ&SZ&HZ' : '';
+        });
+      }
+    })
+  });
+</script>
+
 ### 基础用法
 
 使用当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot-label` 来重写选项的文字。
@@ -85,14 +110,17 @@ regist([Checkbox]);
 <l-code-preview>
 <textarea lang="html">
   <div style="margin-bottom: 10px;">
-    <l-checkbox value="CD" indeterminate>成都</l-checkbox>
+    <l-checkbox id="check-all" indeterminate>全选</l-checkbox>
   </div>
-  <l-checkbox-group value="CD&BJ">
+  <l-checkbox-group id="group" value="CD&BJ">
     <l-checkbox value="CD" button>成都</l-checkbox>
     <l-checkbox value="BJ" button>北京</l-checkbox>
     <l-checkbox value="SZ" button>深圳</l-checkbox>
     <l-checkbox value="HZ" button>杭州</l-checkbox>
   </l-checkbox>
+  <div>
+    <l-checkbox value="D" id="kd">杭州</l-checkbox>
+  </div>
 </textarea>
 </l-code-preview>
 </ClientOnly>
