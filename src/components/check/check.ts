@@ -18,12 +18,24 @@ export default class Check extends FormInner {
   button = false;
   _inputType = "radio"; // input类型
 
-  get checked(): boolean {
-    return this._checked;
-  }
-  set checked(isChecked: boolean) {
+  setChecked(isChecked: boolean) {
     this._checked = isChecked;
     this.checkedChange();
+  }
+
+  getChecked() {
+    return this._checked;
+  }
+
+  constructor() {
+    super();
+    // 防止浏览器将组件视为原生 checkbox
+    Object.defineProperty(this, "checked", {
+      configurable: true,
+      enumerable: true,
+      get: this.getChecked,
+      set: this.setChecked,
+    });
   }
 
   static get observedAttributes() {
@@ -33,7 +45,7 @@ export default class Check extends FormInner {
   connectedCallback(): void {
     initAttr(this);
     super.connectedCallback();
-    if (this.checked) {
+    if (this.getChecked()) {
       addClass(this, "is-checked");
     }
     if (this.isDisabled()) {
@@ -57,7 +69,7 @@ export default class Check extends FormInner {
       name: this.getName(),
       value: this.value,
       disabled: this.isDisabled(),
-      checked: this.checked,
+      checked: this.getChecked(),
     });
     fragment.appendChild($input);
 
@@ -85,24 +97,22 @@ export default class Check extends FormInner {
     newValue: string
   ): void {
     if (name === "checked") {
-      console.log("checked attr change");
       const checked = parseAttrValue(newValue, false, "checked");
-      if (checked !== this.checked) {
-        this.checked = checked;
+      if (checked !== this.getChecked()) {
+        this.setChecked(checked);
       }
     }
   }
 
   protected checkedChange(): void {
-    this.removeAttribute("indeterminate");
-    if (this.checked) {
+    if (this.getChecked()) {
       addClass(this, "is-checked");
     } else {
       removeClass(this, "is-checked");
     }
     const $input = $one("input", this.root) as HTMLInputElement;
     if ($input) {
-      $input.checked = this.checked;
+      $input.checked = this._checked;
     }
   }
 

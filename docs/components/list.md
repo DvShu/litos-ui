@@ -34,6 +34,7 @@ regist([List, LoadingIcon]);
           end = max;
         }
         $list.append(createRenderFragemnt(start, end));
+        $list.removeAttribute('loading'); // 移除loading 状态，显示更多内容
         if (isFinish) {
           $list.setAttribute('finish', 'finish');
         } else {
@@ -60,7 +61,7 @@ regist([List, LoadingIcon]);
       if (!import.meta.env.SSR) {
         $list = $one('#list');
         if ($list) {
-          on($list, 'load-more', handleLoadmore);
+          on($list, 'load', handleLoadmore);
         }
 
         $list1 = $one('#list1');
@@ -74,7 +75,7 @@ regist([List, LoadingIcon]);
   onUnmounted(() => {
     if (!import.meta.env.SSR) {
       if ($list) {
-        off($list, 'load-more', handleLoadmore);
+        off($list, 'load', handleLoadmore);
       }
     }
   });
@@ -190,4 +191,4 @@ regist([List, LoadingIcon]);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `load-more` | 加载更多 | `()` |
+| `load` | 加载更多, `e.detail` 包含 `page` 分页页码 | `(e: CustomEvent)` |

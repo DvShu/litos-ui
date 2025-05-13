@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
-import { $one } from "ph-utils/dom";
+import { $one, getAttr } from "ph-utils/dom";
 //@ts-ignore
 import css from "./index.less?inline";
 //@ts-ignore
@@ -14,17 +14,11 @@ export default class List extends BaseComponent {
   /** 是否显示无限加载模式 */
   public infinite = true;
   private observer?: IntersectionObserver;
-  private loadMoreEmit: CustomEvent;
   private $more?: HTMLElement;
-
-  constructor() {
-    super();
-    initAttr(this);
-    this.loadMoreEmit = new CustomEvent("load-more");
-  }
+  private _page = 0;
 
   static get observedAttributes(): string[] | null | undefined {
-    return ["finish"];
+    return ["finish", "infinite"];
   }
 
   attributeChangedCallback(
@@ -38,6 +32,11 @@ export default class List extends BaseComponent {
         this.finish = finish;
         this._finishChange();
       }
+    } else if (name === "infinite") {
+      const infinite = parseAttrValue(newValue, true, name);
+      if (this.infinite !== infinite) {
+        this.infinite = infinite;
+      }
     }
   }
 
@@ -47,7 +46,9 @@ export default class List extends BaseComponent {
     if (this.infinite) {
       this.observer = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && !this.finish) {
-          this.dispatchEvent(this.loadMoreEmit);
+          this._page++;
+          this.setAttribute("loading", "");
+          this.emit("load", { detail: { page: this._page } });
         }
       });
       this.$more = $one(".l-list-loadmore", this.root);
@@ -67,7 +68,6 @@ export default class List extends BaseComponent {
       this.observer.disconnect();
       this.observer = undefined;
     }
-    this.loadMoreEmit = undefined as any;
   }
 
   render() {

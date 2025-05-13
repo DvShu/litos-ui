@@ -17,24 +17,50 @@ regist([Checkbox]);
   import { $one, on, off } from 'ph-utils/dom';
 
   let $allCheck;
+  let $group;
+
+  function handleGroupChange(e) {
+    const valueLen = e.detail.value.length;
+    if (valueLen === 4) {
+      $allCheck.removeAttribute('indeterminate'); // 全选
+      $allCheck.checked = true;
+    } else if (valueLen === 0) {
+      $allCheck.removeAttribute('indeterminate'); // 全不选
+      $allCheck.checked = false;
+    } else {
+      $allCheck.setAttribute('indeterminate', ''); // 部分选中
+    }
+  }
+
+  function handleAllCheckChange(e) {
+    const checked = e.detail.checked;
+    if (checked) {
+      $group.value = 'CD&BJ&SZ&HZ'; // 全选
+    } else {
+      $group.value = ''; // 全不选
+    }
+  }
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
+        $group = $one('#group');
         $allCheck = $one('#check-all');
-        const $group1 = $one("#kd");
-        $group1.checked = true;
-        console.log($group1._checked);
-        $allCheck.addEventListener('change', function(e) {
-          console.log('input', e.detail);
-          const $group = $one("#group");
-          const $group1 = $one("#kd");
-          $group1.checked = true;
-          // $group.value = e.detail.checked ? 'CD&BJ&SZ&HZ' : '';
-        });
+
+        on($group, 'change', handleGroupChange);
+        on($allCheck, 'change', handleAllCheckChange);
       }
     })
   });
+
+  onUnmounted(() => {
+    if ($group) {
+      off($group, 'change', handleGroupChange);
+    }
+    if ($allCheck) {
+      off($allCheck, 'change', handleAllCheckChange);
+    }
+  })
 </script>
 
 ### 基础用法
@@ -77,7 +103,7 @@ regist([Checkbox]);
     <l-checkbox value="CD">成都</l-checkbox>
     <l-checkbox value="BJ">北京</l-checkbox>
     <l-checkbox value="SZ">深圳</l-checkbox>
-    <l-checkbox value="HZ">杭州</l-checkbox>
+    <l-checkbox value="SH">上海</l-checkbox>
   </l-checkbox>
 </textarea>
 </l-code-preview>
@@ -118,10 +144,54 @@ regist([Checkbox]);
     <l-checkbox value="SZ" button>深圳</l-checkbox>
     <l-checkbox value="HZ" button>杭州</l-checkbox>
   </l-checkbox>
-  <div>
-    <l-checkbox value="D" id="kd">杭州</l-checkbox>
-  </div>
 </textarea>
+<div class="source">
+<textarea lang="html">
+  <div style="margin-bottom: 10px;">
+    <l-checkbox id="check-all" indeterminate>全选</l-checkbox>
+  </div>
+  <l-checkbox-group id="group" value="CD&BJ">
+    <l-checkbox value="CD" button>成都</l-checkbox>
+    <l-checkbox value="BJ" button>北京</l-checkbox>
+    <l-checkbox value="SZ" button>深圳</l-checkbox>
+    <l-checkbox value="HZ" button>杭州</l-checkbox>
+  </l-checkbox-group>
+</textarea>
+<textarea lang="ts">
+  import { $one, on, off } from 'ph-utils/dom';
+  //-
+  function handleGroupChange(e) {
+    const valueLen = e.detail.value.length;
+    if (valueLen === 4) {
+      $allCheck.removeAttribute('indeterminate'); // 全选
+      $allCheck.checked = true;
+    } else if (valueLen === 0) {
+      $allCheck.removeAttribute('indeterminate'); // 全不选
+      $allCheck.checked = false;
+    } else {
+      $allCheck.setAttribute('indeterminate', ''); // 部分选中
+    }
+  }
+  //-
+  function handleAllCheckChange(e) {
+    const checked = e.detail.checked;
+    if (checked) {
+      $group.value = 'CD&BJ&SZ&HZ'; // 全选
+    } else {
+      $group.value = ''; // 全不选
+    }
+  }
+  //-
+  const $group = $one('#group');
+  const $allCheck = $one('#check-all');
+  //-
+  on($group, 'change', handleGroupChange);
+  on($allCheck, 'change', handleAllCheckChange);
+  // 页面关闭时移除事件
+  // off($group, 'change', handleGroupChange);
+  // off($allCheck, 'change', handleAllCheckChange);
+</textarea>
+</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -132,28 +202,42 @@ regist([Checkbox]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `value` | value | `string` | `-` |
+| `checked` | 是否选中 | `boolean` | `false` |
+| `disabled` | 是否禁用 | `boolean` | `false` |
+| `button` | 是否为按钮样式 | `boolean` | `false` |
+| `indeterminate` | 是否为中间状态 | `boolean` | `false` |
+| `name` | 原生属性 | `string` | `-` |
+| `label` | 显示的标签 | `string` | `-` |
+
+### CheckboxGroup Attributes
+
+<!-- prettier-ignore -->
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `value` | 多选值,每一项 `encodeURIComponent` 后拼接 `&`  | `string` | `-` |
 
 ### Checkbox Slots
 
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
+| `default` | 标签 |
 
 ### Checkbox Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `change` | 选中改变时触发, `e.detail` 包含 `value`、`name`、`checked` | `(event: CustomEvent)` |
 
-### Checkbox Methods
+### CheckboxGroup Events
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `x` | x | `(x: number): string` |
+| `change` | 选中改变时触发, `e.detail` 包含 `value` 为选中的值的列表 | `(event: CustomEvent)` |
+
 
 ### Checkbox CSS Variables
 

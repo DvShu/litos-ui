@@ -34,7 +34,12 @@ export default class CheckboxGroup extends CheckGroup {
         value = $checkbox.getAttribute("value") as string;
       }
       if (value) {
-        ($checkbox as any).checked = this.checkedValues.includes(value);
+        if (this.checkedValues.includes(value)) {
+          $checkbox.setAttribute("checked", "");
+        } else {
+          // 移除checked属性
+          $checkbox.removeAttribute("checked");
+        }
       }
     });
   }
@@ -46,6 +51,6 @@ export default class CheckboxGroup extends CheckGroup {
     } else {
       this.checkedValues.push(value);
     }
-    this.value = this.checkedValues.join("&");
+    this.setValue(this.checkedValues.join("&"));
   }
 }
