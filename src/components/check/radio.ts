@@ -19,7 +19,6 @@ export default class Raido extends Check {
         detail: { value: this.value, name: this.getName() },
         composed: true,
       });
-      this.checked = true;
     }
   }
 }

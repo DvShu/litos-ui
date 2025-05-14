@@ -65,3 +65,5 @@ export { default as DatePicker } from "./date_picker";
 export { default as Menu } from "./menu";
 export { default as MenuItem } from "./menu/menu_item";
 export { default as SubMenu } from "./menu/sub_menu";
+
+export { default as Carousel } from "./carousel";

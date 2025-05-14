@@ -149,6 +149,10 @@ export default defineConfig({
             text: "Loading 加载",
             link: "/components/loading",
           },
+          {
+            text: "Carousel 轮播",
+            link: "/components/carousel",
+          },
           /* TemplateItem */
         ],
       },

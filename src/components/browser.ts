@@ -38,7 +38,9 @@ import MdInput from "./md_input";
 import Modal from "./modal";
 import DatePicker from "./date_picker";
 import Menu from "./menu";
+import Carousel from "./carousel";
 //Web Components Import
+regist(Carousel)
 regist(Menu);
 regist(DatePicker);
 regist(Modal);
@@ -115,3 +117,4 @@ import "./modal/index.less";
 import "./date_picker/index.less";
 import "./menu/index.less";
 import "./docs:dev/index.less";
+import "./carousel/index.less";
