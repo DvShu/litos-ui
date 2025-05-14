@@ -16,13 +16,8 @@ export default class Carousel extends BaseComponent {
   }
   render() {
     const fragment = document.createDocumentFragment();
-    // container
     const $container = $$("div", { class: "container" });
-    fragment.appendChild($container);
-    for (let i = 0; i < 4; i++) {
-      const $item = $$("div", { class: "item", textContent: `item ${i}` });
-      $container.appendChild($item);
-    }
+    $container.appendChild($$("slot"));
     return fragment;
   }
 }

@@ -67,3 +67,4 @@ export { default as MenuItem } from "./menu/menu_item";
 export { default as SubMenu } from "./menu/sub_menu";
 
 export { default as Carousel } from "./carousel";
+export { default as CarouselItem } from "./carousel/item";
