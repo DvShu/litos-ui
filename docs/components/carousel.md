@@ -5,9 +5,9 @@
 ## 引用
 
 ```js
-import { Carousel, regist } from "litos-ui";
+import { Carousel, CarouselItem, regist } from "litos-ui";
 
-regist(Carousel);
+regist([Carousel, CarouselItem]);
 ```
 
 ## 演示
@@ -19,7 +19,12 @@ regist(Carousel);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-carousel></l-carousel>
+  <l-carousel>
+    <l-carousel-item>1</l-carousel-item>
+    <l-carousel-item>2</l-carousel-item>
+    <l-carousel-item>3</l-carousel-item>
+    <l-carousel-item>4</l-carousel-item>
+  </l-carousel>
 </textarea>
 <div class="source">
 <textarea lang="html">

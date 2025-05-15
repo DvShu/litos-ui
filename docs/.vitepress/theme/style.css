@@ -205,5 +205,6 @@ l-button[type="gradient"]::part(default) {
   color: #4998f4;
 }
 .a {
-  color: red;
+  background: red;
+  color: white;
 }
