@@ -1,12 +1,21 @@
 import BaseComponent from "../base";
 import css from "./index.less?inline";
-import { getAttr, $$, $one, iterate, $ } from "ph-utils/dom";
+import {
+  getAttr,
+  $$,
+  $one,
+  iterate,
+  $,
+  on,
+  off,
+  shouldEventNext,
+} from "ph-utils/dom";
 import { parseAttrValue } from "../utils";
 
 export default class Carousel extends BaseComponent {
   public static baseName = "carousel";
   /** 是否显示箭头 */
-  public arrows: "hover" | "alwasy" | "never" = "alwasy";
+  public arrows: "hover" | "alwasy" | "never" = "hover";
   public currentIndex = 0;
 
   static get observedAttributes() {
@@ -47,12 +56,19 @@ export default class Carousel extends BaseComponent {
   }
 
   afterInit(): void {
+    this.setAttribute("data-page", "__stop__");
     this.renderArrows(); // 调用 renderArrows 方法来渲染箭头
+    on(this.root, "click", this.#handleNavigate); // 为容器添加点击事件监听器 (事件代理)
+  }
+
+  beforeDestroy(): void {
+    off(this, "mouseenter", this.#handleContainerMouseEnter);
+    off(this, "mouseleave", this.#handleContainerMouseLeave);
+    off(this.root, "click", this.#handleNavigate); // 移除容器的点击事件监听器 (事件代理)
   }
 
   render() {
     const fragment = document.createDocumentFragment();
-    // 总体
     const $container = $$("div", { class: "container" });
     $container.appendChild($$("slot"));
     fragment.appendChild($container);
@@ -63,9 +79,15 @@ export default class Carousel extends BaseComponent {
     if (this.rendered) {
       // 切换按钮
       if (this.arrows !== "never") {
-        this.renderNavigationButton("prev"); // 渲染上一个按钮。
+        this.renderNavigationButton("prev"); // 渲染上一个按钮
         this.renderNavigationButton("next"); // 渲染下一个按钮
+        if (this.arrows === "hover") {
+          on(this, "mouseenter", this.#handleContainerMouseEnter);
+          on(this, "mouseleave", this.#handleContainerMouseLeave);
+        }
       } else {
+        off(this, "mouseenter", this.#handleContainerMouseEnter);
+        off(this, "mouseleave", this.#handleContainerMouseLeave);
         const $buttons = $(".nav-button", this.root) as HTMLElement[];
         if ($buttons.length) {
           iterate($buttons, (button) => {
@@ -84,6 +106,8 @@ export default class Carousel extends BaseComponent {
         class: `nav-button nav-${dir}`,
         type: "button",
         innerHTML: `<l-arrow-${ldir}-icon></l-arrow-${ldir}-icon>`,
+        "aria-label": dir,
+        "data-page": dir,
       }) as HTMLButtonElement;
       this.root.appendChild($nav);
     }
@@ -91,6 +115,62 @@ export default class Carousel extends BaseComponent {
       $nav.style.display = "flex";
     } else {
       $nav.style.display = "none";
+    }
+  }
+
+  #handleNavigate = (e: Event) => {
+    const $target = e.target as HTMLButtonElement;
+    const should = shouldEventNext(e, "data-page", this.root);
+    console.log(should);
+  };
+
+  #handleContainerMouseEnter = () => {
+    if (this.arrows === "hover") {
+      // 动画形式显示切换按钮
+      const $navs = $(".nav-button", this.root) as HTMLButtonElement[];
+      iterate($navs, (nav) => {
+        nav.style.display = "flex";
+        this.#navigateElemAnim(nav, true); // 调用 #navigateElemAnim 方法来显示按钮
+      });
+    }
+  };
+
+  #handleContainerMouseLeave = () => {
+    if (this.arrows === "hover") {
+      const $navs = $(".nav-button", this.root) as HTMLButtonElement[];
+      iterate($navs, (nav) => {
+        this.#navigateElemAnim(nav, false); // 调用 #navigateElemAnim 方法来隐藏按钮
+      });
+    }
+  };
+
+  #navigateElemAnim(elem: HTMLElement, show = true) {
+    const dir = elem.getAttribute("data-page");
+    const offset = dir === "prev" ? -10 : 10;
+    const anims = [];
+    if (show) {
+      anims.push(
+        { opacity: 0, transform: `translate3d(${offset}px, -50%, 0)` },
+        { opacity: 1, transform: `translate3d(0px, -50%, 0)` }
+      );
+    } else {
+      anims.push(
+        { opacity: 1, transform: `translate3d(0px, -50%, 0)` },
+        { opacity: 0, transform: `translate3d(${offset}px, -50%, 0)` }
+      );
+    }
+    const anim = elem.animate(anims, {
+      duration: 300,
+      fill: "both",
+    });
+    if (!show) {
+      anim.addEventListener(
+        "finish",
+        () => {
+          elem.style.display = "none";
+        },
+        { once: true }
+      );
     }
   }
 }
