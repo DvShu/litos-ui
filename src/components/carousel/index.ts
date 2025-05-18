@@ -50,7 +50,10 @@ export default class Carousel extends BaseComponent {
     const len = children.length;
     for (let i = 0; i < len; i++) {
       const child = children[i] as HTMLElement;
-      child.style.setProperty("transform", `translateX(${i * 100}%) scale(1)`);
+      if (i === this.currentIndex) {
+        child.style.setProperty("transform", `translateX(0) scale(1)`);
+        child.classList.add("active");
+      }
     }
     super.connectedCallback();
   }
@@ -120,8 +123,11 @@ export default class Carousel extends BaseComponent {
 
   #handleNavigate = (e: Event) => {
     const $target = e.target as HTMLButtonElement;
-    const should = shouldEventNext(e, "data-page", this.root);
-    console.log(should);
+    const [isNext, page] = shouldEventNext(e, "data-page", this.root);
+    if (isNext) {
+      if (page === "prev") {
+      }
+    }
   };
 
   #handleContainerMouseEnter = () => {
