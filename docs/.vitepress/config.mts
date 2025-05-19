@@ -7,6 +7,7 @@ export default defineConfig({
   description: "基于 Web Component 的 UI 组件库",
   lastUpdated: true,
   cleanUrls: true,
+  lang: "zh-CN",
   head: [
     [
       "link",

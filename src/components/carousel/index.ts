@@ -17,9 +17,11 @@ export default class Carousel extends BaseComponent {
   /** 是否显示箭头 */
   public arrows: "hover" | "alwasy" | "never" = "hover";
   public currentIndex = 0;
+  allIndex = 0;
+  loop = false;
 
   static get observedAttributes() {
-    return ["arrows"];
+    return ["arrows", "loop", "initial-index"];
   }
 
   attributeChangedCallback(
@@ -33,6 +35,12 @@ export default class Carousel extends BaseComponent {
         if (newArrows !== this.arrows) {
           this.arrows = newArrows as "hover";
         }
+        break;
+      case "loop":
+        this.loop = parseAttrValue(newValue, false, "loop");
+        break;
+      case "initial-index":
+        this.currentIndex = parseAttrValue(newValue, 0, "initial-index");
         break;
     }
   }
@@ -55,6 +63,7 @@ export default class Carousel extends BaseComponent {
         child.classList.add("active");
       }
     }
+    this.allIndex = len - 1;
     super.connectedCallback();
   }
 
@@ -125,10 +134,129 @@ export default class Carousel extends BaseComponent {
     const $target = e.target as HTMLButtonElement;
     const [isNext, page] = shouldEventNext(e, "data-page", this.root);
     if (isNext) {
+      let nextIndex = this.currentIndex;
+      let dir: "prev" | "next" = "prev";
       if (page === "prev") {
+        dir = "prev";
+        if (this.currentIndex === 0) {
+          if (this.loop) {
+            nextIndex = this.allIndex;
+          }
+        } else {
+          nextIndex = this.currentIndex - 1;
+        }
+      } else if (page === "next") {
+        dir = "next";
+        if (this.currentIndex === this.allIndex) {
+          if (this.loop) {
+            nextIndex = 0;
+          }
+        } else {
+          nextIndex = this.currentIndex + 1;
+        }
+      }
+      if (nextIndex !== this.currentIndex) {
+        this.#itemNavigate(this.currentIndex, nextIndex, dir); // 调用 #navigateAnimate 方法来执行动画
+        this.currentIndex = nextIndex;
       }
     }
   };
+
+  #itemNavigate(
+    start: number,
+    end: number,
+    direction: "prev" | "next" | "nav"
+  ) {
+    const children = this.children;
+    const len = children.length;
+    if (direction !== "nav") {
+      if (direction === "next") {
+        this.#itemNavigateAnimate(
+          children[start] as HTMLElement,
+          [
+            { transform: "translateX(0%) scale(1)" },
+            { transform: "translateX(-100%) scale(1)" },
+          ],
+          false
+        );
+        this.#itemNavigateAnimate(
+          children[end] as HTMLElement,
+          [
+            {
+              transform: "translateX(100%) scale(1)",
+            },
+            { transform: "translateX(0%) scale(1)" },
+          ],
+          true
+        );
+      } else {
+        this.#itemNavigateAnimate(
+          children[end] as HTMLElement,
+          [
+            { transform: "translateX(-100%) scale(1)" },
+            { transform: "translateX(0%) scale(1)" },
+          ],
+          true
+        );
+        this.#itemNavigateAnimate(
+          children[start] as HTMLElement,
+          [
+            { transform: "translateX(0%) scale(1)" },
+            { transform: "translateX(100%) scale(1)" },
+          ],
+          false
+        );
+      }
+    } else {
+      const duration = Math.max(200, Math.ceil(350 / (end - start + 1)));
+      const startIndex = Math.min(start, end);
+      const endIndex = Math.max(start, end);
+      console.log(startIndex, endIndex);
+      for (let i = 0; i < len; i++) {
+        if (i < startIndex) continue;
+        if (i > endIndex) break;
+        if (direction !== "nav" && (i !== start || i !== end)) break;
+        const child = children[i] as HTMLElement;
+        child.style.display = "block";
+        let diff1 = 0;
+        let diff2 = 0;
+        if (direction === "nav") {
+          if (end === 0) {
+            diff1 = 1;
+            diff2 = 0;
+          } else {
+            diff1 = i - start;
+            diff2 = i - end;
+          }
+        }
+      }
+    }
+  }
+
+  #itemNavigateAnimate(
+    elem: HTMLElement,
+    frames: any[],
+    isEnd: boolean,
+    duration = 300
+  ) {
+    elem.style.display = "block";
+    const animate = elem.animate(frames, {
+      duration,
+      fill: isEnd ? "forwards" : "none",
+    });
+    animate.addEventListener(
+      "finish",
+      () => {
+        if (isEnd) {
+          elem.classList.add("active");
+        } else {
+          elem.classList.remove("active");
+        }
+        elem.style.removeProperty("display");
+      },
+      { once: true }
+    );
+  }
 
   #handleContainerMouseEnter = () => {
     if (this.arrows === "hover") {

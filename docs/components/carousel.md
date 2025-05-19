@@ -20,10 +20,11 @@ regist([Carousel, CarouselItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-carousel>
-    <l-carousel-item>1</l-carousel-item>
-    <l-carousel-item>2</l-carousel-item>
-    <l-carousel-item>3</l-carousel-item>
-    <l-carousel-item>4</l-carousel-item>
+    <l-carousel-item style="background:red;color:#ffffff;">1</l-carousel-item>
+    <l-carousel-item style="background:green;color:#ffffff;">2</l-carousel-item>
+    <l-carousel-item style="background:orange;color:#ffffff;">3</l-carousel-item>
+    <l-carousel-item style="background:blue;color:#ffffff;">4</l-carousel-item>
+    <l-carousel-item style="background:#008858;color:#ffffff;">5</l-carousel-item>
   </l-carousel>
 </textarea>
 <div class="source">
