@@ -12,6 +12,39 @@ regist([Carousel, CarouselItem]);
 
 ## 演示
 
+<script setup>
+  import { onMounted, nextTick } from 'vue';
+  import { $one } from 'ph-utils/dom';
+
+  let $carousel;
+
+  onMounted(() => {
+    nextTick(() => {
+      if (!import.meta.env.SSR) {
+        $carousel = $one('l-carousel');
+        console.log($carousel);
+        const $1 = document.createElement('l-carousel-item');
+        $1.style.background = 'red';
+        $1.style.color = '#ffffff';
+        $1.innerText = '1';
+        $carousel.appendChild($1);
+        const $2 = document.createElement('l-carousel-item');
+        $2.style.background ='green';
+        $2.style.color = '#ffffff';
+        $2.innerText = '2';
+        $carousel.appendChild($2);
+        // $carousel.innerHTML = `
+        //   <l-carousel-item style="background:red;color:#ffffff;">1</l-carousel-item>
+        //   <l-carousel-item style="background:green;color:#ffffff;">2</l-carousel-item>
+        //   <l-carousel-item style="background:orange;color:#ffffff;">3</l-carousel-item>
+        //   <l-carousel-item style="background:blue;color:#ffffff;">4</l-carousel-item>
+        //   <l-carousel-item style="background:#008858;color:#ffffff;">5</l-carousel-item>
+        // `
+      }
+    })
+  });
+</script>
+
 ### 基础用法
 
 使用
@@ -19,12 +52,8 @@ regist([Carousel, CarouselItem]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-carousel>
-    <l-carousel-item style="background:red;color:#ffffff;">1</l-carousel-item>
-    <l-carousel-item style="background:green;color:#ffffff;">2</l-carousel-item>
-    <l-carousel-item style="background:orange;color:#ffffff;">3</l-carousel-item>
-    <l-carousel-item style="background:blue;color:#ffffff;">4</l-carousel-item>
-    <l-carousel-item style="background:#008858;color:#ffffff;">5</l-carousel-item>
+  <l-carousel loop>
+    
   </l-carousel>
 </textarea>
 <div class="source">

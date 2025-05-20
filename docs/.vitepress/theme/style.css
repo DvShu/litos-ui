@@ -204,7 +204,8 @@ l-button[type="gradient"]::part(default) {
 .custom-tabbar-item.active {
   color: #4998f4;
 }
-.a {
+
+.carousel-item1 {
   background: red;
-  color: white;
+  color: #ffffff;
 }

@@ -10,6 +10,7 @@ import {
   off,
   shouldEventNext,
 } from "ph-utils/dom";
+import { debounce } from "ph-utils/web";
 import { parseAttrValue } from "../utils";
 
 export default class Carousel extends BaseComponent {
@@ -17,8 +18,9 @@ export default class Carousel extends BaseComponent {
   /** 是否显示箭头 */
   public arrows: "hover" | "alwasy" | "never" = "hover";
   public currentIndex = 0;
-  allIndex = 0;
+  allIndex = -1;
   loop = false;
+  observer?: MutationObserver;
 
   static get observedAttributes() {
     return ["arrows", "loop", "initial-index"];
@@ -47,23 +49,16 @@ export default class Carousel extends BaseComponent {
 
   connectedCallback(): void {
     this.loadStyleText(css);
-    const binding = this.getBoundingClientRect();
-    this.style.setProperty("--carousel-width", `${binding.width}px`);
+    this.style.setProperty(
+      "--carousel-width",
+      `${Math.floor(this.clientWidth)}px`
+    );
     // 手动设置高度
     const height = getAttr(this, "height");
     if (height) {
       this.style.setProperty("height", `${height}px`);
     }
-    const children = this.children;
-    const len = children.length;
-    for (let i = 0; i < len; i++) {
-      const child = children[i] as HTMLElement;
-      if (i === this.currentIndex) {
-        child.style.setProperty("transform", `translateX(0) scale(1)`);
-        child.classList.add("active");
-      }
-    }
-    this.allIndex = len - 1;
+    this.#cloneLoopElem(); // 处理循环节点
     super.connectedCallback();
   }
 
@@ -71,17 +66,28 @@ export default class Carousel extends BaseComponent {
     this.setAttribute("data-page", "__stop__");
     this.renderArrows(); // 调用 renderArrows 方法来渲染箭头
     on(this.root, "click", this.#handleNavigate); // 为容器添加点击事件监听器 (事件代理)
+    this.#startObserver(); // 开始监听子元素的变化 (新增、删除、移动等)
   }
 
   beforeDestroy(): void {
     off(this, "mouseenter", this.#handleContainerMouseEnter);
     off(this, "mouseleave", this.#handleContainerMouseLeave);
     off(this.root, "click", this.#handleNavigate); // 移除容器的点击事件监听器 (事件代理)
+    this.#stopObserver(true);
   }
 
   render() {
     const fragment = document.createDocumentFragment();
-    const $container = $$("div", { class: "container" });
+    const offset = Math.floor(this.currentIndex * this.clientWidth * -1);
+    let containerStyle = `transform:translateX(${offset}px);`;
+    if (this.allIndex > 0) {
+      const containerWidth = Math.floor(this.clientWidth * (this.allIndex + 1));
+      containerStyle += `min-width:${containerWidth}px;`;
+    }
+    const $container = $$("div", {
+      class: "container",
+      style: containerStyle,
+    });
     $container.appendChild($$("slot"));
     fragment.appendChild($container);
     return fragment;
@@ -129,6 +135,74 @@ export default class Carousel extends BaseComponent {
       $nav.style.display = "none";
     }
   }
+
+  #startObserver() {
+    if (this.observer == null) {
+      this.observer = new MutationObserver(this.#observerChange); // 创建 MutationObserver 实例
+    }
+    this.observer.observe(this, { childList: true }); // 开始监听子元素的变化 (新增、删除、移动等)
+  }
+
+  #stopObserver(destroy = false) {
+    if (this.observer) {
+      this.observer.disconnect(); // 停止监听子元素的变化
+      if (destroy) {
+        this.observer = undefined; // 清空 MutationObserver 实例的引用
+      }
+    }
+  }
+
+  #containerChange = debounce(() => {
+    this.#stopObserver();
+    const $cloneFirst = $one("#cloneFirst", this);
+    if ($cloneFirst) {
+      $cloneFirst.remove();
+    }
+    const $cloneLast = $one("#cloneLast", this);
+    if ($cloneLast) {
+      $cloneLast.remove();
+    }
+    this.#cloneLoopElem(); // 处理循环节点
+    // 计算容器宽度
+    const $container = $one(".container", this.root) as HTMLElement;
+    if ($container) {
+      if (this.allIndex > 0) {
+        const containerWidth = Math.floor(
+          this.clientWidth * (this.allIndex + 1)
+        );
+        $container.style.minWidth = `${containerWidth}px`;
+      } else {
+        $container.style.minWidth = "900%";
+      }
+      const offset = Math.floor(this.currentIndex * this.clientWidth * -1);
+      $container.style.transform = `translateX(${offset}px)`;
+    }
+    this.#startObserver(); // 重新开始监听子元素的变化 (新增、删除、移动等)
+  }, 300);
+
+  #cloneLoopElem() {
+    const children = this.children;
+    const len = children.length;
+    // 循环轮播时, 复制前后节点
+    if (len > 0 && this.loop) {
+      this.currentIndex++;
+      const $firstClone = children[0].cloneNode(true) as HTMLElement;
+      $firstClone.id = "cloneFirst";
+      const $lastClone = children[len - 1].cloneNode(true) as HTMLElement;
+      $lastClone.id = "cloneLast";
+      this.children[len - 1].insertAdjacentElement("afterend", $firstClone);
+      this.children[0].insertAdjacentElement("beforebegin", $lastClone);
+    }
+    this.allIndex = this.children.length - 1;
+  }
+
+  #observerChange: MutationCallback = (mutations: MutationRecord[]) => {
+    for (const mutation of mutations) {
+      if (mutation.type === "childList") {
+        this.#containerChange();
+      }
+    }
+  };
 
   #handleNavigate = (e: Event) => {
     const $target = e.target as HTMLButtonElement;

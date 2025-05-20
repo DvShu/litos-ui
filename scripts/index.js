@@ -4,7 +4,7 @@ import { write } from "ph-utils/file";
 import { snakeCaseStyle } from "ph-utils";
 import { styleText } from "node:util";
 
-function sourceTemplate(name, componentName, fileName) {
+function sourceTemplate(name, componentName, _fileName) {
   const res = [
     'import BaseComponent from "../base"',
     'import { initAttr } from "../utils";',
@@ -145,7 +145,6 @@ function createComponentTemplate(name) {
 
 (async () => {
   const argv = process.argv;
-
   if (argv[2] === "create") {
     // 创建组件模板
     createComponentTemplate(argv[3]);
