@@ -16,7 +16,7 @@ import { parseAttrValue } from "../utils";
 export default class Carousel extends BaseComponent {
   public static baseName = "carousel";
   /** 是否显示箭头 */
-  public arrows: "hover" | "alwasy" | "never" = "hover";
+  public arrows: "hover" | "always" | "never" = "hover";
   public currentIndex = 0;
   allIndex = -1;
   loop = false;
@@ -36,6 +36,9 @@ export default class Carousel extends BaseComponent {
         const newArrows = parseAttrValue(newValue, "hover");
         if (newArrows !== this.arrows) {
           this.arrows = newArrows as "hover";
+          const fragment = document.createDocumentFragment();
+          this.renderArrows(fragment); // 调用 renderArrows 方法来渲染箭头
+          this.root.appendChild(fragment);
         }
         break;
       case "loop":
@@ -64,7 +67,6 @@ export default class Carousel extends BaseComponent {
 
   afterInit(): void {
     this.setAttribute("data-page", "__stop__");
-    this.renderArrows(); // 调用 renderArrows 方法来渲染箭头
     on(this.root, "click", this.#handleNavigate); // 为容器添加点击事件监听器 (事件代理)
     this.#startObserver(); // 开始监听子元素的变化 (新增、删除、移动等)
   }
@@ -78,10 +80,12 @@ export default class Carousel extends BaseComponent {
 
   render() {
     const fragment = document.createDocumentFragment();
-    const offset = Math.floor(this.currentIndex * this.clientWidth * -1);
-    let containerStyle = `transform:translateX(${offset}px);`;
+    let containerStyle = "";
     if (this.allIndex > 0) {
-      const containerWidth = Math.floor(this.clientWidth * (this.allIndex + 1));
+      const offsetIndex = this.loop ? this.currentIndex + 1 : this.currentIndex;
+      const offset = Math.floor(offsetIndex * this.clientWidth * -1);
+      containerStyle = `transform:translateX(${offset}px);`;
+      const containerWidth = Math.floor(this.clientWidth * (this.allIndex + 3));
       containerStyle += `min-width:${containerWidth}px;`;
     }
     const $container = $$("div", {
@@ -90,33 +94,37 @@ export default class Carousel extends BaseComponent {
     });
     $container.appendChild($$("slot"));
     fragment.appendChild($container);
+    this.renderArrows(fragment); // 调用 renderArrows 方法来渲染箭头
+    // 渲染分页器
+    const $pagination = $$("div", { class: "pagination" });
     return fragment;
   }
 
-  renderArrows() {
-    if (this.rendered) {
-      // 切换按钮
-      if (this.arrows !== "never") {
-        this.renderNavigationButton("prev"); // 渲染上一个按钮
-        this.renderNavigationButton("next"); // 渲染下一个按钮
-        if (this.arrows === "hover") {
-          on(this, "mouseenter", this.#handleContainerMouseEnter);
-          on(this, "mouseleave", this.#handleContainerMouseLeave);
-        }
-      } else {
-        off(this, "mouseenter", this.#handleContainerMouseEnter);
-        off(this, "mouseleave", this.#handleContainerMouseLeave);
-        const $buttons = $(".nav-button", this.root) as HTMLElement[];
-        if ($buttons.length) {
-          iterate($buttons, (button) => {
-            button.remove();
-          });
-        }
+  renderArrows(fragment: DocumentFragment) {
+    // 切换按钮
+    if (this.arrows !== "never") {
+      this.renderNavigationButton("prev", fragment); // 渲染上一个按钮
+      this.renderNavigationButton("next", fragment); // 渲染下一个按钮
+      if (this.arrows === "hover") {
+        on(this, "mouseenter", this.#handleContainerMouseEnter);
+        on(this, "mouseleave", this.#handleContainerMouseLeave);
+      }
+    } else {
+      off(this, "mouseenter", this.#handleContainerMouseEnter);
+      off(this, "mouseleave", this.#handleContainerMouseLeave);
+      const $buttons = $(".nav-button", this.root) as HTMLElement[];
+      if ($buttons.length) {
+        iterate($buttons, (button) => {
+          button.remove();
+        });
       }
     }
   }
 
-  renderNavigationButton(dir: "prev" | "next" = "prev") {
+  renderNavigationButton(
+    dir: "prev" | "next" = "prev",
+    fragment: DocumentFragment
+  ) {
     let $nav = $one(`.nav-${dir}`, this.root) as HTMLButtonElement;
     if ($nav == null) {
       const ldir = dir === "prev" ? "left" : "right";
@@ -127,9 +135,9 @@ export default class Carousel extends BaseComponent {
         "aria-label": dir,
         "data-page": dir,
       }) as HTMLButtonElement;
-      this.root.appendChild($nav);
+      fragment.appendChild($nav);
     }
-    if (this.arrows === "alwasy") {
+    if (this.arrows === "always") {
       $nav.style.display = "flex";
     } else {
       $nav.style.display = "none";
@@ -153,7 +161,6 @@ export default class Carousel extends BaseComponent {
   }
 
   #containerChange = debounce(() => {
-    this.#stopObserver();
     const $cloneFirst = $one("#cloneFirst", this);
     if ($cloneFirst) {
       $cloneFirst.remove();
@@ -168,13 +175,14 @@ export default class Carousel extends BaseComponent {
     if ($container) {
       if (this.allIndex > 0) {
         const containerWidth = Math.floor(
-          this.clientWidth * (this.allIndex + 1)
+          this.clientWidth * (this.allIndex + 3)
         );
         $container.style.minWidth = `${containerWidth}px`;
       } else {
         $container.style.minWidth = "900%";
       }
-      const offset = Math.floor(this.currentIndex * this.clientWidth * -1);
+      const offsetIndex = this.loop ? this.currentIndex + 1 : this.currentIndex;
+      const offset = Math.floor(offsetIndex * this.clientWidth * -1);
       $container.style.transform = `translateX(${offset}px)`;
     }
     this.#startObserver(); // 重新开始监听子元素的变化 (新增、删除、移动等)
@@ -185,7 +193,6 @@ export default class Carousel extends BaseComponent {
     const len = children.length;
     // 循环轮播时, 复制前后节点
     if (len > 0 && this.loop) {
-      this.currentIndex++;
       const $firstClone = children[0].cloneNode(true) as HTMLElement;
       $firstClone.id = "cloneFirst";
       const $lastClone = children[len - 1].cloneNode(true) as HTMLElement;
@@ -193,144 +200,72 @@ export default class Carousel extends BaseComponent {
       this.children[len - 1].insertAdjacentElement("afterend", $firstClone);
       this.children[0].insertAdjacentElement("beforebegin", $lastClone);
     }
-    this.allIndex = this.children.length - 1;
+    this.allIndex = this.children.length - (this.loop ? 3 : 1);
   }
 
   #observerChange: MutationCallback = (mutations: MutationRecord[]) => {
     for (const mutation of mutations) {
       if (mutation.type === "childList") {
+        this.#stopObserver();
         this.#containerChange();
       }
     }
   };
 
   #handleNavigate = (e: Event) => {
-    const $target = e.target as HTMLButtonElement;
     const [isNext, page] = shouldEventNext(e, "data-page", this.root);
     if (isNext) {
-      let nextIndex = this.currentIndex;
-      let dir: "prev" | "next" = "prev";
+      const start = this.loop ? this.currentIndex + 1 : this.currentIndex;
+      let nextIndex = start;
       if (page === "prev") {
-        dir = "prev";
-        if (this.currentIndex === 0) {
-          if (this.loop) {
-            nextIndex = this.allIndex;
-          }
+        if (this.loop && this.currentIndex === 0) {
+          nextIndex = 0;
         } else {
-          nextIndex = this.currentIndex - 1;
+          nextIndex = start - 1;
         }
       } else if (page === "next") {
-        dir = "next";
-        if (this.currentIndex === this.allIndex) {
-          if (this.loop) {
-            nextIndex = 0;
-          }
+        if (this.loop && this.currentIndex === this.allIndex) {
+          nextIndex = this.allIndex + 2;
         } else {
-          nextIndex = this.currentIndex + 1;
+          nextIndex = start + 1;
         }
       }
-      if (nextIndex !== this.currentIndex) {
-        this.#itemNavigate(this.currentIndex, nextIndex, dir); // 调用 #navigateAnimate 方法来执行动画
-        this.currentIndex = nextIndex;
+      if (nextIndex !== start) {
+        const $container = $one(".container", this.root) as HTMLElement;
+        if ($container) {
+          const offset = Math.floor(nextIndex * this.clientWidth * -1);
+          const oldTransform = $container.style.transform;
+          const anim = $container.animate(
+            [
+              { transform: oldTransform },
+              { transform: `translateX(${offset}px)` },
+            ],
+            { duration: 300 }
+          );
+          anim.addEventListener(
+            "finish",
+            () => {
+              let o = offset;
+              if (this.loop && nextIndex === this.allIndex + 2) {
+                o = Math.floor(this.clientWidth * -1); // 计算偏移量
+              } else if (this.loop && nextIndex === 0) {
+                o = Math.floor(this.clientWidth * (this.allIndex + 1) * -1); // 计算偏移量
+              }
+              $container.style.transform = `translateX(${o}px)`;
+            },
+            { once: true }
+          );
+        }
+        if (this.loop && nextIndex === this.allIndex + 2) {
+          this.currentIndex = 0;
+        } else if (this.loop && nextIndex === 0) {
+          this.currentIndex = this.allIndex;
+        } else {
+          this.currentIndex = this.loop ? nextIndex - 1 : nextIndex;
+        }
       }
     }
   };
-
-  #itemNavigate(
-    start: number,
-    end: number,
-    direction: "prev" | "next" | "nav"
-  ) {
-    const children = this.children;
-    const len = children.length;
-    if (direction !== "nav") {
-      if (direction === "next") {
-        this.#itemNavigateAnimate(
-          children[start] as HTMLElement,
-          [
-            { transform: "translateX(0%) scale(1)" },
-            { transform: "translateX(-100%) scale(1)" },
-          ],
-          false
-        );
-        this.#itemNavigateAnimate(
-          children[end] as HTMLElement,
-          [
-            {
-              transform: "translateX(100%) scale(1)",
-            },
-            { transform: "translateX(0%) scale(1)" },
-          ],
-          true
-        );
-      } else {
-        this.#itemNavigateAnimate(
-          children[end] as HTMLElement,
-          [
-            { transform: "translateX(-100%) scale(1)" },
-            { transform: "translateX(0%) scale(1)" },
-          ],
-          true
-        );
-        this.#itemNavigateAnimate(
-          children[start] as HTMLElement,
-          [
-            { transform: "translateX(0%) scale(1)" },
-            { transform: "translateX(100%) scale(1)" },
-          ],
-          false
-        );
-      }
-    } else {
-      const duration = Math.max(200, Math.ceil(350 / (end - start + 1)));
-      const startIndex = Math.min(start, end);
-      const endIndex = Math.max(start, end);
-      console.log(startIndex, endIndex);
-      for (let i = 0; i < len; i++) {
-        if (i < startIndex) continue;
-        if (i > endIndex) break;
-        if (direction !== "nav" && (i !== start || i !== end)) break;
-        const child = children[i] as HTMLElement;
-        child.style.display = "block";
-        let diff1 = 0;
-        let diff2 = 0;
-        if (direction === "nav") {
-          if (end === 0) {
-            diff1 = 1;
-            diff2 = 0;
-          } else {
-            diff1 = i - start;
-            diff2 = i - end;
-          }
-        }
-      }
-    }
-  }
-
-  #itemNavigateAnimate(
-    elem: HTMLElement,
-    frames: any[],
-    isEnd: boolean,
-    duration = 300
-  ) {
-    elem.style.display = "block";
-    const animate = elem.animate(frames, {
-      duration,
-      fill: isEnd ? "forwards" : "none",
-    });
-    animate.addEventListener(
-      "finish",
-      () => {
-        if (isEnd) {
-          elem.classList.add("active");
-        } else {
-          elem.classList.remove("active");
-        }
-        elem.style.removeProperty("display");
-      },
-      { once: true }
-    );
-  }
 
   #handleContainerMouseEnter = () => {
     if (this.arrows === "hover") {

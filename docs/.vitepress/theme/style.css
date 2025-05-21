@@ -205,7 +205,25 @@ l-button[type="gradient"]::part(default) {
   color: #4998f4;
 }
 
-.carousel-item1 {
-  background: red;
-  color: #ffffff;
+.carousel-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  color: #fff;
+}
+.carousel1 {
+  background-color: #ff6700;
+}
+.carousel2 {
+  background-color: #83c44e;
+}
+.carousel3 {
+  background-color: #e53935;
+}
+.carousel4 {
+  background-color: #2196f3;
+}
+.carousel5 {
+  background-color: #9c27b0;
 }
