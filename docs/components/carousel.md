@@ -19,7 +19,7 @@ regist([Carousel, CarouselItem]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-carousel loop arrows="always">
+  <l-carousel loop arrows="always" autoplay>
     <l-carousel-item class="carousel-item carousel1">1</l-carousel-item>
     <l-carousel-item class="carousel-item carousel2">2</l-carousel-item>
     <l-carousel-item class="carousel-item carousel3">3</l-carousel-item>

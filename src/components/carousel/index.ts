@@ -12,6 +12,8 @@ import {
 } from "ph-utils/dom";
 import { debounce } from "ph-utils/web";
 import { parseAttrValue } from "../utils";
+import AutoPlayTimer from "./timer";
+import type { AutoPlayTimerT } from "./timer";
 
 export default class Carousel extends BaseComponent {
   public static baseName = "carousel";
@@ -21,9 +23,11 @@ export default class Carousel extends BaseComponent {
   allIndex = -1;
   loop = false;
   observer?: MutationObserver;
+  autoplay = false;
+  #timer: AutoPlayTimerT = undefined as any;
 
   static get observedAttributes() {
-    return ["arrows", "loop", "initial-index"];
+    return ["arrows", "loop", "current-index", "autoplay"];
   }
 
   attributeChangedCallback(
@@ -44,8 +48,26 @@ export default class Carousel extends BaseComponent {
       case "loop":
         this.loop = parseAttrValue(newValue, false, "loop");
         break;
-      case "initial-index":
-        this.currentIndex = parseAttrValue(newValue, 0, "initial-index");
+      case "current-index":
+        const newIndex = parseAttrValue(newValue, 0);
+        if (newIndex !== this.currentIndex) {
+          this.#toggleContent(
+            this.loop ? this.currentIndex + 1 : this.currentIndex
+          );
+        }
+        break;
+      case "autoplay":
+        const autoplay = parseAttrValue(newValue, false, "autoplay");
+        if (autoplay !== this.autoplay) {
+          this.autoplay = autoplay;
+          if (this.#timer) {
+            if (autoplay) {
+              this.#timer.start();
+            } else {
+              this.#timer.stop();
+            }
+          }
+        }
         break;
     }
   }
@@ -69,6 +91,12 @@ export default class Carousel extends BaseComponent {
     this.setAttribute("data-page", "__stop__");
     on(this.root, "click", this.#handleNavigate); // 为容器添加点击事件监听器 (事件代理)
     this.#startObserver(); // 开始监听子元素的变化 (新增、删除、移动等)
+    this.#timer = AutoPlayTimer(() => {
+      console.log("next");
+    });
+    if (this.autoplay) {
+      this.#timer.start();
+    }
   }
 
   beforeDestroy(): void {
@@ -76,6 +104,8 @@ export default class Carousel extends BaseComponent {
     off(this, "mouseleave", this.#handleContainerMouseLeave);
     off(this.root, "click", this.#handleNavigate); // 移除容器的点击事件监听器 (事件代理)
     this.#stopObserver(true);
+    this.#timer.stop();
+    this.#timer = undefined as any;
   }
 
   render() {
@@ -96,7 +126,11 @@ export default class Carousel extends BaseComponent {
     fragment.appendChild($container);
     this.renderArrows(fragment); // 调用 renderArrows 方法来渲染箭头
     // 渲染分页器
-    const $pagination = $$("div", { class: "pagination" });
+    const $pagination = $$("div", { class: "pagination", part: "pagination" });
+    if (this.allIndex >= 0) {
+      $pagination.replaceChildren(this.#buildBulletElements());
+    }
+    fragment.appendChild($pagination);
     return fragment;
   }
 
@@ -119,6 +153,21 @@ export default class Carousel extends BaseComponent {
         });
       }
     }
+  }
+
+  #buildBulletElements() {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i <= this.allIndex; i++) {
+      fragment.appendChild(
+        $$("div", {
+          class: ["bullet", i === this.currentIndex ? "active" : ""],
+          "aria-label": `第 ${i + 1} 页`,
+          "data-page": `${i}`,
+          id: `bullet-${i}`,
+        })
+      );
+    }
+    return fragment;
   }
 
   renderNavigationButton(
@@ -185,6 +234,11 @@ export default class Carousel extends BaseComponent {
       const offset = Math.floor(offsetIndex * this.clientWidth * -1);
       $container.style.transform = `translateX(${offset}px)`;
     }
+    // 切换分页器
+    const $pagination = $one(".pagination", this.root) as HTMLElement;
+    if ($pagination) {
+      $pagination.replaceChildren(this.#buildBulletElements());
+    }
     this.#startObserver(); // 重新开始监听子元素的变化 (新增、删除、移动等)
   }, 300);
 
@@ -229,43 +283,58 @@ export default class Carousel extends BaseComponent {
         } else {
           nextIndex = start + 1;
         }
+      } else {
+        const pageNum = Number(page);
+        if (pageNum !== this.currentIndex) {
+          nextIndex = this.loop ? pageNum + 1 : pageNum;
+        }
       }
       if (nextIndex !== start) {
-        const $container = $one(".container", this.root) as HTMLElement;
-        if ($container) {
-          const offset = Math.floor(nextIndex * this.clientWidth * -1);
-          const oldTransform = $container.style.transform;
-          const anim = $container.animate(
-            [
-              { transform: oldTransform },
-              { transform: `translateX(${offset}px)` },
-            ],
-            { duration: 300 }
-          );
-          anim.addEventListener(
-            "finish",
-            () => {
-              let o = offset;
-              if (this.loop && nextIndex === this.allIndex + 2) {
-                o = Math.floor(this.clientWidth * -1); // 计算偏移量
-              } else if (this.loop && nextIndex === 0) {
-                o = Math.floor(this.clientWidth * (this.allIndex + 1) * -1); // 计算偏移量
-              }
-              $container.style.transform = `translateX(${o}px)`;
-            },
-            { once: true }
-          );
-        }
-        if (this.loop && nextIndex === this.allIndex + 2) {
-          this.currentIndex = 0;
-        } else if (this.loop && nextIndex === 0) {
-          this.currentIndex = this.allIndex;
-        } else {
-          this.currentIndex = this.loop ? nextIndex - 1 : nextIndex;
-        }
+        this.#toggleContent(nextIndex);
       }
     }
   };
+
+  #toggleContent(newIndex: number) {
+    const $container = $one(".container", this.root) as HTMLElement;
+    if ($container) {
+      const offset = Math.floor(newIndex * this.clientWidth * -1);
+      const oldTransform = $container.style.transform;
+      const anim = $container.animate(
+        [{ transform: oldTransform }, { transform: `translateX(${offset}px)` }],
+        { duration: 300 }
+      );
+      anim.addEventListener(
+        "finish",
+        () => {
+          let o = offset;
+          if (this.loop && newIndex === this.allIndex + 2) {
+            o = Math.floor(this.clientWidth * -1); // 计算偏移量
+          } else if (this.loop && newIndex === 0) {
+            o = Math.floor(this.clientWidth * (this.allIndex + 1) * -1); // 计算偏移量
+          }
+          $container.style.transform = `translateX(${o}px)`;
+        },
+        { once: true }
+      );
+    }
+    if (this.loop && newIndex === this.allIndex + 2) {
+      this.currentIndex = 0;
+    } else if (this.loop && newIndex === 0) {
+      this.currentIndex = this.allIndex;
+    } else {
+      this.currentIndex = this.loop ? newIndex - 1 : newIndex;
+    }
+    // 切换分页器
+    const $activePage = $one(".bullet.active", this.root); // 获取当前活动的分页器元素
+    if ($activePage) {
+      $activePage.classList.remove("active"); // 移除当前活动的分页器元素的 active 类
+    }
+    const $newActivePage = $one(`#bullet-${this.currentIndex}`, this.root); // 获取新的活动的分页器元素
+    if ($newActivePage) {
+      $newActivePage.classList.add("active"); // 添加新的活动的分页器元素的 active 类
+    }
+  }
 
   #handleContainerMouseEnter = () => {
     if (this.arrows === "hover") {

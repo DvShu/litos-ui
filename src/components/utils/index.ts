@@ -32,11 +32,7 @@ export function parseAttrValue(
   defaultValue?: boolean,
   key?: string
 ): boolean;
-export function parseAttrValue(
-  value: string,
-  defaultValue?: number,
-  key?: string
-): number;
+export function parseAttrValue(value: string, defaultValue?: number): number;
 export function parseAttrValue(
   value: string,
   defaultValue: any,
