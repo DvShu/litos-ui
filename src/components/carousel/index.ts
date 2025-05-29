@@ -25,6 +25,11 @@ export default class Carousel extends BaseComponent {
   observer?: MutationObserver;
   autoplay = false;
   #timer: AutoPlayTimerT = undefined as any;
+  /* 手势 */
+  #startX = 0;
+  #currentX = 0;
+  #isDragging = false;
+  #startTime = 0;
 
   static get observedAttributes() {
     return ["arrows", "loop", "current-index", "autoplay"];
@@ -92,11 +97,14 @@ export default class Carousel extends BaseComponent {
     on(this.root, "click", this.#handleNavigate); // 为容器添加点击事件监听器 (事件代理)
     this.#startObserver(); // 开始监听子元素的变化 (新增、删除、移动等)
     this.#timer = AutoPlayTimer(() => {
-      console.log("next");
+      this.#togglePage("next");
     });
     if (this.autoplay) {
       this.#timer.start();
     }
+    // 监听手势事件
+    on(this, "touchstart", this.#handleTouchStart as any);
+    on(this, "touchmove", this.#handleTouchMove as any);
   }
 
   beforeDestroy(): void {
@@ -269,31 +277,35 @@ export default class Carousel extends BaseComponent {
   #handleNavigate = (e: Event) => {
     const [isNext, page] = shouldEventNext(e, "data-page", this.root);
     if (isNext) {
-      const start = this.loop ? this.currentIndex + 1 : this.currentIndex;
-      let nextIndex = start;
-      if (page === "prev") {
-        if (this.loop && this.currentIndex === 0) {
-          nextIndex = 0;
-        } else {
-          nextIndex = start - 1;
-        }
-      } else if (page === "next") {
-        if (this.loop && this.currentIndex === this.allIndex) {
-          nextIndex = this.allIndex + 2;
-        } else {
-          nextIndex = start + 1;
-        }
-      } else {
-        const pageNum = Number(page);
-        if (pageNum !== this.currentIndex) {
-          nextIndex = this.loop ? pageNum + 1 : pageNum;
-        }
-      }
-      if (nextIndex !== start) {
-        this.#toggleContent(nextIndex);
-      }
+      this.#togglePage(page);
     }
   };
+
+  #togglePage(page: string) {
+    const start = this.loop ? this.currentIndex + 1 : this.currentIndex;
+    let nextIndex = start;
+    if (page === "prev") {
+      if (this.loop && this.currentIndex === 0) {
+        nextIndex = 0;
+      } else {
+        nextIndex = start - 1;
+      }
+    } else if (page === "next") {
+      if (this.loop && this.currentIndex === this.allIndex) {
+        nextIndex = this.allIndex + 2;
+      } else {
+        nextIndex = start + 1;
+      }
+    } else {
+      const pageNum = Number(page);
+      if (pageNum !== this.currentIndex) {
+        nextIndex = this.loop ? pageNum + 1 : pageNum;
+      }
+    }
+    if (nextIndex !== start) {
+      this.#toggleContent(nextIndex);
+    }
+  }
 
   #toggleContent(newIndex: number) {
     const $container = $one(".container", this.root) as HTMLElement;
@@ -385,4 +397,28 @@ export default class Carousel extends BaseComponent {
       );
     }
   }
+
+  #handleMoveStart = (x: number) => {
+    this.#startX = x;
+    this.#currentX = x;
+    this.#isDragging = true;
+    this.#startTime = Date.now();
+  };
+
+  #handleMove = (x: number) => {
+    if (!this.#isDragging) return;
+    this.#currentX = x;
+    const deltaX = x - this.#startX;
+    console.log(deltaX);
+  };
+
+  #handleTouchStart = (e: TouchEvent) => {
+    this.#handleMoveStart(e.touches[0].clientX);
+  };
+
+  #handleTouchMove = (e: TouchEvent) => {
+    this.#handleMove(e.touches[0].clientX);
+  };
+
+  #handleTouchEnd = () => {};
 }
