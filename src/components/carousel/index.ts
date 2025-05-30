@@ -8,12 +8,34 @@ import {
   $,
   on,
   off,
-  shouldEventNext,
+  shouldEventNext as s,
 } from "ph-utils/dom";
 import { debounce } from "ph-utils/web";
 import { parseAttrValue } from "../utils";
 import AutoPlayTimer from "./timer";
 import type { AutoPlayTimerT } from "./timer";
+
+function shouldEventNext(
+  e: Event,
+  eventFlag: string,
+  endRoot?: HTMLElement | ShadowRoot
+): [boolean, string, HTMLElement] {
+  let target = e.target as HTMLElement;
+  let flag = "";
+  do {
+    if ((endRoot && endRoot.isSameNode(target)) || target.tagName === "BODY") {
+      break;
+    }
+    if (target.getAttribute) {
+      flag = target.getAttribute(eventFlag) || "";
+    }
+    if (flag === "") {
+      target = target.parentNode as HTMLElement;
+    }
+    if (!target) break;
+  } while (flag === "");
+  return [flag !== "__stop__" && flag !== "", flag, target];
+}
 
 export default class Carousel extends BaseComponent {
   public static baseName = "carousel";
@@ -21,15 +43,16 @@ export default class Carousel extends BaseComponent {
   public arrows: "hover" | "always" | "never" = "hover";
   public currentIndex = 0;
   allIndex = -1;
+  #tranlateX = 0; // 当前偏移量
   loop = false;
   observer?: MutationObserver;
   autoplay = false;
   #timer: AutoPlayTimerT = undefined as any;
   /* 手势 */
   #startX = 0;
-  #currentX = 0;
   #isDragging = false;
   #startTime = 0;
+  #movingT = 0;
 
   static get observedAttributes() {
     return ["arrows", "loop", "current-index", "autoplay"];
@@ -103,8 +126,11 @@ export default class Carousel extends BaseComponent {
       this.#timer.start();
     }
     // 监听手势事件
-    on(this, "touchstart", this.#handleTouchStart as any);
-    on(this, "touchmove", this.#handleTouchMove as any);
+    on(this, "pointerdown", this.#handlePointerDown as any);
+    on(this, "pointerup", this.#handlePointerUp as any);
+    on(this, "pointermove", this.#handlePointerMove as any);
+    on(this, "pointercancel", this.#handlePointerCancel as any);
+    on(this, "pointerleave", this.#handlePointerCancel as any);
   }
 
   beforeDestroy(): void {
@@ -125,10 +151,12 @@ export default class Carousel extends BaseComponent {
       containerStyle = `transform:translateX(${offset}px);`;
       const containerWidth = Math.floor(this.clientWidth * (this.allIndex + 3));
       containerStyle += `min-width:${containerWidth}px;`;
+      this.#tranlateX = offset;
     }
     const $container = $$("div", {
       class: "container",
       style: containerStyle,
+      "data-container": "1",
     });
     $container.appendChild($$("slot"));
     fragment.appendChild($container);
@@ -241,6 +269,7 @@ export default class Carousel extends BaseComponent {
       const offsetIndex = this.loop ? this.currentIndex + 1 : this.currentIndex;
       const offset = Math.floor(offsetIndex * this.clientWidth * -1);
       $container.style.transform = `translateX(${offset}px)`;
+      this.#tranlateX = offset;
     }
     // 切换分页器
     const $pagination = $one(".pagination", this.root) as HTMLElement;
@@ -282,6 +311,7 @@ export default class Carousel extends BaseComponent {
   };
 
   #togglePage(page: string) {
+    this.#timer.stop();
     const start = this.loop ? this.currentIndex + 1 : this.currentIndex;
     let nextIndex = start;
     if (page === "prev") {
@@ -326,6 +356,7 @@ export default class Carousel extends BaseComponent {
             o = Math.floor(this.clientWidth * (this.allIndex + 1) * -1); // 计算偏移量
           }
           $container.style.transform = `translateX(${o}px)`;
+          this.#tranlateX = o;
         },
         { once: true }
       );
@@ -398,27 +429,81 @@ export default class Carousel extends BaseComponent {
     }
   }
 
-  #handleMoveStart = (x: number) => {
-    this.#startX = x;
-    this.#currentX = x;
+  #restoreTranslate = () => {
+    const $container = $one(".container", this.root) as HTMLElement;
+    $container.style.transition = "transform 0.3s";
+    requestAnimationFrame(() => {
+      $container.style.transform = `translateX(${this.#tranlateX}px)`;
+    });
+    $container.addEventListener(
+      "transitionend",
+      () => {
+        $container.style.transition = "";
+      },
+      { once: true }
+    );
+  };
+
+  #handlePointerDown = (e: PointerEvent) => {
+    this.#startX = e.clientX;
     this.#isDragging = true;
     this.#startTime = Date.now();
+    this.#timer.stop();
   };
 
-  #handleMove = (x: number) => {
+  #handlePointerMove = (e: PointerEvent) => {
     if (!this.#isDragging) return;
-    this.#currentX = x;
-    const deltaX = x - this.#startX;
-    console.log(deltaX);
+    if (this.#movingT) {
+      cancelAnimationFrame(this.#movingT);
+    }
+    this.#movingT = requestAnimationFrame(() => {
+      const deltaX = Math.floor(e.clientX - this.#startX);
+      const $container = $one(".container", this.root) as HTMLElement;
+      const offset = this.#tranlateX + deltaX;
+      $container.style.transform = `translateX(${offset}px)`;
+    });
+    e.preventDefault();
   };
 
-  #handleTouchStart = (e: TouchEvent) => {
-    this.#handleMoveStart(e.touches[0].clientX);
+  #handlePointerUp = (e: PointerEvent) => {
+    if (!this.#isDragging) return;
+    const duration = Date.now() - this.#startTime;
+    const deltaX = e.clientX - this.#startX;
+    this.#isDragging = false;
+    if (deltaX === 0) return;
+    let page = "cancel";
+    // 快速滚动
+    if (duration <= 200) {
+      if (deltaX >= 20) {
+        page = "prev";
+      } else if (deltaX <= -20) {
+        page = "next";
+      }
+    } else {
+      // 滑动慢速
+      if (deltaX >= this.clientWidth / 2) {
+        page = "prev";
+      } else if (deltaX <= -this.clientWidth / 2) {
+        page = "next";
+      }
+    }
+
+    if (page === "cancel") {
+      this.#restoreTranslate();
+    } else {
+      this.#togglePage(page);
+    }
+    if (this.autoplay) {
+      this.#timer.start();
+    }
   };
 
-  #handleTouchMove = (e: TouchEvent) => {
-    this.#handleMove(e.touches[0].clientX);
+  #handlePointerCancel = () => {
+    if (!this.#isDragging) return;
+    this.#isDragging = false;
+    this.#restoreTranslate();
+    if (this.autoplay) {
+      this.#timer.start();
+    }
   };
-
-  #handleTouchEnd = () => {};
 }

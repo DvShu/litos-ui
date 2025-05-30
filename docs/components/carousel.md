@@ -20,7 +20,9 @@ regist([Carousel, CarouselItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-carousel loop arrows="always">
-    <l-carousel-item class="carousel-item carousel1">1</l-carousel-item>
+    <l-carousel-item class="carousel-item carousel1">
+      <div style="width:100%;height:100%">1</div>
+    </l-carousel-item>
     <l-carousel-item class="carousel-item carousel2">2</l-carousel-item>
     <l-carousel-item class="carousel-item carousel3">3</l-carousel-item>
     <l-carousel-item class="carousel-item carousel4">4</l-carousel-item>
