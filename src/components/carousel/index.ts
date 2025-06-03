@@ -8,34 +8,12 @@ import {
   $,
   on,
   off,
-  shouldEventNext as s,
+  shouldEventNext,
 } from "ph-utils/dom";
 import { debounce } from "ph-utils/web";
 import { parseAttrValue } from "../utils";
 import AutoPlayTimer from "./timer";
 import type { AutoPlayTimerT } from "./timer";
-
-function shouldEventNext(
-  e: Event,
-  eventFlag: string,
-  endRoot?: HTMLElement | ShadowRoot
-): [boolean, string, HTMLElement] {
-  let target = e.target as HTMLElement;
-  let flag = "";
-  do {
-    if ((endRoot && endRoot.isSameNode(target)) || target.tagName === "BODY") {
-      break;
-    }
-    if (target.getAttribute) {
-      flag = target.getAttribute(eventFlag) || "";
-    }
-    if (flag === "") {
-      target = target.parentNode as HTMLElement;
-    }
-    if (!target) break;
-  } while (flag === "");
-  return [flag !== "__stop__" && flag !== "", flag, target];
-}
 
 export default class Carousel extends BaseComponent {
   public static baseName = "carousel";
@@ -44,7 +22,7 @@ export default class Carousel extends BaseComponent {
   public currentIndex = 0;
   allIndex = -1;
   #tranlateX = 0; // 当前偏移量
-  loop = false;
+  loop = true;
   observer?: MutationObserver;
   autoplay = false;
   #timer: AutoPlayTimerT = undefined as any;
@@ -53,6 +31,8 @@ export default class Carousel extends BaseComponent {
   #isDragging = false;
   #startTime = 0;
   #movingT = 0;
+  // 节点引用
+  #container!: HTMLElement;
 
   static get observedAttributes() {
     return ["arrows", "loop", "current-index", "autoplay"];
@@ -79,9 +59,7 @@ export default class Carousel extends BaseComponent {
       case "current-index":
         const newIndex = parseAttrValue(newValue, 0);
         if (newIndex !== this.currentIndex) {
-          this.#toggleContent(
-            this.loop ? this.currentIndex + 1 : this.currentIndex
-          );
+          this.#toggleContent(this.loop ? newIndex + 1 : newIndex);
         }
         break;
       case "autoplay":
@@ -126,17 +104,25 @@ export default class Carousel extends BaseComponent {
       this.#timer.start();
     }
     // 监听手势事件
-    on(this, "pointerdown", this.#handlePointerDown as any);
-    on(this, "pointerup", this.#handlePointerUp as any);
-    on(this, "pointermove", this.#handlePointerMove as any);
-    on(this, "pointercancel", this.#handlePointerCancel as any);
-    on(this, "pointerleave", this.#handlePointerCancel as any);
+    this.#container = $one(".container", this.root) as HTMLElement;
+    on(this.#container, "pointerdown", this.#handlePointerDown as any);
+    on(this.#container, "pointerup", this.#handlePointerUp as any);
+    on(this.#container, "pointermove", this.#handlePointerMove as any);
+    on(this.#container, "pointercancel", this.#handlePointerCancel as any);
+    on(this.#container, "pointerleave", this.#handlePointerCancel as any);
   }
 
   beforeDestroy(): void {
     off(this, "mouseenter", this.#handleContainerMouseEnter);
     off(this, "mouseleave", this.#handleContainerMouseLeave);
     off(this.root, "click", this.#handleNavigate); // 移除容器的点击事件监听器 (事件代理)
+    // 移除事件监听
+    off(this.#container, "pointerdown", this.#handlePointerDown as any);
+    off(this.#container, "pointerup", this.#handlePointerUp as any);
+    off(this.#container, "pointermove", this.#handlePointerMove as any);
+    off(this.#container, "pointercancel", this.#handlePointerCancel as any);
+    off(this.#container, "pointerleave", this.#handlePointerCancel as any);
+    this.#container = undefined as any;
     this.#stopObserver(true);
     this.#timer.stop();
     this.#timer = undefined as any;
@@ -256,19 +242,18 @@ export default class Carousel extends BaseComponent {
     }
     this.#cloneLoopElem(); // 处理循环节点
     // 计算容器宽度
-    const $container = $one(".container", this.root) as HTMLElement;
-    if ($container) {
+    if (this.#container) {
       if (this.allIndex > 0) {
         const containerWidth = Math.floor(
           this.clientWidth * (this.allIndex + 3)
         );
-        $container.style.minWidth = `${containerWidth}px`;
+        this.#container.style.minWidth = `${containerWidth}px`;
       } else {
-        $container.style.minWidth = "900%";
+        this.#container.style.minWidth = "900%";
       }
       const offsetIndex = this.loop ? this.currentIndex + 1 : this.currentIndex;
       const offset = Math.floor(offsetIndex * this.clientWidth * -1);
-      $container.style.transform = `translateX(${offset}px)`;
+      this.#container.style.transform = `translateX(${offset}px)`;
       this.#tranlateX = offset;
     }
     // 切换分页器
@@ -320,11 +305,17 @@ export default class Carousel extends BaseComponent {
       } else {
         nextIndex = start - 1;
       }
+      if (nextIndex < 0) {
+        nextIndex = 0;
+      }
     } else if (page === "next") {
       if (this.loop && this.currentIndex === this.allIndex) {
         nextIndex = this.allIndex + 2;
       } else {
         nextIndex = start + 1;
+      }
+      if (!this.loop && nextIndex > this.allIndex) {
+        nextIndex = this.allIndex;
       }
     } else {
       const pageNum = Number(page);
@@ -335,14 +326,16 @@ export default class Carousel extends BaseComponent {
     if (nextIndex !== start) {
       this.#toggleContent(nextIndex);
     }
+    requestAnimationFrame(() => {
+      this.#startTimer();
+    });
   }
 
   #toggleContent(newIndex: number) {
-    const $container = $one(".container", this.root) as HTMLElement;
-    if ($container) {
+    if (this.#container) {
       const offset = Math.floor(newIndex * this.clientWidth * -1);
-      const oldTransform = $container.style.transform;
-      const anim = $container.animate(
+      const oldTransform = this.#container.style.transform;
+      const anim = this.#container.animate(
         [{ transform: oldTransform }, { transform: `translateX(${offset}px)` }],
         { duration: 300 }
       );
@@ -355,15 +348,15 @@ export default class Carousel extends BaseComponent {
           } else if (this.loop && newIndex === 0) {
             o = Math.floor(this.clientWidth * (this.allIndex + 1) * -1); // 计算偏移量
           }
-          $container.style.transform = `translateX(${o}px)`;
+          this.#container.style.transform = `translateX(${o}px)`;
           this.#tranlateX = o;
         },
         { once: true }
       );
     }
-    if (this.loop && newIndex === this.allIndex + 2) {
+    if (this.loop && this.allIndex > 0 && newIndex === this.allIndex + 2) {
       this.currentIndex = 0;
-    } else if (this.loop && newIndex === 0) {
+    } else if (this.loop && this.allIndex > 0 && newIndex === 0) {
       this.currentIndex = this.allIndex;
     } else {
       this.currentIndex = this.loop ? newIndex - 1 : newIndex;
@@ -493,6 +486,10 @@ export default class Carousel extends BaseComponent {
     } else {
       this.#togglePage(page);
     }
+    this.#startTimer();
+  };
+
+  #startTimer = () => {
     if (this.autoplay) {
       this.#timer.start();
     }
@@ -502,8 +499,6 @@ export default class Carousel extends BaseComponent {
     if (!this.#isDragging) return;
     this.#isDragging = false;
     this.#restoreTranslate();
-    if (this.autoplay) {
-      this.#timer.start();
-    }
+    this.#startTimer();
   };
 }

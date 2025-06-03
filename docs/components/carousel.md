@@ -14,26 +14,37 @@ regist([Carousel, CarouselItem]);
 
 ### 基础用法
 
-使用
+结合使用 `l-carousel` 和 `l-carousel-item` 标签就能实现轮播。把想要展示的内容放在 `l-carousel-item` 标签内。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-carousel loop arrows="always">
-    <l-carousel-item class="carousel-item carousel1">
-      <div style="width:100%;height:100%">1</div>
-    </l-carousel-item>
+  <l-carousel loop="off" autoplay>
+    <l-carousel-item class="carousel-item carousel1">1</l-carousel-item>
     <l-carousel-item class="carousel-item carousel2">2</l-carousel-item>
     <l-carousel-item class="carousel-item carousel3">3</l-carousel-item>
     <l-carousel-item class="carousel-item carousel4">4</l-carousel-item>
     <l-carousel-item class="carousel-item carousel5">5</l-carousel-item>
   </l-carousel>
 </textarea>
-<div class="source">
+</l-code-preview>
+</ClientOnly>
+
+### 箭头切换
+
+`arrows` 属性定义了切换箭头的显示时机。默认情况下，切换箭头只有在鼠标 `hover` 到组件上时才会显示。 若将 `arrows` 设置为 `always`，则会一直显示；设置为 `never`，则会一直隐藏。
+
+<ClientOnly>
+<l-code-preview>
 <textarea lang="html">
-  <l-carousel></l-carousel>
+  <l-carousel arrows="always">
+    <l-carousel-item class="carousel-item carousel1">1</l-carousel-item>
+    <l-carousel-item class="carousel-item carousel2">2</l-carousel-item>
+    <l-carousel-item class="carousel-item carousel3">3</l-carousel-item>
+    <l-carousel-item class="carousel-item carousel4">4</l-carousel-item>
+    <l-carousel-item class="carousel-item carousel5">5</l-carousel-item>
+  </l-carousel>
 </textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -44,32 +55,8 @@ regist([Carousel, CarouselItem]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `arrows` | 切换箭头的显示时机 | `hover`\|`always`\|`never` | `hover` |
+| `current-index` | 激活的幻灯片的索引，从 `0` 开始 | `number` | `0` |
+| `loop` | 是否开启循环显示 | `on`\|`off` | `on` |
+| `autoplay` | 是否自动切换 | `boolean` | `false` |
 
-### Carousel Slots
-
-<!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
-
-### Carousel Events
-
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
-| --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-
-### Carousel Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `x` | x | `(x: number): string` |
-
-### Carousel CSS Variables
-
-<!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-| `--l` | x | `#fff` |
