@@ -451,9 +451,12 @@ export default class Carousel extends BaseComponent {
     }
     this.#movingT = requestAnimationFrame(() => {
       const deltaX = Math.floor(e.clientX - this.#startX);
-      const $container = $one(".container", this.root) as HTMLElement;
+      if (!this.loop) {
+        if (deltaX < 0 && this.currentIndex === this.allIndex) return;
+        if (deltaX > 0 && this.currentIndex === 0) return;
+      }
       const offset = this.#tranlateX + deltaX;
-      $container.style.transform = `translateX(${offset}px)`;
+      this.#container.style.transform = `translateX(${offset}px)`;
     });
     e.preventDefault();
   };
