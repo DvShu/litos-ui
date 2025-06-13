@@ -13,7 +13,7 @@ export default class Form extends BaseComponent {
   /** 是否行内表单 */
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";
-  public labelWidth?: string;
+  public labelWidth?: string = "80px";
   public disabled: boolean = false;
   public sharedAttrs: string[] = ["disabled", "id", "innerBlock"];
   public validator: Validator;
@@ -52,7 +52,7 @@ export default class Form extends BaseComponent {
   connectedCallback(): void {
     initAttr(this);
     //@ts-ignore
-    if (this.id == null) {
+    if (!this.id) {
       this.id = `l-f${random(3)}-${random(6)}`;
     }
     this.loadStyleText([css]);

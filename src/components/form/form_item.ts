@@ -1,4 +1,4 @@
-import { formatClass, $one, addClass, removeClass } from "ph-utils/dom";
+import { formatClass, $one, addClass, removeClass, $$ } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import { emit, clear, add, remove } from "../utils/event";
@@ -100,24 +100,32 @@ export default class FormItem extends BaseComponent {
   }
 
   public render() {
-    const classObj = [
-      `l-form-item`,
-      this.required ? "is-required" : undefined,
-      this.error ? "is-error" : undefined,
-      `l-form-item--${this.labelPosition}`,
-    ];
-    const labelStr =
-      this.label != null
-        ? `<label class="l-form-item__label">${this.label}</label>`
-        : "";
-    const errorStr = this.error
-      ? `<div class="l-form-item__error">${this.error}</div>`
-      : "";
-    return [
-      `<div class="${formatClass(classObj)}">${labelStr}`,
-      '<div class="l-form-item__content">',
-      `<slot></slot>${errorStr}</div></div>`,
-    ].join("");
+    if (this.required) {
+      this.classList.add("is-required");
+    }
+    if (this.error) {
+      this.classList.add("is-error");
+    }
+    this.classList.add(`l-form-item--${this.labelPosition}`);
+    const fragment = document.createDocumentFragment();
+    if (this.label != null) {
+      fragment.appendChild(
+        $$("label", {
+          class: "l-form-item__label",
+          textContent: this.label,
+        })
+      );
+    }
+    const $content = $$("div", { class: "l-form-item__content" });
+    const $slot = $$("slot");
+    $content.appendChild($slot);
+    if (this.error) {
+      $content.appendChild(
+        $$("div", { class: "l-form-item__error", textContent: this.error })
+      );
+    }
+    fragment.appendChild($content);
+    return fragment;
   }
 
   private _validateChange = (
@@ -151,13 +159,10 @@ export default class FormItem extends BaseComponent {
         }
       }
     }
-    const $root = $one(".l-form-item", this.root);
-    if ($root) {
-      if (this.error) {
-        addClass($root, "is-error");
-      } else {
-        removeClass($root, "is-error");
-      }
+    if (this.error) {
+      addClass(this, "is-error");
+    } else {
+      removeClass(this, "is-error");
     }
   }
 
@@ -169,10 +174,7 @@ export default class FormItem extends BaseComponent {
         $label = document.createElement("div");
         $label.className = "l-form-item__label";
         $label.textContent = this.label;
-        const $main = $one(".l-form-item", this.root);
-        if ($main) {
-          $main.appendChild($label);
-        }
+        this.root.prepend($label);
       }
     } else {
       if (this.label != null) {

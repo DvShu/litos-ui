@@ -111,7 +111,7 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form inline inner-block>
+  <l-form inline inner-block label-width="auto">
     <l-form-item label="用户名">
       <l-input placeholder="请输入用户名" value="张三"></l-input>
     </l-form-item>
@@ -141,13 +141,13 @@ regist(Form);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form id="positionForm" inner-block>
-    <l-form-item label="LabelPositin">
-      <l-radio value="right" type="button" id="positionRadio">
-        <span radio-value="left">Left</span>
-        <span radio-value="right">Right</span>
-        <span radio-value="top">Top</span>
-      </l-radio>
+  <l-form id="positionForm" inner-block label-width="100px">
+    <l-form-item label="LabelPosition">
+      <l-radio-group value="right" id="positionRadio">
+        <l-radio label="Left" value="left" button></l-radio>
+        <l-radio label="Right" value="right" button></l-radio>
+        <l-radio label="Top" value="top" button></l-radio>
+      </l-radio-group>
     </l-form-item>
     <l-form-item label="用户名">
       <l-input placeholder="请输入用户名" value="张三"></l-input>
@@ -186,7 +186,7 @@ regist(Form);
 | --- | --- | --- | --- |
 | `inline` | 行内表单, 每一行放置尽量多的项 | `boolean` | `false` |
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
-| `label-width` | 表单域标签的宽度 | `string` | `auto` |
+| `label-width` | 表单域标签的宽度, 可以传 `auto` | `string` | `80px` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
 | `novalidate` | 是否在提交时禁用表单验证 | `boolean` | `false` |

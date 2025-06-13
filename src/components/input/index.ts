@@ -7,6 +7,7 @@ import {
   toggleClass,
   $$,
   $,
+  removeClass,
 } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
@@ -265,7 +266,11 @@ export default class Input extends FormInner {
   }
 
   private _updateError() {
-    toggleClass(this, "is-error");
+    if (this.error) {
+      addClass(this, "is-error");
+    } else {
+      removeClass(this, "is-error");
+    }
   }
 
   private _validateChange = (
