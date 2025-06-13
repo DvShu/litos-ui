@@ -1,6 +1,7 @@
 import FormInner from "../form/form_inner";
 import { on, off, $$ } from "ph-utils/dom";
 import { initAttr } from "../utils";
+//@ts-ignore
 import css from "./index.less?inline";
 
 export default class CheckGroup extends FormInner {

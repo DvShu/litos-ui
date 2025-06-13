@@ -1,4 +1,5 @@
 import BaseComponent from "../base";
+//@ts-ignore
 import css from "./index.less?inline";
 import {
   getAttr,

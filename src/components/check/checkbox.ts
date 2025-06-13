@@ -1,5 +1,7 @@
 import Check from "./check";
+//@ts-ignore
 import css from "./check.less?inline";
+//@ts-ignore
 import checkbox_css from "./checkbox.less?inline";
 
 export default class Checkbox extends Check {

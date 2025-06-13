@@ -1,5 +1,7 @@
 import Check from "./check";
+//@ts-ignore
 import css from "./check.less?inline";
+//@ts-ignore
 import radio_css from "./radio.less?inline";
 import { $one } from "ph-utils/dom";
 

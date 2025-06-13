@@ -1,4 +1,4 @@
-import { formatClass, $one, addClass, removeClass, $$ } from "ph-utils/dom";
+import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import { emit, clear, add, remove } from "../utils/event";

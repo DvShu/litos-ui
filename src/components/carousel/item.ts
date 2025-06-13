@@ -1,5 +1,6 @@
 import BaseComponent from "../base";
 import { $$ } from "ph-utils/dom";
+//@ts-ignore
 import css from "./item.less?inline";
 
 export default class Carousel extends BaseComponent {

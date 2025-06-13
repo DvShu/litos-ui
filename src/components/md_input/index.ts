@@ -43,7 +43,7 @@ export default class MdInput extends FormInner {
     const $inner = $$("input", {
       class: "l-md-input__inner",
       type: this.htmlType,
-      name: this.name,
+      name: this.getName(),
       inputmode: this.inputmode,
       id: innerId,
     });
