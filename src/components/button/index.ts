@@ -22,7 +22,23 @@ export default class Button extends BaseComponent {
   public htmlType: "submit" | "reset" | "button" = "button";
   /** 加载中文本 */
   loadingText = "";
-  disabled = false;
+  _disabled = false;
+
+  get disabled() {
+    return this._disabled;
+  }
+
+  set disabled(value: boolean) {
+    this.setDisabled(value);
+  }
+
+  setDisabled(value: boolean) {
+    this._disabled = value;
+    const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
+    if ($btn) {
+      $btn.disabled = value;
+    }
+  }
 
   // 初始化属性观察器
   static get observedAttributes() {
@@ -49,7 +65,8 @@ export default class Button extends BaseComponent {
         const ghost = this.getAttr("ghost", false);
         $btn.style.cssText = this.applyColor(newValue, text, ghost);
       } else if (name === "disabled") {
-        $btn.disabled = parseAttrValue(newValue, false, "disabled");
+        const disabled = parseAttrValue(newValue, false, "disabled");
+        this.setDisabled(disabled);
       }
     }
   }
@@ -88,7 +105,7 @@ export default class Button extends BaseComponent {
       isLoading ? "l-btn-loading" : "",
     ];
     $btn.className = formatClass(classes);
-    $btn.disabled = this.getAttr("disabled", false) || isLoading;
+    $btn.disabled = this.disabled || isLoading;
     $btn.type = this.getAttr("html-type", "button") as "button";
     const btnStyle = this.applyColor(this.getAttr("color"), text, ghost);
     if (btnStyle) {
