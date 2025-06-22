@@ -2,36 +2,15 @@
   --l-tabbar-hover-color: var(--l-primary-color-light1, #9254de);
   --l-tabbar-active-color: var(--l-primary-color, #722ed1);
   --l-tabbar-item-gap: 0;
-  --l-tabbar-height: 38px;
+  --l-tabbar-height: 44px;
   position: relative;
   overflow: hidden;
   height: var(--l-tabbar-height);
   background-color: #ffffff;
-  display: block;
-}
-
-.l-tabbar-wrapper {
   display: flex;
   flex-wrap: nowrap;
-  height: 100%;
   align-items: stretch;
   gap: var(--l-tabbar-item-gap);
-}
-
-.l-tabbar-item {
-  color: #666;
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.l-tabbar-item:hover {
-  color: var(--l-tabbar-hover-color);
-}
-.l-tabbar-item.active {
-  color: var(--l-tabbar-active-color);
 }
 
 .l-tabbar-item-icon {

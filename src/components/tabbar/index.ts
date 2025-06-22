@@ -14,6 +14,7 @@ import {
   formatStyle,
   formatClass,
   shouldEventNext,
+  $$,
 } from "ph-utils/dom";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -82,16 +83,16 @@ export default class Tabbar extends BaseComponent {
       const value = parseAttrValue(newValue, undefined);
       this[name as "gap"] = value;
       const $wrapper = $one(".l-tabbar-wrapper", this.root);
-      if ($wrapper) {
-        $wrapper.style.cssText = this.#getWrapperStyle();
-      }
-      if (name === "gap") {
-        if (!isBlank(this.gap) && !(this.gap as string).startsWith("0")) {
-          addClass(this, `l-tabbar-gap`);
-        } else {
-          removeClass(this, `l-tabbar-gap`);
-        }
-      }
+      // if ($wrapper) {
+      //   $wrapper.style.cssText = this.#getWrapperStyle();
+      // }
+      // if (name === "gap") {
+      //   if (!isBlank(this.gap) && !(this.gap as string).startsWith("0")) {
+      //     addClass(this, `l-tabbar-gap`);
+      //   } else {
+      //     removeClass(this, `l-tabbar-gap`);
+      //   }
+      // }
     }
   }
 
@@ -101,44 +102,8 @@ export default class Tabbar extends BaseComponent {
   }
   render() {
     const $root = document.createDocumentFragment();
-    const $wrapper = document.createElement("div");
-    $wrapper.className = "l-tabbar-wrapper";
-    $wrapper.style.cssText = this.#getWrapperStyle();
-    $wrapper.setAttribute("part", "default");
-    const customeContent = this.getAttr("custom-content", false);
-    if (customeContent) {
-      const $slot = document.createElement("slot");
-      $wrapper.appendChild($slot);
-    } else {
-      const $items = $("[l-name]", this) as HTMLElement[];
-      if ($items.length > 0) {
-        iterate($items, ($item) => {
-          const name = $item.getAttribute("l-name");
-          if (name) {
-            const $clone = $item.cloneNode(true) as HTMLElement;
-            $clone.classList.add("l-tabbar-item");
-            $clone.setAttribute("part", "item");
-            if (name === this.name) {
-              $clone.classList.add("active");
-            }
-            const $icon = $one("[l-icon]", $clone);
-            const $default = $(":not([l-icon])", $clone);
-            if ($icon) {
-              const $iconWrapper = create("div", {
-                class: [
-                  "l-tabbar-item-icon",
-                  $default.length === 0 ? "only" : undefined,
-                ],
-              });
-              $iconWrapper.appendChild($icon.cloneNode(true));
-              $icon.replaceWith($iconWrapper);
-            }
-            $wrapper.appendChild($clone);
-          }
-        });
-      }
-    }
-    $root.appendChild($wrapper);
+    this.#setStyle();
+    $root.appendChild($$("slot"));
     if (this.type === "card") {
       // card border
       const $border = create("div", { class: "l-tabbar-card-border" });
@@ -242,20 +207,18 @@ export default class Tabbar extends BaseComponent {
     });
   }
 
-  #getWrapperStyle() {
-    const res: { [index: string]: string } = {};
+  #setStyle() {
     const justify = this.getAttr("justify-content");
     if (!isBlank(justify)) {
-      res["justify-content"] = justify;
+      this.style.setProperty("justify-content", justify);
     }
     if (!isBlank(this.gap)) {
       let gap = this.gap as string;
       if (isNumeric(gap, { isPositive: true })) {
         gap = `${gap}px`;
       }
-      res["--l-tabbar-item-gap"] = gap;
+      this.style.setProperty("--l-tabbar-item-gap", gap);
     }
-    return formatStyle(res);
   }
 
   #createItems(items: TabbarItem[]) {
