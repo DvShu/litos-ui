@@ -25,6 +25,6 @@ export default class TabbarItem extends BaseComponent {
   }
 
   render() {
-    return `<div><slot></slot></div>`;
+    return `<slot></slot><slot></slot>`;
   }
 }

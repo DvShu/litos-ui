@@ -9,9 +9,9 @@
 ## 引用
 
 ```js
-import { Tabbar, regist } from "litos-ui";
+import { Tabbar, TabbarItem, regist } from "litos-ui";
 
-regist(Tabbar);
+regist([Tabbar, TabbarItem]);
 ```
 
 ## 演示
@@ -24,26 +24,26 @@ regist(Tabbar);
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar style="border: 1px solid #dedede" name="Search">
-    <div l-name="Reduction">
+    <l-tabbar-item name="Reduction">
       <l-reduction-icon l-icon></l-reduction-icon>
-      <span>Reduction</span>
-    </div>
-    <div l-name="RefreshLieft">
+      <span>R</span>
+    </l-tabbar-item>
+    <l-tabbar-item name="RefreshLieft">
       <l-refresh-left-icon l-icon></l-refresh-left-icon>
       <span>RefreshLieft</span>
-    </div>
-    <div l-name="Search">
+    </l-tabbar-item>
+    <l-tabbar-item name="Search">
       <l-search-icon l-icon></l-search-icon>
       <span>Search</span>
-    </div>
-    <div l-name="RefreshRight">
+    </l-tabbar-item>
+    <l-tabbar-item name="RefreshRight">
       <l-refresh-right-icon l-icon></l-refresh-right-icon>
       <span>RefreshRight</span>
-    </div>
-    <div l-name="Sort">
+    </l-tabbar-item>
+    <l-tabbar-item name="Sort">
       <l-sort-icon l-icon></l-sort-icon>
       <span>Sort</span>
-    </div>
+    </l-tabbar-item>
   </l-tabbar>
 </textarea>
 </l-code-preview>
