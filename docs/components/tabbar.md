@@ -24,24 +24,24 @@ regist([Tabbar, TabbarItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar style="border: 1px solid #dedede" name="Search">
-    <l-tabbar-item name="Reduction">
-      <l-reduction-icon l-icon></l-reduction-icon>
-      <span>R</span>
+    <l-tabbar-item name="Reduction" icon>
+      <l-reduction-icon slot="icon"></l-reduction-icon>
+      <span>Reduction</span>
     </l-tabbar-item>
-    <l-tabbar-item name="RefreshLieft">
-      <l-refresh-left-icon l-icon></l-refresh-left-icon>
+    <l-tabbar-item name="RefreshLieft" icon>
+      <l-refresh-left-icon slot="icon"></l-refresh-left-icon>
       <span>RefreshLieft</span>
     </l-tabbar-item>
-    <l-tabbar-item name="Search">
-      <l-search-icon l-icon></l-search-icon>
+    <l-tabbar-item name="Search" icon>
+      <l-search-icon slot="icon"></l-search-icon>
       <span>Search</span>
     </l-tabbar-item>
-    <l-tabbar-item name="RefreshRight">
-      <l-refresh-right-icon l-icon></l-refresh-right-icon>
+    <l-tabbar-item name="RefreshRight" icon>
+      <l-refresh-right-icon slot="icon"></l-refresh-right-icon>
       <span>RefreshRight</span>
     </l-tabbar-item>
-    <l-tabbar-item name="Sort">
-      <l-sort-icon l-icon></l-sort-icon>
+    <l-tabbar-item name="Sort" icon>
+      <l-sort-icon slot="icon"></l-sort-icon>
       <span>Sort</span>
     </l-tabbar-item>
   </l-tabbar>
