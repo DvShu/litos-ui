@@ -154,6 +154,10 @@ export default defineConfig({
             text: "Carousel 轮播",
             link: "/components/carousel",
           },
+          {
+            text: "Qrcode 二维码",
+            link: "/components/qrcode",
+          },
           /* TemplateItem */
         ],
       },
@@ -194,6 +198,16 @@ export default defineConfig({
           {
             text: "Menu 菜单",
             link: "/components/menu",
+          },
+        ],
+      },
+      {
+        text: "业务组件",
+        collapsed: true,
+        items: [
+          {
+            text: "DescriptionPanel 简介面板",
+            link: "/components/description_panel",
           },
         ],
       },

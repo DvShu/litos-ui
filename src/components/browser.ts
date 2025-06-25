@@ -39,7 +39,11 @@ import Modal from "./modal";
 import DatePicker from "./date_picker";
 import Menu from "./menu";
 import Carousel from "./carousel";
+import Qrcode from "./qrcode";
+import DescriptionPanel from "./description_panel";
 //Web Components Import
+regist(DescriptionPanel)
+regist(Qrcode)
 regist(Carousel)
 regist(Menu);
 regist(DatePicker);
@@ -118,3 +122,5 @@ import "./date_picker/index.less";
 import "./menu/index.less";
 import "./docs:dev/index.less";
 import "./carousel/index.less";
+import "./qrcode/index.less";
+import "./description_panel/index.less";

@@ -7,7 +7,7 @@ import { styleText } from "node:util";
 function sourceTemplate(name, componentName, _fileName) {
   const res = [
     'import BaseComponent from "../base"',
-    'import { initAttr } from "../utils";',
+    "//@ts-ignore",
     'import css from "./index.less?inline"\r\n',
     `export default class ${name} extends BaseComponent {`,
     `  public static baseName = "${componentName}";\r\n`,
