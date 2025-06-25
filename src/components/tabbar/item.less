@@ -8,6 +8,7 @@
   line-height: 1;
   flex-direction: column;
   flex-grow: var(--l-tabbar-item-grow, 0);
+  box-sizing: border-box;
 }
 :host(:hover) {
   color: var(--l-tabbar-hover-color);
@@ -25,4 +26,25 @@
 .icon-wrapper.only {
   font-size: 24px;
   margin-bottom: 0;
+}
+/* card */
+:host(.l-item--card) {
+  padding: 0 15px;
+  background: #f5f7fa;
+  border: 1px solid #f0f0f0;
+}
+
+:host(.l-item--card:first-child) {
+  border-top-left-radius: var(--l-tabbar-card-border-radius);
+}
+:host(.l-item--card:last-child) {
+  border-top-right-radius: var(--l-tabbar-card-border-radius);
+}
+:host(.l-item--card.active) {
+  background: #fff;
+}
+
+:host(.l-item--gap) {
+  border-top-left-radius: var(--l-tabbar-card-border-radius);
+  border-top-right-radius: var(--l-tabbar-card-border-radius);
 }

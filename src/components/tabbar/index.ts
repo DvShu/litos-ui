@@ -19,12 +19,6 @@ import {
 //@ts-ignore
 import css from "./index.less?inline";
 
-type TabbarItem = {
-  name: string;
-  text?: string | (() => string | HTMLElement);
-  icon?: string | (() => string | HTMLElement);
-};
-
 export default class Tabbar extends BaseComponent {
   public static baseName = "tabbar";
   /**
@@ -37,18 +31,12 @@ export default class Tabbar extends BaseComponent {
   public name?: string;
   public gap?: string;
   private $line?: HTMLElement;
-  constructor() {
-    super();
-    initAttr(this);
-  }
+
   connectedCallback(): void {
     this.loadStyleText(css);
     addClass(this, `l-tabbar--${this.type}`);
-    if (!isBlank(this.gap) && !(this.gap as string).startsWith("0")) {
-      addClass(this, `l-tabbar-gap`);
-    }
+    this.#setStyle();
     super.connectedCallback();
-    this._init();
   }
 
   static get observedAttributes(): string[] | null | undefined {
@@ -82,27 +70,13 @@ export default class Tabbar extends BaseComponent {
     } else {
       const value = parseAttrValue(newValue, undefined);
       this[name as "gap"] = value;
-      const $wrapper = $one(".l-tabbar-wrapper", this.root);
-      // if ($wrapper) {
-      //   $wrapper.style.cssText = this.#getWrapperStyle();
-      // }
-      // if (name === "gap") {
-      //   if (!isBlank(this.gap) && !(this.gap as string).startsWith("0")) {
-      //     addClass(this, `l-tabbar-gap`);
-      //   } else {
-      //     removeClass(this, `l-tabbar-gap`);
-      //   }
-      // }
+      this.#setStyle();
     }
   }
 
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this._destroy();
-  }
   render() {
     const $root = document.createDocumentFragment();
-    this.#setStyle();
+
     $root.appendChild($$("slot"));
     if (this.type === "card") {
       // card border
@@ -112,32 +86,7 @@ export default class Tabbar extends BaseComponent {
     return $root as any;
   }
 
-  /**
-   * 设置选项卡栏的项目列表。
-   * @param items - 选项卡栏项目的数组。
-   * 该方法首先清空选项卡栏的包装器元素，然后根据传入的项目数组创建并追加新的选项卡项目。
-   */
-  public setItems(items: TabbarItem[]) {
-    const $wrapper = $one(".l-tabbar-wrapper", this.root);
-    if ($wrapper) {
-      $wrapper.innerHTML = "";
-      $wrapper.appendChild(this.#createItems(items));
-    }
-  }
-
-  /**
-   * 向标签栏添加项目。
-   * @param items 要添加的标签栏项目数组。
-   * @returns 无返回值。
-   */
-  public addItems(items: TabbarItem[]) {
-    const $wrapper = $one(".l-tabbar-wrapper", this.root);
-    if ($wrapper) {
-      $wrapper.appendChild(this.#createItems(items));
-    }
-  }
-
-  private _init() {
+  afterInit() {
     on(this.root, "click", this._handleClick);
     // 避免在初始，样式未加载就获取位置
     setTimeout(() => {
@@ -145,15 +94,16 @@ export default class Tabbar extends BaseComponent {
     }, 300);
   }
 
-  private _destroy() {
+  beforeDestroy() {
     off(this.root, "click", this._handleClick);
     this.$line = undefined;
   }
 
   private _handleClick = (e: Event) => {
-    const [shouldNext, name] = shouldEventNext(e, "l-name", this.root);
+    const [shouldNext, name] = shouldEventNext(e, "name", this);
     if (shouldNext && name !== this.name) {
       this.name = name as string;
+      console.log(name);
       this.dispatchEvent(
         new CustomEvent("change", {
           detail: {
@@ -167,13 +117,11 @@ export default class Tabbar extends BaseComponent {
   };
 
   private _updateActive() {
-    const custom = this.getAttr("custom-content", false);
-    const ctx = custom ? this : this.root;
-    const $active = $one(".active", ctx);
+    const $active = $one(".active", this);
     if ($active) {
       removeClass($active, "active");
     }
-    const $target = $one(`[l-name="${this.name}"]`, ctx);
+    const $target = $one(`[name="${this.name}"]`, this);
     if ($target) {
       addClass($target, "active");
     }
@@ -185,8 +133,7 @@ export default class Tabbar extends BaseComponent {
   private _updateLine() {
     queueMicrotask(() => {
       if (!this.name || this.type === "nav" || !this.rendered) return;
-      const custom = this.getAttr("custom-content", false);
-      const $curr = $one(".active", custom ? this : this.root) as HTMLElement;
+      const $curr = $one(".active", this) as HTMLElement;
       if (!$curr) return;
       const offsetLeft = $curr.offsetLeft;
       if (!this.$line) {
@@ -211,52 +158,19 @@ export default class Tabbar extends BaseComponent {
     const justify = this.getAttr("justify-content");
     if (!isBlank(justify)) {
       this.style.setProperty("justify-content", justify);
+    } else {
+      this.style.removeProperty("justify-content");
     }
     if (!isBlank(this.gap)) {
       let gap = this.gap as string;
       if (isNumeric(gap, { isPositive: true })) {
         gap = `${gap}px`;
       }
+      addClass(this, "l-tabbar-gap");
       this.style.setProperty("--l-tabbar-item-gap", gap);
+    } else {
+      this.style.removeProperty("--l-tabbar-item-gap");
+      removeClass(this, "l-tabbar-gap");
     }
-  }
-
-  #createItems(items: TabbarItem[]) {
-    const fragment = document.createDocumentFragment();
-    for (let i = 0, len = items.length; i < len; i++) {
-      const item = items[i];
-      const $item = create("div", {
-        class: formatClass([
-          "l-tabbar-item",
-          this.name === item.name ? "active" : undefined,
-        ]),
-        "l-name": item.name,
-        part: "item",
-      });
-      const iconRender = item.icon;
-      if (iconRender) {
-        const $iconWraper = create("div", { class: "l-tabbar-item-icon" });
-        let iconRendered =
-          typeof iconRender === "string" ? iconRender : iconRender();
-        if (typeof iconRendered === "string") {
-          $iconWraper.innerHTML = iconRendered;
-        } else {
-          $iconWraper.appendChild(iconRendered);
-        }
-        $item.appendChild($iconWraper);
-      }
-      const textRender = item.text;
-      if (textRender) {
-        let textRendered =
-          typeof textRender === "string" ? textRender : textRender();
-        if (typeof textRendered === "string") {
-          $item.appendChild(create(textRendered));
-        } else {
-          $item.appendChild(textRendered);
-        }
-      }
-      fragment.appendChild($item);
-    }
-    return fragment;
   }
 }

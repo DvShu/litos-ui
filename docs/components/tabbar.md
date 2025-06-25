@@ -18,7 +18,7 @@ regist([Tabbar, TabbarItem]);
 
 ### 导航栏模式
 
-将 `type` 设置为 `nav`[默认]; 通过 `l-name` 标记选项卡项，`l-icon` 标记为图标
+将 `type` 设置为 `nav`[默认]; 通过 `name` 标记选项卡项，`icon` 标记渲染图标; 然后通过 `slot="icon"` 来渲染图标
 
 <ClientOnly>
 <l-code-preview>
@@ -57,9 +57,9 @@ regist([Tabbar, TabbarItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar type="bar" name="2">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
 </textarea>
 </l-code-preview>
@@ -73,15 +73,15 @@ regist([Tabbar, TabbarItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar type="card" name="1">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="card" name="1" gap="5">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
 </textarea>
 </l-code-preview>
@@ -95,66 +95,29 @@ regist([Tabbar, TabbarItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar type="bar" name="1" justify-content="center">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="bar" name="1" justify-content="space-between">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="bar" name="1" justify-content="space-around">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="bar" name="1" justify-content="space-evenly">
-    <div l-name="1">选项1</div>
-    <div l-name="2">选项2</div>
-    <div l-name="3">选项3</div>
+    <l-tabbar-item name="1">选项1</l-tabbar-item>
+    <l-tabbar-item name="2">选项2</l-tabbar-item>
+    <l-tabbar-item name="3">选项3</l-tabbar-item>
   </l-tabbar>
 </textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 自定义内容
-
-通过设置 `custom-content` 属性可以自定义选项卡的内容。这样的话，选项卡每一项的样式完全可控。给每一项添加 `l-name` 属性。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-tabbar type="bar" name="1" custom-content class="custom-tabbar">
-    <div l-name="1" class="custom-tabbar-item">选项1</div>
-    <div l-name="2" class="custom-tabbar-item">选项2</div>
-    <div l-name="3" class="custom-tabbar-item">选项3</div>
-  </l-tabbar>
-</textarea>
-<div class="source">
-<textarea lang="html">
-  <l-tabbar type="bar" name="1" custom-content class="custom-tabbar">
-    <div l-name="1" class="custom-tabbar-item">选项1</div>
-    <div l-name="2" class="custom-tabbar-item">选项2</div>
-    <div l-name="3" class="custom-tabbar-item">选项3</div>
-  </l-tabbar>
-</textarea>
-<textarea lang="css">
-  .custom-tabbar {
-    --l-tabbar-line-color: #4998f4;
-    --l-tabbar-height: auto;
-  }
-  .custom-tabbar-item {
-    padding: 10px 0;
-  }
-  .custom-tabbar-item.active {
-    color: #4998f4;
-  }
-</textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -175,7 +138,7 @@ regist([Tabbar, TabbarItem]);
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容, 通过 `l-name` 标记选项卡项, `l-icon` 标记为图标 |
+| `default` | 只能为 `l-tabbar-item` 标签 |
 
 ### Tabbar Events
 
@@ -184,22 +147,14 @@ regist([Tabbar, TabbarItem]);
 | --- | --- | --- |
 | `change` | 选项卡切换时触发, `e.detail.name` 获取选中值 | `(e: Event)` |
 
-### Tabbar Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `setItems` | 设置选项卡栏的项目列表, 通过 `js` 渲染选项卡, 注意: *调用该函数会清空之前的渲染, 然后重新渲染* | `(items: TabbarItem[]): void` |
-| `addItems` | 向标签栏添加项目 | `(items: TabbarItem[]): void` |
-
 ### TabbarItem
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `name` | 选项卡项的名称， *必填* | `string` | - |
-| `icon` | 选项卡项的图标 | `string`、`() => string \| HTMLElement` | - |
-| `text` | 选项卡内容 | `string`、`() => string \| HTMLElement` | - |
+| `icon` | 是否渲染图标 | `off` | - |
+| `only-icon` | 是否仅渲染图标 | `off` | - |
 
 ### Tabbar CSS Variables
 

@@ -15,8 +15,16 @@ export default class TabbarItem extends BaseComponent {
   }
 
   connectedCallback(): void {
-    super.connectedCallback();
     this.loadStyleText(css);
+    console.log(this.parentElement);
+    const $parent = this.parentElement as any;
+    if ($parent.gap) {
+      addClass(this, 'l-item--gap');
+    }
+    if ($parent.type === 'card') {
+      addClass(this, 'l-item--card');
+    }
+    super.connectedCallback();
   }
 
   attributeChangedCallback(
