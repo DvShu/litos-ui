@@ -1,9 +1,7 @@
 import { isBlank, isNumeric } from "ph-utils";
 import BaseComponent from "../base";
-import { initAttr, parseAttrValue } from "../utils";
+import { parseAttrValue } from "../utils";
 import {
-  $,
-  iterate,
   $one,
   create,
   on,
@@ -11,8 +9,6 @@ import {
   isVisible,
   removeClass,
   addClass,
-  formatStyle,
-  formatClass,
   shouldEventNext,
   $$,
 } from "ph-utils/dom";
