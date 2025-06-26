@@ -1,7 +1,7 @@
 {
   "name": "litos-ui",
   "description": "基于 Web Component 的 UI 组件库",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "type": "module",
   "scripts": {
     "dev": "vite dev",
@@ -65,7 +65,7 @@
   "dependencies": {
     "iconify-icon": "^3.0.0",
     "ph-utils": "^0.15.4",
-    "qrcode-generator-es": "^1.1.1",
+    "qrcode-generator-es": "^1.1.3",
     "shiki": "^3.7.0"
   }
 }

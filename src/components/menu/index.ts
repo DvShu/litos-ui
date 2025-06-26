@@ -28,7 +28,7 @@ export default class Menu extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["selectedKeys", "orientation"];
+    return ["selected-key", "orientation"];
   }
 
   attributeChangedCallback(
@@ -37,9 +37,8 @@ export default class Menu extends BaseComponent {
     newValue: string
   ): void {
     if (!this.rendered) return;
-    if (name === "selectedKeys") {
+    if (name === "selected-key") {
       if (this.selectedKey !== newValue) {
-        this.selectedKey = newValue;
         this.updateSelectedKeys(newValue);
       }
     } else if (name === "orientation") {
@@ -150,22 +149,26 @@ export default class Menu extends BaseComponent {
     this.selectedKey = key;
     const $item = $one(`l-menu-item[key="${key}"]`, this) as HTMLElement;
     if ($item) {
-      $item.setAttribute("active", "");
-      this.#nodeKeys($item, (item) => {
+      const a = this.#nodeKeys($item, (item) => {
         item.setAttribute("active", ""); // 激活菜单项
         item.setAttribute("expanded", ""); // 展开父菜单
       });
+      this.#unselect(a.keyPaths); // 取消其它菜单项的激活状态
     }
   }
 
   #unselect(activePath: string[]) {
-    const $item = $one("l-menu-item[active]", this) as HTMLElement;
-    if ($item) {
-      this.#nodeKeys($item, (item, key) => {
-        if (!activePath.includes(key)) {
-          item.removeAttribute("active"); // 取消激活菜单项
-        }
-      });
-    }
+    const $items = $("l-menu-item[active]", this) as HTMLElement[];
+    iterate($items, ($item) => {
+      const key = $item.getAttribute("key") || "";
+      if (!activePath.includes(key)) {
+        this.#nodeKeys($item, (item, key) => {
+          if (!activePath.includes(key)) {
+            item.removeAttribute("expanded"); // 折叠菜单
+            item.removeAttribute("active"); // 取消激活菜单项
+          }
+        });
+      }
+    });
   }
 }

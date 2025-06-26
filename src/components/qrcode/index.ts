@@ -44,6 +44,10 @@ export default class Qrcode extends BaseComponent {
     this.#drawQrcode();
   }
 
+  beforeDestroy(): void {
+    this._qrcode = undefined;
+  }
+
   #updateOption(name: string, value: any) {
     if (this._qrcode) {
       if (name === "icon") {
@@ -71,7 +75,6 @@ export default class Qrcode extends BaseComponent {
       }
     }
     if (this._qrcode != null && this.text) {
-      console.log(this._qrcode);
       this._qrcode.render();
     }
   }
