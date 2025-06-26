@@ -65,7 +65,7 @@
   "dependencies": {
     "iconify-icon": "^3.0.0",
     "ph-utils": "^0.15.4",
-    "qrcode-generator-es": "^1.1.1",
+    "qrcode-generator-es": "^1.1.3",
     "shiki": "^3.7.0"
   }
 }

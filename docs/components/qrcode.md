@@ -55,32 +55,7 @@ regist(Qrcode);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
-
-### Qrcode Slots
-
-<!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
-
-### Qrcode Events
-
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
-| --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-
-### Qrcode Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `x` | x | `(x: number): string` |
-
-### Qrcode CSS Variables
-
-<!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-| `--l` | x | `#fff` |
+| `text` | 二维码内容 | `string` | — |
+| `fill` | 二维码颜色 | `string` | `#000000` |
+| `size` | 二维码大小 | `string` | `100` |
+| `level`| 二维码容错率, `L`、`M`、`Q`、`H` | `string` | `M` |
