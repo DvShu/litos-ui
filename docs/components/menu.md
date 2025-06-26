@@ -30,8 +30,13 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
+<<<<<<< HEAD
   <l-menu id="menu" selected-index="A1" accordion>
     <l-sub-menu index="N1">
+=======
+  <l-menu id="menu" selected-key="A1" accordion>
+    <l-sub-menu key="N1">
+>>>>>>> 2aa696d (feat(menu): 更新菜单组件，修复选中项属性名并优化激活状态管理)
       <iconify-icon icon="tdesign:app" slot="icon"></iconify-icon>
       <span slot="title">导航一</span>
       <l-menu-item index="A1">选项1</l-menu-item>
