@@ -12,6 +12,17 @@ regist(Menu);
 
 ## 演示
 
+<script setup>
+
+  
+
+  setTimeout(() => {
+    const $menu = document.getElementById('menu');
+    $menu.setAttribute('selected-key', 'B1')
+  }, 1500);
+
+</script>
+
 ### 侧栏
 
 垂直菜单，可内嵌子菜单。
@@ -20,7 +31,7 @@ regist(Menu);
 <l-code-preview>
 <textarea lang="html">
   <l-menu id="menu" selected-key="A1" accordion>
-    <l-sub-menu key="N1" active>
+    <l-sub-menu key="N1">
       <iconify-icon icon="tdesign:app" slot="icon"></iconify-icon>
       <span slot="title">导航一</span>
       <l-menu-item key="A1">选项1</l-menu-item>
