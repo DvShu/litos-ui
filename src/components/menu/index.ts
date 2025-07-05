@@ -8,7 +8,7 @@ export default class Menu extends BaseComponent {
   public static baseName = "menu";
 
   /** 当前选中的菜单项 key 数组, 用 , 分割 */
-  selectedKey = "";
+  selectedIndex = "";
   /** 水平/垂直菜单 */
   orientation: "horizontal" | "vertical" = "vertical";
   /** 主题 */
@@ -28,7 +28,7 @@ export default class Menu extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["selected-key", "orientation"];
+    return ["selected-index", "orientation"];
   }
 
   attributeChangedCallback(
@@ -37,8 +37,8 @@ export default class Menu extends BaseComponent {
     newValue: string
   ): void {
     if (!this.rendered) return;
-    if (name === "selected-key") {
-      if (this.selectedKey !== newValue) {
+    if (name === "selected-index") {
+      if (this.selectedIndex !== newValue) {
         this.updateSelectedKeys(newValue);
       }
     } else if (name === "orientation") {
@@ -50,7 +50,7 @@ export default class Menu extends BaseComponent {
 
   afterInit(): void {
     on(this, "click", this.#handleClick);
-    this.updateSelectedKeys(this.selectedKey);
+    this.updateSelectedKeys(this.selectedIndex);
   }
 
   beforeDestroy(): void {
@@ -100,7 +100,7 @@ export default class Menu extends BaseComponent {
       if (["L-MENU", "BODY"].includes(tagName)) {
         break;
       }
-      const dataKey = target.getAttribute("key");
+      const dataKey = target.getAttribute("index");
       if (dataKey) {
         if (!key) key = dataKey;
         keyPaths.unshift(dataKey);
@@ -133,9 +133,9 @@ export default class Menu extends BaseComponent {
    * @param collapseOther - 可选参数，默认为 false。是否折叠其他子菜单。
    */
   expandSubmenus(keys: string[], collapseOther = false) {
-    const $submenus = $("l-sub-menu[key]", this) as HTMLElement[];
+    const $submenus = $("l-sub-menu[index]", this) as HTMLElement[];
     iterate($submenus, ($submenu) => {
-      const keyValue = $submenu.getAttribute("key") || "";
+      const keyValue = $submenu.getAttribute("index") || "";
       if (keys.includes(keyValue)) {
         $submenu.setAttribute("expanded", "");
       } else if (collapseOther) {
@@ -146,8 +146,8 @@ export default class Menu extends BaseComponent {
   }
 
   updateSelectedKeys(key: string) {
-    this.selectedKey = key;
-    const $item = $one(`l-menu-item[key="${key}"]`, this) as HTMLElement;
+    this.selectedIndex = key;
+    const $item = $one(`l-menu-item[index="${key}"]`, this) as HTMLElement;
     if ($item) {
       const a = this.#nodeKeys($item, (item) => {
         item.setAttribute("active", ""); // 激活菜单项
@@ -160,7 +160,7 @@ export default class Menu extends BaseComponent {
   #unselect(activePath: string[]) {
     const $items = $("l-menu-item[active]", this) as HTMLElement[];
     iterate($items, ($item) => {
-      const key = $item.getAttribute("key") || "";
+      const key = $item.getAttribute("index") || "";
       if (!activePath.includes(key)) {
         this.#nodeKeys($item, (item, key) => {
           if (!activePath.includes(key)) {
