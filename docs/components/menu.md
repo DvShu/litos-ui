@@ -12,17 +12,6 @@ regist(Menu);
 
 ## 演示
 
-<script setup>
-
-  
-
-  setTimeout(() => {
-    const $menu = document.getElementById('menu');
-    $menu.setAttribute('selected-key', 'B1')
-  }, 1500);
-
-</script>
-
 ### 侧栏
 
 垂直菜单，可内嵌子菜单。
