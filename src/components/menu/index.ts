@@ -28,11 +28,7 @@ export default class Menu extends BaseComponent {
   }
 
   static get observedAttributes() {
-<<<<<<< HEAD
     return ["selected-index", "orientation"];
-=======
-    return ["selected-key", "orientation"];
->>>>>>> 2aa696d (feat(menu): 更新菜单组件，修复选中项属性名并优化激活状态管理)
   }
 
   attributeChangedCallback(
@@ -41,13 +37,8 @@ export default class Menu extends BaseComponent {
     newValue: string
   ): void {
     if (!this.rendered) return;
-<<<<<<< HEAD
     if (name === "selected-index") {
       if (this.selectedIndex !== newValue) {
-=======
-    if (name === "selected-key") {
-      if (this.selectedKey !== newValue) {
->>>>>>> 2aa696d (feat(menu): 更新菜单组件，修复选中项属性名并优化激活状态管理)
         this.updateSelectedKeys(newValue);
       }
     } else if (name === "orientation") {
@@ -169,11 +160,7 @@ export default class Menu extends BaseComponent {
   #unselect(activePath: string[]) {
     const $items = $("l-menu-item[active]", this) as HTMLElement[];
     iterate($items, ($item) => {
-<<<<<<< HEAD
       const key = $item.getAttribute("index") || "";
-=======
-      const key = $item.getAttribute("key") || "";
->>>>>>> 2aa696d (feat(menu): 更新菜单组件，修复选中项属性名并优化激活状态管理)
       if (!activePath.includes(key)) {
         this.#nodeKeys($item, (item, key) => {
           if (!activePath.includes(key)) {
