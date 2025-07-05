@@ -30,28 +30,28 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-menu id="menu" selected-key="A1" accordion>
-    <l-sub-menu key="N1">
+  <l-menu id="menu" selected-index="A1" accordion>
+    <l-sub-menu index="N1">
       <iconify-icon icon="tdesign:app" slot="icon"></iconify-icon>
       <span slot="title">导航一</span>
-      <l-menu-item key="A1">选项1</l-menu-item>
-      <l-menu-item key="A2">选项2</l-menu-item>
-      <l-menu-item key="A3">选项3</l-menu-item>
+      <l-menu-item index="A1">选项1</l-menu-item>
+      <l-menu-item index="A2">选项2</l-menu-item>
+      <l-menu-item index="A3">选项3</l-menu-item>
     </l-sub-menu>
-    <l-sub-menu key="N2">
+    <l-sub-menu index="N2">
       <iconify-icon icon="solar:bug-outline" slot="icon"></iconify-icon>
       <span slot="title">导航二</span>
-      <l-menu-item key="B1">选项1</l-menu-item>
-      <l-menu-item key="B2">选项2</l-menu-item>
-      <l-menu-item key="B3">选项3</l-menu-item>
+      <l-menu-item index="B1">选项1</l-menu-item>
+      <l-menu-item index="B2">选项2</l-menu-item>
+      <l-menu-item index="B3">选项3</l-menu-item>
     </l-sub-menu>
-    <l-sub-menu key="N3">
+    <l-sub-menu index="N3">
       <iconify-icon icon="stash:light-bulb" slot="icon"></iconify-icon>
       <span slot="title">导航二</span>
-      <l-menu-item key="C1">选项1</l-menu-item>
-      <l-menu-item key="C2">选项2</l-menu-item>
+      <l-menu-item index="C1">选项1</l-menu-item>
+      <l-menu-item index="C2">选项2</l-menu-item>
     </l-sub-menu>
-    <l-menu-item key="N4">
+    <l-menu-item index="N4">
       <iconify-icon icon="solar:book-linear" slot="icon"></iconify-icon>
       <span>选项2</span>
     </l-menu-item>
@@ -67,7 +67,7 @@ regist(Menu);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `selected-key` | 当前选中的菜单项 | `string` | - |
+| `selected-index` | 当前选中的菜单项 | `string` | - |
 | `accordion` | 否手风琴模式, 只有一个子菜单展开 | `boolean` | - |
 
 ### Menu Slots
