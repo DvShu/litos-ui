@@ -35,7 +35,7 @@ export default defineConfig({
     rollupOptions: {
       // 确保外部化处理那些
       // 你不想打包进库的依赖
-      external: [/ph-utils\/*/],
+      external: [/ph-utils\/*/, "qrcode-generator-es"],
     },
     emptyOutDir: true,
     copyPublicDir: false,
