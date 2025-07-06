@@ -72,11 +72,13 @@ export default class SubMenu extends BaseComponent {
           // 先隐藏菜单，计算高度
           addClass($menu, "l-menu--hide");
           removeClass($menu, "l-menu--collapsed");
-          const rect = $menu.getBoundingClientRect();
-          $menu.style.height = "0";
-          removeClass($menu, "l-menu--hide");
           requestAnimationFrame(() => {
-            $menu.style.height = `${rect.height}px`;
+            const rect = $menu.getBoundingClientRect();
+            $menu.style.height = "0";
+            removeClass($menu, "l-menu--hide");
+            requestAnimationFrame(() => {
+              $menu.style.height = `${rect.height}px`;
+            });
           });
         }
         this.#transitionT = setTimeout(() => {
