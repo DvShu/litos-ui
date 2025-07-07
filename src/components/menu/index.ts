@@ -1,6 +1,6 @@
 import { $$, on, $one, off, $, iterate } from "ph-utils/dom";
 import BaseComponent from "../base";
-import { initAttr } from "../utils";
+import { initAttr, parseAttrValue } from "../utils";
 // @ts-ignore
 import css from "./index.less?inline";
 
@@ -28,7 +28,7 @@ export default class Menu extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["selected-index", "orientation"];
+    return ["selected-index", "orientation", "accordion"];
   }
 
   attributeChangedCallback(
@@ -36,6 +36,12 @@ export default class Menu extends BaseComponent {
     oldValue: string,
     newValue: string
   ): void {
+    if (name === "accordion") {
+      const actualValue = parseAttrValue(newValue, false, "accordion");
+      if (actualValue !== this.accordion) {
+        this.accordion = actualValue;
+      }
+    }
     if (!this.rendered) return;
     if (name === "selected-index") {
       if (this.selectedIndex !== newValue) {
