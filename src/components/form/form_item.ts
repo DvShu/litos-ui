@@ -13,7 +13,6 @@ export default class FormItem extends BaseComponent {
   public sharedAttrs: string[] = ["disabled", "id", "name", "innerBlock"];
   /** 是否必须 */
   public required: boolean = false;
-  public error?: string;
   /** 标签文本 */
   public label?: string;
   /** 内置验证规则: required - 必填, same:password - 一般用于验证确认密码和密码, phone - 验证电话号码 */
@@ -26,16 +25,25 @@ export default class FormItem extends BaseComponent {
   public innerBlock = false;
   public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
+  #error?: string;
 
   static get observedAttributes() {
     return ["error", "label", "disabled"];
   }
 
+  get error() {
+    return this.#error || "";
+  }
+
+  set error(error: string) {
+    this.#error = error;
+    this._updateError();
+  }
+
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (name === "error") {
-      if (newValue != this.error) {
+      if (newValue != this.#error) {
         this.error = newValue;
-        this._updateError();
       }
     } else if (name === "label") {
       this.label = newValue;

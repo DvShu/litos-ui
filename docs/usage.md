@@ -36,6 +36,35 @@ config({ prefix: "lt" }); // 组件的使用变为: <lt-button></lt-button>
 regist(Button, "lu-button"); // 组件的使用变为: <lu-button></lu-button>
 ```
 
+如果需要使用 `Message`，但是不想手动引入 `css`，可以通过 `vite-autoimport` 自动引入
+
+安装 `unplugin-auto-import unplugin-vue-components litosui-unplugin-resolver`
+
+```shell
+npm install unplugin-auto-import unplugin-vue-components litosui-unplugin-resolver
+```
+
+在 `vite.config.ts` 中配置
+
+```js
+import AutoImport from "unplugin-auto-import/vite";
+import Components from "unplugin-vue-components/vite";
+import LitosUiResolver from "litosui-unplugin-resolver";
+
+export default defineConfig({
+  ...
+  plugins: [
+    AutoImport({
+      resolvers: [LitosUiResolver()],
+      dts: "src/auto-imports.d.ts"
+    }),
+    Components({
+      resolvers: [LitosUiResolver()]
+    })
+  ]
+})
+```
+
 ### 全局变量
 
 组件库的样式全部使用 `CSS` 变量控制，为了让样式可控变得简单化，所以需要手动引入全局变量文件；在入口文件，如 `main.ts` 中引入:

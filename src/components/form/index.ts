@@ -142,11 +142,13 @@ export default class Form extends BaseComponent {
 
   public submit() {
     if (this.novalidate) {
-      this.dispatchEvent(new CustomEvent("submit"));
+      this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
     } else {
       this.validate().then((valid) => {
         if (valid) {
-          this.dispatchEvent(new CustomEvent("submit"));
+          this.dispatchEvent(
+            new CustomEvent("submit", { detail: this.getData() })
+          );
         }
       });
     }

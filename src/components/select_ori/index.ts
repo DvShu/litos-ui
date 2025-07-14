@@ -1,5 +1,5 @@
 import FormInner from "../form/form_inner";
-import { initAttr, tagAttrs } from "../utils";
+import { tagAttrs } from "../utils";
 import { $one, on, off } from "ph-utils/dom";
 //@ts-ignore
 import css from "../input/index.less?inline";
@@ -12,7 +12,6 @@ export default class SelectOri extends FormInner {
   private $select?: HTMLSelectElement;
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText(css);
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
@@ -35,7 +34,7 @@ export default class SelectOri extends FormInner {
       ["name", this.getName()],
       ["disabled", this.isDisabled()],
     ]);
-    return `<select class="l-input"${attrs}>${$children}</select>`;
+    return `<select class="l-input__inner"${attrs}>${$children}</select>`;
   }
 
   protected disabledChange(): void {

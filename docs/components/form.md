@@ -5,9 +5,9 @@ Form
 ## 引用
 
 ```js
-import { Form, regist } from "litos-ui";
+import { Form, FormItem, regist } from "litos-ui";
 
-regist(Form);
+regist([Form, FormItem]);
 ```
 
 ## 演示

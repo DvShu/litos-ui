@@ -4,7 +4,6 @@ import {
   off,
   formatStyle,
   addClass,
-  toggleClass,
   $$,
   $,
   removeClass,
@@ -43,10 +42,9 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
-  /** clearable */
-  public clearable = false;
 
   $inner?: HTMLInputElement;
+  #clearable = false;
 
   set value(value: any) {
     this.setValue(value);
@@ -59,8 +57,21 @@ export default class Input extends FormInner {
     return this.getValue();
   }
 
+  get clearable() {
+    return this.#clearable;
+  }
+
+  set clearable(value: boolean) {
+    this.#clearable = value;
+    if (value) {
+      addClass(this, "l-input--clearable");
+    } else {
+      removeClass(this, "l-input--clearable");
+    }
+  }
+
   static get observedAttributes() {
-    return ["disabled", "error"];
+    return ["disabled", "error", "clearable"];
   }
 
   connectedCallback(): void {
@@ -98,6 +109,11 @@ export default class Input extends FormInner {
       if (newError !== this.error) {
         this.error = newError;
         this._updateError();
+      }
+    } else if (name === "clearable") {
+      const newClearable = parseAttrValue(newValue, false, name);
+      if (newClearable !== this.clearable) {
+        this.clearable = newClearable;
       }
     }
   }
