@@ -32,10 +32,10 @@ export default class FormItem extends BaseComponent {
   }
 
   get error() {
-    return this.#error || "";
+    return this.#error;
   }
 
-  set error(error: string) {
+  set error(error: string | undefined) {
     this.#error = error;
     this._updateError();
   }
@@ -143,7 +143,6 @@ export default class FormItem extends BaseComponent {
     const error = result === true ? undefined : result[this.name as string];
     if (name == null || (name === this.name && this.error != error)) {
       this.error = error;
-      this._updateError();
     }
   };
 
