@@ -3,9 +3,10 @@
 ## 引用
 
 ```js
-import { Input, regist } from "litos-ui";
+import { Input, regist, CloseFilledIcon } from "litos-ui";
 
 regist(Input);
+regist(CloseFilledIcon); // 需要使用 clearable 功能时
 ```
 
 ## 演示
