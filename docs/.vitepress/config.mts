@@ -158,6 +158,10 @@ export default defineConfig({
             text: "Qrcode 二维码",
             link: "/components/qrcode",
           },
+          {
+            text: "Pagination 分页",
+            link: "/components/pagination",
+          },
           /* TemplateItem */
         ],
       },

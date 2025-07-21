@@ -41,12 +41,12 @@ regist(CloseIcon);
       })
     } else {
       const $modal = $one(`l-modal[for="${id}"]`);
-      $modal.setAttribute('open', 'true');
+      $modal.setAttribute('show', 'true');
     }
   }
 
   function onCancel(e) {
-    e.target.removeAttribute('open');
+    e.target.removeAttribute('show');
   }
 
   function onOk(e) {
@@ -58,7 +58,7 @@ regist(CloseIcon);
       setTimeout(() => {
         $target.innerHTML = "<span>对话框内容</span>";
         $target.removeAttribute('confirm-loading');
-        e.target.removeAttribute('open');
+        e.target.removeAttribute('show');
       }, 1500);
     }
   }

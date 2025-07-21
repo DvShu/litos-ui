@@ -73,3 +73,5 @@ export { default as CarouselItem } from "./carousel/item";
 export { default as Qrcode } from "./qrcode";
 
 export { default as DescriptionPanel } from "./description_panel";
+
+export { default as Pagination } from "./pagination";

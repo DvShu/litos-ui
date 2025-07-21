@@ -45,7 +45,10 @@ export default class Qrcode extends BaseComponent {
   }
 
   beforeDestroy(): void {
-    this._qrcode = undefined;
+    if (this._qrcode) {
+      this._qrcode.destroy();
+      this._qrcode = undefined;
+    }
   }
 
   #updateOption(name: string, value: any) {
@@ -62,7 +65,6 @@ export default class Qrcode extends BaseComponent {
     if (!this._qrcode) {
       const $el = $one("canvas", this.root);
       if ($el) {
-        console.log(this.icon);
         this._qrcode = new QRCodeRender({
           renderFn: renderToCanvas,
           text: this.text,

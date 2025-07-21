@@ -41,7 +41,9 @@ import Menu from "./menu";
 import Carousel from "./carousel";
 import Qrcode from "./qrcode";
 import DescriptionPanel from "./description_panel";
+import Pagination from "./pagination";
 //Web Components Import
+regist(Pagination)
 regist(DescriptionPanel)
 regist(Qrcode)
 regist(Carousel)
@@ -124,3 +126,4 @@ import "./docs:dev/index.less";
 import "./carousel/index.less";
 import "./qrcode/index.less";
 import "./description_panel/index.less";
+import "./pagination/index.less";

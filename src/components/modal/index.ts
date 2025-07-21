@@ -13,7 +13,7 @@ export default class Modal extends BaseComponent {
   static baseName: string = "modal";
 
   /** 是否显示对话框 */
-  public open: boolean = false;
+  public show: boolean = false;
   /** 关闭时销毁 Modal 里的子元素 */
   public destroyOnClose: boolean = false;
   /** 点击蒙层是否允许关闭 */
@@ -46,7 +46,7 @@ export default class Modal extends BaseComponent {
   #bodyOverflow = "";
 
   static get observedAttributes() {
-    return ["open", "width", "confirm-loading"];
+    return ["show", "width", "confirm-loading"];
   }
 
   attributeChangedCallback(
@@ -55,9 +55,9 @@ export default class Modal extends BaseComponent {
     newValue: string
   ): void {
     if (!this.rendered) return;
-    if (name === "open") {
-      this.open = parseAttrValue(newValue, false);
-      if (this.open) {
+    if (name === "show") {
+      this.show = parseAttrValue(newValue, false);
+      if (this.show) {
         this.#openModal();
       } else {
         this.#closeModal();
@@ -85,7 +85,7 @@ export default class Modal extends BaseComponent {
   }
 
   render() {
-    if (this.open) {
+    if (this.show) {
       this.#openModal();
     }
   }

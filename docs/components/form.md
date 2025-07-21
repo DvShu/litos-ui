@@ -56,7 +56,7 @@ regist([Form, FormItem]);
 <textarea lang="html">
   <l-form id="lform">
     <l-form-item required label="姓名" name="name">
-      <l-input placeholder="请输入姓名" value="张三"></l-input>
+      <l-input placeholder="请输入姓名"></l-input>
     </l-form-item>
     <l-form-item required label="密码" name="password">
       <l-input placeholder="请输入密码" type="password"></l-input>
@@ -220,7 +220,7 @@ regist([Form, FormItem]);
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `label` | 标签文本 | `string` | - |
-| `verify` | 内置验证规则:`required`-必填,`same:password`-一般用于验证确认密码,`phone`-验证电话号码 | `string` | - |
+| `verify` | 内置验证规则:`required`-必填,`same:password`-一般用于验证确认密码,`mobile`-验证电话号码 | `string` | - |
 | `pattern` | 正则表达式 | `string` | - |
 | `validity` | 验证失败时的提示信息 | `string` | - |
 | `name` | 表单域 `name` 字段 | `string` | - |

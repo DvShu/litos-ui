@@ -50,7 +50,7 @@ function renderModal(
     let $modal = $$("l-modal", {
       cancel: `${options.showCancel}`,
       innerHTML: inner.join(""),
-      open: true,
+      show: true,
       class: `l-modal-box l-modal-box--${type}`,
       close: `${options.close}`,
       "mask-closable": `${options.maskClosable}`,
