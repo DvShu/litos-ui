@@ -18,7 +18,7 @@ export default class IconList extends HTMLElement {
     const items = [];
     for (const icon of icons) {
       items.push(
-        `<div class="icon-item" data-name="${icon.tagName}"><${icon.tagName} class="icon"></${icon.tagName}><span class="name">${icon.name}</span></div>`
+        `<div class="icon-item" data-name="${icon.tagName}"><${icon.tagName} class="icon ${icon.name === "Loading" ? "l-rotate-anim" : ""}"></${icon.tagName}><span class="name">${icon.name}</span></div>`
       );
     }
     this.innerHTML = `<div class="icon-list">${items.join("")}</div>`;

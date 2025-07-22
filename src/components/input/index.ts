@@ -14,6 +14,16 @@ import { add, remove } from "../utils/event";
 //@ts-ignore
 import css from "./index.less?inline";
 
+type InputMode =
+  | "text"
+  | "decimal"
+  | "numeric"
+  | "tel"
+  | "search"
+  | "email"
+  | "url"
+  | "none";
+
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
  *
@@ -43,6 +53,7 @@ export default class Input extends FormInner {
   public block = false;
   public error = false;
   public maxlength?: number;
+  public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
   #clearable = false;
@@ -72,7 +83,7 @@ export default class Input extends FormInner {
   }
 
   static get observedAttributes() {
-    return ["disabled", "error", "clearable", "maxlength"];
+    return ["disabled", "error", "clearable", "maxlength", "inputmode"];
   }
 
   connectedCallback(): void {
@@ -105,6 +116,14 @@ export default class Input extends FormInner {
     oldValue: string,
     newValue: string
   ): void {
+    const parsedValue = parseAttrValue(
+      newValue,
+      this[name as "id"] as any,
+      name
+    ) as any;
+    if (parsedValue !== this[name as "id"]) {
+      this[name as "id"] = parsedValue;
+    }
     if (name === "error") {
       const newError = parseAttrValue(newValue, false, name);
       if (newError !== this.error) {
@@ -149,6 +168,7 @@ export default class Input extends FormInner {
       disabled: this.isDisabled(),
       part: "default",
       type: this.type,
+      inputmode: this.inputmode,
     });
     if (this.maxlength && this.maxlength >= 0) {
       $inner.setAttribute("maxlength", String(this.maxlength));
@@ -193,12 +213,11 @@ export default class Input extends FormInner {
         precition: precition,
       });
       value = String(value);
-      $target.value = value;
     }
     if (this.parser != null) {
       value = this.parser(value);
-      $target.value = value;
     }
+    $target.value = value;
     this.setValue(value);
     this.#renderClearable();
   };

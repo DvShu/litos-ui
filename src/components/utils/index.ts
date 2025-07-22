@@ -95,7 +95,7 @@ export function initAttr(el: HTMLElement) {
  * @returns 返回拼接好的属性字符串。
  */
 export function tagAttr(attr: string, value: string | undefined | boolean) {
-  let res = " ";
+  let res = "";
   if (value === true) {
     res = ` ${attr}`;
   } else if (typeof value === "string" && !isBlank(value)) {
@@ -383,4 +383,13 @@ export function impactDetect(
     mainAlign,
     crossAlign,
   };
+}
+
+/**
+ * 短横线命名（kebab-case） 转换为 驼峰命名（camelCase
+ * @param attr 待转换的属性名
+ * @returns
+ */
+export function kebabToCamel(attr: string) {
+  return attr.replace(/-(\w)/g, (match, p1) => p1.toUpperCase());
 }

@@ -5,9 +5,28 @@
 ## 引用
 
 ```js
-import { Pagination, regist } from "litos-ui";
+import {
+  Pagination,
+  regist,
+  Button,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  DArrowLeftIcon,
+  DArrowRightIcon,
+  MoreIcon,
+  Input,
+} from "litos-ui";
 
-regist(Pagination);
+regist([
+  Pagination,
+  Button,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  DArrowLeftIcon,
+  DArrowRightIcon,
+  MoreIcon,
+  Input,
+]);
 ```
 
 ## 演示
@@ -19,13 +38,48 @@ regist(Pagination);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-pagination></l-pagination>
+  <l-pagination total="100"></l-pagination>
 </textarea>
-<div class="source">
+</l-code-preview>
+</ClientOnly>
+
+### 对齐方式
+
+通过 `align` 来设置对齐方式. 取值有: start、center、end
+
+<ClientOnly>
+<l-code-preview>
 <textarea lang="html">
-  <l-pagination></l-pagination>
+  <l-pagination total="100" align="start"></l-pagination>
+  <hr/>
+  <l-pagination total="100" align="center"></l-pagination>
+  <hr/>
+  <l-pagination total="100" align="end"></l-pagination>
 </textarea>
-</div>
+</l-code-preview>
+</ClientOnly>
+
+### 单页隐藏
+
+通过 `hide-on-single-page` 来设置单页隐藏.
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-pagination total="10" hide-on-single-page></l-pagination>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 简单分页
+
+简单的分页，在空间有限的情况下，可以使用简单分页。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-pagination total="100" simple></l-pagination>
+</textarea>
 </l-code-preview>
 </ClientOnly>
 

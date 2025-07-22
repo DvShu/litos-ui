@@ -7,6 +7,7 @@ import { styleText } from "node:util";
 function sourceTemplate(name, componentName, _fileName) {
   const res = [
     'import BaseComponent from "../base"',
+    'import { parseAttrValue, kebabToCamel } from "../utils";',
     "//@ts-ignore",
     'import css from "./index.less?inline"\r\n',
     `export default class ${name} extends BaseComponent {`,
@@ -14,7 +15,14 @@ function sourceTemplate(name, componentName, _fileName) {
     "  connectedCallback(): void {",
     `    this.loadStyleText(css);`,
     "    super.connectedCallback();",
-    "  }",
+    "  }\r\n",
+    "  attributeChangedCallback(name: string,oldValue: string,newValue: string) {",
+    '    const parsedValue = parseAttrValue(newValue,this[name as "id"] as any,name) as any;',
+    "    name = kebabToCamel(name);",
+    '    if (parsedValue !== this[name as "id"]) {',
+    '      this[name as "id"] = parsedValue;',
+    "    }",
+    "  }\r\n",
     "  render() {}",
     "}",
   ];
@@ -27,7 +35,7 @@ function docsTemplate(name, componentName) {
     `${name}\r\n`,
     "## 引用\r\n",
     "```js",
-    `import { ${name}, regist } from "litos-ui";\r\n`,
+    `import { regist, ${name} } from "litos-ui";\r\n`,
     `regist(${name});`,
     "```\r\n",
     "## 演示\r\n",

@@ -36,6 +36,9 @@ export { default as InfoIcon } from "./icon/info";
 export { default as SuccessIcon } from "./icon/success";
 export { default as WarnIcon } from "./icon/warn";
 export { default as CloseFilledIcon } from "./icon/close_filled";
+export { default as MoreIcon } from "./icon/more";
+export { default as DArrowLeftIcon } from "./icon/d_arrow_left";
+export { default as DArrowRightIcon } from "./icon/d_arrow_right";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";
