@@ -16,11 +16,17 @@ export default class DescriptionPanel extends BaseComponent {
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     this[name as "collapseHeight"] = newValue;
+    if (newValue !== this[name as "fontSize"]) {
+      this[name as "fontSize"] = newValue;
+    }
   }
 
   connectedCallback(): void {
     this.loadStyleText(css);
     super.connectedCallback();
   }
-  render() {}
+  render() {
+    const children = [`<div class="content"><slot></slot></div>`];
+    return children.join("");
+  }
 }

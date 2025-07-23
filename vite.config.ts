@@ -24,9 +24,6 @@ export default defineConfig({
       tsconfigPath: "tsconfig.build.json",
     }),
   ],
-  server: {
-    host: false,
-  },
   build: {
     target: "esnext",
     outDir: "lib",
