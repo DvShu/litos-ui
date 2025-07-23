@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
-    "docs:dev": "vitepress dev docs --force",
+    "docs:dev": "vitepress dev docs --force --host 0.0.0.0",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "inspect:eslint": "eslint --inspect-config",

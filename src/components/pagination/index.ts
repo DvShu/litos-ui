@@ -282,10 +282,40 @@ export default class Pagination extends BaseComponent {
     const $input = $one(".l-pagination-simple-input", this.root) as any;
     if ($input) {
       $input.setParser(this.#simpleInputParser);
+      on($input, "keyup", this.#onKeyup as any);
+      on($input, "blur", this.#onBlur as any);
     }
   }
 
-  #destroySimpleInput() {}
+  #destroySimpleInput() {
+    const $input = $one(".l-pagination-simple-input", this.root) as any;
+    if ($input) {
+      $input.setParser(undefined);
+      off($input, "keyup", this.#onKeyup as any);
+      off($input, "blur", this.#onBlur as any);
+    }
+  }
+
+  #onBlur = (e: Event) => {
+    const $target = e.target as HTMLInputElement;
+    const value = $target.value;
+    if (!value) {
+      $target.value = `${this.current}`;
+      return;
+    }
+    this.setCurrent(Number(value));
+  };
+
+  #onKeyup = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      const $target = e.target as HTMLInputElement;
+      const value = $target.value;
+      if (value) {
+        const toPage = Number(value);
+        this.setCurrent(toPage);
+      }
+    }
+  };
 
   #simpleInputParser = (value: string) => {
     if (value) {

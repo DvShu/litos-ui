@@ -90,32 +90,38 @@ regist([
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `total` | 总条数 | `number` | `-` |
+| `page-count` | 总页数 | `number` | `-` |
+| `simple` | 简单分页 | `boolean` | `false` |
+| `hide-on-single-page` | 单页隐藏 | `boolean` | `false` |
+| `align` | 对齐方式 | `start`、`center`、`end` | `start` |
+| `current` | 当前页 | `number` | `1` |
+| `page-size` | 每页条数 | `number` | `10` |
 
 ### Pagination Slots
 
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
+| `-` | - |
 
 ### Pagination Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `change` | 分页改变时触发, `detail:{current:number, pageSize:number, totalPage:nuber}` | `(event: CustomEvent)` |
 
 ### Pagination Methods
 
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| `x` | x | `(x: number): string` |
+| `setCurrent` | 设置当前页 | `(current: number): void` |
 
 ### Pagination CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l` | x | `#fff` |
+| - | - | - |
