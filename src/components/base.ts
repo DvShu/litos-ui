@@ -95,7 +95,6 @@ export default class BaseComponent extends HTMLElement {
   }
 
   connectedCallback() {
-    console.log("dddddd");
     this.appendToRoot(this.render() as any);
     this.rendered = true;
     this.initEvents();

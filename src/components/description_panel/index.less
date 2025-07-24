@@ -9,4 +9,50 @@
   position: relative;
   transition: all 0.15s linear;
   text-indent: var(--l-desc-panel-textindent);
+  box-sizing: border-box;
+}
+.content {
+  box-sizing: border-box;
+  border: 1px solid transparent;
+}
+
+.l-desc-panel-operator {
+  width: 100%;
+  padding-top: 0;
+  padding-bottom: 0;
+  background: transparent;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.l-desc-panel-btnmore {
+  font-size: var(--nt-desc-panel-font-size);
+  &::before {
+    content: attr(data-text);
+  }
+}
+.l-desc-panel-arrow {
+  transition: transform 0.3s ease-in-out;
+  transform: rotate3d(0, 0, 1, 180deg);
+}
+
+:host(.collapse) {
+  max-height: var(--l-desc-panel-min-height);
+  overflow-y: hidden;
+}
+:host(.collapse) .l-desc-panel-operator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding-top: 65px;
+  background: linear-gradient(
+    -180deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgb(255, 255, 255) 80%
+  );
+}
+
+:host(.collapse) .l-desc-panel-arrow {
+  transform: rotate3d(1, 0, 0, 0deg);
 }
