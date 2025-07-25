@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { parseAttrValue } from "../utils";
+import { kebabToCamel, parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import {
@@ -22,11 +22,12 @@ export default class DescriptionPanel extends BaseComponent {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    this[name as "id"] = parseAttrValue(newValue, this[name as "id"]) as any;
-    if (newValue !== this[name as "id"]) {
-      this[name as "id"] = newValue;
+    const parsedValue = parseAttrValue(newValue, this[name as "id"]) as any;
+    name = kebabToCamel(name);
+    if (parsedValue !== this[name as "id"]) {
+      this[name as "id"] = parsedValue;
       switch (name) {
-        case "collapse-height":
+        case "collapseHeight":
           if (this.collapseHeight !== 100) {
             this.style.setProperty(
               "--l-desc-panel-min-height",

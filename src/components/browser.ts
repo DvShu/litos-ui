@@ -42,7 +42,9 @@ import Carousel from "./carousel";
 import Qrcode from "./qrcode";
 import DescriptionPanel from "./description_panel";
 import Pagination from "./pagination";
+import BaseOverlay from "./base_overlay";
 //Web Components Import
+regist(BaseOverlay)
 regist(Pagination)
 regist(DescriptionPanel)
 regist(Qrcode)
@@ -127,3 +129,4 @@ import "./carousel/index.less";
 import "./qrcode/index.less";
 import "./description_panel/index.less";
 import "./pagination/index.less";
+import "./base_overlay/index.less";

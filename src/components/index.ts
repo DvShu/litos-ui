@@ -78,3 +78,5 @@ export { default as Qrcode } from "./qrcode";
 export { default as DescriptionPanel } from "./description_panel";
 
 export { default as Pagination } from "./pagination";
+
+export { default as BaseOverlay } from "./base_overlay";

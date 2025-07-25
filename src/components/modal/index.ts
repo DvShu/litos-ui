@@ -98,6 +98,7 @@ export default class Modal extends BaseComponent {
     }
   }
 
+
   #openModal() {
     // 展开对话框时, 禁止内容滚动
     this.#bodyOverflow = getComputedStyle(document.body).overflow;
