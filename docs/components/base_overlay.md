@@ -12,6 +12,45 @@ regist(BaseOverlay);
 
 ## 演示
 
+<script setup>
+  import { onMounted, onUnmounted } from 'vue';
+  if (!import.meta.env.SSR) {
+    let $overlay;
+    let $open;
+    let $close;
+
+    function handleToggle(e) {
+      const action = e.target.getAttribute('data-action');
+      if (action && $overlay) {
+        $overlay.open = action === 'open';
+      }
+    }
+
+    onMounted(() => {
+      requestAnimationFrame(() => {
+        $overlay = document.querySelector('#overlay');
+        $open = document.querySelector('#open');
+        $close = document.querySelector('#close');
+        if ($open) {
+          $open.addEventListener('click', handleToggle);
+        }
+        if ($close) {
+          $close.addEventListener('click', handleToggle);
+        }
+      });
+    });
+
+    onUnmounted(() => {
+      if ($open) {
+        $open.removeEventListener('click', handleToggle);
+      }
+      if ($close) {
+        $close.removeEventListener('click', handleToggle);
+      }
+    });
+  }
+</script>
+
 ### 基础用法
 
 使用
@@ -19,7 +58,9 @@ regist(BaseOverlay);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-base-overlay></l-base-overlay>
+  <l-base-overlay id="overlay"></l-base-overlay>
+  <l-button id="open" data-action="open">打开</l-button>
+  <l-button id="close" data-action="close">关闭</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
