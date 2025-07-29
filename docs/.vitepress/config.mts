@@ -186,8 +186,8 @@ export default defineConfig({
             link: "/components/dialog",
           },
           {
-            text: "BaseOverlay 基础浮层",
-            link: "/components/base_overlay",
+            text: "Mask 浮层遮罩",
+            link: "/components/mask",
           },
           {
             text: "Modal 对话框",

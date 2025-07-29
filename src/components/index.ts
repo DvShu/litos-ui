@@ -79,4 +79,4 @@ export { default as DescriptionPanel } from "./description_panel";
 
 export { default as Pagination } from "./pagination";
 
-export { default as BaseOverlay } from "./base_overlay";
+export { default as Mask } from "./mask";

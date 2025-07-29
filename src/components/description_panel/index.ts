@@ -22,8 +22,8 @@ export default class DescriptionPanel extends BaseComponent {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const parsedValue = parseAttrValue(newValue, this[name as "id"]) as any;
     name = kebabToCamel(name);
+    const parsedValue = parseAttrValue(newValue, this[name as "id"]) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
       switch (name) {

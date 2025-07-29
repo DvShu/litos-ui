@@ -5,19 +5,20 @@
 :host(.open) {
   display: block;
 }
-.l-overlay-backdrop,
-.l-overlay-panel {
+.l-mask,
+.l-panel {
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
   right: 0;
 }
-.l-overlay-backdrop {
+.l-mask {
   background-color: rgba(0, 0, 0, 0.6);
   opacity: 1;
-  z-index: var(--l-overlay-zindex, 100);
+  z-index: var(--l-mask-zindex, 100);
 }
-.l-overlay-panel {
-  z-index: calc(var(--l-modal-zindex, 100) + 1);
+.l-panel {
+  z-index: calc(var(--l-mask-zindex, 100) + 1);
+  color: #ffffff;
 }

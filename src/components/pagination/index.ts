@@ -61,12 +61,12 @@ export default class Pagination extends BaseComponent {
     _oldValue: string,
     newValue: string
   ): void {
+    name = kebabToCamel(name);
     const parsedValue = parseAttrValue(
       newValue,
       this[name as "id"] as any,
       name
     ) as any;
-    name = kebabToCamel(name);
     if (parsedValue !== this[name as "align"]) {
       this[name as "align"] = parsedValue;
       switch (name) {

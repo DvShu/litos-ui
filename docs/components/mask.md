@@ -1,13 +1,13 @@
-# BaseOverlay 基础浮层
+# Mask 浮层遮罩
 
-基础浮层组件，弹出窗、图片预览框都是基于该组件实现的。
+基础遮罩组件，弹出窗、图片预览框都是基于该组件实现的。
 
 ## 引用
 
 ```js
-import { regist, BaseOverlay } from "litos-ui";
+import { regist, Mask } from "litos-ui";
 
-regist(BaseOverlay);
+regist(Mask);
 ```
 
 ## 演示
@@ -58,13 +58,13 @@ regist(BaseOverlay);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-base-overlay id="overlay"></l-base-overlay>
+  <l-mask id="overlay"></l-mask>
   <l-button id="open" data-action="open">打开</l-button>
   <l-button id="close" data-action="close">关闭</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-base-overlay></l-base-overlay>
+  <l-mask></l-mask>
 </textarea>
 </div>
 </l-code-preview>

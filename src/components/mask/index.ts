@@ -11,13 +11,20 @@ import {
   hasClass,
   on,
   off,
+  shouldEventNext,
 } from "ph-utils/dom";
 
-export default class BaseOverlay extends BaseComponent {
-  public static baseName = "base-overlay";
+export default class Mask extends BaseComponent {
+  public static baseName = "mask";
 
   #open = false;
   public zIndex = 100;
+  /** 是否可以通过点击 mask 关闭对话框 */
+  public maskClosable = true;
+  /** 是否在打开时禁用 body 滚动 */
+  public lockScroll = true;
+
+  #bodyOverflow = "";
 
   public get open() {
     return this.#open;
@@ -31,7 +38,7 @@ export default class BaseOverlay extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["open", "z-index"];
+    return ["open", "z-index", "mask-closable", "lock-scroll"];
   }
 
   connectedCallback(): void {
@@ -40,20 +47,20 @@ export default class BaseOverlay extends BaseComponent {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    name = kebabToCamel(name);
     const parsedValue = parseAttrValue(
       newValue,
       this[name as "id"] as any,
       name
     ) as any;
-    name = kebabToCamel(name);
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
       switch (name) {
         case "zIndex":
           if (parsedValue === 100) {
-            this.style.removeProperty("--l-overlay-zindex");
+            this.style.removeProperty("--l-mask-zindex");
           } else {
-            this.style.setProperty("--l-overlay-zindex", parsedValue);
+            this.style.setProperty("--l-mask-zindex", parsedValue);
           }
           break;
       }
@@ -64,13 +71,13 @@ export default class BaseOverlay extends BaseComponent {
     const fragment = document.createDocumentFragment();
     // overlay
     const $overlay = $$("div", {
-      class: "l-overlay-backdrop",
-      part: "overlay",
+      class: "l-mask",
+      part: "mask",
     });
     fragment.appendChild($overlay);
     // panel
     const $panel = $$("div", {
-      class: "l-overlay-panel",
+      class: "l-panel",
       part: "panel",
     });
     $panel.innerHTML = "<slot></slot>";
@@ -80,20 +87,28 @@ export default class BaseOverlay extends BaseComponent {
 
   #toggleOpen() {
     if (this.open) {
+      // 展开对话框时, 禁止内容滚动
+      if (this.lockScroll) {
+        this.#bodyOverflow = getComputedStyle(document.body).overflow;
+        document.body.style.overflow = "hidden";
+      }
       addClass(this, "open");
-      const $overlay = $one(".l-overlay-backdrop", this.root);
+      const $overlay = $one(".l-mask", this.root);
       if ($overlay) {
         transition($overlay, [["opacity", "0", "0.3s"]], "enter");
       }
       this.afterOpened();
     } else {
       if (hasClass(this, "open")) {
-        const $overlay = $one(".l-overlay-backdrop", this.root);
+        const $overlay = $one(".l-mask", this.root);
         if ($overlay) {
           transition($overlay, [["opacity", "0", "0.3s"]], "leave", () => {
             removeClass(this, "open");
             this.emit("closed");
           });
+        }
+        if (this.lockScroll) {
+          document.body.style.overflow = this.#bodyOverflow;
         }
         this.afterClosed();
       }
@@ -102,20 +117,34 @@ export default class BaseOverlay extends BaseComponent {
 
   afterInit(): void {
     this.#toggleOpen();
-    const $panel = $one(".l-overlay-panel", this.root);
+    const $panel = $one(".l-panel", this.root);
     if ($panel) {
-      on($panel, "click", this.#onPanelClick, {  });
+      on($panel, "click", this.#onPanelClick);
     }
   }
 
   beforeDestroy(): void {
-    const $panel = $one(".l-overlay-panel", this.root);
+    const $panel = $one(".l-panel", this.root);
     if ($panel) {
       off($panel, "click", this.#onPanelClick);
     }
   }
 
-  #onPanelClick = (e: Event) => {}
+  #onPanelClick = (e: Event) => {
+    const [isNext, action] = shouldEventNext(
+      e,
+      "data-action",
+      e.currentTarget as HTMLElement
+    );
+    if (!isNext) {
+      if (this.maskClosable) {
+        // 点击遮罩关闭
+        this.open = false;
+        this.emit("cancel");
+      }
+      return;
+    }
+  };
 
   public afterOpened() {}
 

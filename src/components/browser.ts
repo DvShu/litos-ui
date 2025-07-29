@@ -42,13 +42,13 @@ import Carousel from "./carousel";
 import Qrcode from "./qrcode";
 import DescriptionPanel from "./description_panel";
 import Pagination from "./pagination";
-import BaseOverlay from "./base_overlay";
+import BaseOverlay from "./mask";
 //Web Components Import
-regist(BaseOverlay)
-regist(Pagination)
-regist(DescriptionPanel)
-regist(Qrcode)
-regist(Carousel)
+regist(BaseOverlay);
+regist(Pagination);
+regist(DescriptionPanel);
+regist(Qrcode);
+regist(Carousel);
 regist(Menu);
 regist(DatePicker);
 regist(Modal);
