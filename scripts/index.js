@@ -20,8 +20,8 @@ function sourceTemplate(name, componentName, _fileName) {
     "    return []",
     "  }\r\n",
     "  attributeChangedCallback(name: string,oldValue: string,newValue: string) {",
-    '    const parsedValue = parseAttrValue(newValue,this[name as "id"] as any,name) as any;',
     "    name = kebabToCamel(name);",
+    '    const parsedValue = parseAttrValue(newValue,this[name as "id"] as any,name) as any;',
     '    if (parsedValue !== this[name as "id"]) {',
     '      this[name as "id"] = parsedValue;',
     "    }",
@@ -61,7 +61,7 @@ function docsTemplate(name, componentName) {
     "<!-- prettier-ignore -->",
     "| 参数 | 说明 | 类型 | 默认值 |",
     "| --- | --- | --- | --- |",
-    "| x | x | x | x |",
+    "| - | - | - | - |",
     `### ${name} Slots\r\n`,
     "<!-- prettier-ignore -->",
     "| 名称 | 说明 |",
@@ -76,12 +76,12 @@ function docsTemplate(name, componentName) {
     "<!-- prettier-ignore -->",
     "| 方法名 | 说明 | 类型 |",
     "| --- | --- | --- |",
-    "| `x` | x | `(x: number): string` |",
+    "| - | - | - |",
     `### ${name} CSS Variables\r\n`,
     "<!-- prettier-ignore -->",
     "| 变量名 | 说明 | 默认值 |",
     "| --- | --- | --- |",
-    "| `--l` | x | `#fff` |",
+    "| - | - | - |",
   ];
   return res.join("\r\n");
 }

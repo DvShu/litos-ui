@@ -59,6 +59,6 @@ p {
 }
 
 /* 按钮之间间隔 */
-.btn-group l-button + l-button {
+.l-btn-group l-button + l-button {
   margin-left: 10px;
 }

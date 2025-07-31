@@ -99,7 +99,6 @@ export default class Tabbar extends BaseComponent {
     const [shouldNext, name] = shouldEventNext(e, "name", this);
     if (shouldNext && name !== this.name) {
       this.name = name as string;
-      console.log(name);
       this.dispatchEvent(
         new CustomEvent("change", {
           detail: {

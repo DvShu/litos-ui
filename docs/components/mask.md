@@ -5,9 +5,7 @@
 ## 引用
 
 ```js
-import { regist, Mask } from "litos-ui";
-
-regist(Mask);
+import { Mask } from "litos-ui";
 ```
 
 ## 演示
@@ -51,24 +49,22 @@ regist(Mask);
   }
 </script>
 
-### 基础用法
+### 直接用法
 
-使用
+通过 `regist` 注册组件，然后在模板中使用 `<l-mask>` 标签即可, 可以通过 `open` 属性控制是否显示遮罩层。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-mask id="overlay"></l-mask>
+  <l-mask id="overlay" open></l-mask>
   <l-button id="open" data-action="open">打开</l-button>
-  <l-button id="close" data-action="close">关闭</l-button>
 </textarea>
-<div class="source">
-<textarea lang="html">
-  <l-mask></l-mask>
-</textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
+
+### 继承使用
+
+通过继承 `Mask` 类，然后实现自定义功能逻辑，为自定义的类设置一个 `static baseName = "x";` 将 `x` 替换为自定义的组件名称，就能在模板中使用 `<l-x>` 标签了。
 
 ## API
 

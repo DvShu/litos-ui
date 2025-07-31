@@ -1,0 +1,13 @@
+.l-tabs-main {
+  margin-top: 15px;
+}
+
+.l-tabs__content--hide {
+  display: none;
+}
+
+.l-tabs-card .l-tabs-main {
+  margin-top: 0;
+  border: 1px solid #f5f7fa;
+  border-top-width: 0;
+}

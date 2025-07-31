@@ -43,7 +43,9 @@ import Qrcode from "./qrcode";
 import DescriptionPanel from "./description_panel";
 import Pagination from "./pagination";
 import BaseOverlay from "./mask";
+import PageHeader from "./page_header";
 //Web Components Import
+regist(PageHeader)
 regist(BaseOverlay);
 regist(Pagination);
 regist(DescriptionPanel);
@@ -130,3 +132,4 @@ import "./qrcode/index.less";
 import "./description_panel/index.less";
 import "./pagination/index.less";
 import "./base_overlay/index.less";
+import "./page_header/index.less";

@@ -12,6 +12,7 @@ export { default as Popconfirm } from "./popconfirm";
 export { default as Dialog } from "./dialog";
 export { default as DialogContainer } from "./dialog/dialog_container";
 export { default as Loading } from "./loading";
+export { default as Tabs } from "./tabs";
 export { default as Modal } from "./modal";
 
 export { default as BaseIcon } from "./icon/base";
@@ -80,3 +81,5 @@ export { default as DescriptionPanel } from "./description_panel";
 export { default as Pagination } from "./pagination";
 
 export { default as Mask } from "./mask";
+
+export { default as PageHeader } from "./page_header";

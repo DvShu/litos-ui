@@ -16,13 +16,12 @@ export default class TabbarItem extends BaseComponent {
 
   connectedCallback(): void {
     this.loadStyleText(css);
-    console.log(this.parentElement);
     const $parent = this.parentElement as any;
     if ($parent.gap) {
-      addClass(this, 'l-item--gap');
+      addClass(this, "l-item--gap");
     }
-    if ($parent.type === 'card') {
-      addClass(this, 'l-item--card');
+    if ($parent.type === "card") {
+      addClass(this, "l-item--card");
     }
     super.connectedCallback();
   }

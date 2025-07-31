@@ -2,6 +2,15 @@
 
 数据加载时显示的动效。
 
+## 引用
+
+如果没有配合 `litosui-unplugin-resolver` 自动引用，则需要手动引入样式文件
+
+```js
+import { Loading as LLoading } from "litos-ui";
+import "litos-ui/styles/loading.css";
+```
+
 ## 演示
 
 <script setup>
@@ -60,7 +69,7 @@
 
 在某一个区域加载数据时展示加载动画，防止页面失去响应，提高用户体验
 
-给节点添加一个 `l-loading` 属性，然后调用 `LLoading.init()` 初始化
+给节点添加一个 `l-loading` 属性，然后调用 `LLoading.init()` 初始化, 调用 `LLoading.close()` 关闭。
 
 <ClientOnly>
 <l-code-preview>
@@ -152,7 +161,30 @@
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button>按钮</l-button>
+  <div 
+    style="height:150px;border:1px solid #dedede;padding:5px;" 
+    l-loading="loading4" 
+    l-loading-shape="bar"
+  >
+    <l-button id="startBarLoading" data-loading="loading4">开始</l-button>
+    <l-button id="endBarLoading" data-loading="loading4">结束</l-button>
+  </div>
+</textarea>
+
+<textarea lang="js">
+  //-
+  function handleStartBarLoading() {
+    LLoading.init('loading5');
+  }
+  //-
+  function handleEndBarLoading() {
+    LLoading.close('loading5');
+  }
+  //-
+  const $startBarLoading = document.getElementById('startBarLoading');
+  const $endBarLoading = document.getElementById('endBarLoading');
+  $startBarLoading.addEventListener('click', handleStartBarLoading);
+  $endBarLoading.addEventListener('click', handleEndBarLoading);
 </textarea>
 </div>
 </l-code-preview>
@@ -183,9 +215,6 @@
   >
     内容加载区域
   </div>
-</textarea>
-<textarea lang="js">
-  LLoading.init();
 </textarea>
 </div>
 </l-code-preview>

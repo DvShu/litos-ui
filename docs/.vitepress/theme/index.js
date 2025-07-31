@@ -9,6 +9,7 @@ import "../../../styles/scrollbar.css";
 import "../../../styles/container.css";
 import "../../../styles/dialog.css";
 import "../../../styles/loading.css";
+import "../../../styles/tabs.css";
 import { add } from "../../../src/icons";
 import "../../../styles/modal_box.css";
 

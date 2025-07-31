@@ -162,6 +162,14 @@ export default defineConfig({
             text: "Pagination 分页",
             link: "/components/pagination",
           },
+          {
+            text: "Tabs 标签页",
+            link: "/components/tabs",
+          },
+          {
+            text: "PageHeader 页头",
+            link: "/components/page_header",
+          },
           /* TemplateItem */
         ],
       },

@@ -227,3 +227,10 @@ l-button[type="gradient"]::part(default) {
 .carousel5 {
   background-color: #9c27b0;
 }
+
+.login-form-wrapper {
+  width: 400px;
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid #dedede;
+}
