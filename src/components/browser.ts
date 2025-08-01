@@ -44,7 +44,11 @@ import DescriptionPanel from "./description_panel";
 import Pagination from "./pagination";
 import BaseOverlay from "./mask";
 import PageHeader from "./page_header";
+import Tag from "./tag";
+import Collapase from "./collapase";
 //Web Components Import
+regist(Collapase)
+regist(Tag)
 regist(PageHeader)
 regist(BaseOverlay);
 regist(Pagination);
@@ -133,3 +137,5 @@ import "./description_panel/index.less";
 import "./pagination/index.less";
 import "./base_overlay/index.less";
 import "./page_header/index.less";
+import "./tag/index.less";
+import "./collapase/index.less";

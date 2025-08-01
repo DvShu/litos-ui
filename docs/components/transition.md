@@ -16,9 +16,9 @@ trans.init();
 ## 演示
 
 <script setup lang="ts">
-  import { $one, on, off, transition } from 'ph-utils/dom';
+  import { $one, on, off, transition, $, iterate } from 'ph-utils/dom';
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { createTransition } from '../../src/components/utils';
+  import { createTransition } from '../../src/components/utils/transition';
 
   let trans;
 
@@ -47,6 +47,22 @@ trans.init();
     }
   }
 
+  function toggleInner() {
+    const $inner = $('.in-trans');
+    iterate($inner, (item) => {
+      const isHide = item.style.display === 'none';
+      const name = item.getAttribute('l-name');
+      if (isHide) {
+        item.style.display = 'inline-block';
+        transition(item, name, 'enter');
+      } else {
+        transition(item, name, 'leave', () => {
+          item.style.display = 'none';
+        });
+      }
+    })
+  }
+
   onMounted(() => {
     if (!import.meta.env.SSR) {
       nextTick(() => {
@@ -55,6 +71,7 @@ trans.init();
         trans.init();
         on($one('#toggle1'), 'click', toggle);
         on($one('#toggle2'), 'click', toggle2);
+        on($one('#toggle3'), 'click', toggleInner);
       })
     }
   })
@@ -62,15 +79,25 @@ trans.init();
   onUnmounted(() => {
     if (!import.meta.env.SSR) {
       trans.destroy();
-      off($one('#toggle1'), 'click', toggle);
-      off($one('#toggle2'), 'click', toggle2);
+      const $toggle1 = $one('#toggle1');
+      if ($toggle1) {
+        off($toggle1, 'click', toggle);
+      }
+      const $toggle2 = $one('#toggle2');
+      if ($toggle2) {
+        off($toggle2, 'click', toggle2);
+      }
+      const $toggle3 = $one('#toggle3');
+      if ($toggle3) {
+        off($toggle3, 'click', toggleInner);
+      }
     }
   })
 </script>
 
 ### 基本用法
 
-创建过渡动画后，在节点加载完成后，调用 `init` 方法，即可自动加载带有 `l-transition` 属性的元素并应用动画。同时也会监听节点的 `l-transition-emit` 属性，当属性变化时，会自动应用动画。
+创建过渡动画后，在节点加载完成后，调用 `init` 方法，即可自动加载带有 `l-transition` 属性的元素并应用动画。同时也会监听节点的 `l-transition-emit` 属性，可选值为 `show`、`false`, 当属性变化时，会自动应用动画。
 
 基于此当想要隐藏节点时，只需要将 `l-transition-emit` 属性设置为 `hide` 即可。
 
@@ -168,6 +195,29 @@ trans.init();
 > 2. `property: string | [string, string, string][]` 过渡的属性，当为 `string` 时为过渡名称，通过 `css` 定义过渡; 为数组时为过渡的属性名，过渡的属性值，过渡的持续时间，如 `['opacity', '0', '0.3s']` 为透明度从 `1` 到 `0` 的过渡，持续时间为 `0.3s`
 > 3. `dir: 'enter' | 'leave'` 过渡的方向，`enter` 为进入，`leave` 为离开
 > 4. `finish?:() => void` 过渡完成后的回调函数
+
+### 内置过渡
+
+在使用 `transition` 函数进行过渡时，可以通过引入内置的过渡文件 `litos-ui/styles/transition.css`，然后就可以通过名称的方式来应用过渡动画。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button id="toggle3">Toggle</l-button>
+  <div class="in-trans" l-name="l-opacity">l-opacity</div>
+  <div class="in-trans" l-name="l-fadein">l-fadein</div>
+  <div class="in-trans" l-name="l-scale">l-scale</div>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button id="toggle2">Toggle</l-button>
+  <p id="text2">hello</p>
+</textarea>
+<textarea lang="js">
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
 
 ## API
 

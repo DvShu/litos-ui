@@ -83,3 +83,8 @@ export { default as Pagination } from "./pagination";
 export { default as Mask } from "./mask";
 
 export { default as PageHeader } from "./page_header";
+
+export { default as Tag } from "./tag";
+
+export { default as Collapase } from "./collapase";
+export { default as CollapaseItem } from "./collapase/item";

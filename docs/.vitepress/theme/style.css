@@ -234,3 +234,13 @@ l-button[type="gradient"]::part(default) {
   border-radius: 5px;
   border: 1px solid #dedede;
 }
+.l-tag--blue {
+  --l-tag-color: #4998f6;
+  --l-tag-background: #e8f5ff;
+  --l-tag-border-color: #4998f6;
+}
+
+.in-trans {
+  display: inline-block;
+  margin-left: 5px;
+}

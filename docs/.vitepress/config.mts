@@ -170,6 +170,14 @@ export default defineConfig({
             text: "PageHeader 页头",
             link: "/components/page_header",
           },
+          {
+            text: "Tag 标签",
+            link: "/components/tag",
+          },
+          {
+            text: "Collapase 折叠面板",
+            link: "/components/collapase",
+          },
           /* TemplateItem */
         ],
       },

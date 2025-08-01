@@ -1,0 +1,62 @@
+:host {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  height: var(--l-tag-height, 22px);
+  padding: 0 8px;
+  font-size: 12px;
+  line-height: 1;
+  border: 1px solid var(--l-tag-border-color, var(--l-border-color, #dedede));
+  border-radius: 4px;
+  background: var(--l-tag-background, #fff);
+  white-space: nowrap;
+  color: var(--l-tag-color, #333);
+}
+
+:host(.l-tag--primary) {
+  --l-tag-border-color: var(--l-primary-color-light3, #d3adf7);
+  --l-tag-background: var(--l-primary-color-light5, #f9f0ff);
+  --l-tag-color: var(--l-primary-color-light3, #d3adf7);
+}
+:host(.l-tag--error) {
+  --l-tag-color: var(--l-error-color, #ed3f13);
+  --l-tag-background: var(--l-error-color-light5, #fff1f0);
+  --l-tag-border-color: var(--l-error-color, #ed3f13);
+}
+:host(.l-tag--success) {
+  --l-tag-color: var(--l-success-color, #a0d911);
+  --l-tag-background: var(--l-success-color-light5, #fcffe6);
+  --l-tag-border-color: var(--l-success-color, #a0d911);
+}
+:host(.l-tag--info) {
+  --l-tag-color: var(--l-info-color, #999999);
+  --l-tag-background: var(--l-info-color-light9, #f5f5f5);
+  --l-tag-border-color: var(--l-border-color, #dedede);
+}
+:host(.l-tag--warning) {
+  --l-tag-color: var(--l-warning-color, #ff9900);
+  --l-tag-background: var(--l-warning-color-light5, #fff5e6);
+  --l-tag-border-color: var(--l-warning-color, #ff9900);
+}
+
+.l-tag-close {
+  margin-left: 3px;
+  font-size: 12px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    color 0.3s,
+    background-color 0.3s;
+  cursor: pointer;
+}
+
+.l-tag-close:hover {
+  background-color: var(--l-tag-color, #1890ff);
+  color: #ffffff;
+}
