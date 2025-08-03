@@ -12,6 +12,7 @@ import "../../../styles/loading.css";
 import "../../../styles/tabs.css";
 import { add } from "../../../src/icons";
 import "../../../styles/modal_box.css";
+import "../../../styles/popover.css";
 
 export default {
   extends: DefaultTheme,

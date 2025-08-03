@@ -1,4 +1,4 @@
-import { $one, on, off } from "ph-utils/dom";
+import { $one, on, off, $ } from "ph-utils/dom";
 
 /**
  * 根据给定的目标元素矩形、弹出层矩形、主轴对齐方式、交叉轴对齐方式、偏移量和轴方向，计算弹出层相对于目标元素的偏移量。
@@ -335,6 +335,52 @@ export function autoUpdate(
     $reference = undefined as any;
     $floating = undefined as any;
     $options = undefined as any;
+  }
+
+  return { destroy };
+}
+
+type PopoverInitProps = {
+  /** 触发元素, 如果不传, 则默认查询所有的 .l-popover-reference 类节点 */
+  reference?: HTMLElement | HTMLElement[] | string;
+  /** Popover节点, 如果不传则会自动创建 */
+  popover?: HTMLElement;
+  /**
+   * Popover显示内容修改函数
+   * @param popoverElement Popover节点
+   * @param datas referecnce 节点上的 data 属性集
+   * @returns
+   */
+  updateContent?: (
+    popoverElement: HTMLElement,
+    datas?: Record<string, any>
+  ) => void;
+  /** 触发方式, 默认: hover */
+  trigger?: "click" | "hover" | "focus";
+  /** 主题, default - 白底, tooltip - 黑底 */
+  theme?: "default" | "tooltip";
+};
+
+export function init(props: PopoverInitProps) {
+  let options = { trigger: "hover", ...props };
+  let $refs: HTMLElement[] | undefined = [];
+
+  if (options.reference) {
+    if (typeof options.reference === "string") {
+      $refs = $(options.reference) as HTMLElement[];
+    } else if (Array.isArray(options.reference)) {
+      $refs.push(...options.reference);
+    } else {
+      $refs.push(options.reference);
+    }
+  } else {
+    $refs = $(".l-popover-reference") as HTMLElement[];
+  }
+
+  let $popover = options.popover;
+
+  function destroy() {
+    $refs = undefined;
   }
 
   return { destroy };

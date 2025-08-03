@@ -1,0 +1,27 @@
+.l-popover {
+  --l-popover-background: #ffffff;
+  width: max-content;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--l-popover-background);
+  color: white;
+  font-weight: bold;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 90%;
+  box-sizing: border-box;
+  display: none;
+}
+.l-popover.l-popover--tooltip {
+  --l-popover-background: #333333;
+}
+
+.l-popover-arrow {
+  position: absolute;
+  background: var(--l-popover-background);
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  box-sizing: border-box;
+}
