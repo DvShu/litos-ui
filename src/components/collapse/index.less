@@ -1,0 +1,13 @@
+:host {
+  --l-collapse-border-color: var(--l-border-color, #dedede);
+  --l-collapse-border-radius: 0px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--l-collapse-gap, 0px);
+  box-sizing: border-box;
+}
+/* 网格模式 */
+:host(.l-collapse-grid) {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  align-items: start;
+}

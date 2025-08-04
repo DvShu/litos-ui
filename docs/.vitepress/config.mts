@@ -175,8 +175,8 @@ export default defineConfig({
             link: "/components/tag",
           },
           {
-            text: "Collapase 折叠面板",
-            link: "/components/collapase",
+            text: "Collapse 折叠面板",
+            link: "/components/collapse",
           },
           /* TemplateItem */
         ],

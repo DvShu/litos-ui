@@ -45,11 +45,11 @@ import Pagination from "./pagination";
 import BaseOverlay from "./mask";
 import PageHeader from "./page_header";
 import Tag from "./tag";
-import Collapase from "./collapase";
+import Collapase from "./collapse";
 //Web Components Import
-regist(Collapase)
-regist(Tag)
-regist(PageHeader)
+regist(Collapase);
+regist(Tag);
+regist(PageHeader);
 regist(BaseOverlay);
 regist(Pagination);
 regist(DescriptionPanel);

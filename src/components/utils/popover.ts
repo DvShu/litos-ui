@@ -1,4 +1,4 @@
-import { $one, on, off, $ } from "ph-utils/dom";
+import { $one, on, off, $, iterate } from "ph-utils/dom";
 
 /**
  * 根据给定的目标元素矩形、弹出层矩形、主轴对齐方式、交叉轴对齐方式、偏移量和轴方向，计算弹出层相对于目标元素的偏移量。
@@ -359,29 +359,74 @@ type PopoverInitProps = {
   trigger?: "click" | "hover" | "focus";
   /** 主题, default - 白底, tooltip - 黑底 */
   theme?: "default" | "tooltip";
+  /** 浮动元素宽度 */
+  floatingWidth?: number | "trigger";
+  /** 弹出位置, 默认: top */
+  placement?: PopoverPlacement;
 };
 
-export function init(props: PopoverInitProps) {
-  let options = { trigger: "hover", ...props };
-  let $refs: HTMLElement[] | undefined = [];
-
-  if (options.reference) {
-    if (typeof options.reference === "string") {
-      $refs = $(options.reference) as HTMLElement[];
-    } else if (Array.isArray(options.reference)) {
-      $refs.push(...options.reference);
+export class Popover {
+  public options: PopoverInitProps;
+  private $refs: HTMLElement[] | undefined = [];
+  private $popover?: HTMLElement;
+  private updater?: any;
+  constructor(props?: PopoverInitProps) {
+    this.options = { trigger: "hover", placement: "top", ...props };
+    let $refs = [];
+    if (this.options.reference) {
+      if (typeof this.options.reference === "string") {
+        $refs = $(this.options.reference) as HTMLElement[];
+      } else if (Array.isArray(this.options.reference)) {
+        $refs.push(...this.options.reference);
+      } else {
+        $refs.push(this.options.reference);
+      }
     } else {
-      $refs.push(options.reference);
+      $refs = $(".l-popover-reference") as HTMLElement[];
     }
-  } else {
-    $refs = $(".l-popover-reference") as HTMLElement[];
+    this.$refs = $refs;
+    this.$popover = this.options.popover;
+    this.#init();
   }
 
-  let $popover = options.popover;
-
-  function destroy() {
-    $refs = undefined;
+  #init() {
+    if (this.options.trigger && this.$refs) {
+      iterate(this.$refs, (item) => {
+        if (["click", "focus"].includes(this.options.trigger as string)) {
+          on(item, "click", this.#onRefTap);
+        }
+      });
+    }
   }
 
-  return { destroy };
+  #onRefTap = (e: Event) => {
+    this.#destroyUpdater();
+    const $target = e.target as HTMLElement;
+    if (!this.$popover) {
+      $popover = document.createElement("div");
+      $popover.classList.add("l-popover");
+      document.body.appendChild($popover);
+    }
+    this.updater = autoUpdate($target, $popover, {
+      placement: "top",
+    });
+  };
+
+  #destroyUpdater() {
+    if (this.updater) {
+      this.updater.destroy();
+      this.updater = undefined;
+    }
+  }
+
+  destroy() {
+    this.#destroyUpdater();
+    if (this.$refs) {
+      iterate(this.$refs, (item) => {
+        off(item, "click", this.#onRefTap);
+      });
+    }
+    this.$refs = undefined;
+    this.$popover = undefined;
+  }
 }
