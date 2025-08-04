@@ -1,4 +1,6 @@
-import { $one, on, off, $, iterate } from "ph-utils/dom";
+import { $one, on, off, $, iterate, $$ } from "ph-utils/dom";
+import { random } from "ph-utils";
+import { timestamp } from "ph-utils/date";
 
 /**
  * 根据给定的目标元素矩形、弹出层矩形、主轴对齐方式、交叉轴对齐方式、偏移量和轴方向，计算弹出层相对于目标元素的偏移量。
@@ -363,6 +365,8 @@ type PopoverInitProps = {
   floatingWidth?: number | "trigger";
   /** 弹出位置, 默认: top */
   placement?: PopoverPlacement;
+  /** 是否显示指示箭头 */
+  arrow?: boolean;
 };
 
 export class Popover {
@@ -370,8 +374,22 @@ export class Popover {
   private $refs: HTMLElement[] | undefined = [];
   private $popover?: HTMLElement;
   private updater?: any;
+  private _popoverId?: string;
   constructor(props?: PopoverInitProps) {
-    this.options = { trigger: "hover", placement: "top", ...props };
+    this.options = {
+      trigger: "hover",
+      placement: "top",
+      arrow: true,
+      updateContent: (popover, datas) => {
+        if (datas && datas.title) {
+          const $title = $one(".l-popover-content", popover);
+          if ($title) {
+            $title.textContent = datas.title;
+          }
+        }
+      },
+      ...props,
+    };
     let $refs = [];
     if (this.options.reference) {
       if (typeof this.options.reference === "string") {
@@ -402,21 +420,53 @@ export class Popover {
   #onRefTap = (e: Event) => {
     this.#destroyUpdater();
     const $target = e.target as HTMLElement;
-    if (!this.$popover) {
-      $popover = document.createElement("div");
-      $popover.classList.add("l-popover");
-      document.body.appendChild($popover);
+    const isShow = this.#isShow();
+    if (isShow) {
+      if (this.options.trigger === "focus") return;
+      this.#destroyUpdater();
+      if (this.$popover) {
+        this.$popover.style.display = "none";
+      }
+      return;
     }
-    this.updater = autoUpdate($target, $popover, {
-      placement: "top",
-    });
+    if (!this.$popover) {
+      this.#renderPopover();
+      this.$popover = $one(`#${this._popoverId}`) as HTMLElement;
+    }
+    if (this.$popover) {
+      if (this.options.updateContent) {
+        this.options.updateContent(this.$popover, $target.dataset);
+      }
+      this.updater = autoUpdate($target, this.$popover, {
+        placement: "top",
+      });
+    }
   };
+
+  #renderPopover() {
+    const theme = this.options.theme || "default";
+    const tmpChildren = ['<div class="l-popover-content"></div>'];
+    if (this.options.arrow) {
+      tmpChildren.push('<div class="l-popover-arrow"></div>');
+    }
+    this._popoverId = `l-popover-${random(8)}-${timestamp()}`;
+    const $tmp = $$("div", {
+      id: this._popoverId,
+      class: `l-popover l-popover--${theme}`,
+      innerHTML: tmpChildren.join(""),
+    });
+    document.body.appendChild($tmp);
+  }
 
   #destroyUpdater() {
     if (this.updater) {
       this.updater.destroy();
       this.updater = undefined;
     }
+  }
+
+  #isShow() {
+    return this.$popover && this.$popover.style.display !== "none";
   }
 
   destroy() {
@@ -426,6 +476,7 @@ export class Popover {
         off(item, "click", this.#onRefTap);
       });
     }
+    this.options = undefined as any;
     this.$refs = undefined;
     this.$popover = undefined;
   }
