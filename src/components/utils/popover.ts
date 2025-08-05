@@ -235,6 +235,8 @@ type UpdatePositionProps = {
   floatingWidth?: number | "trigger";
   /** 弹出位置, 默认: top */
   placement?: PopoverPlacement;
+  /** 偏移量, 默认: 10 */
+  offset?: number;
 };
 
 /**
@@ -251,7 +253,7 @@ type UpdatePositionProps = {
 export function updatePosition(
   reference: HTMLElement,
   floating: HTMLElement,
-  options: UpdatePositionProps = { placement: "top" }
+  options: UpdatePositionProps = { placement: "top", offset: 10 }
 ) {
   // 获取水平和垂直方向的位置
   let mainPos = "bottom";
@@ -280,23 +282,25 @@ export function updatePosition(
     popoverRect,
     mainPos,
     crossPos,
-    10
+    options.offset || 10
   );
   floating.style.setProperty("left", `${impactRes.x}px`);
   floating.style.setProperty("top", `${impactRes.y}px`);
-  let $arrow = $one(".arrow", floating);
+  let $arrow = $one(".l-popover-arrow", floating);
   if ($arrow) {
+    console.log(impactRes.mainAlign, impactRes.crossAlign);
     const arrowPos = getArrowPosition(
       reference,
       floating,
       impactRes.mainAlign,
       impactRes.crossAlign
     );
+    let cssText = ``;
     if (arrowPos.x) {
-      $arrow.style.setProperty("left", `${arrowPos.x}px`);
+      cssText += `left: ${arrowPos.x}px;`;
     }
     if (arrowPos.y) {
-      $arrow.style.setProperty("top", `${arrowPos.y}px`);
+      cssText += `top: ${arrowPos.y}px;`;
     }
     const staticSide = {
       top: "bottom",
@@ -304,7 +308,14 @@ export function updatePosition(
       bottom: "top",
       left: "right",
     }[impactRes.mainAlign as "top"];
-    $arrow.style.setProperty(staticSide, "-4px");
+    const arrowSide = {
+      top: "right",
+      bottom: "left",
+      left: "top",
+      right: "bottom",
+    }[impactRes.mainAlign as "top"];
+    cssText += `${staticSide}: -4px;border-${staticSide}: 1px solid var(--l-popover-border-color);border-${arrowSide}:1px solid var(--l-popover-border-color);`;
+    $arrow.style.cssText = cssText;
   }
 }
 
@@ -341,12 +352,13 @@ export function autoUpdate(
 
   return { destroy };
 }
-
 type PopoverInitProps = {
   /** 触发元素, 如果不传, 则默认查询所有的 .l-popover-reference 类节点 */
   reference?: HTMLElement | HTMLElement[] | string;
   /** Popover节点, 如果不传则会自动创建 */
   popover?: HTMLElement;
+  /** Popover 内容渲染 */
+  contentRender?: () => HTMLElement | string | DocumentFragment;
   /**
    * Popover显示内容修改函数
    * @param popoverElement Popover节点
@@ -367,19 +379,25 @@ type PopoverInitProps = {
   placement?: PopoverPlacement;
   /** 是否显示指示箭头 */
   arrow?: boolean;
+  /** 偏移量, 默认: 10 */
+  offset?: number;
 };
 
 export class Popover {
   public options: PopoverInitProps;
   private $refs: HTMLElement[] | undefined = [];
+  /** 激活的触发节点 */
+  private $reference?: HTMLElement;
   private $popover?: HTMLElement;
   private updater?: any;
   private _popoverId?: string;
+  private _hideTimer?: number;
+
   constructor(props?: PopoverInitProps) {
     this.options = {
       trigger: "hover",
-      placement: "top",
       arrow: true,
+      offset: 10,
       updateContent: (popover, datas) => {
         if (datas && datas.title) {
           const $title = $one(".l-popover-content", popover);
@@ -404,80 +422,178 @@ export class Popover {
     }
     this.$refs = $refs;
     this.$popover = this.options.popover;
-    this.#init();
+    this._init();
   }
 
-  #init() {
-    if (this.options.trigger && this.$refs) {
+  _init() {
+    const trigger = this.options.trigger;
+    if (trigger && this.$refs) {
       iterate(this.$refs, (item) => {
-        if (["click", "focus"].includes(this.options.trigger as string)) {
-          on(item, "click", this.#onRefTap);
+        if (["click", "focus"].includes(trigger)) {
+          on(item, "click", this._onRefTap);
+        } else if (trigger === "hover") {
+          on(item, "mouseenter", this._onMouseEnter);
+          on(item, "mouseleave", this._onMouseLeave);
         }
       });
     }
+    on(document, "click", this._onOuterTap, { capture: true });
   }
 
-  #onRefTap = (e: Event) => {
-    this.#destroyUpdater();
+  _bindPopoverEvents() {
+    if (this.$popover && this.options.trigger === "hover") {
+      on(this.$popover, "mouseenter", this._onPopoverEnter);
+      on(this.$popover, "mouseleave", this._onMouseLeave);
+    }
+  }
+
+  _onPopoverEnter = () => {
+    this._clearHideTimer();
+    console.log("clear");
+  };
+
+  _clearHideTimer() {
+    if (this._hideTimer) {
+      clearTimeout(this._hideTimer);
+      this._hideTimer = undefined;
+    }
+  }
+
+  _onMouseEnter = (e: Event) => {
     const $target = e.target as HTMLElement;
-    const isShow = this.#isShow();
-    if (isShow) {
+    this._clearHideTimer();
+    if (this.$reference == $target) return;
+    this.show($target);
+  };
+
+  _onMouseLeave = () => {
+    this._clearHideTimer();
+    this._hideTimer = setTimeout(() => {
+      this.hide();
+    }, 50) as any;
+  };
+
+  _onRefTap = (e: Event) => {
+    this._destroyUpdater();
+    const $target = e.target as HTMLElement;
+    if (this.$reference) {
+      // 已经显示
       if (this.options.trigger === "focus") return;
-      this.#destroyUpdater();
-      if (this.$popover) {
-        this.$popover.style.display = "none";
-      }
+      this.hide();
       return;
     }
+    this.show($target);
+  };
+
+  show(reference: HTMLElement) {
+    this.$reference = reference;
     if (!this.$popover) {
-      this.#renderPopover();
+      this._renderPopover();
       this.$popover = $one(`#${this._popoverId}`) as HTMLElement;
+      this._bindPopoverEvents();
     }
     if (this.$popover) {
+      const referenceDatas = this.$reference.dataset;
       if (this.options.updateContent) {
-        this.options.updateContent(this.$popover, $target.dataset);
+        this.options.updateContent(this.$popover, referenceDatas);
       }
-      this.updater = autoUpdate($target, this.$popover, {
-        placement: "top",
+      this._destroyUpdater();
+      const placement: string =
+        referenceDatas.placement || this.options.placement || "top";
+      const offset = Number(referenceDatas.offset || this.options.offset || 10);
+      const floatingWidth =
+        referenceDatas.floatingWidth || this.options.floatingWidth;
+      this.$popover.style.display = "block";
+      this.updater = autoUpdate(this.$reference, this.$popover, {
+        placement: placement as "top",
+        floatingWidth: floatingWidth ? Number(floatingWidth) : undefined,
+        offset: offset,
       });
+    }
+  }
+
+  hide() {
+    this._destroyUpdater();
+    if (this.$popover) {
+      this.$popover.style.display = "none";
+    }
+    this.$reference = undefined;
+  }
+
+  _onOuterTap = (e: Event) => {
+    const $target = e.target as HTMLElement;
+    if (
+      this.$reference &&
+      !this.$reference.contains($target) &&
+      this.$reference != $target
+    ) {
+      // 点击的是触发区域外
+      if (this.options.trigger === "focus") {
+        this.hide();
+        return;
+      }
+      // 判断是否点击的是 Popover
+      if (
+        this.$popover &&
+        (this.$popover.contains($target) || this.$popover == $target)
+      ) {
+        // 点击的是 Popover
+        return;
+      }
+      this.hide();
     }
   };
 
-  #renderPopover() {
+  _renderPopover() {
     const theme = this.options.theme || "default";
-    const tmpChildren = ['<div class="l-popover-content"></div>'];
-    if (this.options.arrow) {
-      tmpChildren.push('<div class="l-popover-arrow"></div>');
-    }
-    this._popoverId = `l-popover-${random(8)}-${timestamp()}`;
+    this._popoverId = `l-popover-${timestamp()}-${random(2)}`;
     const $tmp = $$("div", {
       id: this._popoverId,
       class: `l-popover l-popover--${theme}`,
-      innerHTML: tmpChildren.join(""),
     });
+    const $content = $$("div", { class: "l-popover-content" });
+    const contentRender = this.options.contentRender;
+    if (contentRender) {
+      const renderRes = contentRender();
+      if (typeof renderRes === "string") {
+        $content.innerHTML = renderRes;
+      } else {
+        $content.appendChild(renderRes);
+      }
+    }
+    $tmp.appendChild($content);
+    if (this.options.arrow) {
+      $content.appendChild($$("div", { class: "l-popover-arrow" }));
+    }
     document.body.appendChild($tmp);
   }
 
-  #destroyUpdater() {
+  _destroyUpdater() {
     if (this.updater) {
       this.updater.destroy();
       this.updater = undefined;
     }
   }
 
-  #isShow() {
-    return this.$popover && this.$popover.style.display !== "none";
-  }
-
   destroy() {
-    this.#destroyUpdater();
+    this.hide();
     if (this.$refs) {
       iterate(this.$refs, (item) => {
-        off(item, "click", this.#onRefTap);
+        off(item, "click", this._onRefTap);
+        off(item, "mouseenter", this._onMouseEnter);
+        off(item, "mouseleave", this._onMouseLeave);
       });
     }
+    off(document, "click", this._onOuterTap, { capture: true });
     this.options = undefined as any;
     this.$refs = undefined;
+    this._clearHideTimer();
+    if (this.$popover) {
+      off(this.$popover, "mouseenter", this._onPopoverEnter);
+      off(this.$popover, "mouseleave", this._onMouseLeave);
+      // 移除 popover 节点
+      this.$popover.remove();
+    }
     this.$popover = undefined;
   }
 }

@@ -1,17 +1,22 @@
 .l-popover {
   --l-popover-background: #ffffff;
+  --l-popover-border-color: #e4e4e4;
+  --l-popover-color: #666666;
+  --l-popover-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   width: max-content;
   position: absolute;
   top: 0;
   left: 0;
   background: var(--l-popover-background);
-  color: white;
-  font-weight: bold;
-  padding: 5px;
+  box-shadow: var(--l-popover-box-shadow);
+  border: 1px solid var(--l-popover-border-color);
+  color: var(--l-popover-color);
+  padding: 10px;
   border-radius: 4px;
   font-size: 90%;
   box-sizing: border-box;
   display: none;
+  z-index: 300;
 }
 .l-popover.l-popover--tooltip {
   --l-popover-background: #333333;
