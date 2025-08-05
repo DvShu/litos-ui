@@ -237,6 +237,27 @@ const popover = new Popover();
 
 > 出了通过这种形式外，也可以自己通过 `popover` 属性，指向一个 `popover` 节点，这个时候，可以完全自定义包括整个 `popover` 在内的结构
 
+::: code-group
+
+```html [html]
+<div id="popover" class="l-popover">
+  <div class="l-popover-content">
+    <!--这里填充其余内容部分-->
+  </div>
+  <div class="l-popover-arrow"></div>
+</div>
+```
+
+```js [js]
+const $popover = document.querySelector("#popover");
+new Popover({
+  reference: "#custom",
+  popover: $popover,
+});
+```
+
+:::
+
 ### Tooltip
 
 `tooltip` 相对于 `popover` 只是样式进行了小调整；只需要设置 `theme="tooltip"` 属性就能即可。

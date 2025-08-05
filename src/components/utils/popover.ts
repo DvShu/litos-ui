@@ -422,22 +422,63 @@ export class Popover {
     }
     this.$refs = $refs;
     this.$popover = this.options.popover;
+    this._bindPopoverEvents();
     this._init();
   }
 
-  _init() {
-    const trigger = this.options.trigger;
-    if (trigger && this.$refs) {
-      iterate(this.$refs, (item) => {
-        if (["click", "focus"].includes(trigger)) {
-          on(item, "click", this._onRefTap);
-        } else if (trigger === "hover") {
-          on(item, "mouseenter", this._onMouseEnter);
-          on(item, "mouseleave", this._onMouseLeave);
+  /**
+   * 向实例中添加一个引用元素
+   *
+   * @param reference 需要添加的引用元素
+   */
+  public addReference(reference: HTMLElement) {
+    if (this.$refs) {
+      this._bindReferenceEvents(reference);
+      this.$refs.push(reference);
+    }
+  }
+
+  /**
+   * 从引用列表中移除指定的引用
+   *
+   * @param referecnce 要移除的引用元素
+   */
+  public removeReference(referecnce: HTMLElement) {
+    if (this.$refs) {
+      let index = this.$refs.indexOf(referecnce);
+      if (index !== -1) {
+        if (referecnce == this.$reference) {
+          this.hide();
         }
+        this._removeReferenceEvents(referecnce);
+        this.$refs.splice(index, 1);
+      }
+    }
+  }
+
+  _init() {
+    if (this.options.trigger && this.$refs) {
+      iterate(this.$refs, (item) => {
+        this._bindReferenceEvents(item);
       });
     }
     on(document, "click", this._onOuterTap, { capture: true });
+  }
+
+  _bindReferenceEvents(ref: HTMLElement) {
+    const trigger = this.options.trigger as string;
+    if (["click", "focus"].includes(trigger)) {
+      on(ref, "click", this._onRefTap);
+    } else if (trigger === "hover") {
+      on(ref, "mouseenter", this._onMouseEnter);
+      on(ref, "mouseleave", this._onMouseLeave);
+    }
+  }
+
+  _removeReferenceEvents(ref: HTMLElement) {
+    off(ref, "click", this._onRefTap);
+    off(ref, "mouseenter", this._onMouseEnter);
+    off(ref, "mouseleave", this._onMouseLeave);
   }
 
   _bindPopoverEvents() {
@@ -485,6 +526,11 @@ export class Popover {
     this.show($target);
   };
 
+  /**
+   * 显示浮层。
+   *
+   * @param reference 浮层所对齐的 HTML 元素。
+   */
   show(reference: HTMLElement) {
     this.$reference = reference;
     if (!this.$popover) {
@@ -512,6 +558,9 @@ export class Popover {
     }
   }
 
+  /**
+   * 隐藏 Popover
+   */
   hide() {
     this._destroyUpdater();
     if (this.$popover) {
@@ -575,13 +624,16 @@ export class Popover {
     }
   }
 
+  /**
+   * 销毁组件
+   *
+   * 销毁组件并移除相关事件监听器和 DOM 元素。
+   */
   destroy() {
     this.hide();
     if (this.$refs) {
       iterate(this.$refs, (item) => {
-        off(item, "click", this._onRefTap);
-        off(item, "mouseenter", this._onMouseEnter);
-        off(item, "mouseleave", this._onMouseLeave);
+        this._removeReferenceEvents(item);
       });
     }
     off(document, "click", this._onOuterTap, { capture: true });
