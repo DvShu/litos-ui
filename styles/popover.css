@@ -17,16 +17,50 @@
   box-sizing: border-box;
   display: none;
   z-index: 300;
+  line-height: 1;
 }
-.l-popover.l-popover--tooltip {
-  --l-popover-background: #333333;
-}
-
 .l-popover-arrow {
   position: absolute;
   background: var(--l-popover-background);
-  width: 8px;
-  height: 8px;
+  width: var(--l-popover-arrow-size, 8px);
+  height: var(--l-popover-arrow-size, 8px);
   transform: rotate(45deg);
   box-sizing: border-box;
+}
+/* tooltip */
+.l-popover.l-popover--tooltip {
+  --l-popover-color: #fff;
+  --l-popover-box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  --l-popover-background: #383838;
+  --l-popover-border-color: #383838;
+  font-size: 12px;
+  padding: 8px;
+}
+
+/* popconfirm */
+.l-popover--popconfirm {
+  min-width: 150px;
+}
+.l-popover--popconfirm .l-popconfirm-container {
+  display: flex;
+  align-items: center;
+}
+.l-popover--popconfirm .l-popconfirm-icon-wrapper {
+  margin-right: 10px;
+  display: inline-flex;
+  color: var(--l-warn-color, #f90);
+}
+.l-popover--popconfirm .l-popconfirm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-top: 7px;
+  gap: 7px;
+}
+.l-popover--popconfirm .l-popconfirm-btn {
+  height: 24px;
+}
+.l-popover--popconfirm .l-popconfirm-btn::part(default) {
+  padding: 0 6px;
+  font-size: 13px;
 }

@@ -33,31 +33,10 @@ export default class Tag extends BaseComponent {
     }
     switch (name) {
       case "type":
-        let isFound = false;
-        for (const classItem of this.classList) {
-          if (classItem.startsWith("l-tag--")) {
-            this.classList.replace(classItem, `l-tag--${parsedValue}`);
-            isFound = true;
-            break;
-          }
-        }
-        if (!isFound) {
-          this.classList.add(`l-tag--${parsedValue}`);
-        }
+        this._toggleTypeClass();
         break;
       case "color":
-        if (isBlank(parsedValue)) {
-          this.style.removeProperty("--l-tag-color");
-          this.style.removeProperty("--l-tag-border-color");
-          this.style.removeProperty("--l-tag-background");
-        } else {
-          this.style.setProperty("--l-tag-color", parsedValue);
-          this.style.setProperty("--l-tag-border-color", parsedValue);
-          this.style.setProperty(
-            "--l-tag-background",
-            adjust(parsedValue, 5, true)
-          );
-        }
+        this._toggleColorStyle();
         break;
       case "closable":
         if (!this.rendered) return;
@@ -101,7 +80,37 @@ export default class Tag extends BaseComponent {
   };
 
   afterInit(): void {
+    this._toggleTypeClass();
+    this._toggleColorStyle();
     on(this.root, "click", this.#onActionTap);
+  }
+
+  _toggleTypeClass() {
+    if (!this.rendered) return;
+    let isFound = false;
+    for (const classItem of this.classList) {
+      if (classItem.startsWith("l-tag--")) {
+        this.classList.replace(classItem, `l-tag--${this.type}`);
+        isFound = true;
+        break;
+      }
+    }
+    if (!isFound) {
+      this.classList.add(`l-tag--${this.type}`);
+    }
+  }
+
+  _toggleColorStyle() {
+    if (!this.rendered) return;
+    if (isBlank(this.color)) {
+      this.style.removeProperty("--l-tag-color");
+      this.style.removeProperty("--l-tag-border-color");
+      this.style.removeProperty("--l-tag-background");
+    } else {
+      this.style.setProperty("--l-tag-color", this.color as string);
+      this.style.setProperty("--l-tag-border-color", this.color as string);
+      this.style.setProperty("--l-tag-background", adjust(this.color, 5, true));
+    }
   }
 
   beforeDestroy(): void {

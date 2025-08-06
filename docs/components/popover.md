@@ -5,8 +5,9 @@
 ## 引用
 
 ```js
-import { Popover } from "litos-ui";
+import { Popover, regist, Button, WarnIcon } from "litos-ui";
 import "litos-ui/styles/popover.css";
+regist([Button, WarnIcon]); // 当使用 Popconfirm 时，需要注册 Button 和 WarnIcon 组件
 
 const popover = new Popover();
 
@@ -16,8 +17,9 @@ const popover = new Popover();
 ## 演示
 
 <script setup>
-  import { Popover } from '../../src/components/utils/popover';
+  import { Popover, PopconfirmProps } from '../../src/components/utils/popover';
   import { onMounted, onUnmounted, nextTick } from 'vue';
+  import { transition } from 'ph-utils/dom';
 
   let popover;
   let popover1;
@@ -25,10 +27,63 @@ const popover = new Popover();
   let popover3;
   let popover4;
   let popover5;
+  let popover6;
+  let popconfirm;
+  let $addTag;
+  let $tagGroup;
+  let observer;
+
+  function handleAddTag() {
+    if ($tagGroup) {
+      let $addTagTmp = document.createElement('l-tag');
+      $addTagTmp.setAttribute('closable', 'true');
+      $addTagTmp.setAttribute('type', 'primary');
+      $addTagTmp.style.marginRight = "5px";
+      $addTagTmp.className = "ddd"
+      // $addTagTmp.classList.add('tooltip-tag');
+      $addTagTmp.innerHTML = '标签';
+      const $tw = document.createElement('div');
+      $tw.appendChild($addTagTmp);
+      $tagGroup.appendChild($tw);
+      transition($addTagTmp, 'l-scale', "enter");
+      $addTagTmp = null;
+    }
+  }
+
+  function handleRemoveTag(e) {
+    transition(e.target, 'l-scale', "leave", () => {
+      e.target.remove();
+    });
+  }
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
+        $tagGroup = document.getElementById('tagGroup');
+        if ($tagGroup) {
+          $tagGroup.addEventListener('close', handleRemoveTag);
+          observer = new MutationObserver(function(mutationsList, observer) {
+            for (let mutation of mutationsList) {
+                if (mutation.type === 'childList') {
+                    console.log('子节点被添加或删除了', mutation);
+                    // mutation.addedNodes: 新增的节点列表
+                    // mutation.removedNodes: 被删除的节点列表
+                }
+
+                if (mutation.type === 'subtree') {
+                    // 注意：subtree 不是 mutation.type 的值，而是配置项
+                }
+            }
+          });
+          observer.observe($tagGroup, {
+            childList: true,
+            subtree: true
+          });
+        }
+        $addTag = document.getElementById('addTag');
+        if ($addTag) {
+          $addTag.addEventListener('click', handleAddTag);
+        }
         popover = new Popover();
         popover1 = new Popover({
           reference: '#hover-popover',
@@ -56,12 +111,33 @@ const popover = new Popover();
             return fragment;
           },
           updateContent (popoverEl, datas) {}
-        })
+        });
+        popover6 = new Popover({
+          reference: '#tooltip',
+          theme: 'tooltip',
+        });
+        popconfirm = new Popover({
+          ...PopconfirmProps,
+          reference: '#popconfirm',
+          onPopoverAction (action) {
+            console.log(action);
+          }
+        });
       }
     });
   });
 
   onUnmounted(() => {
+    if ($tagGroup) {
+      $tagGroup.removeEventListener('close', handleRemoveTag);
+    }
+    if (observer) {
+      observer.disconnect();
+      observer = undefined;
+    }
+    if ($addTag) {
+      $addTag.removeEventListener('click', handleAddTag);
+    }
     if (popover) {
       popover.destroy();
     }
@@ -82,6 +158,19 @@ const popover = new Popover();
       popover4.destroy();
     }
     popover4 = undefined;
+    if (popover5) {
+      popover5.destroy();
+    }
+    popover5 = undefined;
+    if (popover6) {
+      popover6.destroy();
+    }
+    popover6 = undefined;
+    if (popconfirm) {
+      popconfirm.destroy();
+    }
+    popconfirm = undefined;
+
   });
 </script>
 
@@ -265,13 +354,69 @@ new Popover({
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-popover content="提示内容" theme="tooltip" placement="top">
-    <l-button slot="trigger">提示</l-button>
-  </l-popover>
+  <l-button data-title="提示内容" id="tooltip">提示</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button>按钮</l-button>
+  <l-button data-title="提示内容" id="tooltip">提示</l-button>
+</textarea>
+<textarea lang="js">
+  new Popover({
+    reference: '#tooltip',
+    theme: 'tooltip',
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### Popconfirm
+
+引入 `Popconfirm` 配置，然后在 `reference` 节点上添加 `data-content` 属性为提示内容。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button data-content="确定删除吗？" id="popconfirm">删除</l-button>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button data-content="确定删除吗？" id="popconfirm">删除</l-button>
+</textarea>
+<textarea lang="js">
+  import { regist, Button, WarnIcon, PopconfirmProps } from 'litos-ui';
+  regist([Button, WarnIcon]);
+  //-
+  new Popover({
+    ...PopconfirmProps,
+    reference: '#popconfirm',
+    onPopoverAction (action) {
+      console.log(action);
+    }
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 列表
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button id="addTag" type="primary">添加标签</l-button>
+  <hr />
+  <div id="tagGroup"></div>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button data-title="提示内容" id="tooltip">提示</l-button>
+</textarea>
+<textarea lang="js">
+  new Popover({
+    reference: '#tooltip',
+    theme: 'tooltip',
+  });
 </textarea>
 </div>
 </l-code-preview>
@@ -279,32 +424,28 @@ new Popover({
 
 ## API
 
-### Popover Attibutes
+### Popover Constructor Attibutes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `inline` | `l-popover` 是否是行级元素 | `boolean` | `false` |
-| `content` | `l-popover` 的内容 | `string` | `-` |
-| `placement` | 位置 | `string` | `top` |
+| `reference` | 触发元素, 不传,则查询所有的 `.l-popover-reference` | `HTMLElement`、`HTMLElement[]`、`string` | `-` |
+| `popover` | `Popover`元素节点, 不传会自动创建 | `HTMLElement` | `-` |
+| `contentRender` | 内容渲染函数 | `() => HTMLElement | string | DocumentFragment` | `-` |
+| `updateContent` | 内容更新函数, `datas` 为 `reference` 节点上的 `data` 属性集 | `(popoverElement: HTMLElement, datas?: Record<string, any>) => void` | `-` |
 | `trigger` | 触发方式 | `hover`、`click`、`focus` | `hover` |
 | `offset` | 偏移量 | `number` | `10` |
-| `show-arrow` | 是否显示箭头 | `boolean` | `true` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
+| `arrow` | 是否显示箭头 | `boolean` | `true` |
+| `arrowSize` | 箭头大小 | `number` | `8` |
 | `width` | 宽度 | `string`、`number` | `-` |
-| `destroy-on-hide` | 隐藏时销毁 `DOM` 结构; `false` 隐藏时未销毁只是设置 `display: none` | `boolean` | `false` |
-
-### Popover Slots
-
-<!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
-| `trigger` | 触发按钮 |
+| `theme` | 主题 | `default`、`tooltip` | `default` |
+| `placement` | 位置 | `top`、`top-start`、`top-end`、`bottom`、`bottom-start`、`bottom-end`、`left`、`left-start`、`left-end`、`right`、`right-start`、`right-end` | `top` |
+| `popoverWidth` | 弹出宽度, `trigger` 保持和触发元素宽度一致 | `string`、`trigger` | `-` |
+| `onPopoverAction` | 点击 `Popover` 内具有 `data-action` 的元素时触发 | `(action: string) => void` | `-` |
 
 ### Popover CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l-popover-offset` | 偏移量 | `10px` |
+| `-` | - | `-` |

@@ -1,4 +1,4 @@
-import { $one, on, off, $, iterate, $$ } from "ph-utils/dom";
+import { $one, on, off, $, iterate, $$, shouldEventNext } from "ph-utils/dom";
 import { random } from "ph-utils";
 import { timestamp } from "ph-utils/date";
 
@@ -232,11 +232,13 @@ type PopoverPlacement =
 
 type UpdatePositionProps = {
   /** 浮动元素宽度 */
-  floatingWidth?: number | "trigger";
+  popoverWidth?: number | "trigger";
   /** 弹出位置, 默认: top */
   placement?: PopoverPlacement;
   /** 偏移量, 默认: 10 */
   offset?: number;
+  /** 指示箭头大小 */
+  arrowSize?: number;
 };
 
 /**
@@ -248,12 +250,12 @@ type UpdatePositionProps = {
  *
  * options 参数:
  * - placement: 浮动元素的定位方式，可选值包括 top, right, bottom, left，支持带横轴对齐方式（如 "top-start", "right-end" 等）
- * - floatingWidth: 浮动元素的宽度，可选值为具体数值或 "trigger"（表示与参照元素同宽）
+ * - popoverWidth: 浮动元素的宽度，可选值为具体数值或 "trigger"（表示与参照元素同宽）
  */
 export function updatePosition(
   reference: HTMLElement,
   floating: HTMLElement,
-  options: UpdatePositionProps = { placement: "top", offset: 10 }
+  options: UpdatePositionProps = { placement: "top", offset: 10, arrowSize: 8 }
 ) {
   // 获取水平和垂直方向的位置
   let mainPos = "bottom";
@@ -267,11 +269,11 @@ export function updatePosition(
   let popoverRect = floating.getBoundingClientRect();
   const targetRect = reference.getBoundingClientRect();
 
-  if (options.floatingWidth) {
-    if (options.floatingWidth === "trigger") {
+  if (options.popoverWidth) {
+    if (options.popoverWidth === "trigger") {
       width = targetRect.width;
     } else {
-      width = options.floatingWidth;
+      width = options.popoverWidth;
     }
   }
   if (width != null) {
@@ -288,7 +290,6 @@ export function updatePosition(
   floating.style.setProperty("top", `${impactRes.y}px`);
   let $arrow = $one(".l-popover-arrow", floating);
   if ($arrow) {
-    console.log(impactRes.mainAlign, impactRes.crossAlign);
     const arrowPos = getArrowPosition(
       reference,
       floating,
@@ -296,6 +297,9 @@ export function updatePosition(
       impactRes.crossAlign
     );
     let cssText = ``;
+    if (options.arrowSize !== 8) {
+      cssText += `--l-popover-arrow-size: ${options.arrowSize}px;`;
+    }
     if (arrowPos.x) {
       cssText += `left: ${arrowPos.x}px;`;
     }
@@ -314,7 +318,8 @@ export function updatePosition(
       left: "top",
       right: "bottom",
     }[impactRes.mainAlign as "top"];
-    cssText += `${staticSide}: -4px;border-${staticSide}: 1px solid var(--l-popover-border-color);border-${arrowSide}:1px solid var(--l-popover-border-color);`;
+    const arrowOffset = Math.ceil((options.arrowSize || 8) / 2);
+    cssText += `${staticSide}: -${arrowOffset}px;border-${staticSide}: 1px solid var(--l-popover-border-color);border-${arrowSide}:1px solid var(--l-popover-border-color);`;
     $arrow.style.cssText = cssText;
   }
 }
@@ -372,15 +377,19 @@ type PopoverInitProps = {
   /** 触发方式, 默认: hover */
   trigger?: "click" | "hover" | "focus";
   /** 主题, default - 白底, tooltip - 黑底 */
-  theme?: "default" | "tooltip";
+  theme?: "default" | "tooltip" | string;
   /** 浮动元素宽度 */
-  floatingWidth?: number | "trigger";
+  popoverWidth?: number | "trigger";
   /** 弹出位置, 默认: top */
   placement?: PopoverPlacement;
   /** 是否显示指示箭头 */
   arrow?: boolean;
+  /** 指示箭头大小 */
+  arrowSize?: number;
   /** 偏移量, 默认: 10 */
   offset?: number;
+  /** 点击 Popover 内具有 data-action 的元素时触发 */
+  onPopoverAction?: (action: string) => void;
 };
 
 export class Popover {
@@ -398,6 +407,7 @@ export class Popover {
       trigger: "hover",
       arrow: true,
       offset: 10,
+      arrowSize: 8,
       updateContent: (popover, datas) => {
         if (datas && datas.title) {
           const $title = $one(".l-popover-content", popover);
@@ -411,14 +421,14 @@ export class Popover {
     let $refs = [];
     if (this.options.reference) {
       if (typeof this.options.reference === "string") {
-        $refs = $(this.options.reference) as HTMLElement[];
+        $refs = [...$(this.options.reference)] as HTMLElement[];
       } else if (Array.isArray(this.options.reference)) {
         $refs.push(...this.options.reference);
       } else {
         $refs.push(this.options.reference);
       }
     } else {
-      $refs = $(".l-popover-reference") as HTMLElement[];
+      $refs = [...$(".l-popover-reference")] as HTMLElement[];
     }
     this.$refs = $refs;
     this.$popover = this.options.popover;
@@ -490,7 +500,6 @@ export class Popover {
 
   _onPopoverEnter = () => {
     this._clearHideTimer();
-    console.log("clear");
   };
 
   _clearHideTimer() {
@@ -547,13 +556,14 @@ export class Popover {
       const placement: string =
         referenceDatas.placement || this.options.placement || "top";
       const offset = Number(referenceDatas.offset || this.options.offset || 10);
-      const floatingWidth =
-        referenceDatas.floatingWidth || this.options.floatingWidth;
+      const popoverWidth =
+        referenceDatas.popoverWidth || this.options.popoverWidth;
       this.$popover.style.display = "block";
       this.updater = autoUpdate(this.$reference, this.$popover, {
         placement: placement as "top",
-        floatingWidth: floatingWidth ? Number(floatingWidth) : undefined,
+        popoverWidth: popoverWidth ? Number(popoverWidth) : undefined,
         offset: offset,
+        arrowSize: this.options.arrowSize,
       });
     }
   }
@@ -587,6 +597,21 @@ export class Popover {
         (this.$popover.contains($target) || this.$popover == $target)
       ) {
         // 点击的是 Popover
+        const [next, action] = shouldEventNext(e, "data-action", this.$popover);
+        if (next) {
+          let confirmAction = "";
+          if (action === "popconfirm-cancel") {
+            confirmAction = "cancel";
+          } else if (action === "popconfirm-ok") {
+            confirmAction = "ok";
+          }
+          if (confirmAction) {
+            this.hide();
+          }
+          if (this.options.onPopoverAction) {
+            this.options.onPopoverAction(confirmAction || action);
+          }
+        }
         return;
       }
       this.hide();
@@ -612,7 +637,7 @@ export class Popover {
     }
     $tmp.appendChild($content);
     if (this.options.arrow) {
-      $content.appendChild($$("div", { class: "l-popover-arrow" }));
+      $tmp.appendChild($$("div", { class: "l-popover-arrow" }));
     }
     document.body.appendChild($tmp);
   }
@@ -649,3 +674,35 @@ export class Popover {
     this.$popover = undefined;
   }
 }
+
+type PopconfirmInitProps = PopoverInitProps;
+
+export const PopconfirmProps: PopconfirmInitProps = {
+  theme: "popconfirm",
+  trigger: "click",
+  contentRender: () => {
+    const children: string[] = [];
+    children.push('<div class="l-popconfirm-container">');
+    children.push('<div class="l-popconfirm-icon-wrapper">');
+    children.push("<l-warn-icon></l-warn-icon>");
+    children.push('</div><div class="l-popconfirm-content"></div></div>');
+    children.push('<div class="l-popconfirm-footer">');
+    children.push(
+      '<l-button class="l-popconfirm-btn" data-action="popconfirm-cancel">取消</l-button>'
+    );
+    children.push(
+      '<l-button class="l-popconfirm-btn" type="primary" data-action="popconfirm-ok">确定</l-button>'
+    );
+    children.push("</div>");
+    return children.join("");
+  },
+  updateContent: (
+    popover: HTMLElement,
+    referenceDatas?: Record<string, any>
+  ) => {
+    const $content = popover.querySelector(".l-popconfirm-content");
+    if ($content && referenceDatas) {
+      $content.innerHTML = referenceDatas.content || "";
+    }
+  },
+};
