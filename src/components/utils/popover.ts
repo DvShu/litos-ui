@@ -677,7 +677,7 @@ export class Popover {
 
 type PopconfirmInitProps = PopoverInitProps;
 
-export const PopconfirmProps: PopconfirmInitProps = {
+export const popconfirmProps: PopconfirmInitProps = {
   theme: "popconfirm",
   trigger: "click",
   contentRender: () => {
@@ -706,3 +706,68 @@ export const PopconfirmProps: PopconfirmInitProps = {
     }
   },
 };
+
+function getReferenceElement(
+  node: HTMLElement,
+  refereceClass: string
+): HTMLElement | null | HTMLElement[] {
+  if (node.classList.contains(refereceClass)) {
+    return node;
+  }
+  return $(`.${refereceClass}`, node) as HTMLElement[];
+}
+
+/**
+ * 创建 Popover 观察者
+ *
+ * 当指定元素的子节点发生变化时，会自动添加或移除 Popover 实例的引用元素。
+ *
+ * 通常用于列表子元素的 Popover， 列表又能增加和删除, 比如: List、Table
+ *
+ * @param observeElement - 要观察的元素
+ * @param refereceClass - 引用元素的类名
+ * @param popover - Popover 实例
+ * @returns 一个对象，包含一个 `disconnect` 方法，用于断开观察
+ */
+export function createPopoverObserver(
+  observeElement: HTMLElement,
+  refereceClass: string,
+  popover: Popover
+) {
+  let observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === "childList") {
+        iterate(mutation.addedNodes, (node) => {
+          let $refs = getReferenceElement(node, refereceClass);
+          if ($refs) {
+            if ($refs instanceof HTMLElement) {
+              popover.addReference($refs);
+            } else {
+              iterate($refs, (item) => {
+                popover.addReference(item);
+              });
+            }
+          }
+        });
+        iterate(mutation.removedNodes, (node) => {
+          let $refs = getReferenceElement(node, refereceClass);
+          if ($refs) {
+            if ($refs instanceof HTMLElement) {
+              popover.removeReference($refs);
+            } else {
+              iterate($refs, (item) => {
+                popover.removeReference(item);
+              });
+            }
+          }
+        });
+      }
+    });
+  });
+  observer.observe(observeElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  return observer;
+}

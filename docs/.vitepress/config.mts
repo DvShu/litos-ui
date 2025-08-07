@@ -178,6 +178,10 @@ export default defineConfig({
             text: "Collapse 折叠面板",
             link: "/components/collapse",
           },
+          {
+            text: "Image 图片",
+            link: "/components/image",
+          },
           /* TemplateItem */
         ],
       },

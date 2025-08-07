@@ -17,7 +17,7 @@ const popover = new Popover();
 ## 演示
 
 <script setup>
-  import { Popover, PopconfirmProps } from '../../src/components/utils/popover';
+  import { Popover, popconfirmProps, createPopoverObserver } from '../../src/components/utils/popover';
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { transition } from 'ph-utils/dom';
 
@@ -32,19 +32,18 @@ const popover = new Popover();
   let $addTag;
   let $tagGroup;
   let observer;
+  let listPopover;
 
   function handleAddTag() {
     if ($tagGroup) {
       let $addTagTmp = document.createElement('l-tag');
       $addTagTmp.setAttribute('closable', 'true');
       $addTagTmp.setAttribute('type', 'primary');
+      $addTagTmp.setAttribute('data-title', '标签提示');
       $addTagTmp.style.marginRight = "5px";
-      $addTagTmp.className = "ddd"
-      // $addTagTmp.classList.add('tooltip-tag');
+      $addTagTmp.classList.add('tooltip-tag');
       $addTagTmp.innerHTML = '标签';
-      const $tw = document.createElement('div');
-      $tw.appendChild($addTagTmp);
-      $tagGroup.appendChild($tw);
+      $tagGroup.appendChild($addTagTmp);
       transition($addTagTmp, 'l-scale', "enter");
       $addTagTmp = null;
     }
@@ -59,26 +58,11 @@ const popover = new Popover();
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
+        listPopover = new Popover({ theme: 'tooltip', reference: '.tooltip-tag' });
         $tagGroup = document.getElementById('tagGroup');
         if ($tagGroup) {
           $tagGroup.addEventListener('close', handleRemoveTag);
-          observer = new MutationObserver(function(mutationsList, observer) {
-            for (let mutation of mutationsList) {
-                if (mutation.type === 'childList') {
-                    console.log('子节点被添加或删除了', mutation);
-                    // mutation.addedNodes: 新增的节点列表
-                    // mutation.removedNodes: 被删除的节点列表
-                }
-
-                if (mutation.type === 'subtree') {
-                    // 注意：subtree 不是 mutation.type 的值，而是配置项
-                }
-            }
-          });
-          observer.observe($tagGroup, {
-            childList: true,
-            subtree: true
-          });
+          observer = createPopoverObserver($tagGroup, 'tooltip-tag', listPopover);
         }
         $addTag = document.getElementById('addTag');
         if ($addTag) {
@@ -117,7 +101,7 @@ const popover = new Popover();
           theme: 'tooltip',
         });
         popconfirm = new Popover({
-          ...PopconfirmProps,
+          ...popconfirmProps,
           reference: '#popconfirm',
           onPopoverAction (action) {
             console.log(action);
@@ -134,6 +118,10 @@ const popover = new Popover();
     if (observer) {
       observer.disconnect();
       observer = undefined;
+    }
+    if (listPopover) {
+      listPopover.destroy();
+      listPopover = undefined;
     }
     if ($addTag) {
       $addTag.removeEventListener('click', handleAddTag);
@@ -231,6 +219,8 @@ const popover = new Popover();
 </div>
 </l-code-preview>
 </ClientOnly>
+
+> 如果需要自定义触发方式，则可以通过引入 `updatePosition` 或者 `autoUpdate` 函数来，手动显示和隐藏弹出层。
 
 ### 位置
 
@@ -384,11 +374,11 @@ new Popover({
   <l-button data-content="确定删除吗？" id="popconfirm">删除</l-button>
 </textarea>
 <textarea lang="js">
-  import { regist, Button, WarnIcon, PopconfirmProps } from 'litos-ui';
+  import { regist, Button, WarnIcon, popconfirmProps } from 'litos-ui';
   regist([Button, WarnIcon]);
   //-
   new Popover({
-    ...PopconfirmProps,
+    ...popconfirmProps,
     reference: '#popconfirm',
     onPopoverAction (action) {
       console.log(action);
@@ -399,7 +389,9 @@ new Popover({
 </l-code-preview>
 </ClientOnly>
 
-### 列表
+### 列表元素
+
+由于动态列表元素，牵涉到元素的添加和删除，如果翻页等等，所以提供了 `createPopoverObserver` 函数来配合监听列表元素的添加和删除。
 
 <ClientOnly>
 <l-code-preview>
@@ -410,17 +402,67 @@ new Popover({
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button data-title="提示内容" id="tooltip">提示</l-button>
+  <l-button id="addTag" type="primary">添加标签</l-button>
+  <hr />
+  <div id="tagGroup"></div>
 </textarea>
 <textarea lang="js">
-  new Popover({
-    reference: '#tooltip',
+  import { createPopoverObserver, Popover } from 'litos-ui';
+  import { transition } from 'ph-utils/dom';
+  //-
+  let tagGroup = document.getElementById('tagGroup');
+  let addTagBtn = document.getElementById('addTag');
+  //-
+  let tootip = new Popover({
+    reference: '.tooltip-tag',
     theme: 'tooltip',
   });
+  //-
+  let observer = createPopoverObserver(tagGroup, 'tooltip-tag', tootip);
+  //-
+  function handleAddTag() {
+    if ($tagGroup) {
+      let $addTagTmp = document.createElement('l-tag');
+      $addTagTmp.setAttribute('closable', 'true');
+      $addTagTmp.setAttribute('type', 'primary');
+      $addTagTmp.setAttribute('data-title', '标签提示'); // 设置提示内容
+      $addTagTmp.style.marginRight = "5px";
+      $addTagTmp.classList.add('tooltip-tag'); // 添加 tooltip-tag 类名
+      $addTagTmp.innerHTML = '标签';
+      $tagGroup.appendChild($addTagTmp);
+      transition($addTagTmp, 'l-scale', "enter");
+      $addTagTmp = null;
+    }
+  }
+  //-
+  function handleRemoveTag(e) {
+    transition(e.target, 'l-scale', "leave", () => {
+      e.target.remove();
+    });
+  }
+  //-
+  $tagGroup.addEventListener('click', handleAddTag);
+  //-
+  // 移除的时候释放资源
+  // tooltip.destroy();
+  // observer.disconnect();
+  // tooltip = null;
+  // observer = null;
+  // $tagGroup.removeEventListener('click', handleRemoveTag);
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
+
+`createPopoverObserver(target: HTMLElement,class: string,popover: Popover): MutationObserver`
+
+创建元素监听器, 监听到元素添加和删除, 然后根据 `class` 类名, 来修改 `Popover` 元素。
+
+1. `target`: 目标元素, 监听这个元素下的子元素添加和删除, 通常为列表容器或者 `table`。
+2. `class`: 类名, 当子元素添加和删除, 都包含这个类名时, 才会触发 `Popover` 元素的添加和删除。
+3. `popover`: `Popover` 对象, 当子元素添加和删除时符合 `class` 规则时, 会触发 `Popover refenrence` 元素的添加和删除。
+
+> 如果是固定且少量的元素，则可以不用 `createPopoverObserver`，转而自己手动执行 `popover.addReference` 和 `popover.removeReference` 方法
 
 ## API
 

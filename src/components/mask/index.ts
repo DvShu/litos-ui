@@ -37,8 +37,16 @@ export default class Mask extends BaseComponent {
     }
   }
 
+  static customAttributes: string[] = [];
+
   static get observedAttributes() {
-    return ["open", "z-index", "mask-closable", "lock-scroll"];
+    return [
+      "open",
+      "z-index",
+      "mask-closable",
+      "lock-scroll",
+      ...this.customAttributes,
+    ];
   }
 
   connectedCallback(): void {
@@ -80,9 +88,18 @@ export default class Mask extends BaseComponent {
       class: "l-panel",
       part: "panel",
     });
-    $panel.innerHTML = "<slot></slot>";
+    const $content = this.contentRender();
+    if (typeof $content === "string") {
+      $panel.innerHTML = $content;
+    } else {
+      $panel.appendChild($content);
+    }
     fragment.appendChild($panel);
     return fragment;
+  }
+
+  contentRender(): string | HTMLElement | DocumentFragment {
+    return "<slot></slot>";
   }
 
   #toggleOpen() {
@@ -100,6 +117,7 @@ export default class Mask extends BaseComponent {
       this.afterOpened();
     } else {
       if (hasClass(this, "open")) {
+        this.emit("close");
         const $overlay = $one(".l-mask", this.root);
         if ($overlay) {
           transition($overlay, [["opacity", "0", "0.3s"]], "leave", () => {
@@ -140,13 +158,19 @@ export default class Mask extends BaseComponent {
       if (this.maskClosable) {
         // 点击遮罩关闭
         this.open = false;
-        this.emit("cancel");
       }
       return;
+    }
+    if (!this.onAction(action)) {
+      this.emit("action", { detail: action });
     }
   };
 
   public afterOpened() {}
 
   public afterClosed() {}
+
+  public onAction(action: string) {
+    return false;
+  }
 }

@@ -46,7 +46,9 @@ import BaseOverlay from "./mask";
 import PageHeader from "./page_header";
 import Tag from "./tag";
 import Collapase from "./collapse";
+import Image from "./image";
 //Web Components Import
+regist(Image)
 regist(Collapase);
 regist(Tag);
 regist(PageHeader);
@@ -139,3 +141,4 @@ import "./base_overlay/index.less";
 import "./page_header/index.less";
 import "./tag/index.less";
 import "./collapase/index.less";
+import "./image/index.less";

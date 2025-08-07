@@ -40,6 +40,8 @@ export { default as CloseFilledIcon } from "./icon/close_filled";
 export { default as MoreIcon } from "./icon/more";
 export { default as DArrowLeftIcon } from "./icon/d_arrow_left";
 export { default as DArrowRightIcon } from "./icon/d_arrow_right";
+export { default as ZoomInIcon } from "./icon/zoom_in";
+export { default as ZoomOutIcon } from "./icon/zoom_out";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";
@@ -88,3 +90,6 @@ export { default as Tag } from "./tag";
 
 export { default as Collapse } from "./collapse";
 export { default as CollapseItem } from "./collapse/item";
+
+export { default as Image } from "./image";
+export { default as ImagePreview } from "./image/image_preview";
