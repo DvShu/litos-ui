@@ -38,26 +38,64 @@ regist([
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one } from 'ph-utils/dom';
+  import { $one, $, on, off, $$, iterate } from 'ph-utils/dom';
 
   let $preview;
+  let $morePreview;
+  let $customPreview;
+
+
   const imgs = [
     '/litos-ui/img1.svg',
     '/litos-ui/img2.svg',
     'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
   ]
 
+  function handlePreviewClosed() {
+    if ($preview) {
+      off($preview, 'closed', handlePreviewClosed);
+      $preview.remove();
+      $preview = undefined;
+    }
+  }
+
+  function handleCustomTap(e) {
+    const index = Number(e.target.getAttribute('data-preview-index'));
+    if (!$preview) {
+      $preview = $$("l-image-preview");
+      $preview.setImages(imgs);
+      $preview.setCurrentIndex(index);
+      on($preview, 'closed', handlePreviewClosed);
+      document.body.appendChild($preview);
+      $preview.open = true;
+    }
+  }
+
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        $preview = $one('#preview');
-        $preview.setImages(imgs);
+        // 多图预览
+        $morePreview = $('.morePreview');
+        $morePreview.forEach((item) => {
+          item.setPreviewImageList(imgs);
+        });
+        // 手动预览
+        $customPreview = $('.customPreview');
+        iterate($customPreview, (item) => {
+          on(item, 'click', handleCustomTap);
+        });
       }
     });
   })
 
   onUnmounted(() => {
-    $preview = undefined;
+    $morePreview = undefined;
+    this.handlePreviewClosed();
+    if ($customPreview) {
+      iterate($customPreview, (item) => {
+        off(item, 'click', handleCustomTap);
+      });
+    }
   });
 
 </script>
@@ -74,6 +112,50 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
+### 多图预览
+
+通过 `setPreviewImageList(imageList?: string[])` 函数来设置多图预览, 可以通过 `preview-index` 属性来设置当前预览的图片索引
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-image class="morePreview" src="/litos-ui/img1.svg" width="100px" preview-index="0"></l-image>
+  <l-image class="morePreview" src="/litos-ui/img2.svg" width="100px" preview-index="1"></l-image>
+  <l-image class="morePreview" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px" preview-index="2"></l-image>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-image class="morePreview" src="/litos-ui/img1.svg" width="100px" preview-index="0"></l-image>
+  <l-image class="morePreview" src="/litos-ui/img2.svg" width="100px" preview-index="1"></l-image>
+  <l-image class="morePreview" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px" preview-index="2"></l-image>
+</textarea>
+<textarea lang="js">
+  import { $, iterate } from 'ph-utils/dom';
+  const $morePreview = $('.morePreview');
+  iterate($morePreview, (item) => {
+    item.setPreviewImageList(imgs);
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 禁用预览
+
+通过 `preview-disabled` 属性来禁用图片预览
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-image 
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" 
+    width="100px" 
+    preview-disabled
+  ></l-image>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ### 手动预览
 
 如果不想通过 `Image` 组件来预览图片，也可以手动通过使用 `ImagePreview` 来预览图片
@@ -81,12 +163,77 @@ regist([
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-image></l-image>
-  <l-image-preview id="preview"></l-image-preview>
+  <l-image 
+    class="customPreview" 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    data-preview-index="0"
+    preview-disabled
+  ></l-image>
+  <l-image 
+    class="customPreview" 
+    src="/litos-ui/img2.svg" 
+    width="100px" 
+    data-preview-index="1"
+    preview-disabled
+  ></l-image>
+  <l-image 
+    class="customPreview" 
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" 
+    width="100px" 
+    data-preview-index="2"
+    preview-disabled
+  ></l-image>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-image></l-image>
+  <l-image 
+    class="customPreview" 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    data-preview-index="0"
+    preview-disabled
+  ></l-image>
+  <l-image 
+    class="customPreview" 
+    src="/litos-ui/img2.svg" 
+    width="100px" 
+    data-preview-index="1"
+    preview-disabled
+  ></l-image>
+  <l-image 
+    class="customPreview" 
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" 
+    width="100px" 
+    data-preview-index="2"
+    preview-disabled
+  ></l-image>
+</textarea>
+<textarea lang="js">
+  import { $, iterate } from 'ph-utils/dom';
+  let $preview;
+  const $customPreview = $('.customPreview');
+  iterate($customPreview, (item) => {
+    on(item, 'click', handleCustomTap);
+  });
+  function handleCustomTap(e) {
+    const index = Number(e.target.getAttribute('data-preview-index'));
+    if (!$preview) {
+      $preview = $$("l-image-preview");
+      $preview.setImages(imgs);
+      $preview.setCurrentIndex(index);
+      on($preview, 'closed', handlePreviewClosed);
+      document.body.appendChild($preview);
+      $preview.open = true;
+    }
+  }
+  function handlePreviewClosed() {
+    if ($preview) {
+      off($preview, 'closed', handlePreviewClosed);
+      $preview.remove();
+      $preview = undefined;
+    }
+  }
 </textarea>
 </div>
 </l-code-preview>

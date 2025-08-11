@@ -114,10 +114,18 @@ export default class Mask extends BaseComponent {
       if ($overlay) {
         transition($overlay, [["opacity", "0", "0.3s"]], "enter");
       }
+      const $panel = $one(".l-panel", this.root);
+      if ($panel) {
+        transition($panel, [["opacity", "0", "0.3s"]], "enter");
+      }
       this.afterOpened();
     } else {
       if (hasClass(this, "open")) {
         this.emit("close");
+        const $panel = $one(".l-panel", this.root);
+        if ($panel) {
+          transition($panel, [["opacity", "0", "0.3s"]], "leave");
+        }
         const $overlay = $one(".l-mask", this.root);
         if ($overlay) {
           transition($overlay, [["opacity", "0", "0.3s"]], "leave", () => {

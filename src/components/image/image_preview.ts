@@ -1,7 +1,7 @@
 import Mask from "../mask";
 //@ts-ignore
 import css from "./image_preview.less?inline";
-import { $$, $one } from "ph-utils/dom";
+import { $$, $one, on, off } from "ph-utils/dom";
 
 export default class ImagePreview extends Mask {
   public static baseName = "image-preview";
@@ -24,11 +24,6 @@ export default class ImagePreview extends Mask {
   static customAttributes = ["current-index"];
 
   connectedCallback(): void {
-    this.urlList = [
-      "/litos-ui/img1.svg",
-      "/litos-ui/img2.svg",
-      "https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg",
-    ];
     this.loadStyleText(css);
     super.connectedCallback();
   }
@@ -121,16 +116,10 @@ export default class ImagePreview extends Mask {
         this._updateProgress();
         break;
       case "zoom-in":
-        if (this._scale < 3) {
-          this._scale += 0.25;
-        }
-        this._updateImgAttr();
+        this._transformScale("in");
         break;
       case "zoom-out":
-        if (this._scale > 0.25) {
-          this._scale -= 0.25;
-        }
-        this._updateImgAttr();
+        this._transformScale("out");
         break;
       case "reduction":
         this._resetTransform();
@@ -145,5 +134,35 @@ export default class ImagePreview extends Mask {
         break;
     }
     return true;
+  }
+
+  private _handleWhell = (e: WheelEvent) => {
+    e.preventDefault();
+    if (e.deltaY > 0) {
+      this._transformScale("out");
+    } else {
+      this._transformScale("in");
+    }
+  };
+
+  public afterOpened(): void {
+    on(document, "wheel", this._handleWhell as any, { passive: true });
+  }
+
+  private _transformScale(type: "out" | "in") {
+    if (type === "in") {
+      if (this._scale < 3) {
+        this._scale += 0.25;
+      }
+    } else {
+      if (this._scale > 0.25) {
+        this._scale -= 0.25;
+      }
+    }
+    this._updateImgAttr();
+  }
+
+  public afterClosed(): void {
+    off(document, "wheel", this._handleWhell as any);
   }
 }
