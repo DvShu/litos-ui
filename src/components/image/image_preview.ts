@@ -38,7 +38,9 @@ export default class ImagePreview extends Mask {
     children.push(
       `<div class="l-image-preview-progress">${this._getProgress()}</div>`
     );
-    children.push('<div class="l-image-preview-operations">');
+    children.push(
+      '<div data-action="operations" class="l-image-preview-operations">'
+    );
     children.push(this._generateBtnString("zoom-in", "zoom-in"));
     children.push(this._generateBtnString("zoom-out", "zoom-out"));
     children.push(this._generateBtnString("reduction", "reduction"));
@@ -48,7 +50,7 @@ export default class ImagePreview extends Mask {
     const thisImageSrc = this.urlList[this.currentIndex];
     const transformValue = this._getTransformStyleValue();
     children.push(
-      `<img src="${thisImageSrc}" class="l-image-preview-img" style="transform: ${transformValue};" />`
+      `<img src="${thisImageSrc}" data-action="previewer" class="l-image-preview-img" style="transform: ${transformValue};" />`
     );
     return $$("div", {
       class: "l-image-preview--container",

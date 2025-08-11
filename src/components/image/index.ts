@@ -19,8 +19,8 @@ export default class Image extends BaseComponent {
   private _previewEl?: HTMLElement;
   private _previewImageList?: string[];
   private _previewIndex?: number = 0;
-
   private _placeholder?: string;
+  
 
   public get src() {
     return this._src;
@@ -150,6 +150,9 @@ export default class Image extends BaseComponent {
     }
     this._updateSize();
     on(this.root, "click", this._onTap);
+    on(this.root, "load", () => {
+      console.log("load");
+    });
   }
 
   beforeDestroy(): void {
@@ -190,4 +193,15 @@ export default class Image extends BaseComponent {
       }
     }
   };
+
+  private _loadActualImage() {
+    if (this.placeholder) {
+      let img = new Image();
+    img.src = this.src;
+    img.onload = () => {
+      actualSrc.value = props.src;
+      clearImg();
+    };
+    }
+  }
 }

@@ -39,10 +39,12 @@ regist([
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { $one, $, on, off, $$, iterate } from 'ph-utils/dom';
+  import { Popover } from '../../src/components/utils/popover';
 
   let $preview;
   let $morePreview;
   let $customPreview;
+  let tooltip;
 
 
   const imgs = [
@@ -84,6 +86,10 @@ regist([
         iterate($customPreview, (item) => {
           on(item, 'click', handleCustomTap);
         });
+        // tooltip
+        tooltip = new Popover({
+          theme: 'tooltip',
+        });
       }
     });
   })
@@ -95,6 +101,10 @@ regist([
       iterate($customPreview, (item) => {
         off(item, 'click', handleCustomTap);
       });
+    }
+    if (tooltip) {
+      tooltip.destroy();
+      tooltip = undefined;
     }
   });
 
@@ -109,6 +119,114 @@ regist([
 <textarea lang="html">
   <l-image src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px"></l-image>
 </textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 适应容器
+
+通过设置 `fit` 属性来控制图片的填充模式，可选值有：
+
+- fill: 被替换的内容正好填充元素的内容框。整个对象将完全填充此框。如果对象的宽高比与内容框不相匹配，那么该对象将被拉伸以适应内容框。
+- contain: 保持原有尺寸比例完整显示在内容区域内，可能会留白。
+- cover: 保持原有尺寸比例缩放图片，直到图片至少一边填满内容区域，另一边超出内容区域并被裁剪。
+- none: 不改变图像本身的尺寸、密度和方向。
+- scale-down: 将图像缩小，以使其适应元素的内容框，同时保持其原始纵横比。如果无法满足这一条件（即图像已经小于或等于元素的大小），则将使用 'none' 值进行替代。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div class="docs-image-area1">
+    <div class="docs-image-area2">
+      <l-image 
+        src="/litos-ui/img1.svg" 
+        width="100px" 
+        height="100px"
+        fit="fill"
+        class="l-popover-reference"
+        data-title="被替换的内容正好填充元素的内容框。整个对象将完全填充此框。如果对象的宽高比与内容框不相匹配，那么该对象将被拉伸以适应内容框"
+      ></l-image>
+      <span>fit</span>
+    </div>
+    <div class="docs-image-area2">
+      <l-image 
+        src="/litos-ui/img1.svg" 
+        width="100px" 
+        height="100px"
+        fit="contain"
+        class="l-popover-reference"
+        data-title="被替换的内容将被缩放，以在填充元素的内容框时保持其宽高比。整个对象在填充盒子的同时保留其长宽比"
+      ></l-image>
+      <span>contain</span>
+    </div>
+    <div class="docs-image-area2">
+      <l-image 
+        src="/litos-ui/img1.svg" 
+        width="100px" 
+        height="100px"
+        fit="cover"
+        class="l-popover-reference"
+        data-title="被替换的内容在保持其宽高比的同时填充元素的整个内容框。如果对象的宽高比与内容框不相匹配，该对象将被剪裁以适应内容框"
+      ></l-image>
+      <span>cover</span>
+    </div>
+    <div class="docs-image-area2">
+      <l-image 
+        src="/litos-ui/img1.svg" 
+        width="100px" 
+        height="100px"
+        fit="none"
+        class="l-popover-reference"
+        data-title="被替换的内容本身的尺寸、密度和方向都不改变"
+      ></l-image>
+      <span>none</span>
+    </div>
+    <div class="docs-image-area2">
+      <l-image 
+        src="/litos-ui/img1.svg" 
+        width="100px" 
+        height="100px"
+        fit="scale-down"
+        class="l-popover-reference"
+        data-title="内容的尺寸与 none 或 contain 中的一个相同，取决于它们两个之间谁得到的对象尺寸会更小一些"
+      ></l-image>
+      <span>scale-down</span>
+    </div>
+  </div>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-image 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    height="100px"
+    fit="fill"
+  ></l-image>
+  <l-image 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    height="100px"
+    fit="contain"
+  ></l-image>
+  <l-image 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    height="100px"
+    fit="cover"
+  ></l-image>
+  <l-image 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    height="100px"
+    fit="none"
+  ></l-image>
+  <l-image 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    height="100px"
+    fit="scale-down"
+  ></l-image>
+</textarea>
+</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -155,6 +273,24 @@ regist([
 </textarea>
 </l-code-preview>
 </ClientOnly>
+
+### 懒加载
+
+通过使用浏览器原生支持的 `loading` 属性来开启懒加载，只需要设置 `loading="lazy"`
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-image 
+    src="/litos-ui/img1.svg" 
+    width="100px" 
+    loading="lazy"
+  ></l-image>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+> 从 `ios 15.4` 开始已经全面支持; 对于不支持 `loading="lazy"` 属性的浏览器，可以通过 [loading-attribute-polyfill](https://github.com/mfranzke/loading-attribute-polyfill) 来兼容
 
 ### 手动预览
 
