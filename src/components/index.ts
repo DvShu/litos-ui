@@ -93,3 +93,5 @@ export { default as CollapseItem } from "./collapse/item";
 
 export { default as Image } from "./image";
 export { default as ImagePreview } from "./image/image_preview";
+
+export { default as Select } from "./select";

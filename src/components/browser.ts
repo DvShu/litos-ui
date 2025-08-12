@@ -47,7 +47,9 @@ import PageHeader from "./page_header";
 import Tag from "./tag";
 import Collapase from "./collapse";
 import Image from "./image";
+import Select from "./select";
 //Web Components Import
+regist(Select)
 regist(Image)
 regist(Collapase);
 regist(Tag);
@@ -142,3 +144,4 @@ import "./page_header/index.less";
 import "./tag/index.less";
 import "./collapase/index.less";
 import "./image/index.less";
+import "./select/index.less";

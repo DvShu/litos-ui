@@ -2,9 +2,18 @@ import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$, formatClass, on, off, shouldEventNext } from "ph-utils/dom";
+import {
+  $$,
+  formatClass,
+  on,
+  off,
+  shouldEventNext,
+  $one,
+  addClass,
+  removeClass,
+} from "ph-utils/dom";
 
-export default class Image extends BaseComponent {
+export default class ImageHTML extends BaseComponent {
   public static baseName = "image";
 
   public alt?: string;
@@ -14,13 +23,17 @@ export default class Image extends BaseComponent {
   public fit?: "fill" | "contain" | "cover" | "none" | "scale-down";
   public width?: string;
   public height?: string;
+  public fallback?: string;
+  public customFallback?: boolean = false;
+  /** 是否加载错误 */
+  public isError?: boolean = false;
   /** 是否禁用图片预览 */
   public previewDisabled?: boolean = false;
   private _previewEl?: HTMLElement;
   private _previewImageList?: string[];
   private _previewIndex?: number = 0;
   private _placeholder?: string;
-  
+  private _imageInner?: HTMLImageElement;
 
   public get src() {
     return this._src;
@@ -28,6 +41,7 @@ export default class Image extends BaseComponent {
 
   public set src(value: string) {
     this._src = value;
+    this._loadActualImage();
   }
 
   public get loading() {
@@ -86,6 +100,8 @@ export default class Image extends BaseComponent {
       "preview-disabled",
       "preview-image-list",
       "preview-index",
+      "fallback",
+      "custom-fallback",
     ];
   }
 
@@ -149,14 +165,55 @@ export default class Image extends BaseComponent {
       this.style.setProperty("--l-image-fit", this.fit);
     }
     this._updateSize();
-    on(this.root, "click", this._onTap);
-    on(this.root, "load", () => {
-      console.log("load");
-    });
+    this._imageInner = $one(".l-image-inner", this.root) as HTMLImageElement;
+    on(this._imageInner, "click", this._onTap);
+    on(this._imageInner, "error", this._onError);
+    on(this._imageInner, "load", this._onLoad);
+    this._loadActualImage();
   }
 
   beforeDestroy(): void {
-    off(this.root, "click", this._onTap);
+    if (this._imageInner) {
+      off(this._imageInner, "click", this._onTap);
+      off(this._imageInner, "error", this._onError);
+      off(this._imageInner, "load", this._onLoad);
+    }
+  }
+
+  public setIsError(isError = false) {
+    if (this.isError !== isError) {
+      this.isError = isError;
+      if (isError) {
+        // 图片加载错误
+        if (!this.customFallback) {
+          if (this.fallback && this._imageInner) {
+            this._imageInner.src = this.fallback;
+          }
+          return;
+        }
+        if (this._imageInner) {
+          addClass(this._imageInner, "l-image-hide");
+        }
+        // 自定义错误显示
+        let $fallback = $one(".l-image-fallback", this.root);
+        if (!this.fallback) {
+          $fallback = $$("div", {
+            class: "l-image-fallback",
+            part: "fallback",
+            innerHTML: "<slot name='fallback'></slot>",
+          });
+          this.root.appendChild($fallback);
+        }
+      } else {
+        if (this._imageInner) {
+          removeClass(this._imageInner, "l-image-hide");
+        }
+        const $fallback = $one(".l-image-fallback", this.root);
+        if ($fallback) {
+          $fallback.remove();
+        }
+      }
+    }
   }
 
   public openPreview() {
@@ -179,6 +236,14 @@ export default class Image extends BaseComponent {
     }
   }
 
+  private _onError = () => {
+    this.setIsError(true);
+  };
+
+  private _onLoad = () => {
+    this.setIsError(false);
+  };
+
   private _onPreviewClosed = () => {
     this.closePreview();
   };
@@ -187,21 +252,35 @@ export default class Image extends BaseComponent {
     const [next, action] = shouldEventNext(e, "l-action", this.root);
     if (next) {
       if (action === "inner") {
-        if (!this.previewDisabled) {
+        if (!this.previewDisabled && !this.isError) {
           this.openPreview();
         }
       }
     }
   };
 
+  private _clearTmpImg(tmpImg?: HTMLImageElement) {
+    if (tmpImg) {
+      tmpImg.onload = null;
+      tmpImg.onerror = null;
+      tmpImg = undefined as any;
+    }
+  }
+
   private _loadActualImage() {
-    if (this.placeholder) {
-      let img = new Image();
-    img.src = this.src;
-    img.onload = () => {
-      actualSrc.value = props.src;
-      clearImg();
-    };
+    if (this.placeholder && this.rendered) {
+      let $tmpimg = new Image();
+      $tmpimg.src = this.src;
+      $tmpimg.onload = () => {
+        if (this._imageInner) {
+          this._imageInner.src = this.src;
+        }
+        this._clearTmpImg($tmpimg);
+      };
+      $tmpimg.onerror = () => {
+        this.setIsError(true);
+        this._clearTmpImg($tmpimg);
+      };
     }
   }
 }

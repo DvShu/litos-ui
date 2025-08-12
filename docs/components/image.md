@@ -230,6 +230,33 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
+### 占位
+
+使用 `placeholder` 定义图片加载时显示的图片；通常用于加载大图时用来实现渐进加载，将 `placeholder` 设置为一个原图模糊后的图片
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-image src="/litos-ui/img1.svg" width="100px" placeholder="/litos-ui/img_loading.png"></l-image>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 加载失败
+
+通过配置 `fallback` 配置加载失败显示图像占位符; 也可以传递 `custom-fallback` 启用自定义加载失败占位符, 然后配置 `slot-fallback` 来自定义加载失败显示.
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-image src="/litos-ui/img3.svg" width="100px" height="100px" fallback="/litos-ui/loading_error.png"></l-image>
+  <l-image src="/litos-ui/img3.svg" width="100px" height="100px" custom-fallback>
+    <span slot="fallback">error</span>
+  </l-image>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ### 多图预览
 
 通过 `setPreviewImageList(imageList?: string[])` 函数来设置多图预览, 可以通过 `preview-index` 属性来设置当前预览的图片索引
@@ -382,7 +409,18 @@ regist([
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| - | - | - | - |
+| `src` | _必填_ , 图片源地址，同原生属性一致 | `string` | — |
+| `width` | 宽度 | `string` | - |
+| `height` | 高度 | `string` | - |
+| `alt` | 原生属性 `alt` | `string` | - |
+| `loading` | 原生属性, 浏览器加载图像的策略 | `eager`、`lazy` | `eager` |
+| `fit` | 确定图片如何适应容器框，同原生 [object-fit](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) | `string` | - |
+| `fallback` | 图片加载失败时显示的地址 | `string` | - |
+| `custom-fallback` | 自定义图片加载失败时的内容 | `string` | - |
+| `placeholder` | 图片占位, 用于加载大图时的占位 | `string` | - |
+| `preview-disabled` | 禁用图片预览 | `boolean` | `false` |
+| `preview-image-list` | 预览图片地址列表, 多图预览时使用, 用 `,` 分隔 | `string` | - |
+| `preview-index` | 初始预览图像索引 | `number` | `0` |
 
 ### Image Slots
 
@@ -390,6 +428,7 @@ regist([
 | 名称 | 说明 |
 | --- | --- |
 | `default` | 内容 |
+| `fallback` | 图片加载失败时的内容 |
 
 ### Image Events
 
@@ -403,7 +442,10 @@ regist([
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| - | - | - |
+| `setPreviewImageList(imageList: string[] \| undefined)` | 设置预览图片地址列表 | `void` |
+| `setPreviewIndex(index: number)` | 设置预览图片索引 | `void` |
+| `openPreview()` | 打开预览 | `void` |
+| `closePreview()` | 关闭预览 | `void` |
 
 ### Image CSS Variables
 
