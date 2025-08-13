@@ -10,9 +10,11 @@
 ## 引用
 
 ```js
-import { regist, Select } from "litos-ui";
+import { regist, Select, Tag, CloseIcon } from "litos-ui";
 
 regist(Select);
+// 多选时, 引用
+regist([Tag, CloseIcon]);
 ```
 
 ## 演示

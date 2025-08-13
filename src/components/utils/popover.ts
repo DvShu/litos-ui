@@ -579,6 +579,12 @@ export class Popover {
     this.$reference = undefined;
   }
 
+  public updatePopoverContent() {
+    if (this.$popover && this.options.updateContent) {
+      this.options.updateContent(this.$popover, {});
+    }
+  }
+
   _onOuterTap = (e: Event) => {
     const $target = e.target as HTMLElement;
     if (
