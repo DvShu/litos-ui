@@ -11,7 +11,7 @@ export default class Tag extends BaseComponent {
 
   public type: string = "primary";
   public color?: string;
-  public closable?: boolean = false;
+  public closeable?: boolean = false;
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -19,7 +19,7 @@ export default class Tag extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["type", "color", "closable"];
+    return ["type", "color", "closeable"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -56,7 +56,7 @@ export default class Tag extends BaseComponent {
     fragment.appendChild(
       $$("div", { class: "l-tag-content", innerHTML: "<slot></slot>" })
     );
-    if (this.closable) {
+    if (this.closeable) {
       fragment.appendChild(this.#createCloseElement());
     }
     return fragment;

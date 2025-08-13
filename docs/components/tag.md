@@ -82,17 +82,17 @@ regist(CloseIcon); // 需要 closable 引入
 
 ### 可移除
 
-通过 `closable` 属性来实现可移除的标签，然后监听 `close` 事件。
+通过 `closeable` 属性来实现可移除的标签，然后监听 `close` 事件。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-tag type="primary" closable>标签</l-tag>
-  <l-tag type="success" closable>标签</l-tag>
-  <l-tag type="info" closable>标签</l-tag>
-  <l-tag type="warning" closable>标签</l-tag>
-  <l-tag type="error" closable>标签</l-tag>
-  <l-tag color="#409eff" closable>标签</l-tag>
+  <l-tag type="primary" closeable>标签</l-tag>
+  <l-tag type="success" closeable>标签</l-tag>
+  <l-tag type="info" closeable>标签</l-tag>
+  <l-tag type="warning" closeable>标签</l-tag>
+  <l-tag type="error" closeable>标签</l-tag>
+  <l-tag color="#409eff" closeable>标签</l-tag>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -159,7 +159,7 @@ regist(CloseIcon); // 需要 closable 引入
 | --- | --- | --- | --- |
 | `type` | 类型 | `string` | `primary`, 可选值有: `primary`, `success`, `info`, `warning`, `error` |
 | `color` | 标签颜色 | `string` | - |
-| `closable` | 是否可移除 | `boolean` | `false` |
+| `closeable` | 是否可移除 | `boolean` | `false` |
 
 ### Tag Slots
 

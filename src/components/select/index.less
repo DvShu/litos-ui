@@ -24,10 +24,50 @@
   gap: 5px;
   overflow: hidden;
   box-sizing: border-box;
+  flex-grow: 1;
 }
 .l-selected-item {
   flex-shrink: 0;
 }
-.l-select-placeholder {
+.l-select-placeholder,
+.l-select-arrow {
   color: #a8abb2;
+}
+.l-select-filter {
+  flex-shrink: 0;
+  min-width: 15px;
+  flex-grow: 1;
+  max-width: 100%;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  &::placeholder {
+    color: #a8abb2;
+  }
+}
+.l-select-arrow {
+  flex-shrink: 0;
+  transition: transform 0.3s;
+  transform: rotate3d(0, 0, 1, 0deg);
+}
+.l-select-clear,
+.l-select-loading {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translate3d(0, -50%, 0);
+}
+.l-select-loading {
+  color: var(--l-primary-color, #722ed1);
+  animation: l-select-loading 1.5s infinite linear;
+}
+
+/* 旋转动画 */
+@keyframes l-select-loading {
+  from {
+    transform: translate3d(0, -50%, 0) rotate3d(0, 0, 1, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0) rotate3d(0, 0, 1, 360deg);
+  }
 }

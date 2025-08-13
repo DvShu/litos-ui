@@ -10,23 +10,32 @@
 ## 引用
 
 ```js
-import { regist, Select, Tag, CloseIcon } from "litos-ui";
+import {
+  regist,
+  Select,
+  ArrowDownIcon,
+  Tag,
+  CloseIcon,
+  LoadingIcon,
+} from "litos-ui";
 
-regist(Select);
-// 多选时, 引用
+regist([Select, ArrowDownIcon]);
+// multiple
 regist([Tag, CloseIcon]);
+// loading
+regist([LoadingIcon]);
 ```
 
 ## 演示
 
 ### 基础用法
 
-使用
+通过 `setOptions()` 函数设置选项
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select></l-select>
+  <l-select multiple filterable data-title="ddd"></l-select>
 </textarea>
 <div class="source">
 <textarea lang="html">

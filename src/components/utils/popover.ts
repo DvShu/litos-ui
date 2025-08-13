@@ -277,6 +277,7 @@ export function updatePosition(
     }
   }
   if (width != null) {
+    popoverRect.width = width;
     floating.style.width = `${width}px`;
   }
   const impactRes = impactDetect(
@@ -332,7 +333,6 @@ export function autoUpdate(
   let $reference = reference;
   let $floating = floating;
   let $options = options;
-
   updatePosition($reference, $floating, $options);
 
   function onScroll() {
@@ -559,9 +559,17 @@ export class Popover {
       const popoverWidth =
         referenceDatas.popoverWidth || this.options.popoverWidth;
       this.$popover.style.display = "block";
+      let popWidth;
+      if (popoverWidth) {
+        if (popoverWidth !== "trigger") {
+          popWidth = Number(popoverWidth);
+        } else {
+          popWidth = popoverWidth as "trigger";
+        }
+      }
       this.updater = autoUpdate(this.$reference, this.$popover, {
         placement: placement as "top",
-        popoverWidth: popoverWidth ? Number(popoverWidth) : undefined,
+        popoverWidth: popWidth,
         offset: offset,
         arrowSize: this.options.arrowSize,
       });
