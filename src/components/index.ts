@@ -7,8 +7,6 @@ export {
 export { default as BaseComponent } from "./base";
 
 export { default as Message } from "./message";
-export { default as Popover } from "./popover";
-export { default as Popconfirm } from "./popconfirm";
 export { default as Dialog } from "./dialog";
 export { default as DialogContainer } from "./dialog/dialog_container";
 export { default as Loading } from "./loading";
@@ -95,3 +93,5 @@ export { default as Image } from "./image";
 export { default as ImagePreview } from "./image/image_preview";
 
 export { default as Select } from "./select";
+
+export * from "./utils/popover";

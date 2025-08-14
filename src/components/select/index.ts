@@ -33,7 +33,13 @@ export default class Select extends FormInner {
     super.connectedCallback();
   }
 
-  public setValue(value: string | string[]): void {}
+  public setValue(value: string | string[]): void {
+    let v: string[] = value as string[];
+    if (typeof value === "string") {
+      v = value.split(",");
+    }
+    super.setValue(this.multiple ? v : v[0]);
+  }
 
   static get observedAttributes() {
     return [
@@ -80,6 +86,7 @@ export default class Select extends FormInner {
         const item = this.options[i];
         const $li = $$("li", {
           class: "l-select-option",
+          "data-action": `${i}`,
         });
         // text
         $$(
@@ -124,6 +131,38 @@ export default class Select extends FormInner {
           const $list = $one(".l-select-list", popoverElement);
           if ($list) {
             $list.innerHTML = this._renderOption();
+          }
+        },
+        onPopoverAction: (action) => {
+          if (action && this.options) {
+            const index = Number(action);
+            const option = this.options[index];
+            const value = option[this.valueField];
+            const label = option[this.labelField];
+            let oldValue = this.value;
+            if (this.multiple === true) {
+              // 多选
+              if (!oldValue) {
+                oldValue = [value];
+              } else {
+                if (Array.isArray(oldValue)) {
+                  const i = oldValue.indexOf(value);
+                  if (i !== -1) {
+                    oldValue.splice(i, 1);
+                  } else {
+                    oldValue.push(value);
+                  }
+                } else {
+                  if (oldValue != value) {
+                    oldValue = [oldValue, value];
+                  }
+                }
+              }
+            } else {
+              // 单选
+              oldValue = value;
+            }
+            this.setValue(oldValue);
           }
         },
       });
