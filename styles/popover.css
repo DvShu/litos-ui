@@ -11,13 +11,13 @@
   box-shadow: var(--l-popover-box-shadow);
   border: 1px solid var(--l-popover-border-color);
   color: var(--l-popover-color);
-  padding: 10px;
   border-radius: 4px;
   font-size: 90%;
   box-sizing: border-box;
   display: none;
   z-index: 300;
   line-height: 1;
+  padding: 10px;
 }
 .l-popover-arrow {
   position: absolute;

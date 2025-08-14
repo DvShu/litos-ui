@@ -1,7 +1,7 @@
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$ } from "ph-utils/dom";
+import { $$, $one } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { Popover } from "../utils/popover";
 
@@ -14,6 +14,10 @@ export default class Select extends FormInner {
   /** 是否启用过滤 */
   public filterable?: boolean = false;
   public placeholder?: string = "请选择";
+  /** 选项 label 的字段名 */
+  public labelField: string = "label";
+  /** 选项 value 的字段名 */
+  public valueField: string = "value";
   /** 是否支持多选 */
   public multiple?: boolean = false;
   /** 多选时是否折叠标签 */
@@ -22,6 +26,7 @@ export default class Select extends FormInner {
   public loading?: boolean = true;
   public options?: any[] = [];
   private _popover?: Popover;
+  private _searchEl?: HTMLInputElement;
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -39,6 +44,8 @@ export default class Select extends FormInner {
       "collapse-tags",
       "filterable",
       "loading",
+      "label-field",
+      "value-field",
     ];
   }
 
@@ -60,9 +67,45 @@ export default class Select extends FormInner {
 
   public setOptions(options: any[]): void {
     this.options = options;
+    if (this._popover) {
+      this._popover.updatePopoverContent();
+    }
+  }
+
+  private _renderOption() {
+    const children: string[] = [];
+    if (this.options) {
+      const len = this.options.length;
+      for (let i = 0; i < len; i++) {
+        const item = this.options[i];
+        const $li = $$("li", {
+          class: "l-select-option",
+        });
+        // text
+        $$(
+          "span",
+          {
+            class: "l-select-option-content",
+            textContent: item[this.labelField as string],
+            title: item[this.labelField as string],
+          },
+          $li
+        );
+        children.push($li.outerHTML);
+      }
+    }
+    if (children.length === 0) {
+      const $li = $$("li", {
+        class: "l-select-option l-select-option--empty",
+        textContent: "暂无数据",
+      });
+      children.push($li.outerHTML);
+    }
+    return children.join("");
   }
 
   afterInit(): void {
+    this._searchEl = $one(".l-select-filter", this.root) as HTMLInputElement;
     this.disabledChange();
     if (!this._popover) {
       this._popover = new Popover({
@@ -72,6 +115,17 @@ export default class Select extends FormInner {
         offset: 2,
         placement: "bottom",
         popoverWidth: "trigger",
+        theme: "select",
+        disabled: this.isDisabled(),
+        contentRender() {
+          return '<ul class="l-select-list"></ul>';
+        },
+        updateContent: (popoverElement) => {
+          const $list = $one(".l-select-list", popoverElement);
+          if ($list) {
+            $list.innerHTML = this._renderOption();
+          }
+        },
       });
     }
   }
@@ -81,6 +135,9 @@ export default class Select extends FormInner {
     if (this._popover) {
       this._popover.destroy();
       this._popover = undefined;
+    }
+    if (this._searchEl) {
+      this._searchEl = undefined;
     }
   }
 
@@ -106,7 +163,22 @@ export default class Select extends FormInner {
     return fragment;
   }
 
-  protected disabledChange(): void {}
+  protected disabledChange(): void {
+    if (!this.rendered) return;
+    const isDisabled = this.isDisabled();
+    if (this._popover) {
+      this._popover.setOption("disabled", isDisabled);
+    }
+    if (isDisabled) {
+      // 禁用
+      this.classList.add("l-select--disabled");
+    } else {
+      this.classList.remove("l-select--disabled");
+    }
+    if (this._searchEl) {
+      this._searchEl.disabled = isDisabled;
+    }
+  }
 
   private _renderTag(label: string, index = 0, closeable = true) {
     return `<l-tag type="info" class="l-selected-item" data-index="${index}" closeable="${closeable}">${label}</l-tag>`;

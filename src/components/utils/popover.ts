@@ -1,6 +1,4 @@
 import { $one, on, off, $, iterate, $$, shouldEventNext } from "ph-utils/dom";
-import { random } from "ph-utils";
-import { timestamp } from "ph-utils/date";
 
 /**
  * 根据给定的目标元素矩形、弹出层矩形、主轴对齐方式、交叉轴对齐方式、偏移量和轴方向，计算弹出层相对于目标元素的偏移量。
@@ -362,6 +360,7 @@ type PopoverInitProps = {
   reference?: HTMLElement | HTMLElement[] | string;
   /** Popover节点, 如果不传则会自动创建 */
   popover?: HTMLElement;
+  popoverClass?: string;
   /** Popover 内容渲染 */
   contentRender?: () => HTMLElement | string | DocumentFragment;
   /**
@@ -390,6 +389,7 @@ type PopoverInitProps = {
   offset?: number;
   /** 点击 Popover 内具有 data-action 的元素时触发 */
   onPopoverAction?: (action: string) => void;
+  disabled?: boolean;
 };
 
 export class Popover {
@@ -399,7 +399,6 @@ export class Popover {
   private $reference?: HTMLElement;
   private $popover?: HTMLElement;
   private updater?: any;
-  private _popoverId?: string;
   private _hideTimer?: number;
 
   constructor(props?: PopoverInitProps) {
@@ -408,6 +407,7 @@ export class Popover {
       arrow: true,
       offset: 10,
       arrowSize: 8,
+      disabled: false,
       updateContent: (popover, datas) => {
         if (datas && datas.title) {
           const $title = $one(".l-popover-content", popover);
@@ -541,18 +541,22 @@ export class Popover {
    * @param reference 浮层所对齐的 HTML 元素。
    */
   show(reference: HTMLElement) {
+    const referenceDatas = reference.dataset;
+    // 禁用
+    let disabled = referenceDatas.disabled;
+    if (disabled == null) disabled = this.options.disabled as any;
+    if (disabled) return;
     this.$reference = reference;
     if (!this.$popover) {
       this._renderPopover();
-      this.$popover = $one(`#${this._popoverId}`) as HTMLElement;
       this._bindPopoverEvents();
     }
     if (this.$popover) {
-      const referenceDatas = this.$reference.dataset;
       if (this.options.updateContent) {
         this.options.updateContent(this.$popover, referenceDatas);
       }
       this._destroyUpdater();
+
       const placement: string =
         referenceDatas.placement || this.options.placement || "top";
       const offset = Number(referenceDatas.offset || this.options.offset || 10);
@@ -585,6 +589,11 @@ export class Popover {
       this.$popover.style.display = "none";
     }
     this.$reference = undefined;
+  }
+
+  /** 重新设置选项 */
+  setOption(key: string, value: any) {
+    this.options[key as "disabled"] = value;
   }
 
   public updatePopoverContent() {
@@ -634,26 +643,30 @@ export class Popover {
 
   _renderPopover() {
     const theme = this.options.theme || "default";
-    this._popoverId = `l-popover-${timestamp()}-${random(2)}`;
+    let clazz = `l-popover l-popover--${theme}`;
+    if (this.options.popoverClass) {
+      clazz += ` ${this.options.popoverClass}`;
+    }
     const $tmp = $$("div", {
-      id: this._popoverId,
-      class: `l-popover l-popover--${theme}`,
+      class: clazz,
     });
-    const $content = $$("div", { class: "l-popover-content" });
     const contentRender = this.options.contentRender;
     if (contentRender) {
       const renderRes = contentRender();
       if (typeof renderRes === "string") {
-        $content.innerHTML = renderRes;
+        $tmp.innerHTML = renderRes;
       } else {
-        $content.appendChild(renderRes);
+        $tmp.appendChild(renderRes);
       }
+    } else {
+      const $content = $$("div", { class: "l-popover-content" });
+      $tmp.appendChild($content);
     }
-    $tmp.appendChild($content);
     if (this.options.arrow) {
       $tmp.appendChild($$("div", { class: "l-popover-arrow" }));
     }
     document.body.appendChild($tmp);
+    this.$popover = $tmp;
   }
 
   _destroyUpdater() {

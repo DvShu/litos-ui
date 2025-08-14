@@ -17,6 +17,10 @@
   line-height: 1;
   box-sizing: border-box;
 }
+:host(.l-select--disabled) {
+  background-color: var(--l-disabled-color, #f5f7fa);
+  cursor: not-allowed;
+}
 
 .l-select-main {
   display: flex;
@@ -28,6 +32,9 @@
 }
 .l-selected-item {
   flex-shrink: 0;
+}
+.l-select-placeholder {
+  flex-grow: 1;
 }
 .l-select-placeholder,
 .l-select-arrow {

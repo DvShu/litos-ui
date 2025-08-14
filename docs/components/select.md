@@ -28,6 +28,32 @@ regist([LoadingIcon]);
 
 ## 演示
 
+<script setup>
+  import { $, iterate } from 'ph-utils/dom';
+  import { onMounted, onUnmounted, nextTick } from 'vue';
+  const fruits = ["苹果", "香蕉", "橙子", "葡萄", "柠檬", "草莓", "樱桃", "芒果", "猕猴桃", "杨梅", "菠萝", "西瓜", "哈密瓜", "桃子", "梨", "柿子", "榴莲", "椰子", "龙眼", "荔枝"];
+  const options = fruits.map((item, i) => { return { value: i, label: item } });
+
+  let $selects;
+
+  onMounted(() => {
+    if (!import.meta.env.SSR) {
+      nextTick(() => {
+        $selects = $('l-select');
+        if ($selects && $selects.length > 0) {
+          iterate($selects, (el) => {
+            el.setOptions(options);
+          });
+        }
+      });
+    }
+  });
+
+  onUnmounted(() => {
+    $selects = null;
+  });
+</script>
+
 ### 基础用法
 
 通过 `setOptions()` 函数设置选项
@@ -44,6 +70,20 @@ regist([LoadingIcon]);
 </div>
 </l-code-preview>
 </ClientOnly>
+
+### 禁用
+
+通过 `disabled` 属性设置禁用状态
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-select disabled filterable></l-select>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+> 也可以通过 `l-form-item` 或 `l-form-item` 组件的 `disabled` 属性设置禁用状态
 
 ## API
 
