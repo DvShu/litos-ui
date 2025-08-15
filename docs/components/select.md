@@ -61,7 +61,7 @@ regist([LoadingIcon]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select multiple filterable data-title="ddd"></l-select>
+  <l-select multiple data-title="ddd"></l-select>
 </textarea>
 <div class="source">
 <textarea lang="html">

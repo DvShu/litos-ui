@@ -388,7 +388,8 @@ type PopoverInitProps = {
   /** 偏移量, 默认: 10 */
   offset?: number;
   /** 点击 Popover 内具有 data-action 的元素时触发 */
-  onPopoverAction?: (action: string) => void;
+  onPopoverAction?: (action: string, target: HTMLElement) => void;
+
   disabled?: boolean;
 };
 
@@ -546,6 +547,8 @@ export class Popover {
     let disabled = referenceDatas.disabled;
     if (disabled == null) disabled = this.options.disabled as any;
     if (disabled) return;
+    // 已经显示
+    if (this.$reference) return;
     this.$reference = reference;
     if (!this.$popover) {
       this._renderPopover();
@@ -578,6 +581,10 @@ export class Popover {
         arrowSize: this.options.arrowSize,
       });
     }
+  }
+
+  isShow() {
+    return this.$reference != null;
   }
 
   /**
@@ -620,7 +627,11 @@ export class Popover {
         (this.$popover.contains($target) || this.$popover == $target)
       ) {
         // 点击的是 Popover
-        const [next, action] = shouldEventNext(e, "data-action", this.$popover);
+        const [next, action, target] = shouldEventNext(
+          e,
+          "data-action",
+          this.$popover
+        );
         if (next) {
           let confirmAction = "";
           if (action === "popconfirm-cancel") {
@@ -632,7 +643,7 @@ export class Popover {
             this.hide();
           }
           if (this.options.onPopoverAction) {
-            this.options.onPopoverAction(confirmAction || action);
+            this.options.onPopoverAction(confirmAction || action, target);
           }
         }
         return;

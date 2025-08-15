@@ -1,7 +1,7 @@
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$, $one } from "ph-utils/dom";
+import { $$, $one, iterate, $ } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { Popover } from "../utils/popover";
 
@@ -140,29 +140,38 @@ export default class Select extends FormInner {
             const value = option[this.valueField];
             const label = option[this.labelField];
             let oldValue = this.value;
+            let oldLabels = this.selectedLabels;
             if (this.multiple === true) {
               // 多选
               if (!oldValue) {
                 oldValue = [value];
+                oldLabels = [label];
               } else {
                 if (Array.isArray(oldValue)) {
                   const i = oldValue.indexOf(value);
                   if (i !== -1) {
                     oldValue.splice(i, 1);
+                    oldLabels.splice(i, 1);
                   } else {
                     oldValue.push(value);
+                    oldLabels.push(label);
                   }
                 } else {
                   if (oldValue != value) {
                     oldValue = [oldValue, value];
+                    oldLabels = [oldLabels, label];
                   }
                 }
               }
             } else {
               // 单选
               oldValue = value;
+              oldLabels = [label];
             }
             this.setValue(oldValue);
+            this.selectedLabels = oldLabels;
+            // 重新渲染标签
+            this._reRenderLabels();
           }
         },
       });
@@ -185,20 +194,36 @@ export default class Select extends FormInner {
     // select main
     const $main = $$("div", {
       class: "l-select-main",
-      innerHTML: this._renderSelectedLabes(),
     });
+    const $tags = this._renderSelectedLabels();
+    $main.appendChild($tags);
+    // filter
+    if (this.filterable) {
+      let placeholder = this.placeholder;
+      if (this.selectedLabels.length > 0) {
+        placeholder = "";
+      }
+      if (!this.multiple && this.selectedLabels.length > 0) {
+        placeholder = this.selectedLabels[0];
+      }
+      $main.appendChild(
+        $$("input", {
+          class: "l-select-filter",
+          placeholder,
+        })
+      );
+    }
+    fragment.appendChild($main);
     // select arrow
     const $arrow = $$("l-arrow-down-icon", {
       class: "l-select-arrow",
     });
-    $main.appendChild($arrow);
+    fragment.appendChild($arrow);
     // select loading
     // const $loading = $$("l-loading-icon", {
     //   class: "l-select-loading",
     // });
     // $main.appendChild($loading);
-
-    fragment.appendChild($main);
     return fragment;
   }
 
@@ -220,50 +245,78 @@ export default class Select extends FormInner {
   }
 
   private _renderTag(label: string, index = 0, closeable = true) {
-    return `<l-tag type="info" class="l-selected-item" data-index="${index}" closeable="${closeable}">${label}</l-tag>`;
+    return $$("l-tag", {
+      type: "info",
+      class: "l-selected-item",
+      "data-index": index,
+      closeable,
+      textContent: label,
+    });
   }
 
-  private _renderSelectedLabes() {
-    const childrenStr = [];
+  private _reRenderLabels() {
+    let $main = $one(".l-select-main", this.root);
+    if ($main) {
+      const $children = $(".l-selected-item", $main) as HTMLElement[];
+      if ($children.length > 0) {
+        // 移除原有节点
+        iterate($children, (child) => {
+          if (child && child != this._searchEl) {
+            child.remove();
+          }
+        });
+      }
+      const $tags = this._renderSelectedLabels();
+      // 重新添加新的标签
+      if (this._searchEl) {
+        $main.insertBefore($tags, this._searchEl);
+      } else {
+        $main.appendChild($tags);
+      }
+    }
+  }
+
+  private _renderSelectedLabels() {
+    const fragment = document.createDocumentFragment();
     let selectedLen = this.selectedLabels.length;
     if (selectedLen > 0) {
       if (!this.multiple) {
         // 单选
         if (!this.filterable) {
-          childrenStr.push(
-            `<span class="l-selected-item">${this.selectedLabels[0]}</span>`
+          fragment.appendChild(
+            $$("span", {
+              class: "l-selected-item",
+              textContent: this.selectedLabels[0],
+            })
           );
         }
       } else {
         // 多选
-        childrenStr.push(this._renderTag(this.selectedLabels[0]));
+
         if (this.collapseTags) {
-          childrenStr.push(this._renderTag(`+${selectedLen - 1}`, -1, false));
+          fragment.appendChild(this._renderTag(this.selectedLabels[0]));
+          fragment.appendChild(
+            this._renderTag(`+${selectedLen - 1}`, -1, false)
+          );
         } else {
-          for (let i = 1; i < selectedLen; i++) {
-            childrenStr.push(this._renderTag(this.selectedLabels[i], i));
+          for (let i = 0; i < selectedLen; i++) {
+            fragment.appendChild(this._renderTag(this.selectedLabels[i], i));
           }
         }
       }
     } else {
       if (!this.filterable) {
-        childrenStr.push(
-          `<span class="l-selected-item l-select-placeholder">${this.placeholder}</span>`
+        fragment.appendChild(
+          $$("span", {
+            class: "l-selected-item l-select-placeholder",
+            textContent: this.placeholder,
+          })
         );
       }
     }
-    if (this.filterable) {
-      let placeholder = this.placeholder;
-      if (selectedLen > 0) {
-        placeholder = "";
-      }
-      if (!this.multiple && selectedLen > 0) {
-        placeholder = this.selectedLabels[0];
-      }
-      childrenStr.push(
-        `<input class="l-select-filter" placeholder="${placeholder}" />`
-      );
-    }
-    return childrenStr.join("");
+
+    return fragment;
   }
+
+  _updateSelectedLabels() {}
 }
