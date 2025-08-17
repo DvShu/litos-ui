@@ -40,6 +40,7 @@ export { default as DArrowLeftIcon } from "./icon/d_arrow_left";
 export { default as DArrowRightIcon } from "./icon/d_arrow_right";
 export { default as ZoomInIcon } from "./icon/zoom_in";
 export { default as ZoomOutIcon } from "./icon/zoom_out";
+export { default as SelectIcon } from "./icon/select";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";

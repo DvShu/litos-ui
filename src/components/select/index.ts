@@ -39,6 +39,18 @@ export default class Select extends FormInner {
       v = value.split(",");
     }
     super.setValue(this.multiple ? v : v[0]);
+    this._updateSelectedLabels();
+  }
+
+  private _updateSelectedLabels() {
+    if (this.options) {
+      console.log(this.value);
+      this.selectedLabels = this.options
+        .filter((item) => this._isOptionSelect(item[this.valueField as string]))
+        .map((item) => item[this.labelField as string]);
+      console.log(this.selectedLabels);
+    }
+    this.selectedLabels = [];
   }
 
   static get observedAttributes() {
@@ -78,6 +90,18 @@ export default class Select extends FormInner {
     }
   }
 
+  private _isOptionSelect(value?: any) {
+    let isSelect = false;
+    if (value != null && this.value) {
+      if (this.multiple) {
+        isSelect = this.value.includes(value);
+      } else {
+        isSelect = value === this.value;
+      }
+    }
+    return isSelect;
+  }
+
   private _renderOption() {
     const children: string[] = [];
     if (this.options) {
@@ -98,6 +122,10 @@ export default class Select extends FormInner {
           },
           $li
         );
+        // select
+        if (this._isOptionSelect(item[this.valueField as string])) {
+          $$("l-select-icon", {}, $li);
+        }
         children.push($li.outerHTML);
       }
     }

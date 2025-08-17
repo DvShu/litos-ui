@@ -44,6 +44,7 @@ regist([LoadingIcon]);
           iterate($selects, (el) => {
             el.setOptions(options);
           });
+          $selects[0].value = [0, 1];
         }
       });
     }
