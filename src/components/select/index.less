@@ -21,6 +21,12 @@
   background-color: var(--l-disabled-color, #f5f7fa);
   cursor: not-allowed;
 }
+:host(.l-select--expand) {
+  border-color: var(--l-primary-color, #722ed1);
+}
+:host(.l-select--expand) .l-select-arrow {
+  transform: rotate3d(0, 0, 1, 180deg);
+}
 
 .l-select-main {
   display: flex;

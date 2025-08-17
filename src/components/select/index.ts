@@ -40,15 +40,15 @@ export default class Select extends FormInner {
     }
     super.setValue(this.multiple ? v : v[0]);
     this._updateSelectedLabels();
+    this._reRenderLabels();
   }
 
   private _updateSelectedLabels() {
     if (this.options) {
-      console.log(this.value);
       this.selectedLabels = this.options
         .filter((item) => this._isOptionSelect(item[this.valueField as string]))
         .map((item) => item[this.labelField as string]);
-      console.log(this.selectedLabels);
+      return;
     }
     this.selectedLabels = [];
   }
@@ -108,8 +108,14 @@ export default class Select extends FormInner {
       const len = this.options.length;
       for (let i = 0; i < len; i++) {
         const item = this.options[i];
+        const itemSelected = this._isOptionSelect(
+          item[this.valueField as string]
+        );
         const $li = $$("li", {
-          class: "l-select-option",
+          class: [
+            "l-select-option",
+            itemSelected ? "l-select-option--selected" : undefined,
+          ],
           "data-action": `${i}`,
         });
         // text
@@ -123,8 +129,14 @@ export default class Select extends FormInner {
           $li
         );
         // select
-        if (this._isOptionSelect(item[this.valueField as string])) {
-          $$("l-select-icon", {}, $li);
+        if (itemSelected) {
+          $$(
+            "l-select-icon",
+            {
+              class: "l-select-icon",
+            },
+            $li
+          );
         }
         children.push($li.outerHTML);
       }
@@ -161,7 +173,14 @@ export default class Select extends FormInner {
             $list.innerHTML = this._renderOption();
           }
         },
-        onPopoverAction: (action) => {
+        onOpenChange: (isOpen) => {
+          if (isOpen) {
+            this.classList.add("l-select--expand");
+          } else {
+            this.classList.remove("l-select--expand");
+          }
+        },
+        onPopoverAction: (action, target) => {
           if (action && this.options) {
             const index = Number(action);
             const option = this.options[index];
@@ -196,8 +215,27 @@ export default class Select extends FormInner {
               oldValue = value;
               oldLabels = [label];
             }
-            this.setValue(oldValue);
+            this._value = oldValue;
             this.selectedLabels = oldLabels;
+            const isSelect = this._isOptionSelect(value);
+            let $selectIcon = $one(".l-select-icon", target);
+            if (isSelect) {
+              target.classList.add("l-select-option--selected");
+              if (!$selectIcon) {
+                $$(
+                  "l-select-icon",
+                  {
+                    class: "l-select-icon",
+                  },
+                  target
+                );
+              }
+            } else {
+              target.classList.remove("l-select-option--selected");
+              if ($selectIcon) {
+                $selectIcon.remove();
+              }
+            }
             // 重新渲染标签
             this._reRenderLabels();
           }
@@ -345,6 +383,4 @@ export default class Select extends FormInner {
 
     return fragment;
   }
-
-  _updateSelectedLabels() {}
 }

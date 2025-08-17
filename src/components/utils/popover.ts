@@ -389,7 +389,7 @@ type PopoverInitProps = {
   offset?: number;
   /** 点击 Popover 内具有 data-action 的元素时触发 */
   onPopoverAction?: (action: string, target: HTMLElement) => void;
-
+  onOpenChange?: (isOpen: boolean) => void;
   disabled?: boolean;
 };
 
@@ -580,6 +580,9 @@ export class Popover {
         offset: offset,
         arrowSize: this.options.arrowSize,
       });
+      if (this.options.onOpenChange) {
+        this.options.onOpenChange(true);
+      }
     }
   }
 
@@ -596,6 +599,9 @@ export class Popover {
       this.$popover.style.display = "none";
     }
     this.$reference = undefined;
+    if (this.options.onOpenChange) {
+      this.options.onOpenChange(false);
+    }
   }
 
   /** 重新设置选项 */
