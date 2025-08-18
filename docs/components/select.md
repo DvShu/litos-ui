@@ -18,6 +18,7 @@ import {
   CloseIcon,
   LoadingIcon,
 } from "litos-ui";
+import "litos-ui/styles/select.css";
 
 regist([Select, ArrowDownIcon]);
 // multiple
@@ -44,7 +45,7 @@ regist([LoadingIcon]);
           iterate($selects, (el) => {
             el.setOptions(options);
           });
-          $selects[0].value = [0, 1];
+          $selects[0].value = 0;
         }
       });
     }
@@ -57,20 +58,29 @@ regist([LoadingIcon]);
 
 ### 基础用法
 
-通过 `setOptions()` 函数设置选项
+通过 `setOptions()` 函数设置选项，可以通过 `.value` 获取或设置选中项[多选，设置为数组]
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select multiple data-title="ddd"></l-select>
+  <l-select></l-select>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-select></l-select>
+  <l-select id="select1"></l-select>
+</textarea>
+<textarea lang="js">
+  const $select1 = document.querySelector('#select1');
+  $select1.setOptions([{value:0,label:'苹果'}, {value:1,label:'香蕉'}]);
+  // 多选 $select1.value = [0, 1];
+  $select1.value = 0;
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
+
+> 1. 可以通过 `value-field` 和 `label-field` 属性设置选项的 `value` 和 `label` 字段
+> 2. 如果选中项是字符串，可以直接通过节点的 `value` 属性，设置选中值设置选中值[多选用 `,` 分隔]
 
 ### 禁用
 
@@ -79,12 +89,25 @@ regist([LoadingIcon]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select disabled filterable></l-select>
+  <l-select disabled></l-select>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
 > 也可以通过 `l-form-item` 或 `l-form-item` 组件的 `disabled` 属性设置禁用状态
+
+### 多选用
+
+设置 `multiple` 属性即可启用多选，默认情况下选中值会以 `Tag` 组件的形式展现， 你也可以设置 `collapse-tags` 属性将它们合并为一段文字。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-select multiple width="180px"></l-select>
+  <l-select multiple collapse-tags width="180px"></l-select>
+</textarea>
+</l-code-preview>
+</ClientOnly>
 
 ## API
 

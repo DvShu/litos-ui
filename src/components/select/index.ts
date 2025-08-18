@@ -23,7 +23,9 @@ export default class Select extends FormInner {
   /** 多选时是否折叠标签 */
   public collapseTags?: boolean = false;
   /** 是否加载中, 远程搜索时使用 */
-  public loading?: boolean = true;
+  public loading?: boolean = false;
+  /** 宽度 */
+  public width?: string;
   public options?: any[] = [];
   private _popover?: Popover;
   private _searchEl?: HTMLInputElement;
@@ -33,12 +35,21 @@ export default class Select extends FormInner {
     super.connectedCallback();
   }
 
-  public setValue(value: string | string[]): void {
-    let v: string[] = value as string[];
+  public setValue(value: string | string[] | number): void {
+    let v: any[] = value as string[];
     if (typeof value === "string") {
       v = value.split(",");
     }
-    super.setValue(this.multiple ? v : v[0]);
+    if (this.multiple) {
+      if (!Array.isArray(v)) {
+        v = [v];
+      }
+    } else {
+      if (Array.isArray(v)) {
+        v = v[0];
+      }
+    }
+    super.setValue(v);
     this._updateSelectedLabels();
     this._reRenderLabels();
   }
@@ -64,6 +75,7 @@ export default class Select extends FormInner {
       "loading",
       "label-field",
       "value-field",
+      "width",
     ];
   }
 
@@ -81,6 +93,17 @@ export default class Select extends FormInner {
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
     }
+    if (this.rendered) {
+      switch (name) {
+        case "width":
+          if (parsedValue) {
+            this.style.setProperty("--l-select-width", parsedValue);
+          } else {
+            this.style.removeProperty("--l-select-width");
+          }
+          break;
+      }
+    }
   }
 
   public setOptions(options: any[]): void {
@@ -92,7 +115,7 @@ export default class Select extends FormInner {
 
   private _isOptionSelect(value?: any) {
     let isSelect = false;
-    if (value != null && this.value) {
+    if (value != null && this.value != null) {
       if (this.multiple) {
         isSelect = this.value.includes(value);
       } else {
@@ -100,6 +123,27 @@ export default class Select extends FormInner {
       }
     }
     return isSelect;
+  }
+
+  private _updateOptionSelect(optionElement: HTMLElement, isSelect: boolean) {
+    let $selectIcon = $one(".l-select-icon", optionElement);
+    if (isSelect) {
+      optionElement.classList.add("l-select-option--selected");
+      if (!$selectIcon) {
+        $$(
+          "l-select-icon",
+          {
+            class: "l-select-icon",
+          },
+          optionElement
+        );
+      }
+    } else {
+      optionElement.classList.remove("l-select-option--selected");
+      if ($selectIcon) {
+        $selectIcon.remove();
+      }
+    }
   }
 
   private _renderOption() {
@@ -151,9 +195,18 @@ export default class Select extends FormInner {
     return children.join("");
   }
 
+  private _calculateOffset(target: HTMLElement, scrollContainer: HTMLElement) {
+    const targetRect = target.getBoundingClientRect();
+    const scrollContainerRect = scrollContainer.getBoundingClientRect();
+    return targetRect.top - scrollContainerRect.top + scrollContainer.scrollTop;
+  }
+
   afterInit(): void {
     this._searchEl = $one(".l-select-filter", this.root) as HTMLInputElement;
     this.disabledChange();
+    if (this.width) {
+      this.style.setProperty("--l-select-width", this.width);
+    }
     if (!this._popover) {
       this._popover = new Popover({
         trigger: "click",
@@ -176,6 +229,22 @@ export default class Select extends FormInner {
         onOpenChange: (isOpen) => {
           if (isOpen) {
             this.classList.add("l-select--expand");
+            queueMicrotask(() => {
+              if (this._popover && this._popover.popoverElement) {
+                const $firstSelect = $one(
+                  ".l-select-option--selected",
+                  this._popover.popoverElement
+                );
+                let offset = 0;
+                if ($firstSelect) {
+                  offset = this._calculateOffset(
+                    $firstSelect,
+                    this._popover.popoverElement
+                  );
+                }
+                this._popover.popoverElement.scrollTo({ top: offset });
+              }
+            });
           } else {
             this.classList.remove("l-select--expand");
           }
@@ -218,26 +287,24 @@ export default class Select extends FormInner {
             this._value = oldValue;
             this.selectedLabels = oldLabels;
             const isSelect = this._isOptionSelect(value);
-            let $selectIcon = $one(".l-select-icon", target);
-            if (isSelect) {
-              target.classList.add("l-select-option--selected");
-              if (!$selectIcon) {
-                $$(
-                  "l-select-icon",
-                  {
-                    class: "l-select-icon",
-                  },
-                  target
-                );
-              }
-            } else {
-              target.classList.remove("l-select-option--selected");
-              if ($selectIcon) {
-                $selectIcon.remove();
-              }
+            if (!this.multiple) {
+              // 单选移除之前的选中态
+              const $oldSelected = $(
+                ".l-select-option--selected",
+                target.parentElement as HTMLElement
+              ) as HTMLElement[];
+              iterate($oldSelected, (oldOption) => {
+                this._updateOptionSelect(oldOption, false);
+              });
             }
+            // 修改选中状态
+            this._updateOptionSelect(target, isSelect);
             // 重新渲染标签
             this._reRenderLabels();
+            if (!this.multiple && this._popover) {
+              // 单选关闭弹窗
+              this._popover.hide();
+            }
           }
         },
       });

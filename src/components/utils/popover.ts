@@ -398,7 +398,7 @@ export class Popover {
   private $refs: HTMLElement[] | undefined = [];
   /** 激活的触发节点 */
   private $reference?: HTMLElement;
-  private $popover?: HTMLElement;
+  public popoverElement?: HTMLElement;
   private updater?: any;
   private _hideTimer?: number;
 
@@ -432,7 +432,7 @@ export class Popover {
       $refs = [...$(".l-popover-reference")] as HTMLElement[];
     }
     this.$refs = $refs;
-    this.$popover = this.options.popover;
+    this.popoverElement = this.options.popover;
     this._bindPopoverEvents();
     this._init();
   }
@@ -493,9 +493,9 @@ export class Popover {
   }
 
   _bindPopoverEvents() {
-    if (this.$popover && this.options.trigger === "hover") {
-      on(this.$popover, "mouseenter", this._onPopoverEnter);
-      on(this.$popover, "mouseleave", this._onMouseLeave);
+    if (this.popoverElement && this.options.trigger === "hover") {
+      on(this.popoverElement, "mouseenter", this._onPopoverEnter);
+      on(this.popoverElement, "mouseleave", this._onMouseLeave);
     }
   }
 
@@ -550,13 +550,13 @@ export class Popover {
     // 已经显示
     if (this.$reference) return;
     this.$reference = reference;
-    if (!this.$popover) {
+    if (!this.popoverElement) {
       this._renderPopover();
       this._bindPopoverEvents();
     }
-    if (this.$popover) {
+    if (this.popoverElement) {
       if (this.options.updateContent) {
-        this.options.updateContent(this.$popover, referenceDatas);
+        this.options.updateContent(this.popoverElement, referenceDatas);
       }
       this._destroyUpdater();
 
@@ -565,7 +565,7 @@ export class Popover {
       const offset = Number(referenceDatas.offset || this.options.offset || 10);
       const popoverWidth =
         referenceDatas.popoverWidth || this.options.popoverWidth;
-      this.$popover.style.display = "block";
+      this.popoverElement.style.display = "block";
       let popWidth;
       if (popoverWidth) {
         if (popoverWidth !== "trigger") {
@@ -574,7 +574,7 @@ export class Popover {
           popWidth = popoverWidth as "trigger";
         }
       }
-      this.updater = autoUpdate(this.$reference, this.$popover, {
+      this.updater = autoUpdate(this.$reference, this.popoverElement, {
         placement: placement as "top",
         popoverWidth: popWidth,
         offset: offset,
@@ -595,8 +595,8 @@ export class Popover {
    */
   hide() {
     this._destroyUpdater();
-    if (this.$popover) {
-      this.$popover.style.display = "none";
+    if (this.popoverElement) {
+      this.popoverElement.style.display = "none";
     }
     this.$reference = undefined;
     if (this.options.onOpenChange) {
@@ -610,8 +610,8 @@ export class Popover {
   }
 
   public updatePopoverContent() {
-    if (this.$popover && this.options.updateContent) {
-      this.options.updateContent(this.$popover, {});
+    if (this.popoverElement && this.options.updateContent) {
+      this.options.updateContent(this.popoverElement, {});
     }
   }
 
@@ -629,14 +629,15 @@ export class Popover {
       }
       // 判断是否点击的是 Popover
       if (
-        this.$popover &&
-        (this.$popover.contains($target) || this.$popover == $target)
+        this.popoverElement &&
+        (this.popoverElement.contains($target) ||
+          this.popoverElement == $target)
       ) {
         // 点击的是 Popover
         const [next, action, target] = shouldEventNext(
           e,
           "data-action",
-          this.$popover
+          this.popoverElement
         );
         if (next) {
           let confirmAction = "";
@@ -683,7 +684,7 @@ export class Popover {
       $tmp.appendChild($$("div", { class: "l-popover-arrow" }));
     }
     document.body.appendChild($tmp);
-    this.$popover = $tmp;
+    this.popoverElement = $tmp;
   }
 
   _destroyUpdater() {
@@ -709,13 +710,13 @@ export class Popover {
     this.options = undefined as any;
     this.$refs = undefined;
     this._clearHideTimer();
-    if (this.$popover) {
-      off(this.$popover, "mouseenter", this._onPopoverEnter);
-      off(this.$popover, "mouseleave", this._onMouseLeave);
+    if (this.popoverElement) {
+      off(this.popoverElement, "mouseenter", this._onPopoverEnter);
+      off(this.popoverElement, "mouseleave", this._onMouseLeave);
       // 移除 popover 节点
-      this.$popover.remove();
+      this.popoverElement.remove();
     }
-    this.$popover = undefined;
+    this.popoverElement = undefined;
   }
 }
 
