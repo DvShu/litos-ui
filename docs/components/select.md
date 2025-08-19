@@ -17,6 +17,7 @@ import {
   Tag,
   CloseIcon,
   LoadingIcon,
+  CloseFilledIcon,
 } from "litos-ui";
 import "litos-ui/styles/select.css";
 
@@ -25,6 +26,8 @@ regist([Select, ArrowDownIcon]);
 regist([Tag, CloseIcon]);
 // loading
 regist([LoadingIcon]);
+// clearable
+regist([CloseFilledIcon]);
 ```
 
 ## 演示
@@ -105,6 +108,19 @@ regist([LoadingIcon]);
 <textarea lang="html">
   <l-select multiple width="180px"></l-select>
   <l-select multiple collapse-tags width="180px"></l-select>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 可清空
+
+设置 clearable 属性，则可将选择器清空。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-select clearable width="180px"></l-select>
+  <l-select multiple collapse-tags clearable width="180px"></l-select>
 </textarea>
 </l-code-preview>
 </ClientOnly>

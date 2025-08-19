@@ -374,7 +374,7 @@ type PopoverInitProps = {
     datas?: Record<string, any>
   ) => void;
   /** 触发方式, 默认: hover */
-  trigger?: "click" | "hover" | "focus";
+  trigger?: "click" | "hover" | "focus" | "manual";
   /** 主题, default - 白底, tooltip - 黑底 */
   theme?: "default" | "tooltip" | string;
   /** 浮动元素宽度 */

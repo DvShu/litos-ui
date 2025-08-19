@@ -23,7 +23,8 @@
   background-color: var(--l-disabled-color, #f5f7fa);
   cursor: not-allowed;
 }
-:host(.l-select--expand) {
+:host(.l-select--expand),
+:host(.l-select--active) {
   border-color: var(--l-primary-color, #722ed1);
 }
 :host(.l-select--expand) .l-select-arrow {
@@ -75,6 +76,9 @@
 .l-select-loading {
   color: var(--l-primary-color, #722ed1);
   animation: l-select-loading 1.5s infinite linear;
+}
+.l-select-clear {
+  color: #afafaf;
 }
 
 /* 旋转动画 */

@@ -1,7 +1,7 @@
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$, $one, iterate, $ } from "ph-utils/dom";
+import { $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { Popover } from "../utils/popover";
 
@@ -26,13 +26,64 @@ export default class Select extends FormInner {
   public loading?: boolean = false;
   /** 宽度 */
   public width?: string;
+  /** 是否可清除 */
+  public clearable?: boolean = false;
+  /** 是否展开下拉选择 */
+  public _expanded: boolean = false;
+  /** 是否处于激活态 */
+  public isActive?: boolean = false;
+
   public options?: any[] = [];
   private _popover?: Popover;
   private _searchEl?: HTMLInputElement;
+  private _arrowEl?: HTMLElement;
 
   connectedCallback(): void {
     this.loadStyleText(css);
     super.connectedCallback();
+  }
+
+  public setIsActive(isActive?: boolean) {
+    this.isActive = isActive;
+    if (isActive) {
+      this.classList.add("l-select--active");
+    } else {
+      this.classList.remove("l-select--active");
+    }
+  }
+
+  private get expanded() {
+    return this._expanded;
+  }
+
+  private set expanded(value: boolean) {
+    this.setExpanded(value);
+  }
+
+  public setExpanded(value: boolean) {
+    this._expanded = value;
+    if (value) {
+      this.setIsActive(true);
+      this.classList.add("l-select--expand");
+      queueMicrotask(() => {
+        if (this._popover && this._popover.popoverElement) {
+          const $firstSelect = $one(
+            ".l-select-option--selected",
+            this._popover.popoverElement
+          );
+          let offset = 0;
+          if ($firstSelect) {
+            offset = this._calculateOffset(
+              $firstSelect,
+              this._popover.popoverElement
+            );
+          }
+          this._popover.popoverElement.scrollTo({ top: offset });
+        }
+      });
+    } else {
+      this.classList.remove("l-select--expand");
+    }
   }
 
   public setValue(value: string | string[] | number): void {
@@ -76,6 +127,8 @@ export default class Select extends FormInner {
       "label-field",
       "value-field",
       "width",
+      "clearable",
+      "expanded",
     ];
   }
 
@@ -201,20 +254,94 @@ export default class Select extends FormInner {
     return targetRect.top - scrollContainerRect.top + scrollContainer.scrollTop;
   }
 
+  public isEmpty() {
+    let isEmpty = true;
+    if (!this.multiple && this.value != null && this.value !== "") {
+      isEmpty = false;
+    }
+    if (this.multiple && this.value && this.value.length > 0) {
+      isEmpty = false;
+    }
+    return isEmpty;
+  }
+
+  private _toggleClearable(isHide = false) {
+    if (this.clearable) {
+      // 显示 清除按钮
+      let $clearIcon = $one(".l-select-clear", this.root);
+      if (isHide || this.isEmpty() || this.loading) {
+        if ($clearIcon) {
+          $clearIcon.remove();
+        }
+        return;
+      }
+      if (!$clearIcon) {
+        $$(
+          "l-close-filled-icon",
+          {
+            class: "l-select-clear",
+            "data-action": "clear",
+          },
+          this.root
+        );
+      }
+    }
+  }
+
+  private _onMouseEnter = () => {
+    this._toggleClearable(false);
+  };
+
+  private _onMouseLeave = () => {
+    this._toggleClearable(true);
+  };
+
+  private _togglePopover() {
+    if (this._popover) {
+      if (this._popover.isShow()) {
+        this._popover.hide();
+        return;
+      }
+      this._popover.show(this);
+    }
+  }
+
+  private _onRootTap = (e: Event) => {
+    e.stopPropagation();
+    const [next, action, target] = shouldEventNext(
+      e,
+      "data-action",
+      e.currentTarget as HTMLElement
+    );
+    if (next) {
+      return;
+    }
+    this._togglePopover();
+  };
+
+  private _onTap = () => {
+    this._togglePopover();
+  };
+
   afterInit(): void {
+    on(this, "mouseenter", this._onMouseEnter);
+    on(this, "mouseleave", this._onMouseLeave);
+    on(this.root, "click", this._onRootTap);
+    on(this, "click", this._onTap);
+
     this._searchEl = $one(".l-select-filter", this.root) as HTMLInputElement;
+    this._arrowEl = $one(".l-select-arrow", this.root) as HTMLElement;
     this.disabledChange();
     if (this.width) {
       this.style.setProperty("--l-select-width", this.width);
     }
     if (!this._popover) {
       this._popover = new Popover({
-        trigger: "click",
-        reference: this,
         arrow: false,
         offset: 2,
         placement: "bottom",
         popoverWidth: "trigger",
+        trigger: "manual",
         theme: "select",
         disabled: this.isDisabled(),
         contentRender() {
@@ -227,27 +354,7 @@ export default class Select extends FormInner {
           }
         },
         onOpenChange: (isOpen) => {
-          if (isOpen) {
-            this.classList.add("l-select--expand");
-            queueMicrotask(() => {
-              if (this._popover && this._popover.popoverElement) {
-                const $firstSelect = $one(
-                  ".l-select-option--selected",
-                  this._popover.popoverElement
-                );
-                let offset = 0;
-                if ($firstSelect) {
-                  offset = this._calculateOffset(
-                    $firstSelect,
-                    this._popover.popoverElement
-                  );
-                }
-                this._popover.popoverElement.scrollTo({ top: offset });
-              }
-            });
-          } else {
-            this.classList.remove("l-select--expand");
-          }
+          this.setExpanded(isOpen);
         },
         onPopoverAction: (action, target) => {
           if (action && this.options) {
@@ -312,6 +419,10 @@ export default class Select extends FormInner {
   }
 
   beforeDestroy(): void {
+    off(this, "mouseenter", this._onMouseEnter);
+    off(this, "mouseleave", this._onMouseLeave);
+    off(this.root, "click", this._onRootTap);
+    off(this, "click", this._onTap);
     this.options = undefined;
     if (this._popover) {
       this._popover.destroy();
@@ -320,6 +431,7 @@ export default class Select extends FormInner {
     if (this._searchEl) {
       this._searchEl = undefined;
     }
+    this._arrowEl = undefined;
   }
 
   render() {
@@ -352,11 +464,6 @@ export default class Select extends FormInner {
       class: "l-select-arrow",
     });
     fragment.appendChild($arrow);
-    // select loading
-    // const $loading = $$("l-loading-icon", {
-    //   class: "l-select-loading",
-    // });
-    // $main.appendChild($loading);
     return fragment;
   }
 
@@ -428,9 +535,11 @@ export default class Select extends FormInner {
 
         if (this.collapseTags) {
           fragment.appendChild(this._renderTag(this.selectedLabels[0]));
-          fragment.appendChild(
-            this._renderTag(`+${selectedLen - 1}`, -1, false)
-          );
+          if (selectedLen > 1) {
+            fragment.appendChild(
+              this._renderTag(`+${selectedLen - 1}`, -1, false)
+            );
+          }
         } else {
           for (let i = 0; i < selectedLen; i++) {
             fragment.appendChild(this._renderTag(this.selectedLabels[i], i));
