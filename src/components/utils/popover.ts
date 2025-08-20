@@ -331,6 +331,7 @@ export function autoUpdate(
   let $reference = reference;
   let $floating = floating;
   let $options = options;
+
   updatePosition($reference, $floating, $options);
 
   function onScroll() {
@@ -343,6 +344,14 @@ export function autoUpdate(
     on(item, "scroll", onScroll);
   });
 
+  // 尺寸变化
+  function sizeChange() {
+    updatePosition($reference, $floating, $options);
+  }
+  let sizeObserver = new ResizeObserver(sizeChange);
+  sizeObserver.observe($reference);
+  sizeObserver.observe(window.document.body);
+
   function destroy() {
     scollParents.forEach((item) => {
       off(item, "scroll", onScroll);
@@ -351,6 +360,8 @@ export function autoUpdate(
     $reference = undefined as any;
     $floating = undefined as any;
     $options = undefined as any;
+    sizeObserver.disconnect();
+    sizeObserver = undefined as any;
   }
 
   return { destroy };

@@ -306,6 +306,12 @@ export default class Select extends FormInner {
     }
   }
 
+  private _updatePopoverContent() {
+    if (this._popover && this.expanded) {
+      this._popover.updatePopoverContent();
+    }
+  }
+
   private _onRootTap = (e: Event) => {
     e.stopPropagation();
     const [next, action, target] = shouldEventNext(
@@ -314,6 +320,21 @@ export default class Select extends FormInner {
       e.currentTarget as HTMLElement
     );
     if (next) {
+      if (action === "clear") {
+        this.value = this.multiple ? [] : "";
+        this.selectedLabels = [];
+        this._toggleClearable(true);
+        this._reRenderLabels();
+        this._updatePopoverContent();
+      } else {
+        const index = Number(action);
+        this.selectedLabels.splice(index, 1);
+        (this._value as any[]).splice(index, 1);
+        this._updatePopoverContent();
+        if (target.parentElement) {
+          target.parentElement.remove();
+        }
+      }
       return;
     }
     this._togglePopover();
@@ -485,13 +506,21 @@ export default class Select extends FormInner {
   }
 
   private _renderTag(label: string, index = 0, closeable = true) {
-    return $$("l-tag", {
+    const $tmpTag = $$("l-tag", {
       type: "info",
       class: "l-selected-item",
-      "data-index": index,
-      closeable,
       textContent: label,
     });
+    if (closeable) {
+      const $closeWrapper = $$("div", {
+        class: "l-select-tag-close",
+        slot: "suffix",
+        innerHTML: "<l-close-icon></l-close-icon>",
+        "data-action": `${index}`,
+      });
+      $tmpTag.appendChild($closeWrapper);
+    }
+    return $tmpTag;
   }
 
   private _reRenderLabels() {
@@ -532,7 +561,6 @@ export default class Select extends FormInner {
         }
       } else {
         // 多选
-
         if (this.collapseTags) {
           fragment.appendChild(this._renderTag(this.selectedLabels[0]));
           if (selectedLen > 1) {

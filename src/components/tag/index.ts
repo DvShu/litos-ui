@@ -59,6 +59,9 @@ export default class Tag extends BaseComponent {
     if (this.closeable) {
       fragment.appendChild(this.#createCloseElement());
     }
+
+    // suffix
+    fragment.appendChild($$("slot", { name: "suffix" }));
     return fragment;
   }
 
