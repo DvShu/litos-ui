@@ -65,22 +65,26 @@ export default class Select extends FormInner {
     if (value) {
       this.setIsActive(true);
       this.classList.add("l-select--expand");
-      queueMicrotask(() => {
-        if (this._popover && this._popover.popoverElement) {
-          const $firstSelect = $one(
-            ".l-select-option--selected",
-            this._popover.popoverElement
-          );
-          let offset = 0;
-          if ($firstSelect) {
-            offset = this._calculateOffset(
-              $firstSelect,
-              this._popover.popoverElement
-            );
-          }
-          this._popover.popoverElement.scrollTo({ top: offset });
-        }
-      });
+      if (this._searchEl) {
+        this._searchEl.focus();
+      }
+      // 更新滚动位置到第一个选中
+      // queueMicrotask(() => {
+      //   if (this._popover && this._popover.popoverElement) {
+      //     const $firstSelect = $one(
+      //       ".l-select-option--selected",
+      //       this._popover.popoverElement
+      //     );
+      //     let offset = 0;
+      //     if ($firstSelect) {
+      //       offset = this._calculateOffset(
+      //         $firstSelect,
+      //         this._popover.popoverElement
+      //       );
+      //     }
+      //     this._popover.popoverElement.scrollTo({ top: offset });
+      //   }
+      // });
     } else {
       this.classList.remove("l-select--expand");
     }
@@ -331,8 +335,12 @@ export default class Select extends FormInner {
         this.selectedLabels.splice(index, 1);
         (this._value as any[]).splice(index, 1);
         this._updatePopoverContent();
-        if (target.parentElement) {
-          target.parentElement.remove();
+        if (this.collapseTags) {
+          this._reRenderLabels();
+        } else {
+          if (target.parentElement) {
+            target.parentElement.remove();
+          }
         }
       }
       return;
@@ -344,6 +352,10 @@ export default class Select extends FormInner {
     this._togglePopover();
   };
 
+  private _onSearchBlur = () => {
+    this._updateSearchValue();
+  };
+
   afterInit(): void {
     on(this, "mouseenter", this._onMouseEnter);
     on(this, "mouseleave", this._onMouseLeave);
@@ -351,6 +363,9 @@ export default class Select extends FormInner {
     on(this, "click", this._onTap);
 
     this._searchEl = $one(".l-select-filter", this.root) as HTMLInputElement;
+    if (this._searchEl) {
+      on(this._searchEl, "blur", this._onSearchBlur);
+    }
     this._arrowEl = $one(".l-select-arrow", this.root) as HTMLElement;
     this.disabledChange();
     if (this.width) {
@@ -450,6 +465,7 @@ export default class Select extends FormInner {
       this._popover = undefined;
     }
     if (this._searchEl) {
+      off(this._searchEl, "blur", this._onSearchBlur);
       this._searchEl = undefined;
     }
     this._arrowEl = undefined;
@@ -465,17 +481,21 @@ export default class Select extends FormInner {
     $main.appendChild($tags);
     // filter
     if (this.filterable) {
-      let placeholder = this.placeholder;
+      let placeholder = this.placeholder || "请选择";
+      let value = "";
       if (this.selectedLabels.length > 0) {
-        placeholder = "";
-      }
-      if (!this.multiple && this.selectedLabels.length > 0) {
-        placeholder = this.selectedLabels[0];
+        if (!this.multiple) {
+          placeholder = this.selectedLabels[0];
+          value = this.selectedLabels[0];
+        } else {
+          placeholder = "";
+        }
       }
       $main.appendChild(
         $$("input", {
           class: "l-select-filter",
           placeholder,
+          value,
         })
       );
     }
@@ -542,6 +562,25 @@ export default class Select extends FormInner {
       } else {
         $main.appendChild($tags);
       }
+    }
+    this._updateSearchValue();
+  }
+
+  private _updateSearchValue() {
+    if (this._searchEl) {
+      let placeholder = this.placeholder || "请选择";
+      let value = "";
+      if (this.selectedLabels.length > 0) {
+        if (!this.multiple) {
+          placeholder = this.selectedLabels[0];
+          value = this.selectedLabels[0];
+        } else {
+          placeholder = "";
+        }
+      }
+
+      this._searchEl.placeholder = placeholder;
+      this._searchEl.value = value;
     }
   }
 
