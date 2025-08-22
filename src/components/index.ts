@@ -53,6 +53,7 @@ export { default as Input } from "./input";
 export { default as SelectOri } from "./select_ori";
 export { default as Switch } from "./switch";
 export { default as MdInput } from "./md_input";
+export { default as Select } from "./select";
 
 export { default as List } from "./list";
 
@@ -92,7 +93,5 @@ export { default as CollapseItem } from "./collapse/item";
 
 export { default as Image } from "./image";
 export { default as ImagePreview } from "./image/image_preview";
-
-export { default as Select } from "./select";
 
 export * from "./utils/popover";

@@ -135,7 +135,7 @@ regist([CloseFilledIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-select filterable width="180px"></l-select>
-  <l-select multiple filterable ></l-select>
+  <l-select multiple filterable width="180px"></l-select>
 </textarea>
 </l-code-preview>
 </ClientOnly>

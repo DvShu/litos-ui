@@ -38,6 +38,10 @@ export default class Select extends FormInner {
   private _searchEl?: HTMLInputElement;
   private _arrowEl?: HTMLElement;
 
+  constructor() {
+    super(true, false);
+  }
+
   connectedCallback(): void {
     this.loadStyleText(css);
     super.connectedCallback();
@@ -340,7 +344,11 @@ export default class Select extends FormInner {
         } else {
           if (target.parentElement) {
             target.parentElement.remove();
+            this._updateSearchValue();
           }
+        }
+        if (this._searchEl) {
+          this._searchEl.focus();
         }
       }
       return;
@@ -447,6 +455,10 @@ export default class Select extends FormInner {
             if (!this.multiple && this._popover) {
               // 单选关闭弹窗
               this._popover.hide();
+            }
+            // 焦点
+            if (this._searchEl && this.multiple) {
+              this._searchEl.focus();
             }
           }
         },
