@@ -4,6 +4,19 @@ import css from "./index.less?inline";
 import { $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/dom";
 import FormInner from "../form/form_inner";
 import { Popover } from "../utils/popover";
+import { debounce } from "ph-utils/web";
+
+type SelectOption = {
+  class?: string;
+  render?: (
+    option: SelectOption,
+    isSelect: boolean,
+    selectedValues?: any | any[]
+  ) => HTMLElement | DocumentFragment;
+  label?: string;
+  value?: any;
+  [index: string]: any;
+};
 
 export default class Select extends FormInner {
   public static baseName = "select";
@@ -32,8 +45,12 @@ export default class Select extends FormInner {
   public _expanded: boolean = false;
   /** 是否处于激活态 */
   public isActive?: boolean = false;
+  public remote = false;
+  public filter?: (match: string, option: SelectOption) => boolean;
 
-  public options?: any[] = [];
+  public options?: SelectOption[] = [];
+  private _backOptions?: SelectOption[];
+  public inputHandler?: (match: string) => void;
   private _popover?: Popover;
   private _searchEl?: HTMLInputElement;
   private _arrowEl?: HTMLElement;
@@ -45,6 +62,14 @@ export default class Select extends FormInner {
   connectedCallback(): void {
     this.loadStyleText(css);
     super.connectedCallback();
+  }
+
+  public setInputHandler(handler: (match: string) => void) {
+    this.inputHandler = handler;
+  }
+
+  public setFilter(filter: (match: string, option: SelectOption) => boolean) {
+    this.filter = filter;
   }
 
   public setIsActive(isActive?: boolean) {
@@ -137,6 +162,7 @@ export default class Select extends FormInner {
       "width",
       "clearable",
       "expanded",
+      "remote",
     ];
   }
 
@@ -169,7 +195,8 @@ export default class Select extends FormInner {
 
   public setOptions(options: any[]): void {
     this.options = options;
-    if (this._popover) {
+    this._backOptions = [...options];
+    if (this._popover && this.expanded) {
       this._popover.updatePopoverContent();
     }
   }
@@ -364,6 +391,38 @@ export default class Select extends FormInner {
     this._updateSearchValue();
   };
 
+  private _onSearchInput = (e: Event) => {
+    if (this.inputHandler && this.filterable) {
+      const searchValue = (e.target as HTMLInputElement).value;
+      this.inputHandler(searchValue);
+    }
+  };
+
+  private _handleFilte = (match: string) => {
+    if (this.remote) {
+      this.emit("search", { detail: { value: match } });
+      return;
+    }
+    this.options = this._filteOption(match);
+    if (this._popover && this.expanded) {
+      this._popover.updatePopoverContent();
+    }
+  };
+
+  private _filteOption(match: string) {
+    let opts: SelectOption[] = [];
+    if (this._backOptions) {
+      opts = this._backOptions.filter((option) => {
+        if (!match) return true;
+        if (this.filter) {
+          return this.filter(match, option);
+        }
+        return option[this.labelField].includes(match);
+      });
+    }
+    return opts;
+  }
+
   afterInit(): void {
     on(this, "mouseenter", this._onMouseEnter);
     on(this, "mouseleave", this._onMouseLeave);
@@ -372,8 +431,11 @@ export default class Select extends FormInner {
 
     this._searchEl = $one(".l-select-filter", this.root) as HTMLInputElement;
     if (this._searchEl) {
+      this.inputHandler = debounce(this._handleFilte, 300);
+      on(this._searchEl, "input", this._onSearchInput);
       on(this._searchEl, "blur", this._onSearchBlur);
     }
+
     this._arrowEl = $one(".l-select-arrow", this.root) as HTMLElement;
     this.disabledChange();
     if (this.width) {
@@ -478,6 +540,16 @@ export default class Select extends FormInner {
     }
     if (this._searchEl) {
       off(this._searchEl, "blur", this._onSearchBlur);
+      off(this._searchEl, "input", this._onSearchInput);
+      if (this.inputHandler) {
+        try {
+          (this.inputHandler as any).cancel();
+          // eslint-disable-next-line
+        } catch (_error) {
+          // Ignore
+        }
+        this.inputHandler = undefined;
+      }
       this._searchEl = undefined;
     }
     this._arrowEl = undefined;
