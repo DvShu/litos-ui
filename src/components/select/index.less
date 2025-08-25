@@ -31,6 +31,13 @@
   transform: rotate3d(0, 0, 1, 180deg);
 }
 
+:host(.l-select--loading) .l-select-arrow {
+  opacity: 0.2;
+}
+:host(.l-select--clearable) .l-select-arrow {
+  opacity: 0;
+}
+
 .l-select-main {
   display: flex;
   flex-flow: row wrap;
@@ -65,7 +72,9 @@
 }
 .l-select-arrow {
   flex-shrink: 0;
-  transition: transform 0.3s;
+  transition:
+    transform 0.3s,
+    opacity 0.3s;
   transform: rotate3d(0, 0, 1, 0deg);
 }
 .l-select-tag-close {
@@ -97,9 +106,11 @@
 .l-select-loading {
   color: var(--l-primary-color, #722ed1);
   animation: l-select-loading 1.5s infinite linear;
+  z-index: 2;
 }
 .l-select-clear {
   color: #afafaf;
+  z-index: 1;
 }
 
 /* 旋转动画 */

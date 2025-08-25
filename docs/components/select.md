@@ -33,12 +33,34 @@ regist([CloseFilledIcon]);
 ## 演示
 
 <script setup>
-  import { $, iterate } from 'ph-utils/dom';
+  import { $, iterate, on, off } from 'ph-utils/dom';
   import { onMounted, onUnmounted, nextTick } from 'vue';
   const fruits = ["苹果", "香蕉", "橙子", "葡萄", "柠檬", "草莓", "樱桃", "芒果", "猕猴桃", "杨梅", "菠萝", "西瓜", "哈密瓜", "桃子", "梨", "柿子", "榴莲", "椰子", "龙眼", "荔枝"];
   const options = fruits.map((item, i) => { return { value: i, label: item } });
 
   let $selects;
+
+  function filter(match, option) {
+    return option.label.includes(match) || option.value == match;
+  }
+
+  function handleSearch(e) {
+    const $target = e.target;
+    if ($target.loading) return;
+    $target.loading = true;
+    // $target.setAttribute('loading', 'on');
+    setTimeout(() => {
+      const searchValue = e.detail.value;
+      const options = fruits.filter((item) => {
+        return item.includes(searchValue);
+      }).map((item, index) => {
+        return { value: index, label: item }
+      });
+      $target.setOptions(options);
+      $target.loading = false;
+      // $target.setAttribute('loading', 'off');
+    }, 1500);
+  }
 
   onMounted(() => {
     if (!import.meta.env.SSR) {
@@ -49,12 +71,19 @@ regist([CloseFilledIcon]);
             el.setOptions(options);
           });
           $selects[0].value = 0;
+          $selects[7].setFilter(filter);
+
+          $selects[8].setOptions([]);
+          on($selects[8], 'search', handleSearch);
         }
       });
     }
   });
 
   onUnmounted(() => {
+    if ($selects && $selects.length > 0) {
+      off($selects[8], 'search', handleSearch);
+    }
     $selects = null;
   });
 </script>
@@ -137,6 +166,68 @@ regist([CloseFilledIcon]);
   <l-select filterable width="180px"></l-select>
   <l-select multiple filterable width="180px"></l-select>
 </textarea>
+<div class="source">
+<textarea lang="html">
+  <l-select filterable width="180px"></l-select>
+  <l-select id="select2" multiple filterable width="180px"></l-select>
+</textarea>
+<textarea lang="js">
+  const $select2 = document.querySelector('#select2');
+  $select2.setOptions([{value:0,label:'苹果'}, {value:1,label:'香蕉'}]);
+  //-
+  function filter(match, option) {
+    return option.label.includes(match) || option.value == match;
+  }
+  //-
+  $select2.setFilter(filter);
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+### 远程搜索
+
+搜索框和远程数据结合，输入关键字以从远程服务器中查找数据。
+
+为了启用远程搜索，需要将 `filterable` 和 `remote` 同时设置为 `true`，同时监听 `search` 事件，事件参数为输入的值, 可以在事件中搜索远程结果，并重新更新 `options` 选项；可以在搜索的过程中设置 `loading` 为 `true` 来显示加载状态。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-select multiple filterable remote width="180px"></l-select>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-select id="select3" multiple filterable remote width="180px"></l-select>
+</textarea>
+<textarea lang="js">
+  const fruits = ["苹果", "香蕉", "橙子", "葡萄", "柠檬", "草莓", "樱桃", "芒果", "猕猴桃", "杨梅", "菠萝", "西瓜", "哈密瓜", "桃子", "梨", "柿子", "榴莲", "椰子", "龙眼", "荔枝"];
+  const $select = document.querySelector('#select3');
+  //-
+  function handleSearch(e) {
+    const $target = e.target;
+    if ($target.loading) return;
+    $target.loading = true;
+    // 也可以通过属性设置 loading
+    // $target.setAttribute('loading', 'on');
+    const searchValue = e.detail.value;
+    // 模拟请求
+    setTimeout(() => {
+      const options = fruits.filter((item) => {
+        return item.includes(searchValue);
+      }).map((item, index) => {
+        return { value: index, label: item }
+      });
+      $target.setOptions(options);
+      $target.loading = false;
+      // $target.setAttribute('loading', 'off');
+    }, 1500);
+  }
+  //-
+  $select.addEventListener('search', handleSearch);
+  // $select.removeEventListener('search', handleSearch);
+</textarea>
+</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -147,7 +238,20 @@ regist([CloseFilledIcon]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| - | - | - | - |
+| `value` | 选中项绑定值 | `string、number、array` | - |
+| `placeholder` | 占位符 | `string` | 请选择 |
+| `disabled` | 是否禁用 | `boolean` | `false` |
+| `label-field` | 选项 `label` 的字段名 | `string` | `label` |
+| `value-field` | 选项 `value` 的字段名 | `string` | `value` |
+| `options` | 配置选项内容 | `SelectOption[]` | - |
+| `multiple` | 是否多选 | `boolean` | `false` |
+| `collapse-tags` | 多选时是否将选中值按文字的形式展示 | `boolean` | `false` |
+| `clearable` | 是否可清空 | `boolean` | `false` |
+| `filterable` | 是否启用过滤 | `boolean` | `false` |
+| `filter` | 自定义的过滤函数 | `(match: string, option: SelectOption) => boolean` | - |
+| `remote` | 是否启用远程搜索 | `boolean` | `false` |
+| `loading` | 是否为加载状态, 通常为远程搜索时使用 | `boolean` | `false` |
+| `width` | 宽度 | `string` | `100%` |
 
 ### Select Slots
 
@@ -161,14 +265,23 @@ regist([CloseFilledIcon]);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `search` | 搜索时触发, `e.detail.value` 为搜索内容 | `(e: CustomEvent)` |
 
 ### Select Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| - | - | - |
+| 方法名 | 说明 |
+| --- | --- |
+| `setOptions(options: SelectOption[])` | 设置选项 |
+| `setFilter(filter: (match: string, option: SelectOption) => boolean)` | 设置自定义过滤函数 |
+
+### SelectOption
+
+<!-- prettier-ignore -->
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `value` | 选项的值 | `string、number` | - |
+| `label` | 选项的标签 | `string` | - |
 
 ### Select CSS Variables
 

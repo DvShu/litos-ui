@@ -36,15 +36,13 @@ export default class Select extends FormInner {
   /** 多选时是否折叠标签 */
   public collapseTags?: boolean = false;
   /** 是否加载中, 远程搜索时使用 */
-  public loading?: boolean = false;
+  public _loading?: boolean = false;
   /** 宽度 */
   public width?: string;
   /** 是否可清除 */
   public clearable?: boolean = false;
   /** 是否展开下拉选择 */
   public _expanded: boolean = false;
-  /** 是否处于激活态 */
-  public isActive?: boolean = false;
   public remote = false;
   public filter?: (match: string, option: SelectOption) => boolean;
 
@@ -53,7 +51,6 @@ export default class Select extends FormInner {
   public inputHandler?: (match: string) => void;
   private _popover?: Popover;
   private _searchEl?: HTMLInputElement;
-  private _arrowEl?: HTMLElement;
 
   constructor() {
     super(true, false);
@@ -72,12 +69,30 @@ export default class Select extends FormInner {
     this.filter = filter;
   }
 
-  public setIsActive(isActive?: boolean) {
-    this.isActive = isActive;
-    if (isActive) {
-      this.classList.add("l-select--active");
-    } else {
-      this.classList.remove("l-select--active");
+  public get loading() {
+    return this._loading;
+  }
+
+  public set loading(loading: boolean | undefined) {
+    this.setLoading(loading ?? false);
+  }
+
+  public setLoading(loading: boolean) {
+    this._loading = loading;
+    let $loading = $one(".l-select-loading", this.root);
+    if (loading) {
+      // 显示加载
+      if (!$loading) {
+        this.root.appendChild(
+          $$("l-loading-icon", { class: "l-select-loading" })
+        );
+      }
+      this.classList.add("l-select--loading");
+    }
+    if ($loading) {
+      this.classList.remove("l-select--loading");
+      $loading.remove();
+      $loading = null;
     }
   }
 
@@ -92,7 +107,6 @@ export default class Select extends FormInner {
   public setExpanded(value: boolean) {
     this._expanded = value;
     if (value) {
-      this.setIsActive(true);
       this.classList.add("l-select--expand");
       if (this._searchEl) {
         this._searchEl.focus();
@@ -308,6 +322,7 @@ export default class Select extends FormInner {
         if ($clearIcon) {
           $clearIcon.remove();
         }
+        this.classList.remove("l-select--clearable");
         return;
       }
       if (!$clearIcon) {
@@ -320,6 +335,7 @@ export default class Select extends FormInner {
           this.root
         );
       }
+      this.classList.add("l-select--clearable");
     }
   }
 
@@ -436,7 +452,6 @@ export default class Select extends FormInner {
       on(this._searchEl, "blur", this._onSearchBlur);
     }
 
-    this._arrowEl = $one(".l-select-arrow", this.root) as HTMLElement;
     this.disabledChange();
     if (this.width) {
       this.style.setProperty("--l-select-width", this.width);
@@ -552,7 +567,7 @@ export default class Select extends FormInner {
       }
       this._searchEl = undefined;
     }
-    this._arrowEl = undefined;
+    this.filter = undefined;
   }
 
   render() {
