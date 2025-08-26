@@ -95,3 +95,6 @@ export { default as Image } from "./image";
 export { default as ImagePreview } from "./image/image_preview";
 
 export * from "./utils/popover";
+
+export { default as Table } from "./table";
+export type { Column } from "./table/types";

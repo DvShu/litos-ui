@@ -31,9 +31,6 @@ import ColorPicker from "./color_picker";
 import Tabbar from "./tabbar";
 import Theme from "./theme";
 import ThemeColor from "./theme/theme_color";
-import Popover from "./popover";
-import Popconfirm from "./popconfirm";
-import Checkbox from "./checkbox";
 import MdInput from "./md_input";
 import Modal from "./modal";
 import DatePicker from "./date_picker";
@@ -48,9 +45,11 @@ import Tag from "./tag";
 import Collapase from "./collapse";
 import Image from "./image";
 import Select from "./select";
+import Table from "./table";
 //Web Components Import
-regist(Select)
-regist(Image)
+regist(Table);
+regist(Select);
+regist(Image);
 regist(Collapase);
 regist(Tag);
 regist(PageHeader);
@@ -63,9 +62,6 @@ regist(Menu);
 regist(DatePicker);
 regist(Modal);
 regist(MdInput);
-regist(Checkbox);
-regist(Popconfirm);
-regist(Popover);
 regist(ThemeDefaultIcon);
 regist(ThemeColor);
 regist(Theme);
@@ -145,3 +141,4 @@ import "./tag/index.less";
 import "./collapase/index.less";
 import "./image/index.less";
 import "./select/index.less";
+import "./table/index.less";

@@ -186,6 +186,10 @@ export default defineConfig({
             text: "Image 图片",
             link: "/components/image",
           },
+          {
+            text: "Table 表格",
+            link: "/components/table",
+          },
           /* TemplateItem */
         ],
       },
