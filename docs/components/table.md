@@ -43,7 +43,7 @@ regist(Table);
 
   const columns = [{
     title: '姓名',
-    key: 'name'
+    key: 'name',
     width: 80
   }, {
     title: '年龄',

@@ -3,6 +3,7 @@ import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import type { Column } from "./types";
+import { $$ } from "ph-utils/dom";
 
 export default class Table extends BaseComponent {
   public static baseName = "table";
@@ -28,5 +29,22 @@ export default class Table extends BaseComponent {
     }
   }
 
-  render() {}
+  render() {
+    const $table = $$("table", { class: "l-table" });
+
+    const $thead = $$("thead");
+    $thead.appendChild(this._headRender());
+    $table.appendChild($thead);
+
+    const $tbody = $$("tbody");
+    $table.appendChild($tbody);
+
+    return $table;
+  }
+
+  private _headRender() {
+    const fragment = document.createDocumentFragment();
+
+    return fragment;
+  }
 }
