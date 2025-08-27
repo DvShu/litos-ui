@@ -14,9 +14,9 @@ regist(Table);
 
 ## 演示
 
-<script>
-  import { onMounted, onUnmounted, nextTick, iterate }  from 'vue';
-  import { $ } from 'ph-utils/dom'
+<script setup>
+  import { onMounted, onUnmounted, nextTick  }  from 'vue';
+  import { $, iterate } from 'ph-utils/dom'
 
   let $tables;
 
@@ -69,7 +69,7 @@ regist(Table);
         }
         iterate($tables, ($table) => {
           $table.setColumns(columns);
-          $table.setData(dataSource);
+          // $table.setData(dataSource);
         });
       });
     }
