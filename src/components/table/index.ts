@@ -16,6 +16,11 @@ export default class Table extends BaseComponent {
   private _fixedLeft: [string, number][] = [];
   /** 右边固定列, 格式: [列key, 宽度] */
   private _fixedRight: [string, number][] = [];
+  /** 缓存列通用样式, 避免渲染数据时，重复计算 */
+  private _globalColStyles?: Record<
+    string,
+    Record<string, string | null | undefined>
+  >;
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -155,7 +160,7 @@ export default class Table extends BaseComponent {
         column.id = `${i}_${random(6)}`;
       }
       if (column.fixed) {
-        const width = column.width || 0;
+        const width = Number.parseFloat(`${column.width || 0}`);
         if (column.fixed === "left") {
           fixedLeft.push([column.id, width]);
         } else if (column.fixed === "right") {
@@ -200,5 +205,29 @@ export default class Table extends BaseComponent {
       }
     }
     return maxDepth;
+  }
+
+  private _getColumnStyle(
+    column: Column,
+    fixedLeft: [string, number][],
+    fixedRight: [string, number][]
+  ) {
+    const id = column.id as string;
+    if (this._globalColStyles && id in this._globalColStyles) {
+      return this._globalColStyles[id];
+    }
+    const styles = { ...column.style };
+    if (column.width) {
+      if (typeof column.width === "number") {
+        styles.width = `${column.width}px`;
+      } else {
+        styles.width = column.width;
+      }
+    }
+    if (!this._globalColStyles) {
+      this._globalColStyles = {};
+    }
+    this._globalColStyles[id] = styles;
+    return styles;
   }
 }
