@@ -82,10 +82,15 @@ regist(Table);
         if (!$tables.length) {
           return;
         }
-        iterate($tables, ($table) => {
+        iterate($tables, ($table, i) => {
           $table.setColumns(columns);
-          $table.setData(dataSource);
+          if (i === 3) {
+            $table.setData([]);
+          } else {
+            $table.setData(dataSource);
+          }
         });
+
         on($tables[0], 'action', handleAction);
       });
     }
@@ -196,6 +201,30 @@ regist(Table);
 <l-code-preview>
 <textarea lang="html">
   <l-table class="data-table" stripe="off"></l-table>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 边框
+
+默认情况下，`Table` 组件是不具有竖直方向的边框的， 如果需要，可以使用 `border` 属性，把该属性设置为 `on` 即可启用。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-table class="data-table" border></l-table>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 空表格
+
+数据列表没有数据时，显示空表格
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-table class="data-table"></l-table>
 </textarea>
 </l-code-preview>
 </ClientOnly>
