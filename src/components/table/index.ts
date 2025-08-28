@@ -9,7 +9,8 @@ import { random } from "ph-utils";
 export default class Table extends BaseComponent {
   public static baseName = "table";
 
-  public columns: Column[] = [];
+  public columns?: Column[] = [];
+  public data?: any[] = [];
 
   /** 左边固定列, 格式: [列key, 宽度] */
   private _fixedLeft: [string, number][] = [];
@@ -32,6 +33,13 @@ export default class Table extends BaseComponent {
     this.rerender();
   }
 
+  public setData(data: any[]) {
+    this.data = data;
+    if (this.columns && this.columns.length > 0) {
+      this.rerender();
+    }
+  }
+
   static get observedAttributes() {
     return [];
   }
@@ -52,9 +60,7 @@ export default class Table extends BaseComponent {
     const $table = $$("table", { class: "l-table" });
 
     $table.appendChild(this._headRender());
-
-    const $tbody = $$("tbody");
-    $table.appendChild($tbody);
+    $table.appendChild(this._bodyRender());
 
     return $table;
   }
@@ -65,12 +71,18 @@ export default class Table extends BaseComponent {
       if ($thead) {
         $thead.replaceWith(this._headRender());
       }
+      const $tbody = $one("tbody", this.root);
+      if ($tbody) {
+        $tbody.replaceWith(this._bodyRender());
+      }
     }
   }
 
   private _headRender() {
     const $thead = $$("thead");
-    this._rendHeadRow($thead, this.columns);
+    if (this.columns) {
+      this._rendHeadRow($thead, this.columns);
+    }
     return $thead;
   }
 
@@ -107,6 +119,17 @@ export default class Table extends BaseComponent {
       $th.appendChild($caret);
     }
     return $th;
+  }
+
+  private _bodyRender() {
+    const $tbody = $$("tbody");
+    if (this.data && this.data.length > 0) {
+    } else {
+      const $emptyTr = $$("tr");
+      $$("td", { class: "l-table__empty-col" }, $emptyTr);
+      $tbody.appendChild($emptyTr);
+    }
+    return $tbody;
   }
 
   /**
