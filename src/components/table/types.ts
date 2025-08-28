@@ -19,4 +19,13 @@ export interface Column {
   sorter?: boolean;
   /** 列的样式 */
   style?: Record<string, string | null | undefined>;
+  /** td colspan */
+  colspan?: number | ((rowData: any, rowIndex: number) => number);
+  /** td rowspan */
+  rowspan?: number | ((rowData: any, rowIndex: number) => number);
+  /** 单元格内容渲染函数 */
+  render?: (
+    rowData: any,
+    rowIndex: number
+  ) => HTMLElement | DocumentFragment | HTMLElement[] | string;
 }

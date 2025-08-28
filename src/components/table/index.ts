@@ -3,11 +3,22 @@ import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import type { Column } from "./types";
-import { $$, $one } from "ph-utils/dom";
+import {
+  $$,
+  $one,
+  formatStyle,
+  iterate,
+  on,
+  off,
+  shouldEventNext,
+} from "ph-utils/dom";
 import { random } from "ph-utils";
 
 export default class Table extends BaseComponent {
   public static baseName = "table";
+
+  /** 斑马纹 */
+  public stripe = true;
 
   public columns?: Column[] = [];
   public data?: any[] = [];
@@ -17,10 +28,7 @@ export default class Table extends BaseComponent {
   /** 右边固定列, 格式: [列key, 宽度] */
   private _fixedRight: [string, number][] = [];
   /** 缓存列通用样式, 避免渲染数据时，重复计算 */
-  private _globalColStyles?: Record<
-    string,
-    Record<string, string | null | undefined>
-  >;
+  private _globalColStyles?: Record<string, string>;
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -46,7 +54,7 @@ export default class Table extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return [];
+    return ["stripe"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -58,11 +66,18 @@ export default class Table extends BaseComponent {
     ) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
+      switch (name) {
+        case "stripe":
+          this._updateStripe();
+          break;
+      }
     }
   }
 
   render() {
-    const $table = $$("table", { class: "l-table" });
+    const $table = $$("table", {
+      class: ["l-table", this.stripe ? "l-table-stripe" : ""],
+    });
 
     $table.appendChild(this._headRender());
     $table.appendChild(this._bodyRender());
@@ -79,6 +94,19 @@ export default class Table extends BaseComponent {
       const $tbody = $one("tbody", this.root);
       if ($tbody) {
         $tbody.replaceWith(this._bodyRender());
+      }
+    }
+  }
+
+  private _updateStripe() {
+    if (this.rendered) {
+      const $table = $one("table", this.root);
+      if ($table) {
+        if (this.stripe) {
+          $table.classList.add("l-table-stripe");
+        } else {
+          $table.classList.remove("l-table-stripe");
+        }
       }
     }
   }
@@ -129,12 +157,80 @@ export default class Table extends BaseComponent {
   private _bodyRender() {
     const $tbody = $$("tbody");
     if (this.data && this.data.length > 0) {
+      for (let i = 0, len = this.data.length; i < len; i++) {
+        const rowData = this.data[i];
+        if (this.columns) {
+          const $tr = $$("tr");
+          this._bodyRowRender(this.columns, i, rowData, $tr);
+          $tbody.appendChild($tr);
+        }
+      }
     } else {
       const $emptyTr = $$("tr");
-      $$("td", { class: "l-table__empty-col" }, $emptyTr);
+      const $td = $$("td", {
+        class: "l-table__empty-col",
+        textContent: "暂无数据",
+      }) as HTMLTableCellElement;
+      if (this.columns) {
+        $td.colSpan = this.columns.length;
+      }
+      $emptyTr.appendChild($td);
       $tbody.appendChild($emptyTr);
     }
     return $tbody;
+  }
+
+  private _bodyRowRender(
+    columns: Column[],
+    rowIndex: number,
+    rowData: any,
+    tr: HTMLElement
+  ) {
+    for (let i = 0, len = columns.length; i < len; i++) {
+      const column = columns[i];
+      if (column.children && column.children.length > 0) {
+        // 多级表头数据列渲染
+        this._bodyRowRender(column.children, rowIndex, rowData, tr);
+      } else {
+        // 非多级表头数据列渲染
+        const $td = $$("td") as HTMLTableCellElement;
+        if (typeof column.rowspan === "number") {
+          $td.rowSpan = column.rowspan;
+        }
+        if (typeof column.rowspan === "function") {
+          $td.rowSpan = column.rowspan(rowData, rowIndex);
+        }
+        if (typeof column.colspan === "number") {
+          $td.colSpan = column.colspan;
+        }
+        if (typeof column.colspan === "function") {
+          $td.colSpan = column.colspan(rowData, rowIndex);
+        }
+        if (column.fixed) {
+          $td.className = "l-fixed";
+        }
+        $td.style.cssText = this._getColumnStyle(
+          column,
+          this._fixedLeft,
+          this._fixedRight
+        );
+        if (column.render) {
+          const colRendered = column.render(rowData, rowIndex);
+          if (typeof colRendered === "string") {
+            $td.innerHTML = colRendered;
+          } else if (Array.isArray(colRendered)) {
+            iterate(colRendered, (item) => {
+              $td.appendChild(item);
+            });
+          } else {
+            $td.appendChild(colRendered);
+          }
+        } else {
+          $td.textContent = column.key ? rowData[column.key] : "";
+        }
+        tr.appendChild($td);
+      }
+    }
   }
 
   /**
@@ -227,7 +323,28 @@ export default class Table extends BaseComponent {
     if (!this._globalColStyles) {
       this._globalColStyles = {};
     }
-    this._globalColStyles[id] = styles;
-    return styles;
+    const res = formatStyle(styles);
+    this._globalColStyles[id] = res;
+    return res;
+  }
+
+  private _handleTap = (e: Event) => {
+    const [isNext, action, target] = shouldEventNext(
+      e,
+      "data-action",
+      e.currentTarget as HTMLElement
+    );
+    if (isNext) {
+      const dataset = target.dataset;
+      this.emit("action", { detail: dataset });
+    }
+  };
+
+  afterInit(): void {
+    on(this.root, "click", this._handleTap);
+  }
+
+  beforeDestroy(): void {
+    off(this.root, "click", this._handleTap);
   }
 }

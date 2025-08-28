@@ -18,10 +18,10 @@
   --l-btn-disabled-color: #c9c9c9;
   --l-btn-disabled-background: #fbfbfb;
   --l-btn-disabled-border-color: #e6e6e6;
-  display: inline-block;
+  --l-btn-height: var(--l-form-edit-height, 32px);
+  display: inline-flex;
   width: auto;
-  height: var(--l-form-edit-height, 32px);
-  font-size: 0;
+  height: var(--l-btn-height);
   text-indent: 0;
 }
 
@@ -44,12 +44,12 @@
   line-height: 1;
   height: 100%;
   border-radius: 3px;
-  font-size: 14px;
   color: var(--l-btn-text-color);
   background: var(--l-btn-background);
   border: 1px solid var(--l-btn-border-color);
   position: relative;
   gap: var(--l-btn-gap, 5px);
+  font-size: inherit;
   transition:
     border-color 0.3s,
     background-color 0.3s,

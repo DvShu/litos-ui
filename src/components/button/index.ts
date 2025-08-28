@@ -22,7 +22,19 @@ export default class Button extends BaseComponent {
   public htmlType: "submit" | "reset" | "button" = "button";
   /** 加载中文本 */
   loadingText = "";
+  _height?: string | number;
   _disabled = false;
+
+  get height() {
+    return this._height;
+  }
+
+  set height(height: string | number | undefined) {
+    this._height = height;
+    if (this.rendered) {
+      this._updateHeight();
+    }
+  }
 
   get disabled() {
     return this._disabled;
@@ -42,7 +54,7 @@ export default class Button extends BaseComponent {
 
   // 初始化属性观察器
   static get observedAttributes() {
-    return ["loading", "color", "disabled"];
+    return ["loading", "color", "disabled", "height"];
   }
 
   // 当属性发生变化时调用的回调函数
@@ -60,13 +72,31 @@ export default class Button extends BaseComponent {
           $btn.disabled = this.disabled;
           $btn.innerHTML = "<slot></slot>";
         }
+        return;
       } else if (name === "color") {
         const text = this.getAttr("text", false);
         const ghost = this.getAttr("ghost", false);
         $btn.style.cssText = this.applyColor(newValue, text, ghost);
+        return;
       } else if (name === "disabled") {
         const disabled = parseAttrValue(newValue, false, "disabled");
         this.setDisabled(disabled);
+        return;
+      }
+    }
+    const parsedValue = parseAttrValue(
+      newValue,
+      this[name as "id"] as any,
+      name
+    ) as any;
+    if (parsedValue !== this[name as "id"]) {
+      this[name as "id"] = parsedValue;
+      switch (name) {
+        case "height":
+          if (this.rendered) {
+            this._updateHeight();
+          }
+          break;
       }
     }
   }
@@ -78,6 +108,7 @@ export default class Button extends BaseComponent {
     if (this.htmlType === "reset" || this.htmlType === "submit") {
       on(this, "click", this._handleClick);
     }
+    this._updateHeight();
   }
 
   disconnectedCallback(): void {
@@ -147,6 +178,16 @@ export default class Button extends BaseComponent {
       "--l-btn-active-border-color": text ? "transparent" : darken,
     };
     return formatStyle(cssVars);
+  }
+
+  private _updateHeight() {
+    if (this.height) {
+      let height = this.height;
+      if (typeof height === "number") {
+        height = `${height}px`;
+      }
+      this.style.setProperty("--l-btn-height", height);
+    }
   }
 
   private _handleClick = (e: Event) => {
