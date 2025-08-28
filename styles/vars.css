@@ -1,6 +1,6 @@
 :root {
   /* button、input 元素高度 */
-  --l-form-edit-height: 32px;
+  --l-form-control-height: 32px;
   /** 禁用状态颜色 */
   --l-disabled-color: #e6e6e6;
   /* 主题(primary)颜色 */
@@ -31,6 +31,7 @@
   --l-info-color-light9: #f5f5f5;
   /* 边框颜色 */
   --l-border-color: #dedede;
+  --l-border-radius: 3px;
 }
 html.dark {
   --l-disabled-color: #262727;

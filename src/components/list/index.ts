@@ -14,7 +14,7 @@ export default class List extends BaseComponent {
   /** 是否显示无限加载模式 */
   public infinite = true;
   private observer?: IntersectionObserver;
-  private $more?: HTMLElement;
+  private $more?: HTMLElement | null;
   private _page = 0;
 
   static get observedAttributes(): string[] | null | undefined {

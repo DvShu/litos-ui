@@ -201,7 +201,7 @@ regist(LoadingIcon);
 | `--l-btn-text-color`            | 按钮的文字颜色           | `rgba(0, 0, 0, 0.65)`        |
 | `--l-btn-background`            | 按钮的背景颜色           | `	#fff`                       |
 | `--l-btn-border-color`          | 按钮的边框颜色           | `#d9d9d9`                    |
-| `--l-form-edit-height`          | 按钮的高度               | `32px`                       |
+| `--l-form-control-height`          | 按钮的高度               | `32px`                       |
 | `--l-btn-hover-text-color`      | 鼠标悬浮时按钮的文字颜色 | `#79b3f7`                    |
 | `--l-btn-hover-border-color`    | 鼠标悬浮时按钮的边框颜色 | `var(--l-btn-hover-color)`  |
 | `--l-btn-hover-background`      | 鼠标悬浮时按钮的背景颜色 | `var(--l-btn-background)`   |

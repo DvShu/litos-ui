@@ -18,11 +18,13 @@
   --l-btn-disabled-color: #c9c9c9;
   --l-btn-disabled-background: #fbfbfb;
   --l-btn-disabled-border-color: #e6e6e6;
-  --l-btn-height: var(--l-form-edit-height, 32px);
+  --l-btn-height: var(--l-form-control-height, 32px);
   display: inline-flex;
   width: auto;
   height: var(--l-btn-height);
   text-indent: 0;
+  box-sizing: border-box;
+  border-radius: var(--l-border-radius, 3px);
 }
 
 /* 使按钮适合其父宽度，100% */
@@ -43,7 +45,7 @@
   padding: var(--l-btn-padding);
   line-height: 1;
   height: 100%;
-  border-radius: 3px;
+  border-radius: inherit;
   color: var(--l-btn-text-color);
   background: var(--l-btn-background);
   border: 1px solid var(--l-btn-border-color);
@@ -148,13 +150,13 @@
 
 /* 高度圆形按钮 */
 .l-btn-round {
-  border-radius: calc(var(--l-form-edit-height, 32px) / 2);
+  border-radius: calc(var(--l-form-control-height, 32px) / 2);
 }
 
 /* 全圆按钮 */
 .l-btn-circle {
   border-radius: 50%;
-  width: var(--l-form-edit-height, 32px);
+  width: var(--l-form-control-height, 32px);
   padding: 0;
 }
 

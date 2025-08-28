@@ -32,7 +32,7 @@
   font-size: 14px;
 }
 .l-btn-dialog-close {
-  --l-form-edit-height: auto;
+  --l-form-control-height: auto;
   position: absolute;
 }
 .l-dialog-close1 {

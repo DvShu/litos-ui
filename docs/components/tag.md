@@ -22,7 +22,7 @@ regist(CloseIcon); // 需要 closable 引入
 
   function handleAddTag() {
     if ($tagContainer) {
-      const $addTag = document.createElement('l-tag');
+      let $addTag = document.createElement('l-tag');
       $addTag.setAttribute('closable', 'true');
       $addTag.setAttribute('type', 'primary');
       $addTag.style.marginRight = "5px";

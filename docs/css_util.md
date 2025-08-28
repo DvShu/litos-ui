@@ -5,7 +5,7 @@
 <script setup>
   import { nextTick, onMounted, onUnmounted } from 'vue';
   import { $, $one, on, off, iterate } from 'ph-utils/dom';
-  import { createTransition } from '../src/components/utils';
+  import { createTransition } from '../src/components/utils/transition';
 
   const trans = createTransition();
 

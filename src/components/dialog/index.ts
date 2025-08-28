@@ -32,7 +32,7 @@ type DialogInitialParams = DialogProps & {
 };
 const Dialog = (option?: DialogInitialParams) => {
   let $dialog: HTMLDialogElement;
-  let $container: HTMLElement | undefined;
+  let $container: HTMLElement | null | undefined;
   let config: Required<DialogInitialParams>;
 
   function handleKeydown(e: KeyboardEvent) {
