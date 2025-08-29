@@ -18,7 +18,11 @@ export default class Raido extends Check {
     if (!$input.checked) {
       this.setAttribute("checked", "");
       this.emit("change", {
-        detail: { value: this.value, name: this.getName() },
+        detail: {
+          value: this.value,
+          name: this.getName(),
+          checked: this.getChecked(),
+        },
         composed: true,
       });
     }
