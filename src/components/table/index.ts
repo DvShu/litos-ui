@@ -19,6 +19,10 @@ export default class Table extends BaseComponent {
 
   /** 斑马纹 */
   public stripe = true;
+  /** 是否显示四周边框 */
+  public border = false;
+  /** 是否固定表头 */
+  public fixedHead = false;
 
   public columns?: Column[] = [];
   public data?: any[] = [];
@@ -54,7 +58,7 @@ export default class Table extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["stripe"];
+    return ["stripe", "border", "fixed-head"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -68,7 +72,13 @@ export default class Table extends BaseComponent {
       this[name as "id"] = parsedValue;
       switch (name) {
         case "stripe":
-          this._updateStripe();
+          this._classAttrChannge("stripe", parsedValue);
+          break;
+        case "border":
+          this._classAttrChannge("border", parsedValue);
+          break;
+        case "fixedHead":
+          this._updateFixedHead();
           break;
       }
     }
@@ -76,7 +86,11 @@ export default class Table extends BaseComponent {
 
   render() {
     const $table = $$("table", {
-      class: ["l-table", this.stripe ? "l-table-stripe" : ""],
+      class: [
+        "l-table",
+        this.stripe ? "l-table-stripe" : "",
+        this.border ? "l-table-border" : "",
+      ],
     });
 
     $table.appendChild(this._headRender());
@@ -98,21 +112,34 @@ export default class Table extends BaseComponent {
     }
   }
 
-  private _updateStripe() {
+  private _classAttrChannge(attr: string, value: boolean) {
     if (this.rendered) {
       const $table = $one("table", this.root);
       if ($table) {
-        if (this.stripe) {
-          $table.classList.add("l-table-stripe");
-        } else {
-          $table.classList.remove("l-table-stripe");
-        }
+        $table.classList.toggle(`l-table-${attr}`, value);
+      }
+    }
+  }
+
+  private _updateFixedHead() {
+    if (this.rendered) {
+      const $thead = $one("thead", this.root);
+      if ($thead) {
+        $thead.classList.toggle("l-table-fixed", this.fixedHead);
+        $thead.style.top = this.fixedHead ? "0" : "";
       }
     }
   }
 
   private _headRender() {
-    const $thead = $$("thead");
+    const $thead = $$("thead", {
+      class: {
+        "l-table-fixed": this.fixedHead,
+      },
+      style: {
+        top: this.fixedHead ? "0" : undefined,
+      },
+    });
     if (this.columns) {
       this._rendHeadRow($thead, this.columns);
     }
