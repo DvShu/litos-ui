@@ -153,6 +153,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 | `autofocus` | 原生属性，自动获取焦点 | `boolean` | `false` |
 | `clearable` | 是否显示清除按钮 | `boolean` | `false` |
 | `inputmode` | 输入模式, [inputmode](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Global_attributes/inputmode) | `string` | `text` |
+| `maxlength` | 最大输入长度 | `number` | - |
 
 ### Input Methods
 

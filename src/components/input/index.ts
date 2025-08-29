@@ -52,7 +52,7 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
-  public maxlength?: number;
+  public maxlength?: string;
   public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
@@ -136,7 +136,7 @@ export default class Input extends FormInner {
         this.clearable = newClearable;
       }
     } else if (name === "maxlength") {
-      const newMinlength = parseAttrValue(newValue, -1);
+      const newMinlength = parseAttrValue(newValue, this.maxlength);
       if (newMinlength !== this["maxlength"]) {
         this["maxlength"] = newMinlength;
       }
@@ -170,8 +170,8 @@ export default class Input extends FormInner {
       type: this.type,
       inputmode: this.inputmode,
     });
-    if (this.maxlength && this.maxlength >= 0) {
-      $inner.setAttribute("maxlength", String(this.maxlength));
+    if (this.maxlength) {
+      $inner.setAttribute("maxlength", this.maxlength);
     }
     fragment.appendChild($inner);
 

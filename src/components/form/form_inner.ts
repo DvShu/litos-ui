@@ -3,7 +3,6 @@ import type Form from "../form";
 import type FormItem from "../form/form_item";
 import { parseAttrValue } from "../utils";
 import { emit, add, remove } from "../utils/event";
-import { getAttr } from "ph-utils/dom";
 
 export default class FormInner extends BaseComponent {
   public disabled = false;
@@ -13,6 +12,7 @@ export default class FormInner extends BaseComponent {
   public _resetValue?: any;
   protected _firstPushValue = true;
   private _reseting = false;
+  private _name?: string;
 
   /**
    *
@@ -22,6 +22,14 @@ export default class FormInner extends BaseComponent {
   public constructor(firstPushValue = true, delegatesFocus = true) {
     super(true, { delegatesFocus });
     this._firstPushValue = firstPushValue;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(value: string | undefined) {
+    this._name = value;
   }
 
   get value() {
@@ -42,7 +50,7 @@ export default class FormInner extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["disabled", "value"];
+    return ["disabled", "value", "name"];
   }
 
   attributeChangedCallback(
@@ -56,7 +64,7 @@ export default class FormInner extends BaseComponent {
         this.disabled = val;
         this.disabledChange();
       }
-    } else if (name === "value") {
+    } else if (name === "value" || name === "name") {
       this.value = newValue;
     } else {
       this.attributeChange(name, oldValue, newValue);
@@ -112,8 +120,7 @@ export default class FormInner extends BaseComponent {
   }
 
   public getName() {
-    const name = getAttr(this, "name");
-    if (name) return name;
+    if (this.name) return this.name;
     return this.formItemAttrs.name;
   }
 
