@@ -1,8 +1,11 @@
 :host {
+  --l-table-max-height: 100%;
   --l-table-td-padding: 10px;
   --l-table-th-padding: var(--l-table-td-padding);
+  --l-table-table-layout: auto;
   display: inline-block;
   width: 100%;
+  max-height: var(--l-table-max-height);
   overflow: auto;
   font-size: 14px;
 }
@@ -10,6 +13,7 @@
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
+  table-layout: var(--l-table-table-layout);
 }
 .l-table th {
   padding: var(--l-table-th-padding);
@@ -54,4 +58,18 @@
   td {
     border: 1px solid #e6e6e6;
   }
+}
+
+/* 表格固定 */
+.l-table-fixed {
+  --l-table-table-layout: fixed;
+}
+.l-table-fixed .l-fixed {
+  position: -webkit-sticky;
+  position: sticky;
+  z-index: 1;
+}
+.l-table-fixed thead.l-fixed,
+.l-table-fixed tfoot.l-fixed {
+  z-index: 2;
 }

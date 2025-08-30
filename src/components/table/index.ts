@@ -14,6 +14,11 @@ import {
 } from "ph-utils/dom";
 import { random } from "ph-utils";
 
+type ChangeFixedParams = {
+  fixedColumn?: boolean;
+  fixedHead?: boolean;
+};
+
 export default class Table extends BaseComponent {
   public static baseName = "table";
 
@@ -23,14 +28,16 @@ export default class Table extends BaseComponent {
   public border = false;
   /** 是否固定表头 */
   public fixedHead = false;
+  /** 是否固定列，在进行列解析时，会自动确认该属性 */
+  public fixedColumn = false;
+  /** 最大高度 */
+  public maxHeight?: number | string;
+  /** 表格布局 */
+  public tableLayout?: "auto" | "fixed";
 
   public columns?: Column[] = [];
   public data?: any[] = [];
 
-  /** 左边固定列, 格式: [列key, 宽度] */
-  private _fixedLeft: [string, number][] = [];
-  /** 右边固定列, 格式: [列key, 宽度] */
-  private _fixedRight: [string, number][] = [];
   /** 缓存列通用样式, 避免渲染数据时，重复计算 */
   private _globalColStyles?: Record<string, string>;
 
@@ -40,13 +47,12 @@ export default class Table extends BaseComponent {
   }
 
   public setColumns(columns: Column[]) {
-    this._fixedLeft = [];
-    this._fixedRight = [];
-    this.columns = this._parseColumns(
-      columns,
-      this._fixedLeft,
-      this._fixedRight
-    );
+    let _fixedLeft = 0;
+    let _fixedRight = 0;
+    this.columns = this._parseColumns(columns, _fixedLeft, _fixedRight);
+    if (_fixedLeft > 0 || _fixedRight > 0) {
+      this.changeFixed({ fixedColumn: true });
+    }
     this.rerender();
   }
 
@@ -57,8 +63,28 @@ export default class Table extends BaseComponent {
     }
   }
 
+  public changeFixed(params?: ChangeFixedParams) {
+    const fixedParams = {
+      fixedHead: this.fixedHead,
+      fixedColumn: this.fixedColumn,
+      ...params,
+    };
+    this.fixedHead = fixedParams.fixedHead as boolean;
+    this.fixedColumn = fixedParams.fixedColumn as boolean;
+    if (this.rendered) {
+      const $table = $one(".l-table", this.root);
+      if ($table) {
+        if (this.fixedHead || this.fixedColumn) {
+          $table.classList.add("l-table-fixed");
+        } else {
+          $table.classList.remove("l-table-fixed");
+        }
+      }
+    }
+  }
+
   static get observedAttributes() {
-    return ["stripe", "border", "fixed-head"];
+    return ["stripe", "border", "fixed-head", "max-height", "table-layout"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -79,6 +105,13 @@ export default class Table extends BaseComponent {
           break;
         case "fixedHead":
           this._updateFixedHead();
+          this.changeFixed();
+          break;
+        case "maxHeight":
+          this._changeMaxHeight();
+          break;
+        case "tableLayout":
+          this._changeCssVar("table-layout", parsedValue);
           break;
       }
     }
@@ -112,6 +145,26 @@ export default class Table extends BaseComponent {
     }
   }
 
+  private _changeCssVar(key: string, value: string) {
+    if (!this.rendered) return;
+    const varName = `--l-table-${key}`;
+    if (value) {
+      this.style.setProperty(varName, value);
+    } else {
+      this.style.removeProperty(varName);
+    }
+  }
+
+  private _changeMaxHeight() {
+    let value = this.maxHeight;
+    if (value) {
+      if (typeof value === "number") {
+        value = `${value}px`;
+      }
+    }
+    this._changeCssVar("max-height", value as string);
+  }
+
   private _classAttrChannge(attr: string, value: boolean) {
     if (this.rendered) {
       const $table = $one("table", this.root);
@@ -125,7 +178,6 @@ export default class Table extends BaseComponent {
     if (this.rendered) {
       const $thead = $one("thead", this.root);
       if ($thead) {
-        $thead.classList.toggle("l-table-fixed", this.fixedHead);
         $thead.style.top = this.fixedHead ? "0" : "";
       }
     }
@@ -236,11 +288,7 @@ export default class Table extends BaseComponent {
         if (column.fixed) {
           $td.className = "l-fixed";
         }
-        $td.style.cssText = this._getColumnStyle(
-          column,
-          this._fixedLeft,
-          this._fixedRight
-        );
+        $td.style.cssText = this._getColumnStyle(column);
         if (column.render) {
           const colRendered = column.render(rowData, rowIndex);
           if (typeof colRendered === "string") {
@@ -263,14 +311,14 @@ export default class Table extends BaseComponent {
   /**
    * 解析列配置，表头跨行跨列、固定列
    * @param columns 列配置
-   * @param fixedLeft 左边固定列
-   * @param fixedRight 右边固定列
+   * @param leftOffset 左边固定列偏移
+   * @param rightOffset 右边固定列偏移
    * @returns
    */
   private _parseColumns(
     columns: Column[],
-    fixedLeft: [string, number][],
-    fixedRight: [string, number][]
+    leftOffset: number,
+    rightOffset: number
   ): Column[] {
     const result: Column[] = [];
     for (let i = 0, len = columns.length; i < len; i++) {
@@ -285,17 +333,19 @@ export default class Table extends BaseComponent {
       if (column.fixed) {
         const width = Number.parseFloat(`${column.width || 0}`);
         if (column.fixed === "left") {
-          fixedLeft.push([column.id, width]);
+          column.left = leftOffset;
+          leftOffset += width;
         } else if (column.fixed === "right") {
-          fixedRight.push([column.id, width]);
+          column.right = rightOffset;
+          rightOffset += width;
         }
       }
       // 如果有多级表头, 递归解析
       if (column.children) {
         const childrenColumns = this._parseColumns(
           column.children,
-          fixedLeft,
-          fixedRight
+          leftOffset,
+          rightOffset
         );
         column.titleRowspan = column.titleRowspan || 1;
         if (!column.titleColspan) {
@@ -330,11 +380,7 @@ export default class Table extends BaseComponent {
     return maxDepth;
   }
 
-  private _getColumnStyle(
-    column: Column,
-    fixedLeft: [string, number][],
-    fixedRight: [string, number][]
-  ) {
+  private _getColumnStyle(column: Column) {
     const id = column.id as string;
     if (this._globalColStyles && id in this._globalColStyles) {
       return this._globalColStyles[id];
@@ -345,6 +391,15 @@ export default class Table extends BaseComponent {
         styles.width = `${column.width}px`;
       } else {
         styles.width = column.width;
+      }
+    }
+    if (column.fixed) {
+      if (column.fixed === "left") {
+        styles.left = `${column.left}px`;
+        styles["box-shadow"] = "-4px 0 4px -4px #d9d9d9 inset";
+      } else if (column.fixed === "right") {
+        styles.right = `${column.right}px`;
+        styles["box-shadow"] = "4px 0 4px -4px #d9d9d9 inset";
       }
     }
     if (!this._globalColStyles) {
@@ -368,6 +423,7 @@ export default class Table extends BaseComponent {
   };
 
   afterInit(): void {
+    this._changeMaxHeight();
     on(this.root, "click", this._handleTap);
   }
 

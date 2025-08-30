@@ -9,6 +9,10 @@ export interface Column {
   width?: number | string;
   /** 是否固定列, left - 固定在左方, right - 固定右方 */
   fixed?: "left" | "right";
+  /** 列固定左时, 左边偏移量 */
+  left?: number;
+  /** 列固定右时, 右边偏移量 */
+  right?: number;
   /** 多级表头 */
   children?: Column[];
   /** 表头跨行 */
