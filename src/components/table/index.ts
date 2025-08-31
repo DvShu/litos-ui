@@ -123,6 +123,7 @@ export default class Table extends BaseComponent {
         "l-table",
         this.stripe ? "l-table-stripe" : "",
         this.border ? "l-table-border" : "",
+        this.fixedHead || this.fixedColumn ? "l-table-fixed" : "",
       ],
     });
 
@@ -178,6 +179,7 @@ export default class Table extends BaseComponent {
     if (this.rendered) {
       const $thead = $one("thead", this.root);
       if ($thead) {
+        $thead.classList.toggle("l-fixed", this.fixedHead);
         $thead.style.top = this.fixedHead ? "0" : "";
       }
     }
@@ -186,7 +188,7 @@ export default class Table extends BaseComponent {
   private _headRender() {
     const $thead = $$("thead", {
       class: {
-        "l-table-fixed": this.fixedHead,
+        "l-fixed": this.fixedHead,
       },
       style: {
         top: this.fixedHead ? "0" : undefined,
@@ -212,11 +214,15 @@ export default class Table extends BaseComponent {
 
   private _headColRender(column: Column, index: number) {
     const $th = $$("th") as HTMLTableCellElement;
-    if (column.titleColspan) {
+    if (column.titleColspan && column.titleColspan > 1) {
       $th.colSpan = column.titleColspan;
     }
-    if (column.titleRowspan) {
+    if (column.titleRowspan && column.titleRowspan > 1) {
       $th.rowSpan = column.titleRowspan;
+    }
+    $th.style.cssText = this._getColumnStyle(column);
+    if (column.fixed) {
+      $th.classList.add("l-fixed");
     }
     $th.appendChild(
       $$("span", {

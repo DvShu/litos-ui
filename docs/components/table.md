@@ -40,6 +40,22 @@ regist(Table);
       address: '北京朝阳',
     },
   ];
+  let dataSource1 = dataSource.concat([{
+    id: 4,
+    name: '赵六',
+    age: 21,
+    address: '北京朝阳',
+  }, {
+    id: 5,
+    name: '钱七',
+    age: 22,
+    address: '北京朝阳',
+  }, {
+    id: 6,
+    name: '孙八',
+    age: 23,
+    address: '北京朝阳',
+  }]);
 
   const columns = [{
     title: '姓名',
@@ -64,7 +80,37 @@ regist(Table);
       children.push($$('l-button', { ...attrs, 'data-action': 'delete', textContent: '删除' }));
       return children;
     }
-  }]
+  }];
+  let columns1 = [{
+    title: '姓名',
+    key: 'name',
+    width: 80,
+    fixed: 'left'
+  }, {
+    title: '年龄',
+    key: 'age',
+    width: 200,
+  }, {
+    title: '住址',
+    key: 'address',
+    width: 200,
+  }, {
+    title: '操作',
+    width: 200,
+    fixed: 'right',
+    render: (rowData) => {
+      const children = [];
+      const attrs = {
+        text: true,
+        type: 'primary',
+        'data-id': `${rowData.id}`,
+        height: 'auto'
+      }
+      children.push($$('l-button', { ...attrs, 'data-action': 'edit', textContent: '编辑' }));
+      children.push($$('l-button', { ...attrs, 'data-action': 'delete', textContent: '删除' }));
+      return children;
+    }
+  }];
 
   function handleAction(e) {
     const d = e.detail;
@@ -83,9 +129,15 @@ regist(Table);
           return;
         }
         iterate($tables, ($table, i) => {
-          $table.setColumns(columns);
+          if (i === 4) {
+            $table.setColumns(columns1);
+          } else {
+            $table.setColumns(columns);
+          }
           if (i === 3) {
             $table.setData([]);
+          } else if (i === 4) {
+            $table.setData(dataSource1);
           } else {
             $table.setData(dataSource);
           }
@@ -228,6 +280,73 @@ regist(Table);
 </textarea>
 </l-code-preview>
 </ClientOnly>
+
+### 固定表头和列
+
+设置 `fixed-head` 属性即可实现固定表头。将需要固定的列设置 `fixed` 为 `left` 或 `right`，就能实现固定列。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-table class="data-table" fixed-head max-height="200px"></l-table>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-table class="data-table"></l-table>
+</textarea>
+<textarea lang="js">
+  import { on, $$ } from 'ph-utils/dom';
+  //-
+  const $table = $('.data-table');
+  //-
+  const columns = [{
+    title: '姓名',
+    key: 'name',
+    fixed: 'left',
+    width: 80
+  }, {
+    title: '年龄',
+    key: 'age',
+    width: 200
+  }, {
+    title: '住址',
+    key: 'address',
+    width: 200
+  }, {
+    title: '操作',
+    width: 200,
+    fixed: 'right',
+    render: (rowData) => {
+      const children = [];
+      const attrs = {
+        text: true,
+        type: 'primary',
+        'data-id': `${rowData.id}`
+      }
+      children.push($$('l-button', { 
+        ...attrs, 
+        'data-action': 'edit', 
+        textContent: '编辑' 
+      }));
+      //-
+      children.push($$('l-button', { 
+        ...attrs, 
+        'data-action': 'delete', 
+        textContent: '删除' 
+      }));
+      return children;
+    }
+  }];
+  $table.setColumns(columns);
+  $table.setData(dataSource);
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> 可以通过 `max-height` 来设置表格的最大高度, 以更好的适配固定 `head`
+
+> 如果需要改变滚动条样式，引入 [滚动条样式](/css_util#_3-滚动条样式)，然后给 `table` 添加 `l-scrollbar`
 
 ## API
 
