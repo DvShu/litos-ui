@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import type { Column } from "./types";
+import type { Column, SortOption } from "./types";
 import {
   $$,
   $one,
@@ -37,9 +37,10 @@ export default class Table extends BaseComponent {
 
   public columns?: Column[] = [];
   public data?: any[] = [];
+  public sortInfo?: SortOption;
 
   /** 缓存列通用样式, 避免渲染数据时，重复计算 */
-  private _globalColStyles?: Record<string, string>;
+  private _globalColStyles?: Record<string, { th: string; td: string }>;
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -53,14 +54,19 @@ export default class Table extends BaseComponent {
     if (_fixedLeft > 0 || _fixedRight > 0) {
       this.changeFixed({ fixedColumn: true });
     }
-    this.rerender();
+    this.rerender("all");
   }
 
   public setData(data: any[]) {
     this.data = data;
     if (this.columns && this.columns.length > 0) {
-      this.rerender();
+      this.rerender("body");
     }
+  }
+
+  public setDefaultSort(sortInfo: SortOption) {
+    this.sortInfo = sortInfo;
+    this.rerender("all");
   }
 
   public changeFixed(params?: ChangeFixedParams) {
@@ -133,15 +139,19 @@ export default class Table extends BaseComponent {
     return $table;
   }
 
-  rerender() {
+  rerender(partial: "head" | "body" | "all") {
     if (this.rendered) {
-      const $thead = $one("thead", this.root);
-      if ($thead) {
-        $thead.replaceWith(this._headRender());
+      if (partial === "all" || partial === "head") {
+        const $thead = $one("thead", this.root);
+        if ($thead) {
+          $thead.replaceWith(this._headRender());
+        }
       }
-      const $tbody = $one("tbody", this.root);
-      if ($tbody) {
-        $tbody.replaceWith(this._bodyRender());
+      if (partial === "all" || partial === "body") {
+        const $tbody = $one("tbody", this.root);
+        if ($tbody) {
+          $tbody.replaceWith(this._bodyRender());
+        }
       }
     }
   }
@@ -220,7 +230,7 @@ export default class Table extends BaseComponent {
     if (column.titleRowspan && column.titleRowspan > 1) {
       $th.rowSpan = column.titleRowspan;
     }
-    $th.style.cssText = this._getColumnStyle(column);
+    $th.style.cssText = this._getColumnStyle(column, "th");
     if (column.fixed) {
       $th.classList.add("l-fixed");
     }
@@ -386,12 +396,12 @@ export default class Table extends BaseComponent {
     return maxDepth;
   }
 
-  private _getColumnStyle(column: Column) {
+  private _getColumnStyle(column: Column, tagName: "th" | "td" = "td") {
     const id = column.id as string;
     if (this._globalColStyles && id in this._globalColStyles) {
-      return this._globalColStyles[id];
+      return this._globalColStyles[id][tagName];
     }
-    const styles = { ...column.style };
+    const styles: Record<string, any> = {};
     if (column.width) {
       if (typeof column.width === "number") {
         styles.width = `${column.width}px`;
@@ -411,9 +421,13 @@ export default class Table extends BaseComponent {
     if (!this._globalColStyles) {
       this._globalColStyles = {};
     }
-    const res = formatStyle(styles);
+    const thStyle = formatStyle(styles);
+    const res = {
+      th: thStyle,
+      td: thStyle + formatStyle(column.style || ""),
+    };
     this._globalColStyles[id] = res;
-    return res;
+    return res[tagName];
   }
 
   private _handleTap = (e: Event) => {

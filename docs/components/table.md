@@ -385,3 +385,5 @@ regist(Table);
 | --- | --- | --- |
 | `--l-table-td-padding` | 单元格内边距 | `10px` |
 | `--l-table-th-padding` | 表头单元格内边距 | `var(--l-table-td-padding)` |
+| `--l-table-max-height` | 表格最大高度 | `100%` |
+| `--l-table-layout` | 表格布局; `auto`、`fixed` | `auto` |

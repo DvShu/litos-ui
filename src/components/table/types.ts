@@ -33,3 +33,8 @@ export interface Column {
     rowIndex: number
   ) => HTMLElement | DocumentFragment | HTMLElement[] | string;
 }
+
+export interface SortOption {
+  key: string;
+  order: "asc" | "desc";
+}
