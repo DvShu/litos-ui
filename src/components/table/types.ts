@@ -20,7 +20,7 @@ export interface Column {
   /** 表头跨列 */
   titleColspan?: number;
   /** 列是否支持排序 */
-  sorter?: boolean;
+  sorter?: boolean | "default" | ((a: any, b: any) => number);
   /** 列的样式 */
   style?: Record<string, string | null | undefined>;
   /** td colspan */
