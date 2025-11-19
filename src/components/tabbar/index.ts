@@ -24,9 +24,17 @@ export default class Tabbar extends BaseComponent {
    *  3. card - 卡片
    */
   public type: "nav" | "bar" | "card" = "nav";
-  public name?: string;
+  public _name = "";
   public gap?: string;
   private $line?: HTMLElement;
+
+  public get name() {
+    return this._name;
+  }
+
+  public set name(nameValue: string) {
+    this._name = nameValue;
+  }
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -42,7 +50,7 @@ export default class Tabbar extends BaseComponent {
   attributeChangedCallback(
     name: string,
     oldValue: string,
-    newValue: string
+    newValue: string,
   ): void {
     if (name === "name") {
       const value = parseAttrValue(newValue, undefined);
@@ -104,7 +112,7 @@ export default class Tabbar extends BaseComponent {
           detail: {
             name,
           },
-        })
+        }),
       );
       this._updateActive();
       this._updateLine();
