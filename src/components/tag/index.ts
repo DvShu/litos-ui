@@ -26,7 +26,7 @@ export default class Tag extends BaseComponent {
     const parsedValue = parseAttrValue(
       newValue,
       this[name as "id"] as any,
-      name
+      name,
     ) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
@@ -54,7 +54,7 @@ export default class Tag extends BaseComponent {
     const fragment = document.createDocumentFragment();
     // content
     fragment.appendChild(
-      $$("div", { class: "l-tag-content", innerHTML: "<slot></slot>" })
+      $$("div", { class: "l-tag-content", innerHTML: "<slot></slot>" }),
     );
     if (this.closeable) {
       fragment.appendChild(this.#createCloseElement());
@@ -112,7 +112,10 @@ export default class Tag extends BaseComponent {
     } else {
       this.style.setProperty("--l-tag-color", this.color as string);
       this.style.setProperty("--l-tag-border-color", this.color as string);
-      this.style.setProperty("--l-tag-background", adjust(this.color, 5, true));
+      this.style.setProperty(
+        "--l-tag-background",
+        adjust(this.color as string, 5, true),
+      );
     }
   }
 
