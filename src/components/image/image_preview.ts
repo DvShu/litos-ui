@@ -36,10 +36,10 @@ export default class ImagePreview extends Mask {
     }
     children.push('<div class="l-image-preview-footer">');
     children.push(
-      `<div class="l-image-preview-progress">${this._getProgress()}</div>`
+      `<div class="l-image-preview-progress">${this._getProgress()}</div>`,
     );
     children.push(
-      '<div data-action="operations" class="l-image-preview-operations">'
+      '<div data-action="operations" class="l-image-preview-operations">',
     );
     children.push(this._generateBtnString("zoom-in", "zoom-in"));
     children.push(this._generateBtnString("zoom-out", "zoom-out"));
@@ -50,7 +50,7 @@ export default class ImagePreview extends Mask {
     const thisImageSrc = this.urlList[this.currentIndex];
     const transformValue = this._getTransformStyleValue();
     children.push(
-      `<img src="${thisImageSrc}" data-action="previewer" class="l-image-preview-img" style="transform: ${transformValue};" />`
+      `<img src="${thisImageSrc}" data-action="previewer" class="l-image-preview-img" style="transform: ${transformValue};" />`,
     );
     return $$("div", {
       class: "l-image-preview--container",
@@ -81,7 +81,7 @@ export default class ImagePreview extends Mask {
   private _updateProgress() {
     const $progress = $one(
       ".l-image-preview-progress",
-      this.root
+      this.root,
     ) as HTMLDivElement;
     if ($progress) {
       $progress.innerHTML = this._getProgress();
@@ -139,7 +139,6 @@ export default class ImagePreview extends Mask {
   }
 
   private _handleWhell = (e: WheelEvent) => {
-    e.preventDefault();
     if (e.deltaY > 0) {
       this._transformScale("out");
     } else {
