@@ -530,6 +530,7 @@ export class Popover {
 
   _onMouseLeave = () => {
     this._clearHideTimer();
+    if (this.options.trigger !== "hover") return;
     this._hideTimer = setTimeout(() => {
       this.hide();
     }, 50) as any;

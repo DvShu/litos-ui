@@ -24,6 +24,7 @@ export default class Button extends BaseComponent {
   loadingText = "";
   _height?: string | number;
   _disabled = false;
+  _loading = false;
 
   get height() {
     return this._height;
@@ -42,6 +43,30 @@ export default class Button extends BaseComponent {
 
   set disabled(value: boolean) {
     this.setDisabled(value);
+  }
+
+  get loading() {
+    return this._loading;
+  }
+
+  set loading(value: boolean) {
+    this.setLoading(value);
+  }
+
+  setLoading(value: boolean) {
+    this._loading = value;
+    const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
+    if ($btn) {
+      if (value) {
+        addClass($btn, "l-btn-loading");
+        $btn.disabled = true;
+        $btn.innerHTML = this.loadingBody();
+      } else {
+        removeClass($btn, "l-btn-loading");
+        $btn.disabled = this.disabled;
+        $btn.innerHTML = "<slot></slot>";
+      }
+    }
   }
 
   setDisabled(value: boolean) {
@@ -63,15 +88,7 @@ export default class Button extends BaseComponent {
     if ($btn) {
       if (name === "loading") {
         const loading = parseAttrValue(newValue, false, name);
-        if (loading) {
-          addClass($btn, "l-btn-loading");
-          $btn.disabled = true;
-          $btn.innerHTML = this.loadingBody();
-        } else {
-          removeClass($btn, "l-btn-loading");
-          $btn.disabled = this.disabled;
-          $btn.innerHTML = "<slot></slot>";
-        }
+        this.setLoading(loading);
         return;
       } else if (name === "color") {
         const text = this.getAttr("text", false);

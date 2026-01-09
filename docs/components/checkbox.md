@@ -99,7 +99,7 @@ regist([Checkbox]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox-group value="CD&BJ">
+  <l-checkbox-group value="CD&BJ" gap="15">
     <l-checkbox value="CD">成都</l-checkbox>
     <l-checkbox value="BJ">北京</l-checkbox>
     <l-checkbox value="SZ">深圳</l-checkbox>
@@ -237,7 +237,6 @@ regist([Checkbox]);
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `change` | 选中改变时触发, `e.detail` 包含 `value` 为选中的值的列表 | `(event: CustomEvent)` |
-
 
 ### Checkbox CSS Variables
 

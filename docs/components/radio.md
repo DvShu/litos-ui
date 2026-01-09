@@ -48,7 +48,7 @@ regist([RadioGroup, Radio]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-radio-group value="1">
+  <l-radio-group value="1" gap="15">
     <l-radio label="女" value="0"></l-radio>
     <l-radio label="男" value="1"></l-radio>
   </l-radio-group>
