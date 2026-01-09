@@ -145,7 +145,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 <!-- prettier-ignore -->
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `html-type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
+| `type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
 | `placeholder` | 占位文本 | `string` | - |
 | `allow-input` | 允许输入的值; `number`、`integer`,前面包含 `-` 表明允许负数, 以 `.2` 结尾表明小数点后精度 | `string` | - |
 | `block` | 宽度是否铺满父元素 | `boolean` | `false` |
@@ -153,6 +153,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 | `autofocus` | 原生属性，自动获取焦点 | `boolean` | `false` |
 | `clearable` | 是否显示清除按钮 | `boolean` | `false` |
 | `inputmode` | 输入模式, [inputmode](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Global_attributes/inputmode) | `string` | `text` |
+| `maxlength` | 最大输入长度 | `number` | - |
 | `maxlength` | 最大输入长度 | `number` | - |
 
 ### Input Methods

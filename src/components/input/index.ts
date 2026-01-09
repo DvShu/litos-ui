@@ -53,6 +53,7 @@ export default class Input extends FormInner {
   public block = false;
   public error = false;
   public maxlength?: string;
+  public minlength?: string;
   public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
@@ -83,7 +84,15 @@ export default class Input extends FormInner {
   }
 
   static get observedAttributes() {
-    return ["disabled", "error", "clearable", "maxlength", "inputmode"];
+    return [
+      "disabled",
+      "value",
+      "name",
+      "error",
+      "clearable",
+      "maxlength",
+      "inputmode",
+    ];
   }
 
   connectedCallback(): void {
@@ -114,12 +123,12 @@ export default class Input extends FormInner {
   protected attributeChange(
     name: string,
     oldValue: string,
-    newValue: string
+    newValue: string,
   ): void {
     const parsedValue = parseAttrValue(
       newValue,
       this[name as "id"] as any,
-      name
+      name,
     ) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
@@ -163,15 +172,20 @@ export default class Input extends FormInner {
     const $inner = $$("input", {
       class: "l-input__inner",
       value: this.value,
-      name: this.getName(),
-      placeholder: this.placeholder,
-      disabled: this.isDisabled(),
+      name: this.getName() || "",
+      placeholder: this.placeholder || "",
       part: "default",
       type: this.type,
       inputmode: this.inputmode,
-    });
+    }) as HTMLInputElement;
+    if (this.isDisabled()) {
+      $inner.disabled = true;
+    }
     if (this.maxlength) {
       $inner.setAttribute("maxlength", this.maxlength);
+    }
+    if (this.minlength) {
+      $inner.setAttribute("minlength", this.minlength);
     }
     fragment.appendChild($inner);
 
@@ -249,7 +263,10 @@ export default class Input extends FormInner {
   #handleClear = () => {
     this.value = "";
     this.dispatchEvent(
-      new CustomEvent("input", { bubbles: true, detail: { value: this.value } })
+      new CustomEvent("input", {
+        bubbles: true,
+        detail: { value: this.value },
+      }),
     );
     this.#renderClearable();
   };
@@ -267,7 +284,7 @@ export default class Input extends FormInner {
 
   private _numberInputParse(
     value: string,
-    config: { integer: boolean; negative: boolean; precition: number }
+    config: { integer: boolean; negative: boolean; precition: number },
   ) {
     let val = value;
     let negative = config.negative ? "-?" : "";
@@ -280,8 +297,8 @@ export default class Input extends FormInner {
     }
     const match = val.match(
       new RegExp(
-        `(${negative}\\d+\\.\\d{0,${config.precition}})|(${negative}\\d*)`
-      )
+        `(${negative}\\d+\\.\\d{0,${config.precition}})|(${negative}\\d*)`,
+      ),
     );
     if (match != null) {
       val = match[1] || match[2];
@@ -319,7 +336,7 @@ export default class Input extends FormInner {
 
   private _validateChange = (
     result: true | Record<string, string>,
-    name?: string
+    name?: string,
   ) => {
     const thisName = this.getName() as string;
     if (thisName) {
@@ -342,7 +359,7 @@ export default class Input extends FormInner {
         bubbles: true,
         composed: true,
         detail: { value: $target.value },
-      })
+      }),
     );
   };
 }

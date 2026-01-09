@@ -348,6 +348,10 @@ regist(Table);
 
 > 如果需要改变滚动条样式，引入 [滚动条样式](/css_util#_3-滚动条样式)，然后给 `table` 添加 `l-scrollbar`
 
+### 排序
+
+给列的选项增加 `sorter` 为 `true`、`default`、`(a,b)->number` 来启用排序，同时配置 `key` 字段标记排序 `key`；可以通过 `setDefaultSort` 设置初始排序；如果 `sorter=true` 就能启用手动排序，这个时候会触发一个`sorter` 事件
+
 ## API
 
 ### Table Attibutes

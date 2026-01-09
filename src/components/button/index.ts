@@ -87,7 +87,7 @@ export default class Button extends BaseComponent {
     const parsedValue = parseAttrValue(
       newValue,
       this[name as "id"] as any,
-      name
+      name,
     ) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
@@ -136,7 +136,9 @@ export default class Button extends BaseComponent {
       isLoading ? "l-btn-loading" : "",
     ];
     $btn.className = formatClass(classes);
-    $btn.disabled = this.disabled || isLoading;
+    if (this.disabled || isLoading) {
+      $btn.disabled = true;
+    }
     $btn.type = this.getAttr("html-type", "button") as "button";
     const btnStyle = this.applyColor(this.getAttr("color"), text, ghost);
     if (btnStyle) {

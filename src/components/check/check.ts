@@ -68,9 +68,11 @@ export default class Check extends FormInner {
       class: "l-check__input",
       name: this.getName(),
       value: this.value,
-      disabled: this.isDisabled(),
       checked: this.getChecked(),
-    });
+    }) as HTMLInputElement;
+    if (this.isDisabled()) {
+      $input.disabled = true;
+    }
     fragment.appendChild($input);
 
     if (!this.button) {
@@ -94,7 +96,7 @@ export default class Check extends FormInner {
   protected attributeChange(
     name: string,
     _oldValue: string,
-    newValue: string
+    newValue: string,
   ): void {
     if (name === "checked") {
       const checked = parseAttrValue(newValue, false, "checked");
