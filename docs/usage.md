@@ -76,3 +76,11 @@ import "litos-ui/styles/vars.css";
 内容如下：
 
 <<< ../styles/vars.css
+
+### 暗黑模式
+
+如果需要适配暗黑模式，需要手动引入 `dark.css`
+
+```javascript
+import "litos-ui/styles/dark.css";
+```

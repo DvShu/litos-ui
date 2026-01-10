@@ -83,7 +83,7 @@ regist([List, LoadingIcon]);
 
 ### 基础用法
 
-滚动到底部触发 `load-more` 加载更多事件，通过 `finish` 属性决定是否加载完成。
+滚动到底部触发 `load` 加载更多事件，通过 `finish` 属性决定是否加载完成。
 
 <ClientOnly>
 <l-code-preview>
@@ -138,7 +138,7 @@ regist([List, LoadingIcon]);
   }
   //-
   // 监听加载事件
-  $list.addEventListener('load-more', handleLoadmore);
+  $list.addEventListener('load', handleLoadmore);
 </textarea>
 </div>
 </l-code-preview>

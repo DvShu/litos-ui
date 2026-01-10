@@ -60,9 +60,11 @@ regist(Table);
   const columns = [{
     title: '姓名',
     key: 'name',
+    sorter: true
   }, {
     title: '年龄',
     key: 'age',
+    sorter: true,
   }, {
     title: '住址',
     key: 'address',
@@ -350,7 +352,15 @@ regist(Table);
 
 ### 排序
 
-给列的选项增加 `sorter` 为 `true`、`default`、`(a,b)->number` 来启用排序，同时配置 `key` 字段标记排序 `key`；可以通过 `setDefaultSort` 设置初始排序；如果 `sorter=true` 就能启用手动排序，这个时候会触发一个`sorter` 事件
+给列的选项增加 `sorter` 为 `true`、`costom` 来启用排序，同时配置 `key` 字段标记排序 `key`；如果 `sorter=costom` 就能启用手动排序，这个时候会触发一个`sort` 事件，然后在 `sort` 事件中调用 `setData` 方法来设置排序后的数据。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-table class="data-table" border></l-table>
+</textarea>
+</l-code-preview>
+</ClientOnly>
 
 ## API
 
@@ -359,35 +369,66 @@ regist(Table);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| - | - | - | - |
+| `stripe` | 斑马纹 | `boolean` | `true` |
+| `border` | 是否显示四周边框 | `boolean` | `false` |
+| `fixed-head` | 是否固定表头 | `boolean` | `false` |
+| `fixed-column` | 是否固定列，在进行列解析时，会自动确认该属性 | `boolean` | `false` |
+| `max-height` | 最大高度 | `number \| string` | `undefined` |
+| `table-layout` | 表格布局 | `"auto" \| "fixed"` | `undefined` |
 
-### Table Slots
+### Table Column Attributes
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
+| 参数 | 说明 | 类型 |
+| --- | --- | --- |
+| `title` | 列的标题 | `string` |
+| `key` | 列标识, 列排序必传 | `string` |
+| `width` | 列宽度, 固定列时，需要传 | `number` \| `string` |
+| `fixed` | 是否固定列 | `"left"` \| `"right"` |
+| `left` | 列固定左时, 左边偏移量 | `number` |
+| `right` | 列固定右时, 右边偏移量 | `number` |
+| `children` | 多级表头 | `Column[]` |
+| `titleRowspan` | 表头跨行 | `number` |
+| `titleColspan` | 表头跨列 | `number` |
+| `sorter` | 列是否支持排序 | `boolean` \| `"custom"` |
+| `style` | 列的样式 | `Record<string, string \| null \| undefined>` |
+| `colspan` | td colspan | `number` \| `(rowData: any, rowIndex: number) => number` |
+| `rowspan` | td rowspan | `number` \| `(rowData: any, rowIndex: number) => number` |
+| `render` | 单元格内容渲染函数 | `(rowData: any, rowIndex: number) => HTMLElement \| DocumentFragment \| HTMLElement[] \| string` |
 
 ### Table Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
-| --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| 事件名 | 说明 | 回调参数 | detail |
+| --- | --- | --- | --- |
+| `click` | 点击按钮时触发 | `(event: Event)` | - |
+| `sort` | 排序时触发 | `(event: CustomEvent)` | `{ index: number, key: string, dir: asc \| desc }` |
+| `[action]` | 所有设置了 `data-action` 属性的节点，点击时触发 | `(event: CustomEvent)` | 该节点上的所有的 `dataset` 属性 |
 
 ### Table Methods
 
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| - | - | - |
+| `setColumns` | 设置列 | `(columns: Column[]) => void` |
+| `setData` | 设置数据 | `(data: any[], sortInfo?: {key: string; order: "asc" \| "desc"}}) => void` |
 
 ### Table CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l-table-td-padding` | 单元格内边距 | `10px` |
-| `--l-table-th-padding` | 表头单元格内边距 | `var(--l-table-td-padding)` |
 | `--l-table-max-height` | 表格最大高度 | `100%` |
-| `--l-table-layout` | 表格布局; `auto`、`fixed` | `auto` |
+| `--l-table-font-size` | 表格字体大小 | `14px` |
+| `--l-table-td-padding` | 单元格内边距 | `10px` |
+| `--l-table-th-padding` | 表头单元格内边距 | `10px` |
+| `--l-table-layout` | 表格布局；`auto` 或 `fixed` | `auto` |
+| `--l-table-border-color` | 表格边框颜色（包括单元格底部和边框表格） | `#e6e6e6` |
+| `--l-table-th-bg` | 表头背景色 | `#f2f2f2` |
+| `--l-table-th-color` | 表头文字颜色 | `#000000` |
+| `--l-table-td-bg` | 单元格背景色 | `#ffffff` |
+| `--l-table-td-color` | 单元格文字颜色 | `#000000` |
+| `--l-table-row-hover-bg` | 行悬停时单元格背景色 | `#f2f2f2` |
+| `--l-table-empty-color` | 空状态文字颜色 | `#999999` |
+| `--l-table-stripe-bg` | 斑马纹偶数行背景色 | `#fafafa` |
+| `--l-table-sort-inactive-color` | 排序图标未激活状态颜色 | `#c0c4cc` |

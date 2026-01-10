@@ -14,6 +14,7 @@ import { add } from "../../../src/icons";
 import "../../../styles/modal_box.css";
 import "../../../styles/popover.css";
 import "../../../styles/select.css";
+import "../../../styles/dark.css";
 
 export default {
   extends: DefaultTheme,
