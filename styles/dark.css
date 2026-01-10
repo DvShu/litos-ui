@@ -1,0 +1,13 @@
+:root.dark {
+  --l-disabled-color: #6c6c6c;
+  /* 表格配置 */
+  --l-table-border-color: #444444;
+  --l-table-th-bg: #2d2d2d;
+  --l-table-th-color: #e0e0e0;
+  --l-table-td-bg: #1e1e1e;
+  --l-table-td-color: #e0e0e0;
+  --l-table-row-hover-bg: #333333;
+  --l-table-empty-color: #888888;
+  --l-table-stripe-bg: #252525;
+  --l-table-sort-inactive-color: #777777;
+}
