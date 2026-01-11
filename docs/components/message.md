@@ -112,7 +112,7 @@ import "litos-ui/styles/message.css";
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-button data-message="这是一条手动关闭的提示信息" data-duration="0">打开</l-button>
+  <l-button data-message="这是一条手动关闭的提示信息" data-duration="0" data-type="error">打开</l-button>
   <l-button data-type="close">关闭</l-button>
 </textarea>
 <div class="source">

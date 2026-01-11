@@ -98,3 +98,5 @@ export * from "./utils/popover";
 
 export { default as Table } from "./table";
 export type { Column } from "./table/types";
+
+export { default as Space } from "./space";

@@ -560,7 +560,12 @@ export class Popover {
     if (disabled == null) disabled = this.options.disabled as any;
     if (disabled) return;
     // 已经显示
-    if (this.$reference) return;
+    if (this.$reference) {
+      if (this.$reference === reference) {
+        return;
+      }
+      this.hide()
+    }
     this.$reference = reference;
     if (!this.popoverElement) {
       this._renderPopover();

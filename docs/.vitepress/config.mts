@@ -190,6 +190,10 @@ export default defineConfig({
             text: "Table 表格",
             link: "/components/table",
           },
+          {
+            text: "Space 间距",
+            link: "/components/space",
+          },
           /* TemplateItem */
         ],
       },
@@ -204,10 +208,6 @@ export default defineConfig({
           {
             text: "Popover 弹出气泡",
             link: "/components/popover",
-          },
-          {
-            text: "Popconfirm 气泡确认框",
-            link: "/components/popconfirm",
           },
           {
             text: "Dialog 对话框",

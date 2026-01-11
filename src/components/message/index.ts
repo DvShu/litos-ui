@@ -80,7 +80,7 @@ function renderBody(props: any) {
   // icon
   let iconName = type;
   if (iconName === "error") {
-    iconName = "mask-close";
+    iconName = "close-filled";
   }
   $message.innerHTML = [
     '<div class="l-message-container">',
