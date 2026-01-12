@@ -3,15 +3,15 @@
   --l-form-control-height: 32px;
   /** 禁用状态颜色 */
   --l-disabled-color: #e6e6e6;
-  /* 主题(primary)颜色 */
-  --l-primary-color: #722ed1;
-  --l-primary-color-light1: #9254de;
-  --l-primary-color-light2: #b37feb;
-  --l-primary-color-light3: #d3adf7;
-  --l-primary-color-light4: #efdbff;
-  --l-primary-color-light5: #f9f0ff;
-  --l-primary-color-dark1: #531dab;
-  --l-primary-color-dark2: #391085;
+  /* 主题(primary)颜色 - 明亮蓝系列 */
+  --l-primary-color: #007bff; /* 主色调：明亮蓝 */
+  --l-primary-color-light1: #3399ff; /* 浅 1 */
+  --l-primary-color-light2: #66b3ff; /* 浅 2 */
+  --l-primary-color-light3: #99ccff; /* 浅 3 */
+  --l-primary-color-light4: #cce6ff; /* 浅 4 */
+  --l-primary-color-light5: #e6f2ff; /* 浅 5 (极浅) */
+  --l-primary-color-dark1: #0066cc; /* 深 1 */
+  --l-primary-color-dark2: #004c99; /* 深 2 */
   /* 表示错误(error)的颜色 */
   --l-error-color: #f5222d;
   --l-error-color-light3: #ffa39e;
@@ -33,6 +33,4 @@
   --l-border-color: #dedede;
   --l-border-radius: 3px;
 }
-html.dark {
-  --l-disabled-color: #262727;
-}
+

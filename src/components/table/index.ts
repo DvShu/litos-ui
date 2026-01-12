@@ -10,7 +10,7 @@ import {
   iterate,
   on,
   off,
-  shouldEventNext,
+  shouldEventNext
 } from "ph-utils/dom";
 import { random } from "ph-utils";
 
@@ -57,16 +57,12 @@ export default class Table extends BaseComponent {
     this.rerender("all");
   }
 
-  public setData(data: any[]) {
+  public setData(data: any[], sortInfo?: SortOption) {
     this.data = data;
-    if (this.columns && this.columns.length > 0) {
-      this.rerender("body");
-    }
-  }
-
-  public setDefaultSort(sortInfo: SortOption) {
     this.sortInfo = sortInfo;
-    this.rerender("all");
+    if (this.columns && this.columns.length > 0) {
+      this.rerender(sortInfo ? 'all' : "body");
+    }
   }
 
   public changeFixed(params?: ChangeFixedParams) {
@@ -244,7 +240,13 @@ export default class Table extends BaseComponent {
       const $caret = $$("span", { class: "caret-wrapper" });
       $caret.appendChild($$("span", { class: "sort-caret ascending" }));
       $caret.appendChild($$("span", { class: "sort-caret descending" }));
+      $th.classList.add('sort-column');
+      $th.setAttribute('data-action', 'sort');
+      $th.setAttribute('data-col', `${index}`);
       $th.appendChild($caret);
+    }
+    if (this.sortInfo && this.sortInfo.key === column.key) {
+      $th.classList.add(this.sortInfo.order === 'asc' ? 'sort-asc' : 'sort-desc');
     }
     return $th;
   }
@@ -438,7 +440,21 @@ export default class Table extends BaseComponent {
     );
     if (isNext) {
       const dataset = target.dataset;
-      this.emit("action", { detail: dataset });
+      if (action === 'sort') {
+        const colIndex = parseInt(dataset.col as string);
+        const sortCol = (this.columns as Column[])[colIndex];
+        // 排序方向
+        const sortDir = (this.sortInfo && this.sortInfo.order === 'desc') ? 'asc' : 'desc';
+        this.sortInfo = { key: sortCol.key as string, order: sortDir };
+        if (sortCol.sorter === 'custom') {
+          this.emit("sort", { detail: { index:colIndex, key: sortCol.key, dir: sortDir } });
+        } else {
+          this.data = this._dataSort();
+          this.rerender('all');
+        }
+      } else {
+        this.emit(action, { detail: dataset });
+      }
     }
   };
 
@@ -449,5 +465,17 @@ export default class Table extends BaseComponent {
 
   beforeDestroy(): void {
     off(this.root, "click", this._handleTap);
+  }
+
+  private _dataSort() {
+    if (!this.sortInfo) return;
+    if (!this.data) return;
+    const { key, order } = this.sortInfo;
+    return this.data.sort((a, b) => {
+      const aValue = a[key];
+      const bValue = b[key];
+      if (order === 'asc') return aValue - bValue;
+      return bValue - aValue;
+    });
   }
 }

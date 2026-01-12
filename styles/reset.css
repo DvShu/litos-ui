@@ -1,4 +1,7 @@
 /* 一般开发网页的时候，都是按照100%来开发 */
+html {
+  font-size: 62.5%;
+}
 html,
 body {
   height: 100%;
@@ -56,9 +59,4 @@ p {
   font-size: 16px;
   line-height: 1.4;
   color: #333;
-}
-
-/* 按钮之间间隔 */
-.l-btn-group l-button + l-button {
-  margin-left: 10px;
 }

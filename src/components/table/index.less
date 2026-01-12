@@ -1,57 +1,58 @@
 :host {
-  --l-table-max-height: 100%;
-  --l-table-td-padding: 10px;
-  --l-table-th-padding: var(--l-table-td-padding);
-  --l-table-layout: auto;
   display: inline-block;
   width: 100%;
-  max-height: var(--l-table-max-height);
+  max-height: var(--l-table-max-height, 100%);
   overflow: auto;
-  font-size: 14px;
+  font-size: var(--l-table-font-size, 14px);
 }
+
 .l-table {
   width: 100%;
   border-collapse: collapse;
   border-spacing: 0;
-  table-layout: var(--l-table-layout);
+  table-layout: var(--l-table-layout, auto);
 }
+
 .l-table th,
 .l-table td {
-  padding: var(--l-table-th-padding);
-  border-bottom: 1px solid #e6e6e6;
+  border-bottom: 1px solid var(--l-table-border-color, #e6e6e6);
 }
+
 .l-table th {
+  padding: var(--l-table-th-padding, 10px);
   text-align: left;
-  background-color: #f2f2f2;
+  background-color: var(--l-table-th-bg, #f2f2f2);
+  color: var(--l-table-th-color, #000000);
 }
 
 .l-table td {
-  background-color: #ffffff;
+  background-color: var(--l-table-td-bg, #ffffff);
+  color: var(--l-table-td-color, #000000);
+  padding: var(--l-table-td-padding, 10px);
   transition: background-color 0.3s;
 }
+
 .l-table tr:hover td {
-  background-color: #f2f2f2;
+  background-color: var(--l-table-row-hover-bg, #f2f2f2);
 }
 
-.l-table__empty-col {
-  color: #999999;
+.l-table .l-table__empty-col {
+  color: var(--l-table-empty-color, #999999);
   text-align: center;
 }
 
 /* 斑马纹 */
 .l-table-stripe tr:nth-child(even) td {
-  background-color: #fafafa;
+  background-color: var(--l-table-stripe-bg, #fafafa);
 }
 .l-table-stripe tr:nth-child(even):hover td {
-  background-color: #f2f2f2;
+  background-color: var(--l-table-row-hover-bg, #f2f2f2);
 }
 
 /* 边框 */
-.l-table-border {
-  th,
-  td {
-    border: 1px solid #e6e6e6;
-  }
+.l-table-border th,
+.l-table-border td {
+  border: 1px solid var(--l-table-border-color, #e6e6e6);
 }
 
 /* 表格固定 */
@@ -67,4 +68,40 @@
 .l-table-fixed thead.l-fixed,
 .l-table-fixed tfoot.l-fixed {
   z-index: 2;
+}
+
+/* 排序 */
+.l-table .caret-wrapper {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  vertical-align: middle;
+  height: 14px;
+  width: 20px;
+  position: relative;
+}
+.l-table .caret-wrapper .ascending {
+  border-bottom-color: var(--l-table-sort-inactive-color, #c0c4cc);
+  top: -5px;
+}
+.l-table .caret-wrapper .descending {
+  border-top-color: var(--l-table-sort-inactive-color, #c0c4cc);
+  bottom: -3px;
+}
+.l-table .sort-caret {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  position: absolute;
+  border-radius: 3px;
+}
+.l-table .sort-column {
+  cursor: pointer;
+}
+.l-table .sort-asc .ascending {
+  border-bottom-color: var(--l-primary-color, #52c41a);
+}
+.l-table .sort-desc .descending {
+  border-top-color: var(--l-primary-color, #52c41a);
 }

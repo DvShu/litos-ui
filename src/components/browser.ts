@@ -46,7 +46,9 @@ import Collapase from "./collapse";
 import Image from "./image";
 import Select from "./select";
 import Table from "./table";
+import Space from "./space";
 //Web Components Import
+regist(Space)
 regist(Table);
 regist(Select);
 regist(Image);
@@ -142,3 +144,4 @@ import "./collapase/index.less";
 import "./image/index.less";
 import "./select/index.less";
 import "./table/index.less";
+import "./space/index.less";

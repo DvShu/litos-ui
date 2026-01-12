@@ -530,6 +530,7 @@ export class Popover {
 
   _onMouseLeave = () => {
     this._clearHideTimer();
+    if (this.options.trigger !== "hover") return;
     this._hideTimer = setTimeout(() => {
       this.hide();
     }, 50) as any;
@@ -559,7 +560,12 @@ export class Popover {
     if (disabled == null) disabled = this.options.disabled as any;
     if (disabled) return;
     // 已经显示
-    if (this.$reference) return;
+    if (this.$reference) {
+      if (this.$reference === reference) {
+        return;
+      }
+      this.hide()
+    }
     this.$reference = reference;
     if (!this.popoverElement) {
       this._renderPopover();
