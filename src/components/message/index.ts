@@ -91,17 +91,14 @@ function renderBody(props: any) {
   return $message;
 }
 
-const Message: MessageInstance = ((option: string | MessageOption) => {
+const createMessage: MessageInstance = ((option: string | MessageOption) => {
   if (isFirstOpen) {
     regist([MaskClose, Success, Warn, Info]);
     isFirstOpen = false;
   }
 
   // 计算消息的位置
-  const offset = instances.reduce(
-    (prev, curr) => prev + curr.offsetHeight + 15,
-    15
-  );
+  const offset = instances.reduce((prev, curr) => prev + curr.offsetHeight + 15, 15);
 
   // 消息id
   const id = useId();
@@ -127,18 +124,18 @@ const Message: MessageInstance = ((option: string | MessageOption) => {
 
 function show(
   options: string | MessageOption,
-  type: "info" | "success" | "error" | "warn" = "info"
+  type: "info" | "success" | "error" | "warn" = "info",
 ) {
-  const opts: MessageOption =
-    typeof options === "string" ? { message: options } : options;
+  const opts: MessageOption = typeof options === "string" ? { message: options } : options;
   if (!opts.type) opts.type = type as any;
-  return Message(opts);
+  return createMessage(opts);
 }
-Message.info = (options: string | MessageOption) => show(options, "info");
-Message.success = (options: string | MessageOption) => show(options, "success");
-Message.error = (options: string | MessageOption) => show(options, "error");
-Message.warn = (options: string | MessageOption) => show(options, "warn");
-Message.show = (options: string | MessageOption) => show(options);
-Message.close = close;
 
-export default Message;
+export default {
+  info: (options: string | MessageOption) => show(options, "info"),
+  success: (options: string | MessageOption) => show(options, "success"),
+  error: (options: string | MessageOption) => show(options, "error"),
+  warn: (options: string | MessageOption) => show(options, "warn"),
+  show: (options: string | MessageOption) => show(options),
+  close: close,
+};

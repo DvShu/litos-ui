@@ -28,11 +28,7 @@ export default class Qrcode extends BaseComponent {
     return ["text", "fill", "size", "level", "icon"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (oldValue !== newValue) {
       this[name as "text"] = newValue;
       this.#updateOption(name, newValue);

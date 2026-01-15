@@ -1,8 +1,41 @@
 {
   "name": "litos-ui",
-  "description": "基于 Web Component 的 UI 组件库",
   "version": "0.16.0",
+  "description": "基于 Web Component 的 UI 组件库",
+  "keywords": [
+    "component library",
+    "litos-ui",
+    "ui framework",
+    "web component"
+  ],
+  "homepage": "https://dvshu.github.io/litos-ui/",
+  "bugs": {
+    "url": "https://github.com/DvShu/litos-ui/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DvShu/litos-ui.git"
+  },
+  "files": [
+    "lib",
+    "styles"
+  ],
   "type": "module",
+  "main": "./lib/index.js",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "unpkg": "./lib/litos-ui.min.js",
+  "jsdelivr": "./lib/litos-ui.min.js",
+  "exports": {
+    "./styles/*": "./styles/*",
+    "./lib/*": "./lib/*",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "require": "./lib/index.js"
+    }
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -14,60 +47,26 @@
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
     "lib:build": "pnpm build && pnpm dts:build"
   },
+  "dependencies": {
+    "iconify-icon": "^3.0.2",
+    "ph-utils": "^0.16.5",
+    "qrcode-generator-es": "^2.1.2",
+    "shiki": "^3.21.0"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "@eslint/markdown": "^7.5.1",
-    "@types/node": "^25.0.3",
+    "@types/node": "^25.0.8",
     "eslint": "^9.39.2",
     "globals": "^17.0.0",
     "less": "^4.5.1",
     "lightningcss": "^1.30.2",
-    "oxfmt": "^0.23.0",
-    "oxlint": "^1.38.0",
-    "prettier": "^3.7.4",
+    "oxfmt": "^0.24.0",
+    "oxlint": "^1.39.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.52.0",
+    "typescript-eslint": "^8.53.0",
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4",
     "vitepress": "^1.6.4"
-  },
-  "files": [
-    "lib",
-    "styles"
-  ],
-  "main": "./lib/index.js",
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
-  "jsdelivr": "./lib/litos-ui.min.js",
-  "unpkg": "./lib/litos-ui.min.js",
-  "exports": {
-    "./styles/*": "./styles/*",
-    "./lib/*": "./lib/*",
-    ".": {
-      "import": "./lib/index.js",
-      "types": "./lib/index.d.ts",
-      "require": "./lib/index.js"
-    }
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/DvShu/litos-ui.git"
-  },
-  "keywords": [
-    "litos-ui",
-    "web component",
-    "ui framework",
-    "component library"
-  ],
-  "homepage": "https://dvshu.github.io/litos-ui/",
-  "bugs": {
-    "url": "https://github.com/DvShu/litos-ui/issues"
-  },
-  "license": "MIT",
-  "dependencies": {
-    "iconify-icon": "^3.0.2",
-    "ph-utils": "^0.16.4",
-    "qrcode-generator-es": "^2.0.0",
-    "shiki": "^3.21.0"
   }
 }

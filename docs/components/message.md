@@ -139,7 +139,7 @@ import "litos-ui/styles/message.css";
 <!-- prettier-ignore -->
 | 名称 | 参数 | 说明 | 返回类型 |
 | --- | --- | --- | --- |
-| `info` | `MessageOption` | 显示普通提示信息, 参数为配置项, 返回消息 `id` | `string` |
+| `info`、`show` | `MessageOption` | 显示普通提示信息, 参数为配置项, 返回消息 `id` | `string` |
 | `success` | `MessageOption` | 显示成功提示信息 | `string` |
 | `warn` | `MessageOption` | 显示警告提示信息 | `string` |
 | `error` | `MessageOption` | 显示错误提示信息 | `string` |

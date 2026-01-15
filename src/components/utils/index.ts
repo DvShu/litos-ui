@@ -26,17 +26,9 @@ export function useId() {
   return `l-${++seed}`;
 }
 export function parseAttrValue(value: string, defaultValue?: string): string;
-export function parseAttrValue(
-  value: string,
-  defaultValue?: boolean,
-  key?: string
-): boolean;
+export function parseAttrValue(value: string, defaultValue?: boolean, key?: string): boolean;
 export function parseAttrValue(value: string, defaultValue?: number): number;
-export function parseAttrValue(
-  value: string,
-  defaultValue: any,
-  key?: string
-): any {
+export function parseAttrValue(value: string, defaultValue: any, key?: string): any {
   if (value == null) return defaultValue;
   const type = typeof defaultValue;
   switch (type) {
@@ -108,10 +100,7 @@ export function tagAttrs(attr: [string, string | undefined | boolean][]) {
   return res.length > 0 ? ` ${res.join("")}` : "";
 }
 
-export function setAttrs(
-  el: HTMLElement,
-  attrs: [string, string | undefined | boolean][]
-) {
+export function setAttrs(el: HTMLElement, attrs: [string, string | undefined | boolean][]) {
   for (const attr of attrs) {
     const value = attr[1];
     const key = attr[0];
@@ -121,171 +110,6 @@ export function setAttrs(
       el.setAttribute(key, value);
     }
   }
-}
-
-/**
- * 获取悬浮窗 y 偏移
- * @param targetRect
- * @param popoverRect
- * @param mainAlign
- * @param crossAlign
- * @returns
- */
-export function getPopoverOffsetY(
-  targetRect: DOMRect,
-  popoverRect: DomRectPos,
-  mainAlign: string,
-  crossAlign: string,
-  offset = 10
-) {
-  let topDiff = 0;
-  // 计算 垂直 偏移
-  if (mainAlign === "top") {
-    topDiff = popoverRect.height + offset;
-  } else if (mainAlign === "bottom") {
-    topDiff = -(targetRect.height + offset);
-  } else if (mainAlign === "left" || mainAlign === "right") {
-    if (crossAlign === "") {
-      topDiff = popoverRect.height / 2 - targetRect.height / 2;
-    } else if (crossAlign === "end") {
-      topDiff = popoverRect.height - targetRect.height;
-    }
-  }
-  return topDiff;
-}
-
-type DomRectPos = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  left: number;
-  top: number;
-};
-
-export function getPopoverOffsetX(
-  targetRect: DOMRect,
-  popoverRect: DomRectPos,
-  mainAlign: string,
-  crossAlign: string,
-  offset = 10
-) {
-  let leftDiff = 0;
-  // 计算 水平 偏移
-  if (mainAlign === "left") {
-    leftDiff = popoverRect.width + offset;
-  } else if (mainAlign === "right") {
-    leftDiff = -(targetRect.width + offset);
-  } else if (mainAlign === "top" || mainAlign === "bottom") {
-    if (crossAlign === "") {
-      leftDiff = popoverRect.width / 2 - targetRect.width / 2;
-    } else if (crossAlign === "end") {
-      leftDiff = popoverRect.width - targetRect.width;
-    }
-  }
-  return leftDiff;
-}
-
-export function impactDetect(
-  targetRect: DOMRect,
-  popoverRect: DomRectPos,
-  mainAlign: string,
-  crossAlign: string,
-  scrollLeft: number,
-  scrollTop: number,
-  leftDiff: number,
-  topDiff: number,
-  offset = 10,
-  position = "absolute"
-) {
-  const maxHeight = window.innerHeight + scrollTop - 10;
-  const maxWidth = window.innerWidth + scrollLeft - 10;
-  // 判断 垂直 方向是否在显示区域内
-  let y = targetRect.top + scrollTop - topDiff;
-  const yEnd = y + popoverRect.height;
-  // 1. 首先判断下边界是否超出屏幕
-  if (yEnd > maxHeight) {
-    // 下边距超出屏幕
-    if (mainAlign === "left" || mainAlign === "right") {
-      crossAlign = "end";
-    } else {
-      mainAlign = "top";
-    }
-    topDiff = getPopoverOffsetY(
-      targetRect,
-      popoverRect,
-      mainAlign,
-      crossAlign,
-      offset
-    );
-    y = targetRect.top + scrollTop - topDiff;
-  }
-
-  // 2. 判断上边界是否超出屏幕
-  if (y < scrollTop) {
-    // 上边距超出屏幕
-    if (mainAlign === "left" || mainAlign === "right") {
-      crossAlign = "start";
-    } else {
-      mainAlign = "bottom";
-    }
-  }
-
-  // 判断 水平 方向是否在显示区域内
-  // 1. 首先判断右边界是否超出屏幕
-  let x = targetRect.left + scrollLeft - leftDiff;
-  const xEnd = x + popoverRect.width;
-  if (xEnd > maxWidth) {
-    // 右边距超出屏幕
-    if (mainAlign === "top" || mainAlign === "bottom") {
-      crossAlign = "end";
-    } else {
-      mainAlign = "left";
-    }
-    leftDiff = getPopoverOffsetX(
-      targetRect,
-      popoverRect,
-      mainAlign,
-      crossAlign,
-      offset
-    );
-    x = targetRect.left + scrollLeft - leftDiff;
-  }
-
-  // 2. 判断左边界是否超出屏幕
-  if (x < scrollLeft) {
-    // 左边距超出屏幕
-    if (mainAlign === "top" || mainAlign === "bottom") {
-      crossAlign = "start";
-    } else {
-      mainAlign = "right";
-    }
-  }
-  if (position === "fixed") {
-    topDiff = getPopoverOffsetY(
-      targetRect,
-      popoverRect,
-      mainAlign,
-      crossAlign,
-      offset
-    );
-    leftDiff = getPopoverOffsetX(
-      targetRect,
-      popoverRect,
-      mainAlign,
-      crossAlign,
-      offset
-    );
-    x = targetRect.left + scrollLeft - leftDiff;
-    y = targetRect.top + scrollTop - topDiff;
-  }
-
-  return {
-    x,
-    y,
-    mainAlign,
-    crossAlign,
-  };
 }
 
 /**
