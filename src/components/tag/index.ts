@@ -9,10 +9,6 @@ import { $$, shouldEventNext, on, off, $one } from "ph-utils/dom";
 export default class Tag extends BaseComponent {
   public static baseName = "tag";
 
-  public type: string = "primary";
-  public color?: string;
-  public closeable?: boolean = false;
-
   connectedCallback(): void {
     this.loadStyleText(css);
     super.connectedCallback();
@@ -23,28 +19,25 @@ export default class Tag extends BaseComponent {
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name,
-    ) as any;
-    if (parsedValue !== this[name as "id"]) {
-      this[name as "id"] = parsedValue;
-    }
+    const v = newValue.trim();
     switch (name) {
       case "type":
-        this._toggleTypeClass();
+        this._toggleTypeClass(v);
         break;
       case "color":
-        this._toggleColorStyle();
+        this._toggleColorStyle(v);
         break;
       case "closable":
         if (!this.rendered) return;
+        const isCloseable = parseAttrValue(v, false);
         const $close = $one(".l-tag-close", this.root);
         if ($close) {
+          if (isCloseable) return;
           $close.remove();
         } else {
-          this.root.appendChild(this.#createCloseElement());
+          if (isCloseable) {
+            this.root.appendChild(this.#createCloseElement());
+          }
         }
         break;
     }
@@ -53,10 +46,9 @@ export default class Tag extends BaseComponent {
   render() {
     const fragment = document.createDocumentFragment();
     // content
-    fragment.appendChild(
-      $$("div", { class: "l-tag-content", innerHTML: "<slot></slot>" }),
-    );
-    if (this.closeable) {
+    fragment.appendChild($$("div", { class: "l-tag-content", innerHTML: "<slot></slot>" }));
+
+    if (this.getAttr("closeable", false)) {
       fragment.appendChild(this.#createCloseElement());
     }
 
@@ -83,39 +75,37 @@ export default class Tag extends BaseComponent {
   };
 
   afterInit(): void {
-    this._toggleTypeClass();
+    this.classList.add(`l-tag--${this.getAttr("type", "info")}`);
     this._toggleColorStyle();
     on(this.root, "click", this.#onActionTap);
   }
 
-  _toggleTypeClass() {
+  _toggleTypeClass(type: string) {
     if (!this.rendered) return;
     let isFound = false;
     for (const classItem of this.classList) {
       if (classItem.startsWith("l-tag--")) {
-        this.classList.replace(classItem, `l-tag--${this.type}`);
+        this.classList.replace(classItem, `l-tag--${type}`);
         isFound = true;
         break;
       }
     }
+
     if (!isFound) {
-      this.classList.add(`l-tag--${this.type}`);
+      this.classList.add(`l-tag--${type}`);
     }
   }
 
-  _toggleColorStyle() {
+  _toggleColorStyle(color?: string | null) {
     if (!this.rendered) return;
-    if (isBlank(this.color)) {
+    if (isBlank(color)) {
       this.style.removeProperty("--l-tag-color");
       this.style.removeProperty("--l-tag-border-color");
       this.style.removeProperty("--l-tag-background");
     } else {
-      this.style.setProperty("--l-tag-color", this.color as string);
-      this.style.setProperty("--l-tag-border-color", this.color as string);
-      this.style.setProperty(
-        "--l-tag-background",
-        adjust(this.color as string, 5, true),
-      );
+      this.style.setProperty("--l-tag-color", color as string);
+      this.style.setProperty("--l-tag-border-color", color as string);
+      this.style.setProperty("--l-tag-background", adjust(color as string, 5, true));
     }
   }
 
