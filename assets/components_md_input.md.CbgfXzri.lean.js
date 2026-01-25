@@ -1,3 +1,0 @@
-import{_ as n,C as i,c as s,o as l,ag as e,G as r,w as o,j as a}from"./chunks/framework._HD6XqYi.js";const x=JSON.parse('{"title":"MdInput","description":"","frontmatter":{},"headers":[],"relativePath":"components/md_input.md","filePath":"components/md_input.md","lastUpdated":1737014466000}'),h={name:"components/md_input.md"};function p(u,t,c,b,m,k){const d=i("ClientOnly");return l(),s("div",null,[t[1]||(t[1]=e("",7)),r(d,null,{default:o(()=>[...t[0]||(t[0]=[a("l-code-preview",null,[a("textarea",{lang:"html"},`  <l-md-input label="姓名" outline></l-md-input>
-`),a("div",{class:"source"},[a("textarea",{lang:"html"},`  <l-md-input></l-md-input>
-`)])],-1)])]),_:1}),t[2]||(t[2]=e("",11))])}const f=n(h,[["render",p]]);export{x as __pageData,f as default};
