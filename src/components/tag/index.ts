@@ -29,7 +29,7 @@ export default class Tag extends BaseComponent {
         break;
       case "closable":
         if (!this.rendered) return;
-        const isCloseable = parseAttrValue(v, false);
+        const isCloseable = parseAttrValue(v, false, "closeable");
         const $close = $one(".l-tag-close", this.root);
         if ($close) {
           if (isCloseable) return;

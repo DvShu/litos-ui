@@ -51,22 +51,13 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
 
   if (option.shape === "bar") {
     const $bar = $$("div", { class: "l-loading-progress" });
-    $spinner.style.setProperty(
-      "top",
-      `-${getComputedStyle(el).borderTopWidth}`
-    );
+    $spinner.style.setProperty("top", `-${getComputedStyle(el).borderTopWidth}`);
     $spinner.appendChild($bar);
   } else if (option.shape === "circle") {
-    const $circular = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "svg"
-    );
+    const $circular = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     $circular.setAttribute("viewBox", "0 0 50 50");
     $circular.classList.add("circle");
-    const $path = document.createElementNS(
-      "http://www.w3.org/2000/svg",
-      "circle"
-    );
+    const $path = document.createElementNS("http://www.w3.org/2000/svg", "circle");
     $path.classList.add("path");
     $path.setAttribute("cx", "25");
     $path.setAttribute("cy", "25");
@@ -137,6 +128,7 @@ class LoadingInstance {
   /** 加载容器 */
   public el!: HTMLElement;
   public option!: Required<Omit<LoadingInstanceParams, "to" | "zindex">>;
+  public isLoading = false;
 
   public constructor(option?: LoadingInstanceParams) {
     this.option = {
@@ -168,12 +160,19 @@ class LoadingInstance {
 
   /** 显示进度条 */
   public show() {
+    this.isLoading = true;
     addLoading(this.el, this.option);
   }
 
   /** 隐藏进度条 */
   public hide() {
+    this.isLoading = false;
     removeLoading(this.el, this.option);
+  }
+
+  destroy() {
+    this.hide();
+    this.el = undefined as any;
   }
 }
 
@@ -182,11 +181,7 @@ function getElementLoadingParams(el: HTMLElement) {
   const lock = el.getAttribute("l-loading-lock");
   return {
     background: el.getAttribute("l-loading-background") as string,
-    text: text
-      ? text === "0" || text === "false"
-        ? undefined
-        : text
-      : "加载中……",
+    text: text ? (text === "0" || text === "false" ? undefined : text) : "加载中……",
     fullscreen: el.hasAttribute("l-loading-fullscreen"),
     lock: lock === "0" || lock === "false" ? false : true,
     mask: Number(el.hasAttribute("l-loading-mask") || 2),
@@ -208,10 +203,7 @@ export default {
     const $els = $(selector) as HTMLElement[];
     iterate($els, (el) => {
       const params = getElementLoadingParams(el);
-      addLoading(
-        params.fullscreen ? document.body : el,
-        getElementLoadingParams(el)
-      );
+      addLoading(params.fullscreen ? document.body : el, getElementLoadingParams(el));
     });
   },
 
@@ -233,10 +225,7 @@ export default {
     // 遍历每个匹配的元素，执行移除加载中的操作
     iterate($els, (el) => {
       const params = getElementLoadingParams(el);
-      removeLoading(
-        params.fullscreen ? document.body : el,
-        getElementLoadingParams(el)
-      );
+      removeLoading(params.fullscreen ? document.body : el, getElementLoadingParams(el));
     });
   },
 };

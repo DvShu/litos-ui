@@ -19,23 +19,8 @@ import animationCss from "../styles/animation.css?inline";
 
 export default class Button extends BaseComponent {
   public static baseName = "button";
-  public htmlType: "submit" | "reset" | "button" = "button";
-  /** 加载中文本 */
-  loadingText = "";
-  _height?: string | number;
+  // public htmlType: "submit" | "reset" | "button" = "button";
   _disabled = false;
-  _loading = false;
-
-  get height() {
-    return this._height;
-  }
-
-  set height(height: string | number | undefined) {
-    this._height = height;
-    if (this.rendered) {
-      this._updateHeight();
-    }
-  }
 
   get disabled() {
     return this._disabled;
@@ -45,19 +30,10 @@ export default class Button extends BaseComponent {
     this.setDisabled(value);
   }
 
-  get loading() {
-    return this._loading;
-  }
-
-  set loading(value: boolean) {
-    this.setLoading(value);
-  }
-
-  setLoading(value: boolean) {
-    this._loading = value;
+  setLoading(loading: boolean) {
     const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
     if ($btn) {
-      if (value) {
+      if (loading) {
         addClass($btn, "l-btn-loading");
         $btn.disabled = true;
         $btn.innerHTML = this.loadingBody();
@@ -101,20 +77,12 @@ export default class Button extends BaseComponent {
         return;
       }
     }
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name,
-    ) as any;
-    if (parsedValue !== this[name as "id"]) {
-      this[name as "id"] = parsedValue;
-      switch (name) {
-        case "height":
-          if (this.rendered) {
-            this._updateHeight();
-          }
-          break;
-      }
+    if (!this.rendered) return;
+    const v = newValue.trim();
+    switch (name) {
+      case "height":
+        this._updateHeight(v);
+        break;
     }
   }
 
@@ -122,17 +90,27 @@ export default class Button extends BaseComponent {
     initAttr(this);
     this.loadStyleText([animationCss, buttonCss]);
     this.render();
-    if (this.htmlType === "reset" || this.htmlType === "submit") {
+    if (this.isFormButton()) {
       on(this, "click", this._handleClick);
     }
-    this._updateHeight();
+    this._updateHeight(this.getAttr("height"));
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this.htmlType === "reset" || this.htmlType === "submit") {
+    if (this.isFormButton()) {
       off(this, "click", this._handleClick);
     }
+  }
+
+  isFormButton() {
+    const type = this.getHtmlType();
+    return type === "submit" || type === "reset";
+  }
+
+  getHtmlType(): "submit" | "reset" | "button" {
+    const type = this.getAttr("html-type", "button");
+    return type as "submit" | "reset" | "button";
   }
 
   public render() {
@@ -171,7 +149,7 @@ export default class Button extends BaseComponent {
   }
 
   loadingBody() {
-    const loadingText = this.getAttr("loading-text", "");
+    const loadingText = this.getAttr("loading-text", "加载中……");
     const res = ['<l-loading-icon class="l-rotate-anim"></l-loading-icon>'];
     if (loadingText) {
       res.push(`<span>${loadingText}</span>`);
@@ -199,9 +177,8 @@ export default class Button extends BaseComponent {
     return formatStyle(cssVars);
   }
 
-  private _updateHeight() {
-    if (this.height) {
-      let height = this.height;
+  private _updateHeight(height?: string | number) {
+    if (height) {
       if (typeof height === "number") {
         height = `${height}px`;
       }
