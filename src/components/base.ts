@@ -20,11 +20,7 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string,
-    _newValue: string
-  ) {}
+  attributeChangedCallback(_name: string, _oldValue: string, _newValue: string) {}
 
   /** @deprecated */
   get shadow() {
@@ -71,15 +67,13 @@ export default class BaseComponent extends HTMLElement {
   public getAttr(key: string, defaultValue: boolean): boolean;
   public getAttr<T extends Record<string, string | number | boolean>>(
     filepath: string,
-    defaultValue: T
+    defaultValue: T,
   ): T;
   public getAttr(key: string, defaultValue?: unknown) {
     return getAttr(this, key, defaultValue as any);
   }
 
-  public appendToRoot(
-    el?: HTMLElement | HTMLElement[] | string | DocumentFragment
-  ) {
+  public appendToRoot(el?: HTMLElement | HTMLElement[] | string | DocumentFragment) {
     if (el) {
       if (typeof el === "string") {
         let $tmp = document.createElement("div");
@@ -133,7 +127,7 @@ export default class BaseComponent extends HTMLElement {
    */
   emit(name: string, eventOption?: Partial<CustomEventInit>) {
     return this.dispatchEvent(
-      new CustomEvent(name, { bubbles: true, composed: false, ...eventOption })
+      new CustomEvent(name, { bubbles: true, composed: false, ...eventOption }),
     );
   }
 }

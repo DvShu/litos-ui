@@ -120,11 +120,11 @@ regist(CloseIcon);
   const $open1Btn = document.getElementById('open1');
   const $modal1 = document.querySelector('l-modal[for="open1"]');
   $open1Btn.addEventListener('click', () => {
-    $modal1.setAttribute('open', 'true');
+    $modal1.setAttribute('show', 'true');
   });
   // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
   $modal1.addEventListener('cancel', () => {
-    $modal1.removeAttribute('open');
+    $modal1.removeAttribute('show');
   });
 </textarea>
 </div>
@@ -158,11 +158,11 @@ regist(CloseIcon);
   const $open2Btn = document.getElementById('open2');
   const $modal2 = document.querySelector('l-modal[for="open2"]');
   $open2Btn.addEventListener('click', () => {
-    $modal2.setAttribute('open', 'true');
+    $modal2.setAttribute('show', 'true');
   });
   // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
   $modal2.addEventListener('cancel', () => {
-    $modal2.removeAttribute('open');
+    $modal2.removeAttribute('show');
   });
 </textarea>
 </div>
@@ -194,11 +194,11 @@ regist(CloseIcon);
   const $open3Btn = document.getElementById('open3');
   const $modal3 = document.querySelector('l-modal[for="open3"]');
   $open3Btn.addEventListener('click', () => {
-    $modal3.setAttribute('open', 'true');
+    $modal3.setAttribute('show', 'true');
   });
   // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
   $modal3.addEventListener('cancel', () => {
-    $modal3.removeAttribute('open');
+    $modal3.removeAttribute('show');
   });
   $modal3.addEventListener('ok', () => {
     $modal3.setAttribute('confirm-loading', 'true');
@@ -206,7 +206,7 @@ regist(CloseIcon);
     setTimeout(() => {
       $modal3.innerHTML = "<span>对话框内容</span>";
       $modal3.removeAttribute('confirm-loading');
-      $modal3.removeAttribute('open');
+      $modal3.removeAttribute('show');
     }, 1500);
   });
 </textarea>
@@ -237,11 +237,11 @@ regist(CloseIcon);
   const $open4Btn = document.getElementById('open4');
   const $modal4 = document.querySelector('l-modal[for="open4"]');
   $open4Btn.addEventListener('click', () => {
-    $modal4.setAttribute('open', 'true');
+    $modal4.setAttribute('show', 'true');
   });
   // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
   $modal4.addEventListener('cancel', () => {
-    $modal4.removeAttribute('open');
+    $modal4.removeAttribute('show');
   });
 </textarea>
 </div>
@@ -271,11 +271,11 @@ regist(CloseIcon);
   const $open5Btn = document.getElementById('open5');
   const $modal5 = document.querySelector('l-modal[for="open5"]');
   $open5Btn.addEventListener('click', () => {
-    $modal5.setAttribute('open', 'true');
+    $modal5.setAttribute('show', 'true');
   });
   // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
   $modal5.addEventListener('cancel', () => {
-    $modal5.removeAttribute('open');
+    $modal5.removeAttribute('show');
   });
 </textarea>
 </div>
@@ -321,7 +321,7 @@ regist(CloseIcon);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `open` | 是否显示对话框 | `boolean` | `false` |
+| `show` | 是否显示对话框 | `boolean` | `false` |
 | `destroy-on-close` | 关闭时销毁 Modal 里的子元素 | `boolean` | `false` |
 | `mask-closable` | 点击蒙层是否允许关闭 | `boolean` | `true` |
 | `mask` | 是否显示遮罩层 | `boolean` | `true` |

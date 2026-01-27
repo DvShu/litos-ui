@@ -12,18 +12,12 @@ import { parseAttrValue } from "../utils/index";
 export default class Modal extends BaseComponent {
   static baseName: string = "modal";
 
-  /** 是否显示对话框 */
-  public show: boolean = false;
   /** 关闭时销毁 Modal 里的子元素 */
   public destroyOnClose: boolean = false;
   /** 点击蒙层是否允许关闭 */
   public maskClosable: boolean = true;
   /** 是否展示遮罩 */
   public mask = true;
-  /** 标题 */
-  title = "";
-  /** 是否展示底部 */
-  footer = true;
   /** 是否显示取消按钮 */
   public cancel = true;
   /** 取消按钮文本 */
@@ -43,21 +37,17 @@ export default class Modal extends BaseComponent {
   /** 设置 Modal 的 z-index */
   zIndex?: string;
 
-  #bodyOverflow = "";
+  _bodyOverflow = "";
 
   static get observedAttributes() {
     return ["show", "width", "confirm-loading"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (!this.rendered) return;
     if (name === "show") {
-      this.show = parseAttrValue(newValue, false);
-      if (this.show) {
+      const isShow = parseAttrValue(newValue, false, "show");
+      if (isShow) {
         this.#openModal();
       } else {
         this.#closeModal();
@@ -85,7 +75,7 @@ export default class Modal extends BaseComponent {
   }
 
   render() {
-    if (this.show) {
+    if (this.getAttr("show", false)) {
       this.#openModal();
     }
   }
@@ -98,10 +88,9 @@ export default class Modal extends BaseComponent {
     }
   }
 
-
   #openModal() {
     // 展开对话框时, 禁止内容滚动
-    this.#bodyOverflow = getComputedStyle(document.body).overflow;
+    this._bodyOverflow = getComputedStyle(document.body).overflow;
     this.classList.add("open");
     document.body.style.overflow = "hidden";
     let $wrapper = $one(".l-modal-wrapper", this.root);
@@ -146,7 +135,7 @@ export default class Modal extends BaseComponent {
       // modal-header
       const $header = $$("header", { class: "l-modal-header", part: "header" });
       const $headerSlot = $$("slot", { name: "header" });
-      $headerSlot.textContent = this.title || "";
+      $headerSlot.textContent = this.getAttr("header", "");
       $header.appendChild($headerSlot);
       $modal.appendChild($header);
 
@@ -161,7 +150,7 @@ export default class Modal extends BaseComponent {
       $modal.appendChild($body);
 
       // modal-footer
-      if (this.footer) {
+      if (this.getAttr("footer", false)) {
         const $footer = $$("footer", {
           class: "l-modal-footer",
           part: "footer",
@@ -206,7 +195,7 @@ export default class Modal extends BaseComponent {
   }
 
   #closeModal() {
-    document.body.style.setProperty("overflow", this.#bodyOverflow);
+    document.body.style.setProperty("overflow", this._bodyOverflow);
     const $modal = $one(".l-modal", this.root) as HTMLElement;
     transition($modal, "modal-transition", "leave", () => {
       if (this.destroyOnClose) {
@@ -242,11 +231,7 @@ export default class Modal extends BaseComponent {
     const [next, action] = shouldEventNext(e, "modal-action", this.root);
     if (next) {
       let eventName = "";
-      if (
-        (this.maskClosable && action === "mask") ||
-        action === "cancel" ||
-        action === "close"
-      ) {
+      if ((this.maskClosable && action === "mask") || action === "cancel" || action === "close") {
         eventName = "cancel";
       } else if (action === "ok") {
         eventName = "ok";
@@ -255,7 +240,7 @@ export default class Modal extends BaseComponent {
         this.dispatchEvent(
           new CustomEvent(eventName, {
             detail: { action },
-          })
+          }),
         );
       }
     }

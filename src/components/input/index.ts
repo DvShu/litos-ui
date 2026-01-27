@@ -1,28 +1,11 @@
-import {
-  $one,
-  on,
-  off,
-  formatStyle,
-  addClass,
-  $$,
-  $,
-  removeClass,
-} from "ph-utils/dom";
+import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
 import { add, remove } from "../utils/event";
 //@ts-ignore
 import css from "./index.less?inline";
 
-type InputMode =
-  | "text"
-  | "decimal"
-  | "numeric"
-  | "tel"
-  | "search"
-  | "email"
-  | "url"
-  | "none";
+type InputMode = "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url" | "none";
 
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
@@ -52,8 +35,6 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
-  public maxlength?: string;
-  public minlength?: string;
   public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
@@ -91,6 +72,7 @@ export default class Input extends FormInner {
       "error",
       "clearable",
       "maxlength",
+      "minlength",
       "inputmode",
     ];
   }
@@ -102,8 +84,7 @@ export default class Input extends FormInner {
     this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
-    this.style.cssText =
-      formatStyle(this._getStyleObj()) + this.getAttr("style", "");
+    this.style.cssText = formatStyle(this._getStyleObj()) + this.getAttr("style", "");
     if (this.error) {
       addClass(this, "is-error");
     }
@@ -120,16 +101,8 @@ export default class Input extends FormInner {
     off(this.$inner as HTMLInputElement, "input", this._input);
   }
 
-  protected attributeChange(
-    name: string,
-    oldValue: string,
-    newValue: string,
-  ): void {
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name,
-    ) as any;
+  protected attributeChange(name: string, oldValue: string, newValue: string): void {
+    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
     }
@@ -144,11 +117,8 @@ export default class Input extends FormInner {
       if (newClearable !== this.clearable) {
         this.clearable = newClearable;
       }
-    } else if (name === "maxlength") {
-      const newMinlength = parseAttrValue(newValue, this.maxlength);
-      if (newMinlength !== this["maxlength"]) {
-        this["maxlength"] = newMinlength;
-      }
+    } else if (name === "maxlength" || name === "minlength") {
+      this._setValidLength(newValue, name);
     }
   }
 
@@ -181,11 +151,13 @@ export default class Input extends FormInner {
     if (this.isDisabled()) {
       $inner.disabled = true;
     }
-    if (this.maxlength) {
-      $inner.setAttribute("maxlength", this.maxlength);
+    const maxlength = this.getAttr("maxlength");
+    const minlength = this.getAttr("minlength");
+    if (maxlength) {
+      $inner.setAttribute("maxlength", maxlength);
     }
-    if (this.minlength) {
-      $inner.setAttribute("minlength", this.minlength);
+    if (minlength) {
+      $inner.setAttribute("minlength", minlength);
     }
     fragment.appendChild($inner);
 
@@ -218,9 +190,7 @@ export default class Input extends FormInner {
     if (this.allowInput != null) {
       let dotIndex = this.allowInput.indexOf(".");
       let precition =
-        dotIndex === -1
-          ? dotIndex
-          : parseInt(this.allowInput.substring(dotIndex + 1));
+        dotIndex === -1 ? dotIndex : parseInt(this.allowInput.substring(dotIndex + 1));
       value = this._numberInputParse(value, {
         integer: this.allowInput.includes("integer"),
         negative: this.allowInput.startsWith("-"),
@@ -235,6 +205,16 @@ export default class Input extends FormInner {
     this.setValue(value);
     this.#renderClearable();
   };
+
+  _setValidLength(value: string, attributeName = "maxlength") {
+    if (this.$inner) {
+      if (value) {
+        this.$inner.setAttribute(attributeName, value);
+      } else {
+        this.$inner.removeAttribute(attributeName);
+      }
+    }
+  }
 
   #renderClearable() {
     if (this.clearable) {
@@ -296,9 +276,7 @@ export default class Input extends FormInner {
       return val.substring(0, val.length - 1);
     }
     const match = val.match(
-      new RegExp(
-        `(${negative}\\d+\\.\\d{0,${config.precition}})|(${negative}\\d*)`,
-      ),
+      new RegExp(`(${negative}\\d+\\.\\d{0,${config.precition}})|(${negative}\\d*)`),
     );
     if (match != null) {
       val = match[1] || match[2];
@@ -334,10 +312,7 @@ export default class Input extends FormInner {
     }
   }
 
-  private _validateChange = (
-    result: true | Record<string, string>,
-    name?: string,
-  ) => {
+  private _validateChange = (result: true | Record<string, string>, name?: string) => {
     const thisName = this.getName() as string;
     if (thisName) {
       const error = result === true ? false : result[thisName] != null;
