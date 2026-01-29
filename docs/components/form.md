@@ -170,7 +170,7 @@ regist([Form, FormItem]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form-item id="form1" label="姓名">
+  <l-form-item id="form1" label="姓名" inner-block>
     <l-input placeholder="请输入文本"></l-input>
   </l-form-item>
 </textarea>

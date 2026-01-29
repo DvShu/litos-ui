@@ -22,13 +22,13 @@ export default class FormItem extends BaseComponent {
   /** 自定义验证的正则 */
   public pattern?: string;
   public name?: string;
-  public innerBlock = false;
   public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
+  public innerBlock?: boolean;
   #error?: string;
 
   static get observedAttributes() {
-    return ["error", "label", "disabled"];
+    return ["error", "label", "disabled", "inner-block"];
   }
 
   get error() {
@@ -54,6 +54,8 @@ export default class FormItem extends BaseComponent {
         emit(this.id, "attributeChanged", name, val, this.id);
         this.disabled = val;
       }
+    } else if (name === "inner-block") {
+      this.innerBlock = parseAttrValue(newValue, false, name);
     }
   }
 
@@ -89,11 +91,7 @@ export default class FormItem extends BaseComponent {
     }
   }
 
-  public setRules(rules: {
-    required?: boolean;
-    rules?: RuleType[];
-    message?: string;
-  }) {
+  public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
     const schema = { ...rules, key: this.name };
     if (schema.required != null && this.required) {
       schema.required = true;
@@ -121,25 +119,20 @@ export default class FormItem extends BaseComponent {
         $$("label", {
           class: "l-form-item__label",
           textContent: this.label,
-        })
+        }),
       );
     }
     const $content = $$("div", { class: "l-form-item__content" });
     const $slot = $$("slot");
     $content.appendChild($slot);
     if (this.error) {
-      $content.appendChild(
-        $$("div", { class: "l-form-item__error", textContent: this.error })
-      );
+      $content.appendChild($$("div", { class: "l-form-item__error", textContent: this.error }));
     }
     fragment.appendChild($content);
     return fragment;
   }
 
-  private _validateChange = (
-    result: true | Record<string, string>,
-    name?: string
-  ) => {
+  private _validateChange = (result: true | Record<string, string>, name?: string) => {
     const error = result === true ? undefined : result[this.name as string];
     if (name == null || (name === this.name && this.error != error)) {
       this.error = error;

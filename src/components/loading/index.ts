@@ -27,7 +27,8 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
     const $spinner = $one("#l-loading") as HTMLElement;
     if ($spinner != null) return;
   }
-  addClass(el, "l-loading");
+  const fullClasses = ["l-loading"];
+  // addClass(el, "l-loading");
 
   // mask
   if (option.mask === 1 || (option.mask === 2 && option.shape === "circle")) {
@@ -51,7 +52,7 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
 
   if (option.shape === "bar") {
     const $bar = $$("div", { class: "l-loading-progress" });
-    $spinner.style.setProperty("top", `-${getComputedStyle(el).borderTopWidth}`);
+    // $spinner.style.setProperty("top", `-${getComputedStyle(el).borderTopWidth}`);
     $spinner.appendChild($bar);
   } else if (option.shape === "circle") {
     const $circular = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -75,17 +76,16 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
     }
   }
   el.appendChild($spinner);
-
+  if (option.lock) {
+    fullClasses.push("l-loading-lock");
+  }
   // 全屏
   if (option.fullscreen) {
-    const fullClasses = ["l-loading-fullscreen"];
-    if (option.lock) {
-      fullClasses.push("l-loading-lock");
-    }
-    el.classList.add(...fullClasses);
+    fullClasses.push("l-loading-fullscreen");
     // 全屏保证唯一, 设置id用于区分
     $spinner.id = "l-loading";
   }
+  el.classList.add(...fullClasses);
 
   requestAnimationFrame(() => {
     if ($mask) {
@@ -203,7 +203,7 @@ export default {
     const $els = $(selector) as HTMLElement[];
     iterate($els, (el) => {
       const params = getElementLoadingParams(el);
-      addLoading(params.fullscreen ? document.body : el, getElementLoadingParams(el));
+      addLoading(params.fullscreen ? document.body : el, params);
     });
   },
 
@@ -225,7 +225,7 @@ export default {
     // 遍历每个匹配的元素，执行移除加载中的操作
     iterate($els, (el) => {
       const params = getElementLoadingParams(el);
-      removeLoading(params.fullscreen ? document.body : el, getElementLoadingParams(el));
+      removeLoading(params.fullscreen ? document.body : el, params);
     });
   },
 };
