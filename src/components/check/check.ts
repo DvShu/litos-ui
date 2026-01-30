@@ -1,14 +1,6 @@
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
-import {
-  $$,
-  $one,
-  on,
-  off,
-  addClass,
-  toggleClass,
-  removeClass,
-} from "ph-utils/dom";
+import { $$, $one, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
 
 export default class Check extends FormInner {
   /** 是否选中 */
@@ -93,13 +85,10 @@ export default class Check extends FormInner {
     return fragment;
   }
 
-  protected attributeChange(
-    name: string,
-    _oldValue: string,
-    newValue: string,
-  ): void {
+  protected attributeChange(name: string, _oldValue: string, newValue: string): void {
     if (name === "checked") {
       const checked = parseAttrValue(newValue, false, "checked");
+      console.log(checked);
       if (checked !== this.getChecked()) {
         this.setChecked(checked);
       }
@@ -114,7 +103,8 @@ export default class Check extends FormInner {
     }
     const $input = $one("input", this.root) as HTMLInputElement;
     if ($input) {
-      $input.checked = this._checked;
+      $input.checked = this.getChecked();
+      console.log(this.value + " - " + $input.checked);
     }
   }
 

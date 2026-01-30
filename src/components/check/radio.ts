@@ -15,8 +15,7 @@ export default class Raido extends Check {
 
   _doChangeAction(): void {
     const $input = $one("input", this.root) as HTMLInputElement;
-    if (!$input.checked) {
-      this.setAttribute("checked", "");
+    if ($input.checked) {
       this.emit("change", {
         detail: {
           value: this.value,
