@@ -65,20 +65,20 @@ export default class CheckGroup extends FormInner {
   }
 
   #handleChange = (e: CustomEvent) => {
-    this.valueChange(e.detail.value);
     e.stopPropagation(); // 阻止事件传播
+    this.updatePartChild(e.detail.value);
+    this.setValue(e.detail.value);
+    this.updateChecked();
+
     this.emit("change", {
       detail: { value: [...this.checkedValues] },
       composed: true,
     });
   };
 
-  public valueChange(value: string) {
-    this.setValue(value);
-    this.updateChangedStatus();
-  }
+  protected updatePartChild(value: string) {}
 
-  protected updateChangedStatus() {
+  protected updateChecked() {
     if (this.value) {
       if (this.multiple) {
         const values = this.value.split("&") as string[];
@@ -89,9 +89,19 @@ export default class CheckGroup extends FormInner {
     } else {
       this.checkedValues = [];
     }
+  }
+
+  protected updateChangedStatus() {
+    this.updateChecked();
+    this.updateChildren();
+  }
+
+  protected updateChildren() {
     const children = this.children as unknown as HTMLInputElement[];
+    console.log(children);
+    console.log(this.checkedValues);
     iterate(children, ($checkbox) => {
-      let value = $checkbox.value as string;
+      let value = $checkbox.value || $checkbox.getAttribute("value");
       if (value) {
         if (this.checkedValues.includes(value)) {
           $checkbox.setAttribute("checked", "");

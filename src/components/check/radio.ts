@@ -3,7 +3,6 @@ import Check from "./check";
 import css from "./check.less?inline";
 //@ts-ignore
 import radio_css from "./radio.less?inline";
-import { $one } from "ph-utils/dom";
 
 export default class Raido extends Check {
   static baseName = "radio";
@@ -14,16 +13,7 @@ export default class Raido extends Check {
   }
 
   _doChangeAction(): void {
-    const $input = $one("input", this.root) as HTMLInputElement;
-    if ($input.checked) {
-      this.emit("change", {
-        detail: {
-          value: this.value,
-          name: this.getName(),
-          checked: this.getChecked(),
-        },
-        composed: true,
-      });
-    }
+    this.setAttribute("checked", "checked");
+    this.emitChange();
   }
 }
