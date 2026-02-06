@@ -47,6 +47,7 @@ export default class Check extends FormInner {
 
   afterInit(): void {
     on(this, "click", this.#handleClick);
+    console.log("inner value: " + this.value);
   }
 
   beforeDestroy(): void {
@@ -102,7 +103,7 @@ export default class Check extends FormInner {
     }
     const $input = $one("input", this.root) as HTMLInputElement;
     if ($input) {
-      $input.checked = this._checked;
+      $input.checked = this.getChecked();
     }
   }
 
@@ -114,6 +115,17 @@ export default class Check extends FormInner {
     if (this.isDisabled()) return;
     this._doChangeAction();
   };
+
+  emitChange() {
+    this.emit("change", {
+      detail: {
+        value: this.value,
+        name: this.getName(),
+        checked: this.getChecked(),
+      },
+      composed: true,
+    });
+  }
 
   _doChangeAction() {}
 }
