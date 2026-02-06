@@ -1,4 +1,4 @@
-import{$ as i,o as c,a as h}from"./chunks/dom.DntxtiBs.js";import{v as p,P as b,x as u,C as f,o as k,c as y,ag as n,E as a,w as r,j as e,a as d}from"./chunks/framework.-4c4jpF6.js";const x=JSON.parse('{"title":"Form","description":"","frontmatter":{},"headers":[],"relativePath":"components/form.md","filePath":"components/form.md","lastUpdated":1753091688000}'),v={name:"components/form.md"},F=Object.assign(v,{setup(g){function s(l){const t=l.target.value;i("#positionForm").setAttribute("label-position",t)}return p(()=>{b(()=>{{i("#lform").addEventListener("submit",o=>{const m=o.target;console.log(m.getData())});const t=i("#positionRadio");c(t,"change",s)}})}),u(()=>{{const l=i("#positionRadio");l&&h(l,"change",s)}}),(l,t)=>{const o=f("ClientOnly");return k(),y("div",null,[t[5]||(t[5]=n("",7)),a(o,null,{default:r(()=>[...t[0]||(t[0]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form id="lform">
+import{$ as n,o as c,a as h}from"./chunks/dom.DntxtiBs.js";import{v as b,P as p,x as u,C as f,o as k,c as y,ag as i,E as a,w as r,j as e,a as d}from"./chunks/framework.-4c4jpF6.js";const x=JSON.parse('{"title":"Form","description":"","frontmatter":{},"headers":[],"relativePath":"components/form.md","filePath":"components/form.md","lastUpdated":1769678863000}'),v={name:"components/form.md"},F=Object.assign(v,{setup(g){function s(l){const t=l.target.value;n("#positionForm").setAttribute("label-position",t)}return b(()=>{p(()=>{{n("#lform").addEventListener("submit",o=>{const m=o.target;console.log(m.getData())});const t=n("#positionRadio");c(t,"change",s)}})}),u(()=>{{const l=n("#positionRadio");l&&h(l,"change",s)}}),(l,t)=>{const o=f("ClientOnly");return k(),y("div",null,[t[5]||(t[5]=i("",7)),a(o,null,{default:r(()=>[...t[0]||(t[0]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form id="lform">
     <l-form-item required label="姓名" name="name">
       <l-input placeholder="请输入姓名"></l-input>
     </l-form-item>
@@ -13,7 +13,7 @@ import{$ as i,o as c,a as h}from"./chunks/dom.DntxtiBs.js";import{v as p,P as b,
       <l-button html-type="submit" type="primary">提交</l-button>
     </l-form-item>
   </l-form>
-`)],-1)])]),_:1}),t[6]||(t[6]=n("",3)),a(o,null,{default:r(()=>[...t[1]||(t[1]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form inner-block>
+`)],-1)])]),_:1}),t[6]||(t[6]=i("",3)),a(o,null,{default:r(()=>[...t[1]||(t[1]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form inner-block>
     <l-form-item required label="姓名" name="name">
       <l-input placeholder="请输入姓名" value="张三"></l-input>
     </l-form-item>
@@ -45,7 +45,7 @@ import{$ as i,o as c,a as h}from"./chunks/dom.DntxtiBs.js";import{v as p,P as b,
       <l-button type="primary">提交</l-button>
     </l-form-item>
   </l-form>
-`)],-1)])]),_:1}),t[10]||(t[10]=n("",3)),a(o,null,{default:r(()=>[...t[3]||(t[3]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form id="positionForm" inner-block label-width="100px">
+`)],-1)])]),_:1}),t[10]||(t[10]=i("",3)),a(o,null,{default:r(()=>[...t[3]||(t[3]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form id="positionForm" inner-block label-width="100px">
     <l-form-item label="LabelPosition">
       <l-radio-group value="right" id="positionRadio">
         <l-radio label="Left" value="left" button></l-radio>
@@ -63,7 +63,7 @@ import{$ as i,o as c,a as h}from"./chunks/dom.DntxtiBs.js";import{v as p,P as b,
       <l-button type="primary">提交</l-button>
     </l-form-item>
   </l-form>
-`)],-1)])]),_:1}),t[11]||(t[11]=e("h3",{id:"只使用-formitem",tabindex:"-1"},[d("只使用 "),e("code",null,"FormItem"),d(),e("a",{class:"header-anchor",href:"#只使用-formitem","aria-label":'Permalink to "只使用 `FormItem`"'},"​")],-1)),t[12]||(t[12]=e("p",null,[e("code",null,"FormItem"),d(" 可以不放在 "),e("code",null,"Form"),d(" 里面，从而进行单独使用。")],-1)),a(o,null,{default:r(()=>[...t[4]||(t[4]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form-item id="form1" label="姓名">
+`)],-1)])]),_:1}),t[11]||(t[11]=e("h3",{id:"只使用-formitem",tabindex:"-1"},[d("只使用 "),e("code",null,"FormItem"),d(),e("a",{class:"header-anchor",href:"#只使用-formitem","aria-label":'Permalink to "只使用 `FormItem`"'},"​")],-1)),t[12]||(t[12]=e("p",null,[e("code",null,"FormItem"),d(" 可以不放在 "),e("code",null,"Form"),d(" 里面，从而进行单独使用。")],-1)),a(o,null,{default:r(()=>[...t[4]||(t[4]=[e("l-code-preview",null,[e("textarea",{lang:"html"},`  <l-form-item id="form1" label="姓名" inner-block>
     <l-input placeholder="请输入文本"></l-input>
   </l-form-item>
-`)],-1)])]),_:1}),t[13]||(t[13]=n("",17))])}}});export{x as __pageData,F as default};
+`)],-1)])]),_:1}),t[13]||(t[13]=i("",17))])}}});export{x as __pageData,F as default};
