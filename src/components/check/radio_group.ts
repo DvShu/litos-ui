@@ -9,6 +9,11 @@ export default class RadioGroup extends CheckGroup {
     this.multiple = false;
   }
 
+  public setValue(value: string): void {
+    this.checkedValues = [value];
+    super.setValue(value);
+  }
+
   protected updatePartChild() {
     const $old = $one(`[value="${this.value}"]`, this);
     $old?.removeAttribute("checked");

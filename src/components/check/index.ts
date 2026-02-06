@@ -68,7 +68,6 @@ export default class CheckGroup extends FormInner {
     e.stopPropagation(); // 阻止事件传播
     this.updatePartChild(e.detail.value);
     this.setValue(e.detail.value);
-    this.updateChecked();
 
     this.emit("change", {
       detail: { value: [...this.checkedValues] },
@@ -98,8 +97,6 @@ export default class CheckGroup extends FormInner {
 
   protected updateChildren() {
     const children = this.children as unknown as HTMLInputElement[];
-    console.log(children);
-    console.log(this.checkedValues);
     iterate(children, ($checkbox) => {
       let value = $checkbox.value || $checkbox.getAttribute("value");
       if (value) {

@@ -1,5 +1,5 @@
 :host {
-  --l-check-size: 16px;
+  --l-check-size: 14px;
   display: inline-flex;
   align-items: center;
   position: relative;
@@ -20,8 +20,8 @@
 }
 
 .l-check__inner {
-  width: var(--l-check-size);
-  height: var(--l-check-size);
+  width: var(--l-check-size, 14px);
+  height: var(--l-check-size, 14px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -31,6 +31,7 @@
   transition: border-color 0.3s ease-in-out;
   position: relative;
   margin-right: 5px;
+  flex-shrink: 0;
 }
 
 .l-check__label {
