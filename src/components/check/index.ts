@@ -4,7 +4,7 @@ import { initAttr, parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import { isNumeric } from "ph-utils";
-import { $, iterate } from "ph-utils/dom";
+import { iterate } from "ph-utils/dom";
 
 export default class CheckGroup extends FormInner {
   checkedValues: string[];
@@ -75,7 +75,7 @@ export default class CheckGroup extends FormInner {
     });
   };
 
-  protected updatePartChild(value: string) {}
+  protected updatePartChild(_value: string) {}
 
   protected updateChecked() {
     if (this.value) {

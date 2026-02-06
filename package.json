@@ -42,7 +42,6 @@
     "docs:dev": "vitepress dev docs --force --host 0.0.0.0",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "inspect:eslint": "eslint --inspect-config",
     "create": "node scripts/index.js create",
     "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
     "lib:build": "pnpm build && pnpm dts:build"
