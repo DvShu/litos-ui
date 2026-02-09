@@ -73,7 +73,10 @@ function renderBody(props: any) {
   $message.className = className;
   // style
   $message.style.setProperty("top", `${props.offset}px`);
-  $message.style.setProperty("z-index", `${props.zindex || 1000}`);
+  if (props.zindex) {
+    $message.style.setProperty("z-index", `${props.zindex}`);
+  }
+
   if (props.width) {
     $message.style.setProperty("width", props.width);
   }

@@ -35,6 +35,8 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
+  public maxlength?: string;
+  public minlength?: string;
   public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
@@ -65,16 +67,7 @@ export default class Input extends FormInner {
   }
 
   static get observedAttributes() {
-    return [
-      "disabled",
-      "value",
-      "name",
-      "error",
-      "clearable",
-      "maxlength",
-      "minlength",
-      "inputmode",
-    ];
+    return ["disabled", "value", "name", "error", "clearable", "maxlength", "inputmode"];
   }
 
   connectedCallback(): void {
@@ -117,8 +110,11 @@ export default class Input extends FormInner {
       if (newClearable !== this.clearable) {
         this.clearable = newClearable;
       }
-    } else if (name === "maxlength" || name === "minlength") {
-      this._setValidLength(newValue, name);
+    } else if (name === "maxlength") {
+      const newMinlength = parseAttrValue(newValue, this.maxlength);
+      if (newMinlength !== this["maxlength"]) {
+        this["maxlength"] = newMinlength;
+      }
     }
   }
 
@@ -151,13 +147,11 @@ export default class Input extends FormInner {
     if (this.isDisabled()) {
       $inner.disabled = true;
     }
-    const maxlength = this.getAttr("maxlength");
-    const minlength = this.getAttr("minlength");
-    if (maxlength) {
-      $inner.setAttribute("maxlength", maxlength);
+    if (this.maxlength) {
+      $inner.setAttribute("maxlength", this.maxlength);
     }
-    if (minlength) {
-      $inner.setAttribute("minlength", minlength);
+    if (this.minlength) {
+      $inner.setAttribute("minlength", this.minlength);
     }
     fragment.appendChild($inner);
 
@@ -186,35 +180,49 @@ export default class Input extends FormInner {
 
   _input = (e: Event) => {
     const $target = e.target as HTMLInputElement;
-    let value = $target.value;
+    let oldValue = $target.value;
+    let newValue = "";
     if (this.allowInput != null) {
       let dotIndex = this.allowInput.indexOf(".");
-      let precition =
+      let precision =
         dotIndex === -1 ? dotIndex : parseInt(this.allowInput.substring(dotIndex + 1));
-      value = this._numberInputParse(value, {
+      newValue = this._numberInputParse(oldValue, {
         integer: this.allowInput.includes("integer"),
         negative: this.allowInput.startsWith("-"),
-        precition: precition,
+        precision: precision,
       });
-      value = String(value);
+      newValue = String(newValue);
     }
     if (this.parser != null) {
-      value = this.parser(value);
+      newValue = this.parser(newValue);
     }
-    $target.value = value;
-    this.setValue(value);
+    const start = $target.selectionStart || 0;
+    const end = $target.selectionEnd;
+    // 5. 【关键】计算新光标位置并恢复
+    let newStart = start;
+    let newEnd = end;
+
+    // 简单策略：如果新值比旧值短，说明删了字符，光标前移
+    // 更健壮的做法：对比差异，但通常可简化处理
+    if (newValue.length < oldValue.length) {
+      // 例如：用户在中间删了一个非法字符
+      newStart = Math.max(0, start - (oldValue.length - newValue.length));
+      newEnd = newStart;
+    } else if (newValue.length > oldValue.length) {
+      // 插入合法字符，光标通常就在插入点后，可保持原偏移
+      // 但需防止超出长度
+      newStart = Math.min(newValue.length, start + (newValue.length - oldValue.length));
+      newEnd = newStart;
+    } else {
+      // 长度不变（如替换），保持原位置（但要限制范围）
+      newStart = Math.min(newValue.length, start);
+      newEnd = newStart;
+    }
+    $target.value = newValue;
+    $target.setSelectionRange(newStart, newEnd);
+    this.setValue(newValue);
     this.#renderClearable();
   };
-
-  _setValidLength(value: string, attributeName = "maxlength") {
-    if (this.$inner) {
-      if (value) {
-        this.$inner.setAttribute(attributeName, value);
-      } else {
-        this.$inner.removeAttribute(attributeName);
-      }
-    }
-  }
 
   #renderClearable() {
     if (this.clearable) {
@@ -264,26 +272,48 @@ export default class Input extends FormInner {
 
   private _numberInputParse(
     value: string,
-    config: { integer: boolean; negative: boolean; precition: number },
+    config: { integer: boolean; negative: boolean; precision: number },
   ) {
-    let val = value;
-    let negative = config.negative ? "-?" : "";
-    if (config.integer) {
-      const match = val.match(new RegExp(`^(${negative}\\d*)`));
-      if (match != null) {
-        return match[1];
+    let str = value.trim();
+
+    // 允许空字符串
+    if (str === "") return "";
+
+    // 检查是否以负号开头（仅当允许负数时）
+    let startsWithMinus = str.startsWith("-");
+    if (startsWithMinus) {
+      if (!config.negative) {
+        str = str.slice(1); // 去掉负号继续处理
+        startsWithMinus = false;
       }
-      return val.substring(0, val.length - 1);
     }
-    const match = val.match(
-      new RegExp(`(${negative}\\d+\\.\\d{0,${config.precition}})|(${negative}\\d*)`),
-    );
-    if (match != null) {
-      val = match[1] || match[2];
+    // 现在 str 应该是纯数字+小数点
+    if (config.integer) {
+      // 只保留数字
+      str = str.replace(/[^\d]/g, "");
     } else {
-      val = "";
+      // 小数：只保留数字和最多一个小数点
+      const parts = str.split(".");
+      if (parts.length > 2) {
+        // 多个小数点：只取前两部分（如 "1.2.3" → "1.2"）
+        str = parts[0] + "." + parts.slice(1).join("").substring(0, config.precision);
+      } else if (parts.length === 2) {
+        // 限制小数位数
+        const integerPart = parts[0].replace(/[^\d]/g, "");
+        const decimalPart = parts[1].replace(/[^\d]/g, "").substring(0, config.precision);
+        str = `${integerPart}.${decimalPart}`;
+      } else {
+        // 无小数点
+        str = str.replace(/[^\d]/g, "");
+      }
     }
-    return match != null ? match[1] || match[2] : "";
+
+    // 移除前导零（可选，根据需求）
+    // 注意：保留 "0"，但 "00" → "0"，"01" → "1"
+    if (str.length > 1) {
+      str = str.replace(/^0+(\d)/, "$1");
+    }
+    return startsWithMinus ? "-" + str : str;
   }
 
   private _getStyleObj() {

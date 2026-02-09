@@ -23,13 +23,6 @@ export default class Checkbox extends Check {
     } else {
       this.setAttribute("checked", "");
     }
-    this.emit("change", {
-      detail: {
-        value: this.value,
-        name: this.getName(),
-        checked: this.getChecked(),
-      },
-      composed: true,
-    });
+    this.emitChange();
   }
 }

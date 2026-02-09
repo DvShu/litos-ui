@@ -1,14 +1,6 @@
 import FormInner from "../form/form_inner";
 import { initAttr, parseAttrValue } from "../utils";
-import {
-  $$,
-  $one,
-  on,
-  off,
-  addClass,
-  toggleClass,
-  removeClass,
-} from "ph-utils/dom";
+import { $$, $one, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
 
 export default class Check extends FormInner {
   /** 是否选中 */
@@ -55,6 +47,7 @@ export default class Check extends FormInner {
 
   afterInit(): void {
     on(this, "click", this.#handleClick);
+    console.log("inner value: " + this.value);
   }
 
   beforeDestroy(): void {
@@ -93,11 +86,7 @@ export default class Check extends FormInner {
     return fragment;
   }
 
-  protected attributeChange(
-    name: string,
-    _oldValue: string,
-    newValue: string,
-  ): void {
+  protected attributeChange(name: string, _oldValue: string, newValue: string): void {
     if (name === "checked") {
       const checked = parseAttrValue(newValue, false, "checked");
       if (checked !== this.getChecked()) {
@@ -114,7 +103,7 @@ export default class Check extends FormInner {
     }
     const $input = $one("input", this.root) as HTMLInputElement;
     if ($input) {
-      $input.checked = this._checked;
+      $input.checked = this.getChecked();
     }
   }
 
@@ -126,6 +115,17 @@ export default class Check extends FormInner {
     if (this.isDisabled()) return;
     this._doChangeAction();
   };
+
+  emitChange() {
+    this.emit("change", {
+      detail: {
+        value: this.value,
+        name: this.getName(),
+        checked: this.getChecked(),
+      },
+      composed: true,
+    });
+  }
 
   _doChangeAction() {}
 }

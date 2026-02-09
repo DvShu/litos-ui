@@ -53,11 +53,7 @@ export default class FormInner extends BaseComponent {
     return ["disabled", "value", "name"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (name === "disabled") {
       const val = parseAttrValue(newValue, false, name);
       if (val !== this.disabled) {
@@ -71,11 +67,7 @@ export default class FormInner extends BaseComponent {
     }
   }
 
-  protected attributeChange(
-    _name: string,
-    _oldValue: string,
-    _newValue: string
-  ) {}
+  protected attributeChange(_name: string, _oldValue: string, _newValue: string) {}
 
   connectedCallback(): void {
     const formInfo = this._getForm();
@@ -89,11 +81,7 @@ export default class FormInner extends BaseComponent {
       }
     }
     if (this.formItemAttrs.id) {
-      add(
-        this.formItemAttrs.id,
-        "attributeChanged",
-        this._formAttributeChanged
-      );
+      add(this.formItemAttrs.id, "attributeChanged", this._formAttributeChanged);
     }
     super.connectedCallback();
   }
@@ -104,11 +92,7 @@ export default class FormInner extends BaseComponent {
       remove(this.formAttrs.id, "reset", this._resetFieldValue);
     }
     if (this.formItemAttrs.id) {
-      remove(
-        this.formItemAttrs.id,
-        "attributeChanged",
-        this._formAttributeChanged
-      );
+      remove(this.formItemAttrs.id, "attributeChanged", this._formAttributeChanged);
     }
     super.disconnectedCallback();
   }
@@ -121,7 +105,7 @@ export default class FormInner extends BaseComponent {
 
   public getName() {
     if (this.name) return this.name;
-    return this.formItemAttrs.name;
+    return this.formItemAttrs.name || "";
   }
 
   private _getForm() {
@@ -171,13 +155,7 @@ export default class FormInner extends BaseComponent {
   protected pushValueChange() {
     const name = this.getName();
     if (this.formAttrs.id && name) {
-      emit(
-        this.formAttrs.id,
-        "valueChange",
-        name,
-        this._value,
-        !this._reseting
-      );
+      emit(this.formAttrs.id, "valueChange", name, this._value, !this._reseting);
     }
     this._reseting = false;
   }

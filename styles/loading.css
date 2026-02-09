@@ -8,7 +8,7 @@
   bottom: 0;
   left: 0;
   z-index: var(--l-loading-zindex, 10);
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.7);
   border-radius: inherit;
   transition: opacity 0.3s;
   opacity: 0;
@@ -50,10 +50,12 @@
   margin: 0;
   font-size: 14px;
 }
+.l-loading.l-loading-lock {
+  overflow: hidden;
+}
 
 /* 全屏组件 */
-.l-loading-fullscreen.l-loading-lock {
-  overflow: hidden;
+.l-loading-fullscreen {
   --l-loading-zindex: 50;
 }
 .l-loading-fullscreen > .l-loading-mask {
