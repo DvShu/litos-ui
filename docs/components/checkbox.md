@@ -70,7 +70,7 @@ regist([Checkbox]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox>
+  <l-checkbox checked>
     <span>
       <span>同意</span>
       <a href='#'>隐私协议</a>

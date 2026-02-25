@@ -38,7 +38,7 @@ export default class Check extends FormInner {
     initAttr(this);
     super.connectedCallback();
     if (this.getChecked()) {
-      addClass(this, "is-checked");
+      this.setChecked(true);
     }
     if (this.isDisabled()) {
       addClass(this, "is-disabled");
@@ -47,7 +47,6 @@ export default class Check extends FormInner {
 
   afterInit(): void {
     on(this, "click", this.#handleClick);
-    console.log("inner value: " + this.value);
   }
 
   beforeDestroy(): void {

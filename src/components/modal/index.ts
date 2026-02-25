@@ -150,7 +150,7 @@ export default class Modal extends BaseComponent {
       $modal.appendChild($body);
 
       // modal-footer
-      if (this.getAttr("footer", false)) {
+      if (this.getAttr("footer", true)) {
         const $footer = $$("footer", {
           class: "l-modal-footer",
           part: "footer",
