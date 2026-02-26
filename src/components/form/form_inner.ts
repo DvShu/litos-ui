@@ -3,6 +3,7 @@ import type Form from "../form";
 import type FormItem from "../form/form_item";
 import { parseAttrValue } from "../utils";
 import { emit, add, remove } from "../utils/event";
+import { getAttr } from "ph-utils/dom";
 
 export default class FormInner extends BaseComponent {
   public disabled = false;
@@ -67,9 +68,10 @@ export default class FormInner extends BaseComponent {
     }
   }
 
-  protected attributeChange(_name: string, _oldValue: string, _newValue: string) {}
+  protected attributeChange(_name: string, _oldValue: string, _newValue: string) { }
 
   connectedCallback(): void {
+    this.setAttribute("form-role", "field");
     const formInfo = this._getForm();
     this.formAttrs = formInfo.formAttr;
     this.formItemAttrs = formInfo.formItemAttr;
@@ -112,21 +114,15 @@ export default class FormInner extends BaseComponent {
     let formAttr: Record<string, any> = {};
     let formItemAttr: Record<string, any> = {};
     while ($parent != null) {
-      if (($parent as Form).lForm) {
-        const sharedAttrs = ($parent as Form).sharedAttrs;
-        for (let i = 0; i < sharedAttrs.length; i++) {
-          const attr = sharedAttrs[i];
-          formAttr[attr] = ($parent as Form)[attr as "disabled"];
-        }
+      const formRole = getAttr($parent, "form-role");
+      if (formRole === "form") {
+        formAttr.innerBlock = getAttr($parent, "inner-block", false);
         break;
       }
       if ($parent.tagName === "BODY") break;
-      if (($parent as FormItem).lFormItem) {
-        const sharedAttrs = ($parent as FormItem).sharedAttrs;
-        for (let i = 0; i < sharedAttrs.length; i++) {
-          const attr = sharedAttrs[i];
-          formItemAttr[attr] = ($parent as FormItem)[attr as "disabled"];
-        }
+      if (formRole === "form-item") {
+        formItemAttr.name = getAttr($parent, "prop");
+        formItemAttr.innerBlock = getAttr($parent, "inner-block", false);
       }
       $parent = $parent.parentElement;
     }
@@ -148,7 +144,7 @@ export default class FormInner extends BaseComponent {
     }
   };
 
-  protected disabledChange() {}
+  protected disabledChange() { }
 
   protected pushValueChange() {
     const name = this.getName();

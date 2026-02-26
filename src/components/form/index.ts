@@ -15,21 +15,13 @@ export default class Form extends BaseComponent {
   public labelPosition?: "left" | "right" | "top" = "right";
   public labelWidth?: string = "80px";
   public disabled: boolean = false;
-  public sharedAttrs: string[] = ["disabled", "id", "innerBlock"];
   public validator: Validator;
-  public innerBlock = false;
   public novalidate = false;
   private _data?: Record<string, any>;
-  // 标记为 Form 表单组件
-  public lForm = true;
 
   constructor() {
     super();
     this.validator = new Validator([]);
-    console.log(this.validator);
-    setTimeout(() => {
-      console.log(this.validator);
-    }, 3000);
   }
 
   static get observedAttributes() {
@@ -57,6 +49,7 @@ export default class Form extends BaseComponent {
 
   connectedCallback(): void {
     initAttr(this);
+    this.setAttribute("form-role", "form");
     //@ts-ignore
     if (!this.id) {
       this.id = `l-f${random(3)}-${random(6)}`;
@@ -85,7 +78,6 @@ export default class Form extends BaseComponent {
   }
 
   public ruleChange = (schema: SchemaType) => {
-    console.log("ruleChange");
     this.validator.addSchema(schema);
   };
 

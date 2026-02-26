@@ -1,4 +1,4 @@
-import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
+import { $one, addClass, removeClass, $$, getAttr } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import { clear, remove } from "../utils/event";
@@ -14,8 +14,6 @@ export default class FormItem extends BaseComponent {
   public label?: string;
   public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
-  // 标记为 FormItem 表单项组件
-  public lFormItem = true;
 
   static get observedAttributes() {
     return ["error", "label", "required"];
@@ -48,6 +46,7 @@ export default class FormItem extends BaseComponent {
 
   connectedCallback(): void {
     initAttr(this);
+    this.setAttribute("form-role", "form-item");
     this.loadStyleText([css]);
     super.connectedCallback();
     this._parseSchema();
@@ -168,7 +167,8 @@ export default class FormItem extends BaseComponent {
   private _updateRules(schema: SchemaType) {
     let $parent = this.parentElement;
     while ($parent) {
-      if (($parent as Form).lForm) {
+      const formRole = getAttr($parent, "form-role");
+      if (formRole === "form") {
         ($parent as Form).ruleChange(schema);
         break;
       }
