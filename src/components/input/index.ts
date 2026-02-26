@@ -5,8 +5,6 @@ import { add, remove } from "../utils/event";
 //@ts-ignore
 import css from "./index.less?inline";
 
-type InputMode = "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url" | "none";
-
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
  *
@@ -37,7 +35,6 @@ export default class Input extends FormInner {
   public error = false;
   public maxlength?: string;
   public minlength?: string;
-  public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
   #clearable = false;
@@ -138,11 +135,11 @@ export default class Input extends FormInner {
     const $inner = $$("input", {
       class: "l-input__inner",
       value: this.value,
-      name: this.getName() || "",
+      name: this.getName(),
       placeholder: this.placeholder || "",
       part: "default",
       type: this.type,
-      inputmode: this.inputmode,
+      inputmode: this.getAttr("inputmode"),
     }) as HTMLInputElement;
     if (this.isDisabled()) {
       $inner.disabled = true;
@@ -178,27 +175,11 @@ export default class Input extends FormInner {
     this.parser = cb;
   }
 
-  _input = (e: Event) => {
-    const $target = e.target as HTMLInputElement;
-    let oldValue = $target.value;
-    let newValue = "";
-    if (this.allowInput != null) {
-      let dotIndex = this.allowInput.indexOf(".");
-      let precision =
-        dotIndex === -1 ? dotIndex : parseInt(this.allowInput.substring(dotIndex + 1));
-      newValue = this._numberInputParse(oldValue, {
-        integer: this.allowInput.includes("integer"),
-        negative: this.allowInput.startsWith("-"),
-        precision: precision,
-      });
-      newValue = String(newValue);
-    }
-    if (this.parser != null) {
-      newValue = this.parser(newValue);
-    }
-    const start = $target.selectionStart || 0;
-    const end = $target.selectionEnd;
+  _calcCurosorPosition(target: HTMLInputElement, newValue: string) {
     // 5. 【关键】计算新光标位置并恢复
+    const start = target.selectionStart || 0;
+    const end = target.selectionEnd || 0;
+    const oldValue = target.value;
     let newStart = start;
     let newEnd = end;
 
@@ -218,8 +199,29 @@ export default class Input extends FormInner {
       newStart = Math.min(newValue.length, start);
       newEnd = newStart;
     }
-    $target.value = newValue;
-    $target.setSelectionRange(newStart, newEnd);
+    target.value = newValue;
+    target.setSelectionRange(newStart, newEnd);
+  }
+
+  _input = (e: Event) => {
+    const $target = e.target as HTMLInputElement;
+    let oldValue = $target.value;
+    let newValue = oldValue;
+    if (this.allowInput != null) {
+      let dotIndex = this.allowInput.indexOf(".");
+      let precision =
+        dotIndex === -1 ? dotIndex : parseInt(this.allowInput.substring(dotIndex + 1));
+      newValue = this._numberInputParse(oldValue, {
+        integer: this.allowInput.includes("integer"),
+        negative: this.allowInput.startsWith("-"),
+        precision: precision,
+      });
+      newValue = String(newValue);
+    }
+    if (this.parser != null) {
+      newValue = this.parser(newValue);
+    }
+    this._calcCurosorPosition($target, newValue);
     this.setValue(newValue);
     this.#renderClearable();
   };
@@ -363,7 +365,7 @@ export default class Input extends FormInner {
       new CustomEvent("change", {
         bubbles: true,
         composed: true,
-        detail: { value: $target.value },
+        detail: { value: $target.value, name: this.getName() },
       }),
     );
   };

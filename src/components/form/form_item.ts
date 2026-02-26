@@ -1,87 +1,57 @@
 import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
-import { emit, clear, add, remove } from "../utils/event";
-import { random } from "ph-utils";
+import { clear, remove } from "../utils/event";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./form_item.less?inline";
+import type Form from "../form";
+import type { SchemaType } from "ph-utils/validator";
 
 export default class FormItem extends BaseComponent {
   public static baseName = "form-item";
-  public disabled: boolean = false;
-  public sharedAttrs: string[] = ["disabled", "id", "name", "innerBlock"];
-  /** 是否必须 */
-  public required: boolean = false;
   /** 标签文本 */
   public label?: string;
-  /** 内置验证规则: required - 必填, same:password - 一般用于验证确认密码和密码, phone - 验证电话号码 */
-  public verify?: string;
-  /** 验证失败错误信息 */
-  public validity?: string;
-  /** 自定义验证的正则 */
-  public pattern?: string;
-  public name?: string;
   public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
-  public innerBlock?: boolean;
-  #error?: string;
+  // 标记为 FormItem 表单项组件
+  public lFormItem = true;
 
   static get observedAttributes() {
-    return ["error", "label", "disabled", "inner-block"];
-  }
-
-  get error() {
-    return this.#error;
-  }
-
-  set error(error: string | undefined) {
-    this.#error = error;
-    this._updateError();
+    return ["error", "label", "required"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (name === "error") {
-      if (newValue != this.#error) {
-        this.error = newValue;
-      }
-    } else if (name === "label") {
-      this.label = newValue;
-      this._updateLabel();
-    } else if (name === "disabled") {
-      const val = parseAttrValue(newValue, false, name);
-      if (val !== this.disabled) {
-        emit(this.id, "attributeChanged", name, val, this.id);
-        this.disabled = val;
-      }
-    } else if (name === "inner-block") {
-      this.innerBlock = parseAttrValue(newValue, false, name);
+    // 如果新旧值相同，直接返回，避免不必要的逻辑执行
+    if (oldValue === newValue) return;
+    switch (name) {
+      case "error":
+        const isError = parseAttrValue(newValue);
+        this._updateError(isError);
+        break;
+
+      case "label":
+        this.label = newValue;
+        this._updateLabel();
+        break;
+
+      case "required":
+        const isRequired = parseAttrValue(newValue, false, name);
+        if (isRequired) {
+          this.classList.add("is-required");
+        } else {
+          this.classList.remove("is-required");
+        }
+        break;
     }
   }
 
   connectedCallback(): void {
     initAttr(this);
-    //@ts-ignore
-    if (this.id == null) {
-      this.id = `l-fi${random(3)}-${random(6)}`;
-    }
     this.loadStyleText([css]);
     super.connectedCallback();
-    this.formId = this._getFormId();
-    if (this.name && this.formId) {
-      let rules: any[] = this.verify?.split("|") || [];
-      if (this.pattern) {
-        rules.push(new RegExp(this.pattern));
-      }
-      const schema = {
-        key: this.name,
-        required: this.required,
-        message: this.validity,
-        rules: rules,
-      };
-      emit(this.formId, "ruleChange", schema);
-      add(this.formId, "validateChange", this._validateChange);
-    }
+    this._parseSchema();
+    //   add(this.formId, "validateChange", this._validateChange);
   }
 
   disconnectedCallback(): void {
@@ -92,26 +62,14 @@ export default class FormItem extends BaseComponent {
   }
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
-    const schema = { ...rules, key: this.name };
-    if (schema.required != null && this.required) {
-      schema.required = true;
+    const prop = this.getAttr("prop");
+    if (prop) {
+      const schema = { ...rules, key: prop };
+      this._updateRules(schema);
     }
-    if (this.formId) {
-      emit(this.formId, "ruleChange", schema);
-    }
-  }
-
-  public setError(error: string) {
-    this.error = error;
   }
 
   public render() {
-    if (this.required) {
-      this.classList.add("is-required");
-    }
-    if (this.error) {
-      this.classList.add("is-error");
-    }
     this.classList.add(`l-form-item--${this.labelPosition}`);
     const fragment = document.createDocumentFragment();
     if (this.label != null) {
@@ -132,14 +90,41 @@ export default class FormItem extends BaseComponent {
     return fragment;
   }
 
-  private _validateChange = (result: true | Record<string, string>, name?: string) => {
-    const error = result === true ? undefined : result[this.name as string];
-    if (name == null || (name === this.name && this.error != error)) {
-      this.error = error;
+  private _parseSchema() {
+    const prop = this.getAttr("prop");
+    if (prop) {
+      let rules: any[] = [];
+      const verify = this.getAttr("verify");
+      if (verify) {
+        rules = verify.split("|");
+      }
+      const pattern = this.getAttr("pattern");
+      if (pattern) {
+        rules.push(new RegExp(pattern));
+      }
+      const schema = {
+        key: prop,
+        required: this.getAttr("required", false),
+        message: this.getAttr("validity"),
+        rules: rules,
+      };
+      this._updateRules(schema);
     }
+  }
+
+  private _validateChange = (result: true | Record<string, string>, name?: string) => {
+    // const error = result === true ? undefined : result[this.prop as string];
+    // if (name == null || (name === this.prop && this.error != error)) {
+    //   this.error = error;
+    // }
   };
 
-  private _updateError() {
+  private _updateError(error?: string) {
+    if (this.error) {
+      addClass(this, "is-error");
+    } else {
+      removeClass(this, "is-error");
+    }
     if (!this.rendered) return;
     let $error = $one(".l-form-item__error", this.root);
     if ($error) {
@@ -158,11 +143,6 @@ export default class FormItem extends BaseComponent {
           $parent.appendChild($error);
         }
       }
-    }
-    if (this.error) {
-      addClass(this, "is-error");
-    } else {
-      removeClass(this, "is-error");
     }
   }
 
@@ -185,19 +165,17 @@ export default class FormItem extends BaseComponent {
     }
   }
 
-  private _getFormId() {
+  private _updateRules(schema: SchemaType) {
     let $parent = this.parentElement;
-    let formId: undefined | string = undefined;
-    while ($parent != null) {
-      const tagName = $parent.tagName;
-      if (tagName === "L-FORM") {
-        formId = ($parent as any).id;
+    while ($parent) {
+      if (($parent as Form).lForm) {
+        ($parent as Form).ruleChange(schema);
         break;
       }
-      if (tagName === "BODY") break;
+      if ($parent === document.body || $parent === document.documentElement) {
+        break;
+      }
       $parent = $parent.parentElement;
     }
-    $parent = null;
-    return formId;
   }
 }

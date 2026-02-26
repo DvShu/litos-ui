@@ -20,10 +20,16 @@ export default class Form extends BaseComponent {
   public innerBlock = false;
   public novalidate = false;
   private _data?: Record<string, any>;
+  // 标记为 Form 表单组件
+  public lForm = true;
 
   constructor() {
     super();
     this.validator = new Validator([]);
+    console.log(this.validator);
+    setTimeout(() => {
+      console.log(this.validator);
+    }, 3000);
   }
 
   static get observedAttributes() {
@@ -78,7 +84,8 @@ export default class Form extends BaseComponent {
     return `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
   }
 
-  ruleChange = (schema: SchemaType) => {
+  public ruleChange = (schema: SchemaType) => {
+    console.log("ruleChange");
     this.validator.addSchema(schema);
   };
 
@@ -109,20 +116,13 @@ export default class Form extends BaseComponent {
           tacks.push(this.validator.validateKey(f, this._data[f], this._data));
         }
       } else {
-        tacks.push(
-          this.validator.validateKey(field, this._data[field], this._data)
-        );
+        tacks.push(this.validator.validateKey(field, this._data[field], this._data));
       }
       Promise.allSettled(tacks).then((results) => {
         for (let i = 0, len = results.length; i < len; i++) {
           const result = results[i];
           if (result.status === "rejected") {
-            emit(
-              this.id,
-              "validateChange",
-              result.reason.detail,
-              result.reason.key
-            );
+            emit(this.id, "validateChange", result.reason.detail, result.reason.key);
           } else {
             emit(this.id, "validateChange", true, result.value.key);
           }
@@ -146,9 +146,7 @@ export default class Form extends BaseComponent {
     } else {
       this.validate().then((valid) => {
         if (valid) {
-          this.dispatchEvent(
-            new CustomEvent("submit", { detail: this.getData() })
-          );
+          this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
         }
       });
     }

@@ -61,7 +61,7 @@ export default class FormInner extends BaseComponent {
         this.disabledChange();
       }
     } else if (name === "value" || name === "name") {
-      this.value = newValue;
+      this[name] = newValue;
     } else {
       this.attributeChange(name, oldValue, newValue);
     }
@@ -104,8 +104,7 @@ export default class FormInner extends BaseComponent {
   }
 
   public getName() {
-    if (this.name) return this.name;
-    return this.formItemAttrs.name || "";
+    return this.name || this.formItemAttrs.name;
   }
 
   private _getForm() {
@@ -113,8 +112,7 @@ export default class FormInner extends BaseComponent {
     let formAttr: Record<string, any> = {};
     let formItemAttr: Record<string, any> = {};
     while ($parent != null) {
-      const tagName = $parent.tagName;
-      if (tagName === "L-FORM") {
+      if (($parent as Form).lForm) {
         const sharedAttrs = ($parent as Form).sharedAttrs;
         for (let i = 0; i < sharedAttrs.length; i++) {
           const attr = sharedAttrs[i];
@@ -122,8 +120,8 @@ export default class FormInner extends BaseComponent {
         }
         break;
       }
-      if (tagName === "BODY") break;
-      if (tagName === "L-FORM-ITEM") {
+      if ($parent.tagName === "BODY") break;
+      if (($parent as FormItem).lFormItem) {
         const sharedAttrs = ($parent as FormItem).sharedAttrs;
         for (let i = 0; i < sharedAttrs.length; i++) {
           const attr = sharedAttrs[i];

@@ -5,9 +5,10 @@ Form
 ## 引用
 
 ```js
-import { Form, FormItem, regist } from "litos-ui";
+import { Form, FormItem, regist, Space } from "litos-ui";
 
 regist([Form, FormItem]);
+regist([Space]); // 表单按钮组的间距
 ```
 
 ## 演示
@@ -55,25 +56,27 @@ regist([Form, FormItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-form id="lform">
-    <l-form-item required label="姓名" name="name">
-      <l-input placeholder="请输入姓名"></l-input>
+    <l-form-item required label="姓名" prop="name">
+      <l-input placeholder="请输入姓名" value="d"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" name="password">
+    <l-form-item required label="密码" prop="password">
       <l-input placeholder="请输入密码" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" verify="same:password" name="confimPassword">
+    <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
       <l-input placeholder="请再次输入密码" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
-      <l-button html-type="reset">重置</l-button>
-      <l-button html-type="submit" type="primary">提交</l-button>
+      <l-space>
+        <l-button html-type="reset">重置</l-button>
+        <l-button html-type="submit" type="primary">提交</l-button>
+      </l-space>
     </l-form-item>
   </l-form>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 1. 如果想要实现按钮之间的间隔，需要引入 `litos-ui/styles/reset.css` 文件
+> 1. 如果想要实现按钮之间的间隔，需要引入 `Space` 组件
 > 2. 当 `Button` 在 `Form` 里面时，如果 `Button` 的 `html-type` 属性为 `reset`、`submit` 时会自动触发表单的重置、提交。
 
 ### `InnerBlock`
@@ -84,13 +87,13 @@ regist([Form, FormItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-form inner-block>
-    <l-form-item required label="姓名" name="name">
+    <l-form-item required label="姓名" prop="name">
       <l-input placeholder="请输入姓名" value="张三"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" name="password">
+    <l-form-item required label="密码" prop="password">
       <l-input placeholder="请输入密码" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" verify="same:password" name="confimPassword">
+    <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
       <l-input placeholder="请再次输入密码" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
@@ -223,7 +226,7 @@ regist([Form, FormItem]);
 | `verify` | 内置验证规则:`required`-必填,`same:password`-一般用于验证确认密码,`mobile`-验证电话号码 | `string` | - |
 | `pattern` | 正则表达式 | `string` | - |
 | `validity` | 验证失败时的提示信息 | `string` | - |
-| `name` | 表单域 `name` 字段 | `string` | - |
+| `prop` | 对应表单域 `name` | `string` | - |
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `required` | 是否必填 | `boolean` | `false` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
