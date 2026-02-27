@@ -1,15 +1,13 @@
 import { formatClass, formatStyle, $one, on, off } from "ph-utils/dom";
-import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
-import { random } from "ph-utils";
-import { emit, add, clear } from "../utils/event";
-import type { SchemaType } from "ph-utils/validator";
 import Validator from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
 import { signal } from "alien-signals";
+import ContextProvide from "../utils/context_provide";
+import type { FormSignal } from "./types";
 
-export default class Form extends BaseComponent {
+export default class Form extends ContextProvide<FormSignal> {
   public static baseName = "form";
   /** 是否行内表单 */
   public inline = false;
@@ -18,11 +16,11 @@ export default class Form extends BaseComponent {
   public validator: Validator;
   public novalidate = false;
   private _data?: Record<string, any>;
-  public context: Signal<{ innerBlock: boolean }>;
 
   constructor() {
     super();
     this.validator = new Validator([]);
+    this.contextEventName = 'form-context-request';
     this.context = signal({ innerBlock: false });
   }
 
@@ -69,14 +67,11 @@ export default class Form extends BaseComponent {
   }
 
   afterInit(): void {
-    on(this, "context-request", this.provide);
     on(this, "form-rule-change", this.ruleChange);
   }
 
   disconnectedCallback(): void {
-    clear(this.id);
     this.validator = undefined as any;
-    off(this, "context-request", this.provide);
     off(this, "form-rule-change", this.ruleChange);
     super.disconnectedCallback();
   }
@@ -108,10 +103,10 @@ export default class Form extends BaseComponent {
       this.validator
         .validateKey(name, value, this._data)
         .then(() => {
-          emit(this.id, "validateChange", true, name);
+          // emit(this.id, "validateChange", true, name);
         })
         .catch((err) => {
-          emit(this.id, "validateChange", err.detail, name);
+          // emit(this.id, "validateChange", err.detail, name);
         });
     }
   };
@@ -131,9 +126,9 @@ export default class Form extends BaseComponent {
         for (let i = 0, len = results.length; i < len; i++) {
           const result = results[i];
           if (result.status === "rejected") {
-            emit(this.id, "validateChange", result.reason.detail, result.reason.key);
+            // emit(this.id, "validateChange", result.reason.detail, result.reason.key);
           } else {
-            emit(this.id, "validateChange", true, result.value.key);
+            // emit(this.id, "validateChange", true, result.value.key);
           }
         }
       });
@@ -141,12 +136,12 @@ export default class Form extends BaseComponent {
   }
 
   public clearValidate() {
-    emit(this.id, "validateChange", true);
+    // emit(this.id, "validateChange", true);
   }
 
   public reset() {
     this.clearValidate();
-    emit(this.id, "reset");
+    // emit(this.id, "reset");
   }
 
   public submit() {
@@ -168,10 +163,10 @@ export default class Form extends BaseComponent {
     if (this._data != null) {
       try {
         await this.validator.validate(this._data);
-        emit(this.id, "validateChange", true);
+        // emit(this.id, "validateChange", true);
         return Promise.resolve(true);
       } catch (err: any) {
-        emit(this.id, "validateChange", err.detail);
+        // emit(this.id, "validateChange", err.detail);
         return Promise.resolve(false);
       }
     }
@@ -180,12 +175,5 @@ export default class Form extends BaseComponent {
 
   public getData() {
     return { ...this._data };
-  }
-
-  public provide(e: CustomEvent) {
-    const { context, callback } = e.detail;
-    if (context === "context-request") {
-      callback(this.context);
-    }
   }
 }

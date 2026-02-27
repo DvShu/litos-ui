@@ -12,8 +12,14 @@
   box-sizing: border-box;
   background-color: transparent;
 }
+
 :host(:focus) {
   --l-input-border-color: var(--l-primary-color, #722ed1);
+}
+
+/* block */
+:host(.is-block) {
+  width: 100%;
 }
 
 /* disabled */
@@ -34,9 +40,11 @@
   display: inline-flex;
   flex-shrink: 0;
 }
+
 .l-input__prefix {
   margin-right: 5px;
 }
+
 .l-input__suffix {
   margin-left: 5px;
 }
@@ -44,6 +52,7 @@
 /* clearable */
 .l-clearable {
   cursor: pointer;
+
   &:hover {
     color: #999999;
   }
@@ -61,6 +70,7 @@
   text-align: inherit;
   font-size: inherit;
 }
+
 .l-input__inner:disabled {
   background-color: transparent;
 }

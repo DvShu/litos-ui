@@ -1,21 +1,28 @@
-import { $one, addClass, removeClass, $$, getAttr } from "ph-utils/dom";
+import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
-import BaseComponent from "../base";
-import { clear, remove } from "../utils/event";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./form_item.less?inline";
 import type { SchemaType } from "ph-utils/validator";
+import ContextProvide from "../utils/context_provide";
+import { signal } from "alien-signals";
+import type { FormItemSignal } from "./types";
 
-export default class FormItem extends BaseComponent {
+export default class FormItem extends ContextProvide<FormItemSignal> {
   public static baseName = "form-item";
   /** 标签文本 */
   public label?: string;
   public labelPosition?: "left" | "right" | "top" = "right";
   private formId?: string;
 
+  constructor() {
+    super();
+    this.contextEventName = 'form-item-context-request';
+    this.context = signal({ innerBlock: false });
+  }
+
   static get observedAttributes() {
-    return ["error", "label", "required"];
+    return ["error", "label", "required", "inner-block", "prop"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -32,6 +39,10 @@ export default class FormItem extends BaseComponent {
         this._updateLabel();
         break;
 
+      case "prop":
+        this.context({ ...this.context(), prop: newValue });
+        break;
+
       case "required":
         const isRequired = parseAttrValue(newValue, false, name);
         if (isRequired) {
@@ -39,6 +50,11 @@ export default class FormItem extends BaseComponent {
         } else {
           this.classList.remove("is-required");
         }
+        break;
+
+      case "inner-block":
+        const isBlock = parseAttrValue(newValue, false, name);
+        this.context({ innerBlock: isBlock });
         break;
     }
   }
@@ -52,12 +68,6 @@ export default class FormItem extends BaseComponent {
     //   add(this.formId, "validateChange", this._validateChange);
   }
 
-  disconnectedCallback(): void {
-    clear(this.id);
-    if (this.formId) {
-      remove(this.formId, "validateChange", this._validateChange);
-    }
-  }
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
     const prop = this.getAttr("prop");

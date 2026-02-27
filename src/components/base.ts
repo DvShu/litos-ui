@@ -20,7 +20,7 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(_name: string, _oldValue: string, _newValue: string) {}
+  attributeChangedCallback(_name: string, _oldValue: string, _newValue: string) { }
 
   /** @deprecated */
   get shadow() {
@@ -102,22 +102,22 @@ export default class BaseComponent extends HTMLElement {
     this.rendered = false;
   }
 
-  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
+  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment { }
 
   /**
    * 初始化事件
    * @deprecated 自0.12.0起弃用，使用 afterInit() 替代
    */
-  initEvents() {}
-  afterInit() {}
+  initEvents() { }
+  afterInit() { }
 
   /** 移除事件 */
   /**
    * 移除事件
    * @deprecated 自0.12.0起弃用，使用 beforeDestroy() 替代
    */
-  removeEvents() {}
-  beforeDestroy() {}
+  removeEvents() { }
+  beforeDestroy() { }
 
   /**
    * 触发自定义事件
@@ -129,5 +129,16 @@ export default class BaseComponent extends HTMLElement {
     return this.dispatchEvent(
       new CustomEvent(name, { bubbles: true, composed: false, ...eventOption }),
     );
+  }
+
+  emitInject(name: string, callback: (context: Signal<any>) => void) {
+    this.emit(name, {
+      bubbles: true,
+      composed: true,
+      detail: {
+        context: name,
+        callback,
+      },
+    });
   }
 }

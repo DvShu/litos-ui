@@ -1,7 +1,6 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "ph-utils/dom";
 import { initAttr, parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
-import { add, remove } from "../utils/event";
 //@ts-ignore
 import css from "./index.less?inline";
 
@@ -64,7 +63,7 @@ export default class Input extends FormInner {
   }
 
   static get observedAttributes() {
-    return ["disabled", "value", "name", "error", "clearable", "maxlength", "inputmode"];
+    return ["disabled", "value", "name", "inner-block", "error", "clearable", "maxlength", "inputmode"];
   }
 
   connectedCallback(): void {
@@ -78,16 +77,10 @@ export default class Input extends FormInner {
     if (this.error) {
       addClass(this, "is-error");
     }
-    if (this.getName() && this.formAttrs.id) {
-      add(this.formAttrs.id, "validateChange", this._validateChange);
-    }
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this.formAttrs.id) {
-      remove(this.formAttrs.id, "validateChange", this._validateChange);
-    }
     off(this.$inner as HTMLInputElement, "input", this._input);
   }
 
@@ -318,22 +311,20 @@ export default class Input extends FormInner {
     return startsWithMinus ? "-" + str : str;
   }
 
+  protected innerBlockChange(innerBlock: boolean) {
+    if (innerBlock) {
+      addClass(this, 'is-block');
+    } else {
+      removeClass(this, 'is-block');
+    }
+  }
+
   private _getStyleObj() {
     const styleObj: Record<string, string> = {};
-    if (this._isBlock()) {
-      styleObj["--l-input-width"] = "100%";
-    }
     if (this.width) {
       styleObj["--l-input-width"] = this.width;
     }
     return styleObj;
-  }
-
-  private _isBlock() {
-    if (this.block === true) return true;
-    if (this.formItemAttrs.innerBlock === true) return true;
-    if (this.formAttrs.innerBlock === true) return true;
-    return false;
   }
 
   private _updateError() {
