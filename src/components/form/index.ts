@@ -1,4 +1,4 @@
-import { formatClass, formatStyle, $one } from "ph-utils/dom";
+import { formatClass, formatStyle, $one, on, off } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
 import { random } from "ph-utils";
@@ -7,6 +7,7 @@ import type { SchemaType } from "ph-utils/validator";
 import Validator from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
+import { signal } from "alien-signals";
 
 export default class Form extends BaseComponent {
   public static baseName = "form";
@@ -14,28 +15,24 @@ export default class Form extends BaseComponent {
   public inline = false;
   public labelPosition?: "left" | "right" | "top" = "right";
   public labelWidth?: string = "80px";
-  public disabled: boolean = false;
   public validator: Validator;
   public novalidate = false;
   private _data?: Record<string, any>;
+  public context: Signal<{ innerBlock: boolean }>;
 
   constructor() {
     super();
     this.validator = new Validator([]);
+    this.context = signal({ innerBlock: false });
   }
 
   static get observedAttributes() {
-    return ["disabled", "label-position"];
+    return ["label-position", "inner-block"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (name === "disabled") {
-      const val = parseAttrValue(newValue, false, name);
-      if (val !== this.disabled) {
-        emit(this.id, "attributeChanged", name, val, this.id);
-        this.disabled = val;
-      }
-    } else if (name === "label-position") {
+    if (oldValue === newValue) return;
+    if (name === "label-position") {
       const $form = $one("form", this.root);
       if ($form) {
         $form.className = formatClass([
@@ -45,24 +42,43 @@ export default class Form extends BaseComponent {
         ]);
       }
     }
+    switch (name) {
+      case "label-position":
+        const $form = $one("form", this.root);
+        if ($form) {
+          $form.className = formatClass([
+            "l-form",
+            this.inline ? "l-form-inline" : undefined,
+            `l-form--${newValue}`,
+          ]);
+        }
+        break;
+
+      case "inner-block":
+        const isBlock = parseAttrValue(newValue, false, name);
+        this.context({ innerBlock: isBlock });
+        break;
+    }
   }
 
   connectedCallback(): void {
     initAttr(this);
     this.setAttribute("form-role", "form");
-    //@ts-ignore
-    if (!this.id) {
-      this.id = `l-f${random(3)}-${random(6)}`;
-    }
     this.loadStyleText([css]);
     super.connectedCallback();
-    add(this.id, "ruleChange", this.ruleChange);
-    add(this.id, "valueChange", this._valueChange);
+  }
+
+  afterInit(): void {
+    on(this, "context-request", this.provide);
+    on(this, "form-rule-change", this.ruleChange);
   }
 
   disconnectedCallback(): void {
     clear(this.id);
     this.validator = undefined as any;
+    off(this, "context-request", this.provide);
+    off(this, "form-rule-change", this.ruleChange);
+    super.disconnectedCallback();
   }
 
   render() {
@@ -77,8 +93,9 @@ export default class Form extends BaseComponent {
     return `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
   }
 
-  public ruleChange = (schema: SchemaType) => {
-    this.validator.addSchema(schema);
+  public ruleChange = (e: CustomEvent) => {
+    e.stopPropagation();
+    this.validator.addSchema(e.detail);
   };
 
   _valueChange = (name: string, value: any, valid = true) => {
@@ -163,5 +180,12 @@ export default class Form extends BaseComponent {
 
   public getData() {
     return { ...this._data };
+  }
+
+  public provide(e: CustomEvent) {
+    const { context, callback } = e.detail;
+    if (context === "context-request") {
+      callback(this.context);
+    }
   }
 }

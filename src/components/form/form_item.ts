@@ -5,7 +5,6 @@ import { clear, remove } from "../utils/event";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./form_item.less?inline";
-import type Form from "../form";
 import type { SchemaType } from "ph-utils/validator";
 
 export default class FormItem extends BaseComponent {
@@ -165,17 +164,10 @@ export default class FormItem extends BaseComponent {
   }
 
   private _updateRules(schema: SchemaType) {
-    let $parent = this.parentElement;
-    while ($parent) {
-      const formRole = getAttr($parent, "form-role");
-      if (formRole === "form") {
-        ($parent as Form).ruleChange(schema);
-        break;
-      }
-      if ($parent === document.body || $parent === document.documentElement) {
-        break;
-      }
-      $parent = $parent.parentElement;
-    }
+    this.emit("form-rule-change", {
+      bubbles: true,
+      composed: true,
+      detail: schema,
+    });
   }
 }

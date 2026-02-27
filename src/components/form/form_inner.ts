@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import type Form from "../form";
 import type FormItem from "../form/form_item";
 import { parseAttrValue } from "../utils";
-import { emit, add, remove } from "../utils/event";
+import { add, remove } from "../utils/event";
 import { getAttr } from "ph-utils/dom";
 
 export default class FormInner extends BaseComponent {
@@ -10,9 +10,9 @@ export default class FormInner extends BaseComponent {
   protected formAttrs: Record<string, any> = {};
   protected formItemAttrs: Record<string, any> = {};
   public _value: any = "";
-  public _resetValue?: any;
-  protected _firstPushValue = true;
-  private _reseting = false;
+  public _resetValue?: any; // 重置值(即初始化值)
+  protected _firstPushValue = true; // 初始化时是否推送数据到 Form
+  private _isReset = false; // 是否是重置, 重置时不触发数据校验
   private _name?: string;
 
   /**
@@ -68,34 +68,20 @@ export default class FormInner extends BaseComponent {
     }
   }
 
-  protected attributeChange(_name: string, _oldValue: string, _newValue: string) { }
+  protected attributeChange(_name: string, _oldValue: string, _newValue: string) {}
 
   connectedCallback(): void {
     this.setAttribute("form-role", "field");
     const formInfo = this._getForm();
+    if (!this.name && formInfo.formItemAttr.name) {
+      this.setAttribute("name", formInfo.formItemAttr.name);
+    }
     this.formAttrs = formInfo.formAttr;
     this.formItemAttrs = formInfo.formItemAttr;
-    if (this.formAttrs.id) {
-      add(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
-      add(this.formAttrs.id, "reset", this._resetFieldValue);
-      if (this._firstPushValue) {
-        this.pushValueChange();
-      }
-    }
-    if (this.formItemAttrs.id) {
-      add(this.formItemAttrs.id, "attributeChanged", this._formAttributeChanged);
-    }
     super.connectedCallback();
   }
 
   disconnectedCallback(): void {
-    if (this.formAttrs.id) {
-      remove(this.formAttrs.id, "attributeChanged", this._formAttributeChanged);
-      remove(this.formAttrs.id, "reset", this._resetFieldValue);
-    }
-    if (this.formItemAttrs.id) {
-      remove(this.formItemAttrs.id, "attributeChanged", this._formAttributeChanged);
-    }
     super.disconnectedCallback();
   }
 
@@ -133,33 +119,25 @@ export default class FormInner extends BaseComponent {
     };
   }
 
-  private _formAttributeChanged = (name: string, value: string, id: string) => {
-    if (id === this.formAttrs.formId) {
-      this.formAttrs[name] = value;
-    } else {
-      this.formItemAttrs[name] = value;
-    }
-    if (name === "disabled") {
-      this.disabledChange();
-    }
-  };
-
-  protected disabledChange() { }
+  protected disabledChange() {}
 
   protected pushValueChange() {
-    const name = this.getName();
-    if (this.formAttrs.id && name) {
-      emit(this.formAttrs.id, "valueChange", name, this._value, !this._reseting);
+    if (this.name) {
+      this.emit("formValueChange", {
+        bubbles: true,
+        composed: true,
+        detail: {
+          name: this.name,
+          value: this._value,
+          valid: !this._isReset,
+        },
+      });
     }
-    this._reseting = false;
+    this._isReset = false;
   }
 
-  private _resetFieldValue = () => {
-    this._reseting = true;
-    this.reset();
-  };
-
   public reset() {
+    this._isReset = true;
     this.value = this._resetValue || "";
   }
 }
