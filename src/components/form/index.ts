@@ -68,7 +68,6 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   connectedCallback(): void {
-    initAttr(this);
     on(this, "form-context-request", this._provide);
     this.loadStyleText([css]);
     super.connectedCallback();
@@ -112,6 +111,7 @@ export default class Form extends BaseComponent<FormState> {
 
   _valueChange = (e: CustomEvent) => {
     const { name, value, valid } = e.detail;
+    console.log(e.detail)
     if (!name) return;
     if (this._data == null) {
       this._data = {};
@@ -122,17 +122,12 @@ export default class Form extends BaseComponent<FormState> {
       this.validator
         .validateKey(name, value, this._data)
         .then(() => {
-          // const oldValud = this.errors();
-          // oldValud[name] = undefined;
-          // this.errors(oldValud);
-          const d = {};
-          d[name] = "error";
-          this.errors(d);
+          const oldValud = this.errors();
+          oldValud[name] = undefined;
+          this.errors({ ...oldValud });
         })
         .catch((err) => {
-          const oldValud = this.errors();
-          oldValud[name] = err.detail;
-          this.errors(oldValud);
+          this.errors({ ...this.errors(), ...err.detail });
         });
     }
   };
@@ -171,6 +166,7 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   public submit() {
+
     if (this._state.novalidate) {
       this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
     } else {
@@ -186,17 +182,14 @@ export default class Form extends BaseComponent<FormState> {
    * 校验全部表单数据
    */
   public async validate() {
-    if (this._data != null) {
-      try {
-        await this.validator.validate(this._data);
-        // emit(this.id, "validateChange", true);
-        return Promise.resolve(true);
-      } catch (err: any) {
-        // emit(this.id, "validateChange", err.detail);
-        return Promise.resolve(false);
-      }
+    try {
+      await this.validator.validate(this._data);
+      // emit(this.id, "validateChange", true);
+      return Promise.resolve(true);
+    } catch (err: any) {
+      // emit(this.id, "validateChange", err.detail);
+      return Promise.resolve(false);
     }
-    return Promise.resolve(true);
   }
 
   public getData() {

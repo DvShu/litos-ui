@@ -14,6 +14,12 @@ type FormItemState = {
   labelPosition?: "left" | "right" | "top";
   error?: string;
   required: boolean;
+  /** 内置验证规则 */
+  verify?: string;
+  /** 正则表达式 */
+  pattern?: string;
+  /** 验证消息 */
+  validity?: string;
 }
 
 export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
@@ -30,16 +36,17 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
   }
 
   static get observedAttributes() {
-    return ["error", "label", "required", "inner-block", "prop", "label-position"];
+    return ["error", "label", "required", "inner-block", "prop", "label-position", "verify", "pattern", "validity"];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
       case 'error':
-        this._state.error = newValue;
-        break;
       case 'label':
-        this._state.label = newValue;
+      case 'verify':
+      case 'pattern':
+      case 'validity':
+        this._state[name] = newValue;
         break;
       case 'label-position':
         this._state.labelPosition = newValue as "left";
@@ -61,11 +68,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
 
   protected updateDOM(): void {
     // required
-    if (this._state.required) {
-      addClass(this, "is-required");
-    } else {
-      removeClass(this, "is-required");
-    }
+    this._updateRequired();
 
     // label
     this._updateLabel();
@@ -76,9 +79,9 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
 
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
+    this._updateRequired();
     this._parseSchema();
     //   add(this.formId, "validateChange", this._validateChange);
   }
@@ -112,22 +115,30 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     return fragment;
   }
 
+  private _updateRequired() {
+    if (this._state.required) {
+      addClass(this, "is-required");
+    } else {
+      removeClass(this, "is-required");
+    }
+  }
+
   private _parseSchema() {
-    const prop = this.getAttr("prop");
+    const prop = this.context().prop;
     if (prop) {
       let rules: any[] = [];
-      const verify = this.getAttr("verify");
+      const verify = this._state.verify;
       if (verify) {
         rules = verify.split("|");
       }
-      const pattern = this.getAttr("pattern");
+      const pattern = this._state.pattern;
       if (pattern) {
         rules.push(new RegExp(pattern));
       }
       const schema = {
         key: prop,
-        required: this.getAttr("required", false),
-        message: this.getAttr("validity"),
+        required: this._state.required,
+        message: this._state.validity,
         rules: rules,
       };
       this._updateRules(schema);

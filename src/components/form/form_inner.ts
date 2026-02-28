@@ -7,7 +7,7 @@ import { effect } from "alien-signals";
 
 export default class FormInner<T = Record<string, any>> extends BaseComponent<T> {
   public disabled = false;
-  public _value: any = "";
+  public _value: any = undefined;
   public _resetValue?: any; // 重置值(即初始化值)
   protected _firstPushValue = true; // 初始化时是否推送数据到 Form
   private _isReset = false; // 是否是重置, 重置时不触发数据校验
@@ -102,22 +102,20 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         }
       }
     });
-
+    console.log(this._value == null)
     if (this._value == null) {
       this._resetValue = "";
       if (this._firstPushValue) {
+        console.log('推送初始化数据')
         // 没有初始值，证明没有设置初始值，那要提交一次给表单
         this.pushValueChange();
       }
     }
 
     this._errorSignalStop = effect(() => {
-      console.log("sig");
       if (!this.name) return;
       const errors = this.formErrors ? this.formErrors() : {};
-      console.log(errors);
       const errorMsg = errors[this.name];
-      console.log(errorMsg);
       this.validResult(errorMsg);
       // const keys = Object.keys(result);
       // if (keys[0] === thisName) {

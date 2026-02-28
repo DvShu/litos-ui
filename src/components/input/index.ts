@@ -1,5 +1,5 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../utils";
+import { parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -78,7 +78,6 @@ export default class Input extends FormInner<InputState> {
   }
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
     this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
@@ -88,6 +87,7 @@ export default class Input extends FormInner<InputState> {
     if (this.error) {
       addClass(this, "is-error");
     }
+
   }
 
   disconnectedCallback(): void {
@@ -168,7 +168,7 @@ export default class Input extends FormInner<InputState> {
       inputmode: this._state.inputmode,
       maxlength: this._state.maxlength,
       minlength: this._state.minlength,
-      disabled: this.isDisabled(),
+      disabled: this.isDisabled() ? true : undefined,
     }) as HTMLInputElement;
     fragment.appendChild($inner);
 
