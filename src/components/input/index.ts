@@ -32,8 +32,6 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
-  // state
-  private _state: Record<string, any> = {};
 
   $inner?: HTMLInputElement;
   #clearable = false;
