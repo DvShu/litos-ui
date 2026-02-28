@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 import { on, off } from 'ph-utils/dom'
 
-export default class ContextProvide<T> extends BaseComponent {
+export default class ContextProvide<T, V> extends BaseComponent<V> {
 
   public context!: Signal<T>;
   public contextEventName: string;

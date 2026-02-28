@@ -4,7 +4,8 @@ import { getAttr } from "ph-utils/dom";
 import type { FormItemSignal, FormSignal } from "./types";
 import { effect } from "alien-signals";
 
-export default class FormInner extends BaseComponent {
+
+export default class FormInner<T = Record<string, any>> extends BaseComponent<T> {
   public disabled = false;
   public _value: any = "";
   public _resetValue?: any; // 重置值(即初始化值)
@@ -45,6 +46,9 @@ export default class FormInner extends BaseComponent {
 
   public setValue(value: any) {
     this._value = value;
+    if (this._resetValue == null) {
+      this._resetValue = value;
+    }
     this.pushValueChange();
   }
 
@@ -56,25 +60,26 @@ export default class FormInner extends BaseComponent {
     return ["disabled", "value", "name", "inner-block"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
-    if (oldValue === newValue) return;
-    if (name === "disabled") {
-      const val = parseAttrValue(newValue, false, name);
-      if (val !== this.disabled) {
-        this.disabled = val;
-        this.disabledChange();
-      }
-    } else if (name === "value" || name === "name") {
-      this[name] = newValue;
-    } else if (name === "inner-block") {
-      const innerBlock = parseAttrValue(newValue, false, name);
-      this.innerBlockChange(innerBlock);
-    } else {
-      this.attributeChange(name, oldValue, newValue);
+  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
+    switch (name) {
+      case "value":
+      case "name":
+        this[name] = newValue;
+        break;
+      case "disabled":
+        this.disabled = parseAttrValue(newValue, false, name);
+        break;
+      case "inner-block":
+        const innerBlock = parseAttrValue(newValue, false, name);
+        this.innerBlockChange(innerBlock);
+        break;
+      default:
+        this.attributeChange(name, oldValue, newValue);
+        break;
     }
   }
 
-  protected attributeChange(_name: string, _oldValue: string, _newValue: string) {}
+  protected attributeChange(_name: string, _oldValue: string, _newValue: string) { }
 
   connectedCallback(): void {
     this.emitInject("form-context-request", this.formInject as any);
@@ -99,8 +104,11 @@ export default class FormInner extends BaseComponent {
     });
 
     if (this._value == null) {
-      // 没有初始值，证明没有设置初始值，那要提交一次给表单
-      this.pushValueChange();
+      this._resetValue = "";
+      if (this._firstPushValue) {
+        // 没有初始值，证明没有设置初始值，那要提交一次给表单
+        this.pushValueChange();
+      }
     }
 
     this._errorSignalStop = effect(() => {
@@ -132,9 +140,9 @@ export default class FormInner extends BaseComponent {
     return this.name;
   }
 
-  protected disabledChange() {}
-  protected innerBlockChange(_innerBlock: boolean) {}
-  protected validResult(_msg?: string) {}
+  protected disabledChange() { }
+  protected innerBlockChange(_innerBlock: boolean) { }
+  protected validResult(_msg?: string) { }
 
   public formInject = (context: Signal<FormSignal>, errors: Signal<Record<string, string>>) => {
     this.formContext = context;

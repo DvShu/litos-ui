@@ -7,57 +7,63 @@ import { signal } from "alien-signals";
 import type { FormSignal } from "./types";
 import BaseComponent from "../base";
 
-export default class Form extends BaseComponent {
+interface FormState {
+  inline: boolean;
+  labelPosition: "left" | "right" | "top";
+  labelWidth: string;
+  novalidate: boolean;
+}
+
+export default class Form extends BaseComponent<FormState> {
   public static baseName = "form";
-  /** 是否行内表单 */
-  public inline = false;
-  public labelPosition?: "left" | "right" | "top" = "right";
-  public labelWidth?: string = "80px";
   public validator: Validator;
-  public novalidate = false;
   private _data?: Record<string, any>;
   public context: Signal<FormSignal>;
   public errors: Signal<Record<string, string | undefined>>; // 验证错误
 
   constructor() {
     super();
+    this._state = {
+      /** 是否行内表单 */
+      inline: false,
+      labelPosition: "right",
+      labelWidth: "80px",
+      novalidate: false,
+    };
     this.validator = new Validator([]);
     this.context = signal({ innerBlock: false });
     this.errors = signal({});
   }
 
   static get observedAttributes() {
-    return ["label-position", "inner-block"];
+    return ["label-position", "inner-block", "inline", "novalidate"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    if (oldValue === newValue) return;
-    if (name === "label-position") {
-      const $form = $one("form", this.root);
-      if ($form) {
-        $form.className = formatClass([
-          "l-form",
-          this.inline ? "l-form-inline" : undefined,
-          `l-form--${newValue}`,
-        ]);
-      }
-    }
+  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
       case "label-position":
-        const $form = $one("form", this.root);
-        if ($form) {
-          $form.className = formatClass([
-            "l-form",
-            this.inline ? "l-form-inline" : undefined,
-            `l-form--${newValue}`,
-          ]);
-        }
+        this._state.labelPosition = newValue as "left";
         break;
-
       case "inner-block":
         const isBlock = parseAttrValue(newValue, false, name);
         this.context({ innerBlock: isBlock });
         break;
+      default:
+        const value = parseAttrValue(newValue, false, name);
+        this._state[name as 'inline'] = value;
+        break;
+    }
+  }
+
+  protected updateDOM(): void {
+    // label-position
+    const $form = $one("form", this.root);
+    if ($form) {
+      $form.className = formatClass([
+        "l-form",
+        this._state.inline ? "l-form-inline" : undefined,
+        `l-form--${this._state.labelPosition}`,
+      ]);
     }
   }
 
@@ -83,11 +89,11 @@ export default class Form extends BaseComponent {
   render() {
     const classStr = formatClass([
       "l-form",
-      this.inline ? "l-form-inline" : undefined,
-      `l-form--${this.labelPosition}`,
+      this._state.inline ? "l-form-inline" : undefined,
+      `l-form--${this._state.labelPosition}`,
     ]);
     const styleStr = formatStyle({
-      "--l-form-label-width": this.labelWidth ? this.labelWidth : "",
+      "--l-form-label-width": this._state.labelWidth ? this._state.labelWidth : "",
     });
     return `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
   }
@@ -112,7 +118,7 @@ export default class Form extends BaseComponent {
     }
     const needValid = Object.hasOwn(this._data, name);
     this._data[name] = value;
-    if (!this.novalidate && needValid && valid) {
+    if (!this._state.novalidate && needValid && valid) {
       this.validator
         .validateKey(name, value, this._data)
         .then(() => {
@@ -165,7 +171,7 @@ export default class Form extends BaseComponent {
   }
 
   public submit() {
-    if (this.novalidate) {
+    if (this._state.novalidate) {
       this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
     } else {
       this.validate().then((valid) => {

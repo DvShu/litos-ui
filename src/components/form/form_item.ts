@@ -8,56 +8,72 @@ import ContextProvide from "../utils/context_provide";
 import { signal } from "alien-signals";
 import type { FormItemSignal } from "./types";
 
-export default class FormItem extends ContextProvide<FormItemSignal> {
-  public static baseName = "form-item";
+type FormItemState = {
   /** 标签文本 */
-  public label?: string;
-  public labelPosition?: "left" | "right" | "top" = "right";
-  private formId?: string;
+  label?: string;
+  labelPosition?: "left" | "right" | "top";
+  error?: string;
+  required: boolean;
+}
+
+export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
+  public static baseName = "form-item";
 
   constructor() {
     super();
     this.contextEventName = "form-item-context-request";
+    this._state = {
+      labelPosition: "right",
+      required: false
+    }
     this.context = signal({ innerBlock: false });
   }
 
   static get observedAttributes() {
-    return ["error", "label", "required", "inner-block", "prop"];
+    return ["error", "label", "required", "inner-block", "prop", "label-position"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    // 如果新旧值相同，直接返回，避免不必要的逻辑执行
-    if (oldValue === newValue) return;
+  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
-      case "error":
-        const isError = parseAttrValue(newValue);
-        this._updateError(isError);
+      case 'error':
+        this._state.error = newValue;
         break;
-
-      case "label":
-        this.label = newValue;
-        this._updateLabel();
+      case 'label':
+        this._state.label = newValue;
         break;
-
-      case "prop":
-        this.context({ ...this.context(), prop: newValue });
-        break;
-
-      case "required":
-        const isRequired = parseAttrValue(newValue, false, name);
-        if (isRequired) {
-          this.classList.add("is-required");
-        } else {
-          this.classList.remove("is-required");
-        }
+      case 'label-position':
+        this._state.labelPosition = newValue as "left";
         break;
 
       case "inner-block":
         const isBlock = parseAttrValue(newValue, false, name);
         this.context({ innerBlock: isBlock });
         break;
+      case "required":
+        const isRequired = parseAttrValue(newValue, false, name);
+        this._state.required = isRequired;
+        break;
+      case "prop":
+        this.context({ ...this.context(), prop: newValue });
+        break;
     }
   }
+
+  protected updateDOM(): void {
+    // required
+    if (this._state.required) {
+      addClass(this, "is-required");
+    } else {
+      removeClass(this, "is-required");
+    }
+
+    // label
+    this._updateLabel();
+
+    // error
+    this._updateError();
+  }
+
 
   connectedCallback(): void {
     initAttr(this);
@@ -76,21 +92,21 @@ export default class FormItem extends ContextProvide<FormItemSignal> {
   }
 
   public render() {
-    this.classList.add(`l-form-item--${this.labelPosition}`);
+    this.classList.add(`l-form-item--${this._state.labelPosition}`);
     const fragment = document.createDocumentFragment();
-    if (this.label != null) {
+    if (this._state.label != null) {
       fragment.appendChild(
         $$("label", {
           class: "l-form-item__label",
-          textContent: this.label,
+          textContent: this._state.label,
         }),
       );
     }
     const $content = $$("div", { class: "l-form-item__content" });
     const $slot = $$("slot");
     $content.appendChild($slot);
-    if (this.error) {
-      $content.appendChild($$("div", { class: "l-form-item__error", textContent: this.error }));
+    if (this._state.error) {
+      $content.appendChild($$("div", { class: "l-form-item__error", textContent: this._state.error }));
     }
     fragment.appendChild($content);
     return fragment;
@@ -125,8 +141,8 @@ export default class FormItem extends ContextProvide<FormItemSignal> {
     // }
   };
 
-  private _updateError(error?: string) {
-    if (this.error) {
+  private _updateError() {
+    if (this._state.error) {
       addClass(this, "is-error");
     } else {
       removeClass(this, "is-error");
@@ -134,16 +150,16 @@ export default class FormItem extends ContextProvide<FormItemSignal> {
     if (!this.rendered) return;
     let $error = $one(".l-form-item__error", this.root);
     if ($error) {
-      if (this.error) {
-        $error.textContent = this.error;
+      if (this._state.error) {
+        $error.textContent = this._state.error;
       } else {
         $error.remove();
       }
     } else {
-      if (this.error) {
+      if (this._state.error) {
         $error = document.createElement("div");
         $error.className = "l-form-item__error";
-        $error.textContent = this.error;
+        $error.textContent = this._state.error;
         const $parent = $one(".l-form-item__content", this.root);
         if ($parent) {
           $parent.appendChild($error);
@@ -156,15 +172,15 @@ export default class FormItem extends ContextProvide<FormItemSignal> {
     if (!this.rendered) return;
     let $label = $one(".l-form-item__label", this.root);
     if ($label == null) {
-      if (this.label != null) {
+      if (this._state.label != null) {
         $label = document.createElement("div");
         $label.className = "l-form-item__label";
-        $label.textContent = this.label;
+        $label.textContent = this._state.label;
         this.root.prepend($label);
       }
     } else {
-      if (this.label != null) {
-        $label.textContent = this.label;
+      if (this._state.label != null) {
+        $label.textContent = this._state.label;
       } else {
         $label.remove();
       }

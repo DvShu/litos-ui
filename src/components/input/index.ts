@@ -4,27 +4,32 @@ import FormInner from "../form/form_inner";
 //@ts-ignore
 import css from "./index.less?inline";
 
+interface InputState {
+  /** 原生 input 的类型，默认为 "text" */
+  type: string;
+  /** 输入框占位符 */
+  placeholder: string;
+  /** 是否自动调整大小 */
+  autosize: boolean;
+  /** 限制输入类型, number, integer */
+  allowInput: string | undefined;
+  clearable: boolean;
+  error?: string;
+  maxlength?: string;
+  minlength?: string;
+  inputmode?: string;
+}
+
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
  *
- * @property {string} type - 原生 input 的类型，默认为 "text"。
- * @property {string | undefined} placeholder - 输入框占位符。
- * @property {boolean} autosize - 是否自动调整大小。
- * @property {boolean} disabled - 是否禁用输入框。
- * @property {string | undefined} allowInput - 限制输入类型，如 "number", "integer"。
  * @property {(value: string) => string | undefined} parser - 自定义输入解析器。
  *
  * @method setParser - 设置自定义输入解析器。
  * @method focus - 输入框获取焦点
  */
-export default class Input extends FormInner {
+export default class Input extends FormInner<InputState> {
   public static baseName: string = "input";
-  /** 原生 input 的 type */
-  public type: string = "text";
-  public placeholder: string | undefined = undefined;
-  public autosize = false;
-  /** 限制输入类型, number, integer */
-  public allowInput: string | undefined = undefined;
   /** 自定义输入解析器 */
   public parser?: (value: string) => string;
   /** 宽度 */
@@ -34,7 +39,17 @@ export default class Input extends FormInner {
   public error = false;
 
   $inner?: HTMLInputElement;
-  #clearable = false;
+
+  public constructor() {
+    super();
+    this._state = {
+      type: "text",
+      placeholder: "",
+      autosize: false,
+      allowInput: undefined,
+      clearable: false,
+    };
+  }
 
   set value(value: any) {
     this.setValue(value);
@@ -47,18 +62,6 @@ export default class Input extends FormInner {
     return this.getValue();
   }
 
-  get clearable() {
-    return this.#clearable;
-  }
-
-  set clearable(value: boolean) {
-    this.#clearable = value;
-    if (value) {
-      addClass(this, "l-input--clearable");
-    } else {
-      removeClass(this, "l-input--clearable");
-    }
-  }
 
   static get observedAttributes() {
     return [
@@ -69,6 +72,7 @@ export default class Input extends FormInner {
       "error",
       "clearable",
       "maxlength",
+      "minlength",
       "inputmode",
     ];
   }
@@ -92,24 +96,39 @@ export default class Input extends FormInner {
   }
 
   protected attributeChange(name: string, oldValue: string, newValue: string): void {
-    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
-    if (parsedValue !== this[name as "id"]) {
-      this[name as "id"] = parsedValue;
+    switch (name) {
+      case "error":
+      case "maxlength":
+      case "minlength":
+      case "inputmode":
+        this._state[name] = newValue;
+        break;
+      case "clearable":
+        const newClearable = parseAttrValue(newValue, false, name);
+        this._state.clearable = newClearable;
+        break;
     }
-    if (name === "error") {
-      const newError = parseAttrValue(newValue, false, name);
-      if (newError !== this.error) {
-        this.error = newError;
-        this._updateError(newError);
-      }
-    } else if (name === "clearable") {
-      const newClearable = parseAttrValue(newValue, false, name);
-      if (newClearable !== this.clearable) {
-        this.clearable = newClearable;
-      }
-    } else if (name === "maxlength" || name === "minlength") {
-      this._updateAttr(name, newValue);
+  }
+
+  protected updateDOM(): void {
+    // clearable  
+    if (this._state.clearable) {
+      addClass(this, "l-input--clearable");
+    } else {
+      removeClass(this, "l-input--clearable");
     }
+
+    // error
+    this._updateError(this._state.error != null);
+
+    // maxlength
+    this._updateAttr("maxlength", this._state.maxlength);
+
+    // minlength
+    this._updateAttr("minlength", this._state.minlength);
+
+    // inputmode
+    this._updateAttr("inputmode", this._state.inputmode);
   }
 
   _updateAttr(key: string, value: any) {
@@ -143,12 +162,12 @@ export default class Input extends FormInner {
       class: "l-input__inner",
       value: this.value,
       name: this.getName(),
-      placeholder: this.placeholder || "",
+      placeholder: this._state.placeholder,
       part: "default",
-      type: this.type,
-      inputmode: this.getAttr("inputmode"),
-      maxlength: this.getAttr("maxlength"),
-      minlength: this.getAttr("minlength"),
+      type: this._state.type,
+      inputmode: this._state.inputmode,
+      maxlength: this._state.maxlength,
+      minlength: this._state.minlength,
       disabled: this.isDisabled(),
     }) as HTMLInputElement;
     fragment.appendChild($inner);
@@ -208,13 +227,13 @@ export default class Input extends FormInner {
     const $target = e.target as HTMLInputElement;
     let oldValue = $target.value;
     let newValue = oldValue;
-    if (this.allowInput != null) {
-      let dotIndex = this.allowInput.indexOf(".");
+    if (this._state.allowInput != null) {
+      let dotIndex = this._state.allowInput.indexOf(".");
       let precision =
-        dotIndex === -1 ? dotIndex : parseInt(this.allowInput.substring(dotIndex + 1));
+        dotIndex === -1 ? dotIndex : parseInt(this._state.allowInput.substring(dotIndex + 1));
       newValue = this._numberInputParse(oldValue, {
-        integer: this.allowInput.includes("integer"),
-        negative: this.allowInput.startsWith("-"),
+        integer: this._state.allowInput.includes("integer"),
+        negative: this._state.allowInput.startsWith("-"),
         precision: precision,
       });
       newValue = String(newValue);
@@ -228,7 +247,7 @@ export default class Input extends FormInner {
   };
 
   #renderClearable() {
-    if (this.clearable) {
+    if (this._state.clearable) {
       let $clearWrapper = $one(".l-clearable", this.root);
       if (this.value.length > 0) {
         if ($clearWrapper == null) {
