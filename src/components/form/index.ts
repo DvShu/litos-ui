@@ -4,10 +4,10 @@ import Validator from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
 import { signal } from "alien-signals";
-import ContextProvide from "../utils/context_provide";
 import type { FormSignal } from "./types";
+import BaseComponent from "../base";
 
-export default class Form extends ContextProvide<FormSignal> {
+export default class Form extends BaseComponent {
   public static baseName = "form";
   /** 是否行内表单 */
   public inline = false;
@@ -16,12 +16,14 @@ export default class Form extends ContextProvide<FormSignal> {
   public validator: Validator;
   public novalidate = false;
   private _data?: Record<string, any>;
+  public context: Signal<FormSignal>;
+  public errors: Signal<Record<string, string | undefined>>; // 验证错误
 
   constructor() {
     super();
     this.validator = new Validator([]);
-    this.contextEventName = 'form-context-request';
     this.context = signal({ innerBlock: false });
+    this.errors = signal({});
   }
 
   static get observedAttributes() {
@@ -61,18 +63,20 @@ export default class Form extends ContextProvide<FormSignal> {
 
   connectedCallback(): void {
     initAttr(this);
-    this.setAttribute("form-role", "form");
+    on(this, "form-context-request", this._provide);
     this.loadStyleText([css]);
     super.connectedCallback();
   }
 
   afterInit(): void {
     on(this, "form-rule-change", this.ruleChange);
+    on(this, "form-value-change", this._valueChange);
   }
 
   disconnectedCallback(): void {
     this.validator = undefined as any;
     off(this, "form-rule-change", this.ruleChange);
+    off(this, "form-context-request", this._provide);
     super.disconnectedCallback();
   }
 
@@ -93,7 +97,16 @@ export default class Form extends ContextProvide<FormSignal> {
     this.validator.addSchema(e.detail);
   };
 
-  _valueChange = (name: string, value: any, valid = true) => {
+  private _provide(e: CustomEvent) {
+    const { context, callback } = e.detail;
+    if (context === "form-context-request") {
+      callback(this.context, this.errors);
+    }
+  }
+
+  _valueChange = (e: CustomEvent) => {
+    const { name, value, valid } = e.detail;
+    if (!name) return;
     if (this._data == null) {
       this._data = {};
     }
@@ -103,10 +116,17 @@ export default class Form extends ContextProvide<FormSignal> {
       this.validator
         .validateKey(name, value, this._data)
         .then(() => {
-          // emit(this.id, "validateChange", true, name);
+          // const oldValud = this.errors();
+          // oldValud[name] = undefined;
+          // this.errors(oldValud);
+          const d = {};
+          d[name] = "error";
+          this.errors(d);
         })
         .catch((err) => {
-          // emit(this.id, "validateChange", err.detail, name);
+          const oldValud = this.errors();
+          oldValud[name] = err.detail;
+          this.errors(oldValud);
         });
     }
   };

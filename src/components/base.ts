@@ -3,10 +3,18 @@ import { getAttr } from "ph-utils/dom";
 export default class BaseComponent extends HTMLElement {
   static baseName = "base-component";
   /** 组件是否渲染完成, 是否已经调用 connectedCallback */
-  public rendered: boolean = false;
+  public rendered: boolean;
+  // state
+  protected _state: Record<string, any>;
+  // 是否正在批量更新
+  protected _pendingUpdate: boolean;
+  protected _pendingTask?: number; // 延迟任务id
+
   public constructor(shadow = true, init: Partial<ShadowRootInit> = {}) {
     super();
     this.rendered = false;
+    this._state = {};
+    this._pendingUpdate = false;
     if (shadow) {
       this.attachShadow({ mode: "open", ...init });
     }
@@ -20,7 +28,28 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(_name: string, _oldValue: string, _newValue: string) { }
+  attributeChangedCallback(_name: string, _oldValue: string, _newValue: string) {}
+
+  cancelPending() {
+    if (this._pendingTask) {
+      cancelAnimationFrame(this._pendingTask);
+      this._pendingTask = undefined;
+      this._pendingUpdate = false;
+    }
+  }
+
+  batchUpdate() {
+    if (this._pendingUpdate) return;
+    this.cancelPending();
+    this._pendingUpdate = true;
+
+    requestAnimationFrame(() => {
+      this.updateDOM();
+      this._pendingUpdate = false;
+    });
+  }
+
+  protected updateDOM() {}
 
   /** @deprecated */
   get shadow() {
@@ -96,28 +125,32 @@ export default class BaseComponent extends HTMLElement {
   }
 
   disconnectedCallback() {
+    if (this._pendingTask) {
+      cancelAnimationFrame(this._pendingTask);
+      this._pendingTask = undefined;
+    }
     this.removeEvents();
     this.beforeDestroy();
     this.root.innerHTML = "";
     this.rendered = false;
   }
 
-  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment { }
+  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
 
   /**
    * 初始化事件
    * @deprecated 自0.12.0起弃用，使用 afterInit() 替代
    */
-  initEvents() { }
-  afterInit() { }
+  initEvents() {}
+  afterInit() {}
 
   /** 移除事件 */
   /**
    * 移除事件
    * @deprecated 自0.12.0起弃用，使用 beforeDestroy() 替代
    */
-  removeEvents() { }
-  beforeDestroy() { }
+  removeEvents() {}
+  beforeDestroy() {}
 
   /**
    * 触发自定义事件

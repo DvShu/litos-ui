@@ -17,7 +17,7 @@ export default class FormItem extends ContextProvide<FormItemSignal> {
 
   constructor() {
     super();
-    this.contextEventName = 'form-item-context-request';
+    this.contextEventName = "form-item-context-request";
     this.context = signal({ innerBlock: false });
   }
 
@@ -61,13 +61,11 @@ export default class FormItem extends ContextProvide<FormItemSignal> {
 
   connectedCallback(): void {
     initAttr(this);
-    this.setAttribute("form-role", "form-item");
     this.loadStyleText([css]);
     super.connectedCallback();
     this._parseSchema();
     //   add(this.formId, "validateChange", this._validateChange);
   }
-
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
     const prop = this.getAttr("prop");

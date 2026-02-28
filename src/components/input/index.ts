@@ -32,8 +32,8 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
-  public maxlength?: string;
-  public minlength?: string;
+  // state
+  private _state: Record<string, any> = {};
 
   $inner?: HTMLInputElement;
   #clearable = false;
@@ -63,7 +63,16 @@ export default class Input extends FormInner {
   }
 
   static get observedAttributes() {
-    return ["disabled", "value", "name", "inner-block", "error", "clearable", "maxlength", "inputmode"];
+    return [
+      "disabled",
+      "value",
+      "name",
+      "inner-block",
+      "error",
+      "clearable",
+      "maxlength",
+      "inputmode",
+    ];
   }
 
   connectedCallback(): void {
@@ -93,17 +102,24 @@ export default class Input extends FormInner {
       const newError = parseAttrValue(newValue, false, name);
       if (newError !== this.error) {
         this.error = newError;
-        this._updateError();
+        this._updateError(newError);
       }
     } else if (name === "clearable") {
       const newClearable = parseAttrValue(newValue, false, name);
       if (newClearable !== this.clearable) {
         this.clearable = newClearable;
       }
-    } else if (name === "maxlength") {
-      const newMinlength = parseAttrValue(newValue, this.maxlength);
-      if (newMinlength !== this["maxlength"]) {
-        this["maxlength"] = newMinlength;
+    } else if (name === "maxlength" || name === "minlength") {
+      this._updateAttr(name, newValue);
+    }
+  }
+
+  _updateAttr(key: string, value: any) {
+    if (this.$inner) {
+      if (value) {
+        this.$inner.setAttribute(key, value);
+      } else {
+        this.$inner.removeAttribute(key);
       }
     }
   }
@@ -133,16 +149,10 @@ export default class Input extends FormInner {
       part: "default",
       type: this.type,
       inputmode: this.getAttr("inputmode"),
+      maxlength: this.getAttr("maxlength"),
+      minlength: this.getAttr("minlength"),
+      disabled: this.isDisabled(),
     }) as HTMLInputElement;
-    if (this.isDisabled()) {
-      $inner.disabled = true;
-    }
-    if (this.maxlength) {
-      $inner.setAttribute("maxlength", this.maxlength);
-    }
-    if (this.minlength) {
-      $inner.setAttribute("minlength", this.minlength);
-    }
     fragment.appendChild($inner);
 
     // suffix
@@ -313,9 +323,9 @@ export default class Input extends FormInner {
 
   protected innerBlockChange(innerBlock: boolean) {
     if (innerBlock) {
-      addClass(this, 'is-block');
+      addClass(this, "is-block");
     } else {
-      removeClass(this, 'is-block');
+      removeClass(this, "is-block");
     }
   }
 
@@ -327,28 +337,17 @@ export default class Input extends FormInner {
     return styleObj;
   }
 
-  private _updateError() {
-    if (this.error) {
+  private _updateError(isError = false) {
+    if (isError) {
       addClass(this, "is-error");
     } else {
       removeClass(this, "is-error");
     }
   }
 
-  private _validateChange = (result: true | Record<string, string>, name?: string) => {
-    const thisName = this.getName() as string;
-    if (thisName) {
-      const error = result === true ? false : result[thisName] != null;
-      if (name == null || (name === thisName && this.error != error)) {
-        this.error = error;
-        this._updateError();
-      }
-      const keys = Object.keys(result);
-      if (keys[0] === thisName) {
-        this.focus();
-      }
-    }
-  };
+  protected validResult(msg?: string): void {
+    this._updateError(msg != null);
+  }
 
   #handleChange = (e: Event) => {
     const $target = e.target as HTMLInputElement;

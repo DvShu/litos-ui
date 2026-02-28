@@ -120,3 +120,10 @@ export function setAttrs(el: HTMLElement, attrs: [string, string | undefined | b
 export function kebabToCamel(attr: string) {
   return attr.replace(/-(\w)/g, (match, p1) => p1.toUpperCase());
 }
+
+export function stopSignal(fn?: SignalStop) {
+  if (fn) {
+    fn();
+    fn = undefined;
+  }
+}

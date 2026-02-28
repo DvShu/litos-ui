@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { parseAttrValue } from "../utils";
+import { parseAttrValue, stopSignal } from "../utils";
 import { getAttr } from "ph-utils/dom";
 import type { FormItemSignal, FormSignal } from "./types";
 import { effect } from "alien-signals";
@@ -13,7 +13,9 @@ export default class FormInner extends BaseComponent {
   private _name?: string;
   public formContext?: Signal<FormSignal>;
   public formItemContext?: Signal<FormItemSignal>;
+  public formErrors?: Signal<Record<string, string>>; // 表单验证错误
   private _signalStop?: SignalStop;
+  private _errorSignalStop?: SignalStop;
 
   /**
    *
@@ -72,13 +74,13 @@ export default class FormInner extends BaseComponent {
     }
   }
 
-  protected attributeChange(_name: string, _oldValue: string, _newValue: string) { }
+  protected attributeChange(_name: string, _oldValue: string, _newValue: string) {}
 
   connectedCallback(): void {
-    this.setAttribute("form-role", "field");
-    this.emitInject("form-context-request", this.formInject);
+    this.emitInject("form-context-request", this.formInject as any);
     this.emitInject("form-item-context-request", this.formItemInject);
     super.connectedCallback();
+
     this._signalStop = effect(() => {
       const itemInject = this.formItemContext ? this.formItemContext() : null;
       const formInject = this.formContext ? this.formContext() : null;
@@ -95,14 +97,31 @@ export default class FormInner extends BaseComponent {
         }
       }
     });
+
+    if (this._value == null) {
+      // 没有初始值，证明没有设置初始值，那要提交一次给表单
+      this.pushValueChange();
+    }
+
+    this._errorSignalStop = effect(() => {
+      console.log("sig");
+      if (!this.name) return;
+      const errors = this.formErrors ? this.formErrors() : {};
+      console.log(errors);
+      const errorMsg = errors[this.name];
+      console.log(errorMsg);
+      this.validResult(errorMsg);
+      // const keys = Object.keys(result);
+      // if (keys[0] === thisName) {
+      //   this.focus();
+      // }
+    });
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this._signalStop) {
-      this._signalStop();
-      this._signalStop = undefined;
-    }
+    stopSignal(this._signalStop);
+    stopSignal(this._errorSignalStop);
   }
 
   public isDisabled() {
@@ -113,21 +132,22 @@ export default class FormInner extends BaseComponent {
     return this.name;
   }
 
+  protected disabledChange() {}
+  protected innerBlockChange(_innerBlock: boolean) {}
+  protected validResult(_msg?: string) {}
 
-  protected disabledChange() { }
-  protected innerBlockChange(innerBlock: boolean) { }
-
-  public formInject = (context: Signal<FormSignal>) => {
+  public formInject = (context: Signal<FormSignal>, errors: Signal<Record<string, string>>) => {
     this.formContext = context;
-  }
+    this.formErrors = errors;
+  };
 
   public formItemInject = (context: Signal<FormItemSignal>) => {
     this.formItemContext = context;
-  }
+  };
 
   protected pushValueChange() {
     if (this.name) {
-      this.emit("formValueChange", {
+      this.emit("form-value-change", {
         bubbles: true,
         composed: true,
         detail: {
