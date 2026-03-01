@@ -1,4 +1,4 @@
-import { initAttr, parseAttrValue } from "../utils";
+import { initAttr, kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import {
   formatClass,
@@ -7,11 +7,8 @@ import {
   formatStyle,
   on,
   off,
-  getAttr,
-  $one,
 } from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
-import type Form from "../form";
 //@ts-ignore
 import buttonCss from "./index.less?inline";
 //@ts-ignore
@@ -20,18 +17,33 @@ import animationCss from "../styles/animation.css?inline";
 type ButtonState = {
   loading: boolean;
   htmlType: string;
+  text: boolean;
+  ghost: boolean;
+  color?: string;
+  height?: string;
+  disabled: boolean;
+  type: "normal" | "primary";
+  shape: "default" | "round" | "circle";
+  loadingText: string;
 }
 
 export default class Button extends BaseComponent<ButtonState> {
   public static baseName = "button";
   // public htmlType: "submit" | "reset" | "button" = "button";
   _disabled = false;
+  $btn?: HTMLButtonElement;
 
   constructor() {
     super();
     this._state = {
       loading: false,
-      htmlType: "button"
+      htmlType: "button",
+      text: false,
+      ghost: false,
+      disabled: false,
+      type: "normal",
+      shape: "default",
+      loadingText: "加载中……",
     }
   }
 
@@ -44,73 +56,68 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   setLoading(loading: boolean) {
-    const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
-    if ($btn) {
+    if (this.$btn) {
       if (loading) {
-        addClass($btn, "l-btn-loading");
-        $btn.disabled = true;
-        $btn.innerHTML = this.loadingBody();
+        addClass(this.$btn, "l-btn-loading");
+        this.$btn.disabled = true;
+        this.$btn.innerHTML = this.loadingBody();
       } else {
-        removeClass($btn, "l-btn-loading");
-        $btn.disabled = this.disabled;
-        $btn.innerHTML = "<slot></slot>";
+        removeClass(this.$btn, "l-btn-loading");
+        this.$btn.disabled = this.disabled;
+        this.$btn.innerHTML = "<slot></slot>";
       }
     }
   }
 
   setDisabled(value: boolean) {
     this._disabled = value;
-    const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
-    if ($btn) {
-      $btn.disabled = value;
+    if (this.$btn) {
+      this.$btn.disabled = value;
     }
   }
 
   // 初始化属性观察器
   static get observedAttributes() {
-    return ["loading", "color", "disabled", "height", "html-type"];
+    return ["loading", "color", "text", "ghost", "disabled", "height", "html-type", "type", "shape", "loading-text"];
   }
 
-  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
+  protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
     switch (name) {
-      case "loading":
-        const isLoading = parseAttrValue(newValue, false, name);
-        this._state.loading = isLoading;
-        break;
       case "color":
-        if (this.rendered) {
-
-        }
-      default:
+      case "height":
+      case "shape":
+      case "type":
+        this._state[name] = newValue as never;
+        break;
+      case "text":
+      case "ghost":
+      case "disabled":
+      case "loading":
+        this._state[name] = parseAttrValue(newValue, false, name);
+        break;
+      case "html-type":
+      case "loading-text":
+        this._state[kebabToCamel(name) as 'htmlType'] = newValue;
         break;
     }
   }
 
-  // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const $btn = $one(".l-btn", this.root) as HTMLButtonElement;
-    if ($btn) {
-      if (name === "loading") {
-        const loading = parseAttrValue(newValue, false, name);
-        this.setLoading(loading);
-        return;
-      } else if (name === "color") {
-        const text = this.getAttr("text", false);
-        const ghost = this.getAttr("ghost", false);
-        $btn.style.cssText = this.applyColor(newValue, text, ghost);
-        return;
-      } else if (name === "disabled") {
-        const disabled = parseAttrValue(newValue, false, "disabled");
-        this.setDisabled(disabled);
-        return;
+  protected updateDOM(changedProps: Set<string>): void {
+    // loading 和 disabled 更新
+    if (this.$btn) {
+      if (changedProps.has("loading")) {
+        this.setLoading(this._state.loading);
+      }
+      if (changedProps.has("disabled")) {
+        this.setDisabled(this.disabled);
+      }
+      if (changedProps.has("color") && this._state.color) {
+        this.$btn.style.cssText = this.applyColor(this._state.color, this._state.text, this._state.ghost);
       }
     }
-    if (!this.rendered) return;
-    const v = newValue.trim();
-    switch (name) {
-      case "height":
-        this._updateHeight(v);
-        break;
+
+    if (changedProps.has("height")) {
+      this._updateHeight(this._state.height);
     }
   }
 
@@ -121,7 +128,7 @@ export default class Button extends BaseComponent<ButtonState> {
     if (this.isFormButton()) {
       on(this, "click", this._handleClick);
     }
-    this._updateHeight(this.getAttr("height"));
+    this._updateHeight(this._state.height);
   }
 
   disconnectedCallback(): void {
@@ -129,6 +136,7 @@ export default class Button extends BaseComponent<ButtonState> {
     if (this.isFormButton()) {
       off(this, "click", this._handleClick);
     }
+    this.$btn = undefined;
   }
 
   isFormButton() {
@@ -137,17 +145,16 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   getHtmlType(): "submit" | "reset" | "button" {
-    const type = this.getAttr("html-type", "button");
-    return type as "submit" | "reset" | "button";
+    return this._state.htmlType as "submit" | "reset" | "button";
   }
 
   public render() {
-    const type = this.getAttr("type", "normal");
+    const type = this._state.type;
     const $btn = document.createElement("button");
-    const isLoading = this.getAttr("loading", false);
-    const shape = this.getAttr("shape", "default");
-    const text = this.getAttr("text", false);
-    const ghost = this.getAttr("ghost", false);
+    const isLoading = this._state.loading;
+    const shape = this._state.shape;
+    const text = this._state.text;
+    const ghost = this._state.ghost;
     // class
     const classes = [
       "l-btn",
@@ -162,8 +169,8 @@ export default class Button extends BaseComponent<ButtonState> {
     if (this.disabled || isLoading) {
       $btn.disabled = true;
     }
-    $btn.type = this.getAttr("html-type", "button") as "button";
-    const btnStyle = this.applyColor(this.getAttr("color"), text, ghost);
+    $btn.type = this._state.htmlType as "button";
+    const btnStyle = this.applyColor(this._state.color || '', text, ghost);
     if (btnStyle) {
       $btn.style.cssText = btnStyle;
     }
@@ -173,11 +180,12 @@ export default class Button extends BaseComponent<ButtonState> {
       $btn.innerHTML = "<slot></slot>";
     }
     $btn.setAttribute("part", "default");
+    this.$btn = $btn;
     this.root.appendChild($btn);
   }
 
   loadingBody() {
-    const loadingText = this.getAttr("loading-text", "加载中……");
+    const loadingText = this._state.loadingText;
     const res = ['<l-loading-icon class="l-rotate-anim"></l-loading-icon>'];
     if (loadingText) {
       res.push(`<span>${loadingText}</span>`);
@@ -214,34 +222,14 @@ export default class Button extends BaseComponent<ButtonState> {
     }
   }
 
-  private _handleClick = (e: Event) => {
-    const $targe = e.target as HTMLElement;
-    const htmlType = getAttr($targe, "html-type");
-    if (htmlType === "reset" || htmlType === "submit") {
-      const $form = this._getForm();
-      if ($form) {
-        if (htmlType === "reset") {
-          $form.reset();
-        } else if (htmlType === "submit") {
-          $form.submit();
-        }
-      }
+  private _handleClick = () => {
+    if (this._state.htmlType === 'reset' || this._state.htmlType === 'submit') {
+      this.emit('form-action', {
+        bubbles: true,
+        composed: true,
+        detail: this._state.htmlType
+      })
     }
   };
 
-  private _getForm() {
-    let $parent = this.parentElement;
-    let $form: Form | undefined;
-    while ($parent != null) {
-      const tagName = $parent.tagName;
-      if (tagName === "L-FORM") {
-        $form = $parent as Form;
-        break;
-      }
-      if (tagName === "BODY") break;
-      $parent = $parent.parentElement;
-    }
-    $parent = null;
-    return $form;
-  }
 }
