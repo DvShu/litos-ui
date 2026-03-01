@@ -74,6 +74,7 @@ export default class Input extends FormInner<InputState> {
       "maxlength",
       "minlength",
       "inputmode",
+      "type",
     ];
   }
 
@@ -101,6 +102,7 @@ export default class Input extends FormInner<InputState> {
       case "maxlength":
       case "minlength":
       case "inputmode":
+      case "type":
         this._state[name] = newValue;
         break;
       case "clearable":
@@ -110,7 +112,8 @@ export default class Input extends FormInner<InputState> {
     }
   }
 
-  protected updateDOM(): void {
+  protected updateDOM(changedProps: Set<string>): void {
+    /* 旧代码注释：
     // clearable  
     if (this._state.clearable) {
       addClass(this, "l-input--clearable");
@@ -129,6 +132,32 @@ export default class Input extends FormInner<InputState> {
 
     // inputmode
     this._updateAttr("inputmode", this._state.inputmode);
+    */
+
+    // 新的按条件更新逻辑:
+    if (changedProps.has("clearable")) {
+      if (this._state.clearable) {
+        addClass(this, "l-input--clearable");
+      } else {
+        removeClass(this, "l-input--clearable");
+      }
+    }
+
+    if (changedProps.has("error")) {
+      this._updateError(this._state.error != null);
+    }
+
+    if (changedProps.has("maxlength")) {
+      this._updateAttr("maxlength", this._state.maxlength);
+    }
+
+    if (changedProps.has("minlength")) {
+      this._updateAttr("minlength", this._state.minlength);
+    }
+
+    if (changedProps.has("inputmode")) {
+      this._updateAttr("inputmode", this._state.inputmode);
+    }
   }
 
   _updateAttr(key: string, value: any) {

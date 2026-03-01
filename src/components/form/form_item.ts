@@ -1,12 +1,13 @@
-import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../utils";
+import { $one, addClass, removeClass, $$, on } from "ph-utils/dom";
+import { initAttr, parseAttrValue, stopSignal } from "../utils";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./form_item.less?inline";
 import type { SchemaType } from "ph-utils/validator";
 import ContextProvide from "../utils/context_provide";
-import { signal } from "alien-signals";
+import { effect, signal } from "alien-signals";
 import type { FormItemSignal } from "./types";
+
 
 type FormItemState = {
   /** 标签文本 */
@@ -24,6 +25,9 @@ type FormItemState = {
 
 export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
   public static baseName = "form-item";
+
+  public formErrors?: Signal<Record<string, string>>; // 表单验证错误
+  private _errorSignalStop?: SignalStop
 
   constructor() {
     super();
@@ -66,7 +70,8 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     }
   }
 
-  protected updateDOM(): void {
+  protected updateDOM(changedProps: Set<string>): void {
+    /* 旧代码注释：
     // required
     this._updateRequired();
 
@@ -75,6 +80,20 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
 
     // error
     this._updateError();
+    */
+
+    // 新的按条件更新逻辑:
+    if (changedProps.has("required")) {
+      this._updateRequired();
+    }
+
+    if (changedProps.has("label")) {
+      this._updateLabel();
+    }
+
+    if (changedProps.has("error")) {
+      this._updateError();
+    }
   }
 
 
@@ -83,8 +102,23 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     super.connectedCallback();
     this._updateRequired();
     this._parseSchema();
-    //   add(this.formId, "validateChange", this._validateChange);
+    this.emitInject("form-context-request", ((_context: Signal<FormItemSignal>, errors: Signal<Record<string, string>>) => {
+      this.formErrors = errors;
+    }) as any);
+    this._errorSignalStop = effect(() => {
+      const name = this.context().prop;
+      const errors = this.formErrors ? this.formErrors() : null;
+      if (name && errors) {
+        this._state.error = errors[name];
+        this._updateError()
+      }
+    });
   }
+
+  beforeDestroy(): void {
+    stopSignal(this._errorSignalStop);
+  }
+
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
     const prop = this.getAttr("prop");
@@ -145,12 +179,6 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     }
   }
 
-  private _validateChange = (result: true | Record<string, string>, name?: string) => {
-    // const error = result === true ? undefined : result[this.prop as string];
-    // if (name == null || (name === this.prop && this.error != error)) {
-    //   this.error = error;
-    // }
-  };
 
   private _updateError() {
     if (this._state.error) {

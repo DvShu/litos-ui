@@ -55,7 +55,8 @@ export default class Form extends BaseComponent<FormState> {
     }
   }
 
-  protected updateDOM(): void {
+  protected updateDOM(changedProps: Set<string>): void {
+    /* 旧代码注释：
     // label-position
     const $form = $one("form", this.root);
     if ($form) {
@@ -64,6 +65,19 @@ export default class Form extends BaseComponent<FormState> {
         this._state.inline ? "l-form-inline" : undefined,
         `l-form--${this._state.labelPosition}`,
       ]);
+    }
+    */
+
+    // 新的按条件更新逻辑:
+    if (changedProps.has("label-position") || changedProps.has("inline")) {
+      const $form = $one("form", this.root);
+      if ($form) {
+        $form.className = formatClass([
+          "l-form",
+          this._state.inline ? "l-form-inline" : undefined,
+          `l-form--${this._state.labelPosition}`,
+        ]);
+      }
     }
   }
 
@@ -81,6 +95,7 @@ export default class Form extends BaseComponent<FormState> {
   disconnectedCallback(): void {
     this.validator = undefined as any;
     off(this, "form-rule-change", this.ruleChange);
+    off(this, "form-value-change", this._valueChange);
     off(this, "form-context-request", this._provide);
     super.disconnectedCallback();
   }
@@ -111,7 +126,6 @@ export default class Form extends BaseComponent<FormState> {
 
   _valueChange = (e: CustomEvent) => {
     const { name, value, valid } = e.detail;
-    console.log(e.detail)
     if (!name) return;
     if (this._data == null) {
       this._data = {};
@@ -157,7 +171,7 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   public clearValidate() {
-    // emit(this.id, "validateChange", true);
+    this.errors({});
   }
 
   public reset() {

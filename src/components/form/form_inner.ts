@@ -102,11 +102,9 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         }
       }
     });
-    console.log(this._value == null)
     if (this._value == null) {
       this._resetValue = "";
       if (this._firstPushValue) {
-        console.log('推送初始化数据')
         // 没有初始值，证明没有设置初始值，那要提交一次给表单
         this.pushValueChange();
       }

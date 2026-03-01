@@ -17,10 +17,23 @@ import buttonCss from "./index.less?inline";
 //@ts-ignore
 import animationCss from "../styles/animation.css?inline";
 
-export default class Button extends BaseComponent {
+type ButtonState = {
+  loading: boolean;
+  htmlType: string;
+}
+
+export default class Button extends BaseComponent<ButtonState> {
   public static baseName = "button";
   // public htmlType: "submit" | "reset" | "button" = "button";
   _disabled = false;
+
+  constructor() {
+    super();
+    this._state = {
+      loading: false,
+      htmlType: "button"
+    }
+  }
 
   get disabled() {
     return this._disabled;
@@ -55,7 +68,22 @@ export default class Button extends BaseComponent {
 
   // 初始化属性观察器
   static get observedAttributes() {
-    return ["loading", "color", "disabled", "height"];
+    return ["loading", "color", "disabled", "height", "html-type"];
+  }
+
+  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
+    switch (name) {
+      case "loading":
+        const isLoading = parseAttrValue(newValue, false, name);
+        this._state.loading = isLoading;
+        break;
+      case "color":
+        if (this.rendered) {
+
+        }
+      default:
+        break;
+    }
   }
 
   // 当属性发生变化时调用的回调函数
