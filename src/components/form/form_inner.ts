@@ -132,8 +132,9 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    stopSignal(this._signalStop);
-    stopSignal(this._errorSignalStop);
+    this._signalStop = stopSignal(this._signalStop);
+    this._errorSignalStop = stopSignal(this._errorSignalStop);
+    this._resetSignalStop = stopSignal(this._resetSignalStop);
   }
 
   public isDisabled() {

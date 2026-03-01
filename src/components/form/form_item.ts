@@ -127,7 +127,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
   }
 
   beforeDestroy(): void {
-    stopSignal(this._errorSignalStop);
+    this._errorSignalStop = stopSignal(this._errorSignalStop);
   }
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {

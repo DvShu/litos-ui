@@ -124,6 +124,6 @@ export function kebabToCamel(attr: string) {
 export function stopSignal(fn?: SignalStop) {
   if (fn) {
     fn();
-    fn = undefined;
   }
+  return undefined;
 }
