@@ -4,7 +4,6 @@ import { getAttr } from "ph-utils/dom";
 import type { FormItemSignal, FormSignal } from "./types";
 import { effect } from "alien-signals";
 
-
 export default class FormInner<T = Record<string, any>> extends BaseComponent<T> {
   public disabled = false;
   public _value: any = undefined;
@@ -15,8 +14,10 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   public formContext?: Signal<FormSignal>;
   public formItemContext?: Signal<FormItemSignal>;
   public formErrors?: Signal<Record<string, string>>; // 表单验证错误
+  resetCtx?: Signal<number>;
   private _signalStop?: SignalStop;
   private _errorSignalStop?: SignalStop;
+  private _resetSignalStop?: SignalStop;
 
   /**
    *
@@ -79,7 +80,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     }
   }
 
-  protected attributeChange(_name: string, _oldValue: string, _newValue: string) { }
+  protected attributeChange(_name: string, _oldValue: string, _newValue: string) {}
 
   connectedCallback(): void {
     this.emitInject("form-context-request", this.formInject as any);
@@ -120,6 +121,13 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
       //   this.focus();
       // }
     });
+
+    this._resetSignalStop = effect(() => {
+      const resetValue = this.resetCtx ? this.resetCtx() : 0;
+      if (resetValue > 0) {
+        this.reset();
+      }
+    });
   }
 
   disconnectedCallback(): void {
@@ -136,13 +144,18 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     return this.name;
   }
 
-  protected disabledChange() { }
-  protected innerBlockChange(_innerBlock: boolean) { }
-  protected validResult(_msg?: string) { }
+  protected disabledChange() {}
+  protected innerBlockChange(_innerBlock: boolean) {}
+  protected validResult(_msg?: string) {}
 
-  public formInject = (context: Signal<FormSignal>, errors: Signal<Record<string, string>>) => {
+  public formInject = (
+    context: Signal<FormSignal>,
+    errors: Signal<Record<string, string>>,
+    reset: Signal<number>,
+  ) => {
     this.formContext = context;
     this.formErrors = errors;
+    this.resetCtx = reset;
   };
 
   public formItemInject = (context: Signal<FormItemSignal>) => {
@@ -167,5 +180,6 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   public reset() {
     this._isReset = true;
     this.value = this._resetValue || "";
+    console.log("reset");
   }
 }

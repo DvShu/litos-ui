@@ -1,5 +1,5 @@
 import { formatClass, formatStyle, $one, on, off } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../utils";
+import { parseAttrValue } from "../utils";
 import Validator from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -20,6 +20,7 @@ export default class Form extends BaseComponent<FormState> {
   private _data?: Record<string, any>;
   public context: Signal<FormSignal>;
   public errors: Signal<Record<string, string | undefined>>; // 验证错误
+  public resetCtx: Signal<number>;
 
   constructor() {
     super();
@@ -33,6 +34,7 @@ export default class Form extends BaseComponent<FormState> {
     this.validator = new Validator([]);
     this.context = signal({ innerBlock: false });
     this.errors = signal({});
+    this.resetCtx = signal(0);
   }
 
   static get observedAttributes() {
@@ -50,25 +52,12 @@ export default class Form extends BaseComponent<FormState> {
         break;
       default:
         const value = parseAttrValue(newValue, false, name);
-        this._state[name as 'inline'] = value;
+        this._state[name as "inline"] = value;
         break;
     }
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    /* 旧代码注释：
-    // label-position
-    const $form = $one("form", this.root);
-    if ($form) {
-      $form.className = formatClass([
-        "l-form",
-        this._state.inline ? "l-form-inline" : undefined,
-        `l-form--${this._state.labelPosition}`,
-      ]);
-    }
-    */
-
-    // 新的按条件更新逻辑:
     if (changedProps.has("label-position") || changedProps.has("inline")) {
       const $form = $one("form", this.root);
       if ($form) {
@@ -90,6 +79,7 @@ export default class Form extends BaseComponent<FormState> {
   afterInit(): void {
     on(this, "form-rule-change", this.ruleChange);
     on(this, "form-value-change", this._valueChange);
+    on(this, "form-action", this._formAction);
   }
 
   disconnectedCallback(): void {
@@ -97,6 +87,7 @@ export default class Form extends BaseComponent<FormState> {
     off(this, "form-rule-change", this.ruleChange);
     off(this, "form-value-change", this._valueChange);
     off(this, "form-context-request", this._provide);
+    off(this, "form-action", this._formAction);
     super.disconnectedCallback();
   }
 
@@ -120,9 +111,17 @@ export default class Form extends BaseComponent<FormState> {
   private _provide(e: CustomEvent) {
     const { context, callback } = e.detail;
     if (context === "form-context-request") {
-      callback(this.context, this.errors);
+      callback(this.context, this.errors, this.resetCtx);
     }
   }
+
+  _formAction = (e: CustomEvent) => {
+    if (e.detail === "submit") {
+      this.submit();
+    } else {
+      this.reset();
+    }
+  };
 
   _valueChange = (e: CustomEvent) => {
     const { name, value, valid } = e.detail;
@@ -157,15 +156,18 @@ export default class Form extends BaseComponent<FormState> {
       } else {
         tacks.push(this.validator.validateKey(field, this._data[field], this._data));
       }
+
       Promise.allSettled(tacks).then((results) => {
+        let validResult: Record<string, any> = {};
         for (let i = 0, len = results.length; i < len; i++) {
           const result = results[i];
           if (result.status === "rejected") {
-            // emit(this.id, "validateChange", result.reason.detail, result.reason.key);
+            validResult = { ...validResult, ...result.reason.detail };
           } else {
-            // emit(this.id, "validateChange", true, result.value.key);
+            validResult[result.value.key] = undefined;
           }
         }
+        this.errors({ ...this.errors(), ...validResult });
       });
     }
   }
@@ -176,11 +178,12 @@ export default class Form extends BaseComponent<FormState> {
 
   public reset() {
     this.clearValidate();
-    // emit(this.id, "reset");
+    const old = this.resetCtx();
+    this.resetCtx(old >= 100 ? 1 : old + 1);
   }
 
   public submit() {
-
+    console.log(this._state.novalidate);
     if (this._state.novalidate) {
       this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
     } else {
@@ -198,15 +201,19 @@ export default class Form extends BaseComponent<FormState> {
   public async validate() {
     try {
       await this.validator.validate(this._data);
-      // emit(this.id, "validateChange", true);
+      this.errors({});
       return Promise.resolve(true);
     } catch (err: any) {
-      // emit(this.id, "validateChange", err.detail);
+      this.errors(err.detail);
       return Promise.resolve(false);
     }
   }
 
   public getData() {
     return { ...this._data };
+  }
+
+  public setErrors(errorObj: Record<string, any>) {
+    this.errors(errorObj);
   }
 }

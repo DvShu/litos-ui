@@ -32,6 +32,18 @@ regist([Space]); // 表单按钮组的间距
           console.log($target.getData());
         });
 
+        // 自定义验证
+        const $customValidForm = $one('#customValidForm');
+        const $customSubmitBtn = $one('#customSubmit');
+        $customSubmitBtn.addEventListener('click', (event) => {
+          $customValidForm.setErrors({
+            name: '姓名不能为空',
+            password: '密码不能为空',
+            confimPassword: '确认密码不能为空',
+          });
+        });
+        
+
         const $positionRadio = $one('#positionRadio');
         on($positionRadio, 'change', handlePositionChange);
       }
@@ -50,7 +62,7 @@ regist([Space]); // 表单按钮组的间距
 
 ### 基础用法
 
-基本的表单数据域控制展示，包含布局、初始化、验证、提交。数据验证采用 [ph-utils/validator](https://gitee.com/towardly/ph/wikis/utils/validator)
+基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [ph-utils/validator](https://gitee.com/towardly/ph/wikis/utils/validator)
 
 <ClientOnly>
 <l-code-preview>
@@ -78,6 +90,66 @@ regist([Space]); // 表单按钮组的间距
 
 > 1. 如果想要实现按钮之间的间隔，需要引入 `Space` 组件
 > 2. 当 `Button` 在 `Form` 里面时，如果 `Button` 的 `html-type` 属性为 `reset`、`submit` 时会自动触发表单的重置、提交。
+
+### 自定义验证
+
+对于复杂的表单，如果默认的验证不符合需求，可以通过给 `Form` 传递 `novalidate="on"` 禁用默认验证，然后手动调用 `Form` 的 `setErrors(errors: Reocord<string, any>)` 传递验证的错误信息即可。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-form id="customValidForm" novalidate="on">
+    <l-form-item required label="姓名" prop="name">
+      <l-input placeholder="请输入姓名"></l-input>
+    </l-form-item>
+    <l-form-item required label="密码" prop="password">
+      <l-input placeholder="请输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item required label="确认密码" prop="confimPassword">
+      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item label="">
+      <l-button type="primary" id="customSubmit">提交</l-button>
+    </l-form-item>
+  </l-form>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-form id="customValidForm" novalidate="on">
+    <l-form-item required label="姓名" prop="name">
+      <l-input placeholder="请输入姓名"></l-input>
+    </l-form-item>
+    <l-form-item required label="密码" prop="password">
+      <l-input placeholder="请输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item required label="确认密码" prop="confimPassword">
+      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item label="">
+      <l-button id="customSubmit" type="primary">提交</l-button>
+    </l-form-item>
+  </l-form>
+</textarea>
+<textarea lang="ts">
+  import { $one } from 'ph-utils/dom';
+  //-
+  // 自定义验证
+  const $customValidForm = $one('#customValidForm');
+  const $customSubmitBtn = $one('#customSubmit');
+  $customSubmitBtn.addEventListener('click', (event) => {
+    $customValidForm.setErrors({
+      name: '姓名不能为空',
+      password: '密码不能为空',
+      confimPassword: '确认密码不能为空',
+    });
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> 验证成功的字段，可以不传或者传递为 `undefined`、`null`
+> 当然也可以手动验证数据，然后分别调用输入框以及 `FormItem` 的 `setError({})` 方法设置错误
 
 ### `InnerBlock`
 
@@ -216,6 +288,7 @@ regist([Space]); // 表单按钮组的间距
 | `validate` | 对整个表单进行校验的方法 | `() => void` |
 | `validateField` | 对部分表单字段进行校验的方法 | `(props: string | string[]) => void` |
 | `clearValidate` | 移除表单项的校验结果 | `() => void` |
+| `setErrors(errors: Record<string, string>)` | 设置表单错误信息 | - |
 
 ### FormItem Attributes
 

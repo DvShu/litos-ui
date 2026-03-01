@@ -1,5 +1,5 @@
-import { $one, addClass, removeClass, $$, on } from "ph-utils/dom";
-import { initAttr, parseAttrValue, stopSignal } from "../utils";
+import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
+import { parseAttrValue, stopSignal } from "../utils";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./form_item.less?inline";
@@ -7,7 +7,6 @@ import type { SchemaType } from "ph-utils/validator";
 import ContextProvide from "../utils/context_provide";
 import { effect, signal } from "alien-signals";
 import type { FormItemSignal } from "./types";
-
 
 type FormItemState = {
   /** 标签文本 */
@@ -21,38 +20,48 @@ type FormItemState = {
   pattern?: string;
   /** 验证消息 */
   validity?: string;
-}
+};
 
 export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
   public static baseName = "form-item";
 
   public formErrors?: Signal<Record<string, string>>; // 表单验证错误
-  private _errorSignalStop?: SignalStop
+  private _errorSignalStop?: SignalStop;
 
   constructor() {
     super();
     this.contextEventName = "form-item-context-request";
     this._state = {
       labelPosition: "right",
-      required: false
-    }
+      required: false,
+    };
     this.context = signal({ innerBlock: false });
   }
 
   static get observedAttributes() {
-    return ["error", "label", "required", "inner-block", "prop", "label-position", "verify", "pattern", "validity"];
+    return [
+      "error",
+      "label",
+      "required",
+      "inner-block",
+      "prop",
+      "label-position",
+      "verify",
+      "pattern",
+      "validity",
+    ];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
-      case 'error':
-      case 'label':
-      case 'verify':
-      case 'pattern':
-      case 'validity':
+      case "error":
+      case "label":
+      case "verify":
+      case "pattern":
+      case "validity":
         this._state[name] = newValue;
         break;
-      case 'label-position':
+      case "label-position":
         this._state.labelPosition = newValue as "left";
         break;
 
@@ -96,13 +105,15 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     }
   }
 
-
   connectedCallback(): void {
     this.loadStyleText([css]);
     super.connectedCallback();
     this._updateRequired();
     this._parseSchema();
-    this.emitInject("form-context-request", ((_context: Signal<FormItemSignal>, errors: Signal<Record<string, string>>) => {
+    this.emitInject("form-context-request", ((
+      _context: Signal<FormItemSignal>,
+      errors: Signal<Record<string, string>>,
+    ) => {
       this.formErrors = errors;
     }) as any);
     this._errorSignalStop = effect(() => {
@@ -110,7 +121,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
       const errors = this.formErrors ? this.formErrors() : null;
       if (name && errors) {
         this._state.error = errors[name];
-        this._updateError()
+        this._updateError();
       }
     });
   }
@@ -118,7 +129,6 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
   beforeDestroy(): void {
     stopSignal(this._errorSignalStop);
   }
-
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
     const prop = this.getAttr("prop");
@@ -143,7 +153,9 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     const $slot = $$("slot");
     $content.appendChild($slot);
     if (this._state.error) {
-      $content.appendChild($$("div", { class: "l-form-item__error", textContent: this._state.error }));
+      $content.appendChild(
+        $$("div", { class: "l-form-item__error", textContent: this._state.error }),
+      );
     }
     fragment.appendChild($content);
     return fragment;
@@ -178,7 +190,6 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
       this._updateRules(schema);
     }
   }
-
 
   private _updateError() {
     if (this._state.error) {
