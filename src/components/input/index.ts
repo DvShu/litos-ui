@@ -1,5 +1,5 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "ph-utils/dom";
-import { parseAttrValue } from "../utils";
+import { parseAttrValue, unitNumberStr } from "../utils";
 import FormInner from "../form/form_inner";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -18,6 +18,8 @@ interface InputState {
   maxlength?: string;
   minlength?: string;
   inputmode?: string;
+  block: boolean;
+  width?: string;
 }
 
 /**
@@ -32,11 +34,6 @@ export default class Input extends FormInner<InputState> {
   public static baseName: string = "input";
   /** 自定义输入解析器 */
   public parser?: (value: string) => string;
-  /** 宽度 */
-  public width?: string;
-  /** 宽度铺满 */
-  public block = false;
-  public error = false;
 
   $inner?: HTMLInputElement;
 
@@ -47,6 +44,7 @@ export default class Input extends FormInner<InputState> {
       placeholder: "",
       autosize: false,
       allowInput: undefined,
+      block: false,
       clearable: false,
     };
   }
@@ -62,7 +60,6 @@ export default class Input extends FormInner<InputState> {
     return this.getValue();
   }
 
-
   static get observedAttributes() {
     return [
       "disabled",
@@ -75,6 +72,8 @@ export default class Input extends FormInner<InputState> {
       "minlength",
       "inputmode",
       "type",
+      "width",
+      "block",
     ];
   }
 
@@ -85,10 +84,7 @@ export default class Input extends FormInner<InputState> {
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
     this.style.cssText = formatStyle(this._getStyleObj()) + this.getAttr("style", "");
-    if (this.error) {
-      addClass(this, "is-error");
-    }
-
+    this._updateError(this._state.error != null);
   }
 
   disconnectedCallback(): void {
@@ -106,34 +102,17 @@ export default class Input extends FormInner<InputState> {
         this._state[name] = newValue;
         break;
       case "clearable":
-        const newClearable = parseAttrValue(newValue, false, name);
-        this._state.clearable = newClearable;
+      case "block":
+        const v = parseAttrValue(newValue, false, name);
+        this._state[name] = v;
+        break;
+      case "width":
+        this._state.width = unitNumberStr(newValue);
         break;
     }
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    /* 旧代码注释：
-    // clearable  
-    if (this._state.clearable) {
-      addClass(this, "l-input--clearable");
-    } else {
-      removeClass(this, "l-input--clearable");
-    }
-
-    // error
-    this._updateError(this._state.error != null);
-
-    // maxlength
-    this._updateAttr("maxlength", this._state.maxlength);
-
-    // minlength
-    this._updateAttr("minlength", this._state.minlength);
-
-    // inputmode
-    this._updateAttr("inputmode", this._state.inputmode);
-    */
-
     // 新的按条件更新逻辑:
     if (changedProps.has("clearable")) {
       if (this._state.clearable) {
@@ -157,6 +136,10 @@ export default class Input extends FormInner<InputState> {
 
     if (changedProps.has("inputmode")) {
       this._updateAttr("inputmode", this._state.inputmode);
+    }
+
+    if (changedProps.has("block")) {
+      this.innerBlockChange(this._state.block);
     }
   }
 
@@ -377,8 +360,8 @@ export default class Input extends FormInner<InputState> {
 
   private _getStyleObj() {
     const styleObj: Record<string, string> = {};
-    if (this.width) {
-      styleObj["--l-input-width"] = this.width;
+    if (this._state.width) {
+      styleObj["--l-input-width"] = this._state.width;
     }
     return styleObj;
   }

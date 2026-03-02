@@ -9,6 +9,6 @@
     "moduleResolution": "bundler",
     "outDir": "lib"
   },
-  "include": ["src/components/*.ts"],
+  "include": ["src/components/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules", "lib", "src/components/browser.ts"]
 }
