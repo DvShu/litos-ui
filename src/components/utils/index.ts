@@ -1,4 +1,4 @@
-import { isBlank } from "ph-utils";
+import { isBlank, isNumeric } from "ph-utils";
 
 let seed = -1; // 用于构建多个id，避免重复
 
@@ -126,4 +126,9 @@ export function stopSignal(fn?: SignalStop) {
     fn();
   }
   return undefined;
+}
+
+export function unitNumberStr(value?: string, unit = "px") {
+  if (!value) return value;
+  return isNumeric(value) ? `${value}${unit}` : value;
 }

@@ -1,14 +1,18 @@
 import FormInner from "../form/form_inner";
-import { initAttr, parseAttrValue } from "../utils";
-import { $$, $one, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
+import { parseAttrValue } from "../utils";
+import { $$, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
 
-export default class Check extends FormInner {
-  /** 是否选中 */
-  private _checked = false;
-  label?: string;
+type CheckState = {
   /** 是否为按钮样式 */
-  button = false;
-  _inputType = "radio"; // input类型
+  button: boolean;
+  label?: string;
+};
+
+export default class Check extends FormInner<CheckState> {
+  /** 是否选中 */
+  private _checked: boolean;
+  _inputType: "radio" | "checkbox"; // input类型
+  $input?: HTMLInputElement;
 
   setChecked(isChecked: boolean) {
     this._checked = isChecked;
@@ -21,6 +25,8 @@ export default class Check extends FormInner {
 
   constructor() {
     super();
+    this._checked = false;
+    this._inputType = "radio";
     // 防止浏览器将组件视为原生 checkbox
     Object.defineProperty(this, "checked", {
       configurable: true,
@@ -31,11 +37,10 @@ export default class Check extends FormInner {
   }
 
   static get observedAttributes() {
-    return ["disabled", "checked"];
+    return ["checked", "label", "button", ...FormInner.observedAttributes];
   }
 
   connectedCallback(): void {
-    initAttr(this);
     super.connectedCallback();
     if (this.getChecked()) {
       this.setChecked(true);
@@ -61,13 +66,12 @@ export default class Check extends FormInner {
       name: this.getName(),
       value: this.value,
       checked: this.getChecked(),
+      disabled: this.isDisabled() ? "disabled" : undefined,
     }) as HTMLInputElement;
-    if (this.isDisabled()) {
-      $input.disabled = true;
-    }
+    this.$input = $input;
     fragment.appendChild($input);
 
-    if (!this.button) {
+    if (!this._state.button) {
       const $inner = $$("span", { class: "l-check__inner" });
       fragment.appendChild($inner);
     }
@@ -77,7 +81,7 @@ export default class Check extends FormInner {
       part: "label",
     });
     const $labelSlot = $$("slot", {
-      textContent: this.label,
+      textContent: this._state.label,
     });
     $label.appendChild($labelSlot);
     fragment.appendChild($label);
@@ -86,11 +90,11 @@ export default class Check extends FormInner {
   }
 
   protected attributeChange(name: string, _oldValue: string, newValue: string): void {
-    if (name === "checked") {
-      const checked = parseAttrValue(newValue, false, "checked");
-      if (checked !== this.getChecked()) {
-        this.setChecked(checked);
-      }
+    switch (name) {
+      case "checked":
+        const isChecked = parseAttrValue(newValue, false, "checked");
+        this.setChecked(isChecked);
+        break;
     }
   }
 
@@ -100,14 +104,17 @@ export default class Check extends FormInner {
     } else {
       removeClass(this, "is-checked");
     }
-    const $input = $one("input", this.root) as HTMLInputElement;
-    if ($input) {
-      $input.checked = this.getChecked();
+
+    if (this.$input) {
+      this.$input.checked = this.getChecked();
     }
   }
 
   protected disabledChange(): void {
     toggleClass(this, "is-disabled");
+    if (this.$input) {
+      this.$input.disabled = this.isDisabled();
+    }
   }
 
   #handleClick = () => {

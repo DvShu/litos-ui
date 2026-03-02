@@ -1,112 +1,122 @@
 import FormInner from "../form/form_inner";
 import { on, off, $$ } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { isNumeric } from "ph-utils";
-import { iterate } from "ph-utils/dom";
+import { unitNumberStr } from "../utils";
+import { signal } from "alien-signals";
 
-export default class CheckGroup extends FormInner {
-  checkedValues: string[];
+type CheckGroupState = {
+  gap?: string;
+};
+
+export default class CheckGroup extends FormInner<CheckGroupState> {
+  checkedValues: Signal<string[]>;
   multiple: boolean;
+  _state: CheckGroupState;
 
-  set value(value: string) {
+  setValue(value: string) {
     super.setValue(value);
-    if (this.rendered) {
-      this.updateChangedStatus();
-    }
-  }
-
-  get value() {
-    return this._value;
+    this.updateChecked();
   }
 
   constructor() {
     super(false);
     this.multiple = true;
-    this.checkedValues = [];
+    this.checkedValues = signal<string[]>([]);
+    this._state = {};
   }
 
   static get observedAttributes(): string[] {
-    return ["gap", "value"];
+    return ["disabled", "value", "name", "inner-block", "gap"];
   }
 
-  attributeChange(name: string, oldValue: any, newValue: any) {
-    if (name === "gap") {
-      const gap = parseAttrValue(newValue, undefined);
-      if (gap) {
-        const gapValue = isNumeric(gap) ? `${gap}px` : gap;
-        this.style.setProperty("--l-check-gap", gapValue);
-      } else {
-        this.style.removeProperty("--l-check-gap");
-      }
-      return;
+  attributeChange(name: string, _oldValue: any, newValue: any) {
+    switch (name) {
+      case "gap":
+        this._state.gap = unitNumberStr(newValue);
+        break;
+    }
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("gap")) {
+      this._updateGap();
     }
   }
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
+    this._updateGap();
   }
 
   afterInit(): void {
     on(this.root, "change", this.#handleChange as any);
-    this.updateChangedStatus();
+    on(this, "check-context-request", this._privide);
   }
 
   beforeDestroy(): void {
     off(this.root, "change", this.#handleChange as any);
-    this.checkedValues = [];
+    off(this, "check-context-request", this._privide);
+    this.checkedValues([]);
   }
 
   render() {
     return $$("slot");
   }
 
+  _privide = (e: CustomEvent) => {
+    const { context, callback } = e.detail;
+    if (context === "check-context-request") {
+      callback(this.checkedValues);
+    }
+  };
+
+  _updateGap = () => {
+    if (this._state.gap) {
+      this.style.setProperty("--l-check-gap", this._state.gap);
+    } else {
+      this.style.removeProperty("--l-check-gap");
+    }
+  };
+
   #handleChange = (e: CustomEvent) => {
     e.stopPropagation(); // 阻止事件传播
-    this.updatePartChild(e.detail.value);
-    this.setValue(e.detail.value);
-
+    const v = e.detail.value;
+    const checked = this.checkedValues();
+    let hasValue = checked.indexOf(v);
+    if (!this.multiple) {
+      // 单选且未选中则选中
+      if (hasValue === -1) {
+        this.setAttribute("value", v);
+      }
+    } else {
+      // 多选, 如果选中则取消选中，否则选中
+      if (hasValue !== -1) {
+        checked.splice(hasValue, 1);
+      } else {
+        checked.push(v);
+      }
+      this.setAttribute("value", checked.join("&"));
+    }
     this.emit("change", {
-      detail: { value: [...this.checkedValues] },
+      detail: { value: this.multiple ? checked : v },
       composed: true,
     });
   };
 
-  protected updatePartChild(_value: string) {}
-
   protected updateChecked() {
+    let v: string[] = [];
     if (this.value) {
       if (this.multiple) {
         const values = this.value.split("&") as string[];
-        this.checkedValues.push(...values.map((v) => decodeURIComponent(v)));
+        v.push(...values.map((v) => decodeURIComponent(v)));
       } else {
-        this.checkedValues = [this.value];
+        v = [this.value];
       }
     } else {
-      this.checkedValues = [];
+      v = [];
     }
-  }
-
-  protected updateChangedStatus() {
-    this.updateChecked();
-    this.updateChildren();
-  }
-
-  protected updateChildren() {
-    const children = this.children as unknown as HTMLInputElement[];
-    iterate(children, ($checkbox) => {
-      let value = $checkbox.value || $checkbox.getAttribute("value");
-      if (value) {
-        if (this.checkedValues.includes(value)) {
-          $checkbox.setAttribute("checked", "");
-        } else {
-          // 移除checked属性
-          $checkbox.removeAttribute("checked");
-        }
-      }
-    });
+    this.checkedValues(v);
   }
 }
