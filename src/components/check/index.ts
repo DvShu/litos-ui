@@ -10,19 +10,21 @@ type CheckGroupState = {
 };
 
 export default class CheckGroup extends FormInner<CheckGroupState> {
-  checkedValues: Signal<string[]>;
+  values: Signal<string[]>;
   multiple: boolean;
   _state: CheckGroupState;
 
   setValue(value: string) {
     super.setValue(value);
-    this.updateChecked();
+    if (this.rendered) {
+      this.updateChecked();
+    }
   }
 
   constructor() {
     super(false);
     this.multiple = true;
-    this.checkedValues = signal<string[]>([]);
+    this.values = signal([]);
     this._state = {};
   }
 
@@ -46,6 +48,7 @@ export default class CheckGroup extends FormInner<CheckGroupState> {
 
   connectedCallback(): void {
     this.loadStyleText([css]);
+    this.updateChecked();
     super.connectedCallback();
     this._updateGap();
   }
@@ -58,7 +61,7 @@ export default class CheckGroup extends FormInner<CheckGroupState> {
   beforeDestroy(): void {
     off(this.root, "change", this.#handleChange as any);
     off(this, "check-context-request", this._privide);
-    this.checkedValues([]);
+    this.values([]);
   }
 
   render() {
@@ -68,7 +71,7 @@ export default class CheckGroup extends FormInner<CheckGroupState> {
   _privide = (e: CustomEvent) => {
     const { context, callback } = e.detail;
     if (context === "check-context-request") {
-      callback(this.checkedValues);
+      callback(this.values);
     }
   };
 
@@ -83,7 +86,7 @@ export default class CheckGroup extends FormInner<CheckGroupState> {
   #handleChange = (e: CustomEvent) => {
     e.stopPropagation(); // 阻止事件传播
     const v = e.detail.value;
-    const checked = this.checkedValues();
+    const checked = this.values();
     let hasValue = checked.indexOf(v);
     if (!this.multiple) {
       // 单选且未选中则选中
@@ -117,6 +120,6 @@ export default class CheckGroup extends FormInner<CheckGroupState> {
     } else {
       v = [];
     }
-    this.checkedValues(v);
+    this.values(v);
   }
 }

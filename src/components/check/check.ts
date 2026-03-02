@@ -1,5 +1,6 @@
+import { effect } from "alien-signals";
 import FormInner from "../form/form_inner";
-import { parseAttrValue } from "../utils";
+import { parseAttrValue, stopSignal } from "../utils";
 import { $$, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
 
 type CheckState = {
@@ -13,6 +14,8 @@ export default class Check extends FormInner<CheckState> {
   private _checked: boolean;
   _inputType: "radio" | "checkbox"; // input类型
   $input?: HTMLInputElement;
+  _groupCtx?: Signal<string[]>;
+  _groupCtxStop?: SignalStop;
 
   setChecked(isChecked: boolean) {
     this._checked = isChecked;
@@ -48,6 +51,14 @@ export default class Check extends FormInner<CheckState> {
     if (this.isDisabled()) {
       addClass(this, "is-disabled");
     }
+    this.emitInject("check-context-request", (context: Signal<string[]>) => {
+      this._groupCtx = context;
+    });
+    this._groupCtxStop = effect(() => {
+      if (this.value == null) return;
+      const values = this._groupCtx ? this._groupCtx() : [];
+      this.setChecked(values.includes(this.value));
+    });
   }
 
   afterInit(): void {
@@ -56,6 +67,7 @@ export default class Check extends FormInner<CheckState> {
 
   beforeDestroy(): void {
     off(this, "click", this.#handleClick);
+    this._groupCtxStop = stopSignal(this._groupCtxStop);
   }
 
   render() {
@@ -95,6 +107,12 @@ export default class Check extends FormInner<CheckState> {
         const isChecked = parseAttrValue(newValue, false, "checked");
         this.setChecked(isChecked);
         break;
+      case "button":
+        this._state.button = parseAttrValue(newValue, false, "button");
+        break;
+      case "label":
+        this._state.label = newValue;
+        break;
     }
   }
 
@@ -119,7 +137,17 @@ export default class Check extends FormInner<CheckState> {
 
   #handleClick = () => {
     if (this.isDisabled()) return;
-    this._doChangeAction();
+    if (this.value && this._groupCtx) {
+      // 处于 group 中
+      this.emit('change', { bubbles: true, composed: true, detail: { value: this.value } });
+    } else {
+      // 通过 checked 属性控制
+      if (this._inputType === 'radio') {
+        this.setChecked(true);
+      } else {
+        this.setChecked(!this.getChecked());
+      }
+    }
   };
 
   emitChange() {
@@ -133,5 +161,5 @@ export default class Check extends FormInner<CheckState> {
     });
   }
 
-  _doChangeAction() {}
+  _doChangeAction() { }
 }
