@@ -19,9 +19,9 @@ export default class Checkbox extends Check {
 
   _doChangeAction(): void {
     if (this.getChecked()) {
-      this.removeAttribute("checked");
+      this.setChecked(false);
     } else {
-      this.setAttribute("checked", "");
+      this.setChecked(true);
     }
     this.emitChange();
   }

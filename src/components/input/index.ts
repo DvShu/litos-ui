@@ -1,33 +1,35 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "ph-utils/dom";
-import { initAttr, parseAttrValue } from "../utils";
+import { parseAttrValue } from "../utils";
 import FormInner from "../form/form_inner";
-import { add, remove } from "../utils/event";
 //@ts-ignore
 import css from "./index.less?inline";
 
-type InputMode = "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url" | "none";
+interface InputState {
+  /** 原生 input 的类型，默认为 "text" */
+  type: string;
+  /** 输入框占位符 */
+  placeholder: string;
+  /** 是否自动调整大小 */
+  autosize: boolean;
+  /** 限制输入类型, number, integer */
+  allowInput: string | undefined;
+  clearable: boolean;
+  error?: string;
+  maxlength?: string;
+  minlength?: string;
+  inputmode?: string;
+}
 
 /**
  * 输入组件，提供基本的输入功能，并支持自定义输入解析器和表单联动。
  *
- * @property {string} type - 原生 input 的类型，默认为 "text"。
- * @property {string | undefined} placeholder - 输入框占位符。
- * @property {boolean} autosize - 是否自动调整大小。
- * @property {boolean} disabled - 是否禁用输入框。
- * @property {string | undefined} allowInput - 限制输入类型，如 "number", "integer"。
  * @property {(value: string) => string | undefined} parser - 自定义输入解析器。
  *
  * @method setParser - 设置自定义输入解析器。
  * @method focus - 输入框获取焦点
  */
-export default class Input extends FormInner {
+export default class Input extends FormInner<InputState> {
   public static baseName: string = "input";
-  /** 原生 input 的 type */
-  public type: string = "text";
-  public placeholder: string | undefined = undefined;
-  public autosize = false;
-  /** 限制输入类型, number, integer */
-  public allowInput: string | undefined = undefined;
   /** 自定义输入解析器 */
   public parser?: (value: string) => string;
   /** 宽度 */
@@ -35,12 +37,19 @@ export default class Input extends FormInner {
   /** 宽度铺满 */
   public block = false;
   public error = false;
-  public maxlength?: string;
-  public minlength?: string;
-  public inputmode: InputMode = "text";
 
   $inner?: HTMLInputElement;
-  #clearable = false;
+
+  public constructor() {
+    super();
+    this._state = {
+      type: "text",
+      placeholder: "",
+      autosize: false,
+      allowInput: undefined,
+      clearable: false,
+    };
+  }
 
   set value(value: any) {
     this.setValue(value);
@@ -53,25 +62,23 @@ export default class Input extends FormInner {
     return this.getValue();
   }
 
-  get clearable() {
-    return this.#clearable;
-  }
-
-  set clearable(value: boolean) {
-    this.#clearable = value;
-    if (value) {
-      addClass(this, "l-input--clearable");
-    } else {
-      removeClass(this, "l-input--clearable");
-    }
-  }
 
   static get observedAttributes() {
-    return ["disabled", "value", "name", "error", "clearable", "maxlength", "inputmode"];
+    return [
+      "disabled",
+      "value",
+      "name",
+      "inner-block",
+      "error",
+      "clearable",
+      "maxlength",
+      "minlength",
+      "inputmode",
+      "type",
+    ];
   }
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText([css]);
     super.connectedCallback();
     this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
@@ -81,39 +88,84 @@ export default class Input extends FormInner {
     if (this.error) {
       addClass(this, "is-error");
     }
-    if (this.getName() && this.formAttrs.id) {
-      add(this.formAttrs.id, "validateChange", this._validateChange);
-    }
+
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    if (this.formAttrs.id) {
-      remove(this.formAttrs.id, "validateChange", this._validateChange);
-    }
     off(this.$inner as HTMLInputElement, "input", this._input);
   }
 
   protected attributeChange(name: string, oldValue: string, newValue: string): void {
-    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
-    if (parsedValue !== this[name as "id"]) {
-      this[name as "id"] = parsedValue;
+    switch (name) {
+      case "error":
+      case "maxlength":
+      case "minlength":
+      case "inputmode":
+      case "type":
+        this._state[name] = newValue;
+        break;
+      case "clearable":
+        const newClearable = parseAttrValue(newValue, false, name);
+        this._state.clearable = newClearable;
+        break;
     }
-    if (name === "error") {
-      const newError = parseAttrValue(newValue, false, name);
-      if (newError !== this.error) {
-        this.error = newError;
-        this._updateError();
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    /* 旧代码注释：
+    // clearable  
+    if (this._state.clearable) {
+      addClass(this, "l-input--clearable");
+    } else {
+      removeClass(this, "l-input--clearable");
+    }
+
+    // error
+    this._updateError(this._state.error != null);
+
+    // maxlength
+    this._updateAttr("maxlength", this._state.maxlength);
+
+    // minlength
+    this._updateAttr("minlength", this._state.minlength);
+
+    // inputmode
+    this._updateAttr("inputmode", this._state.inputmode);
+    */
+
+    // 新的按条件更新逻辑:
+    if (changedProps.has("clearable")) {
+      if (this._state.clearable) {
+        addClass(this, "l-input--clearable");
+      } else {
+        removeClass(this, "l-input--clearable");
       }
-    } else if (name === "clearable") {
-      const newClearable = parseAttrValue(newValue, false, name);
-      if (newClearable !== this.clearable) {
-        this.clearable = newClearable;
-      }
-    } else if (name === "maxlength") {
-      const newMinlength = parseAttrValue(newValue, this.maxlength);
-      if (newMinlength !== this["maxlength"]) {
-        this["maxlength"] = newMinlength;
+    }
+
+    if (changedProps.has("error")) {
+      this._updateError(this._state.error != null);
+    }
+
+    if (changedProps.has("maxlength")) {
+      this._updateAttr("maxlength", this._state.maxlength);
+    }
+
+    if (changedProps.has("minlength")) {
+      this._updateAttr("minlength", this._state.minlength);
+    }
+
+    if (changedProps.has("inputmode")) {
+      this._updateAttr("inputmode", this._state.inputmode);
+    }
+  }
+
+  _updateAttr(key: string, value: any) {
+    if (this.$inner) {
+      if (value) {
+        this.$inner.setAttribute(key, value);
+      } else {
+        this.$inner.removeAttribute(key);
       }
     }
   }
@@ -138,21 +190,15 @@ export default class Input extends FormInner {
     const $inner = $$("input", {
       class: "l-input__inner",
       value: this.value,
-      name: this.getName() || "",
-      placeholder: this.placeholder || "",
+      name: this.getName(),
+      placeholder: this._state.placeholder,
       part: "default",
-      type: this.type,
-      inputmode: this.inputmode,
+      type: this._state.type,
+      inputmode: this._state.inputmode,
+      maxlength: this._state.maxlength,
+      minlength: this._state.minlength,
+      disabled: this.isDisabled() ? true : undefined,
     }) as HTMLInputElement;
-    if (this.isDisabled()) {
-      $inner.disabled = true;
-    }
-    if (this.maxlength) {
-      $inner.setAttribute("maxlength", this.maxlength);
-    }
-    if (this.minlength) {
-      $inner.setAttribute("minlength", this.minlength);
-    }
     fragment.appendChild($inner);
 
     // suffix
@@ -178,27 +224,11 @@ export default class Input extends FormInner {
     this.parser = cb;
   }
 
-  _input = (e: Event) => {
-    const $target = e.target as HTMLInputElement;
-    let oldValue = $target.value;
-    let newValue = "";
-    if (this.allowInput != null) {
-      let dotIndex = this.allowInput.indexOf(".");
-      let precision =
-        dotIndex === -1 ? dotIndex : parseInt(this.allowInput.substring(dotIndex + 1));
-      newValue = this._numberInputParse(oldValue, {
-        integer: this.allowInput.includes("integer"),
-        negative: this.allowInput.startsWith("-"),
-        precision: precision,
-      });
-      newValue = String(newValue);
-    }
-    if (this.parser != null) {
-      newValue = this.parser(newValue);
-    }
-    const start = $target.selectionStart || 0;
-    const end = $target.selectionEnd;
+  _calcCurosorPosition(target: HTMLInputElement, newValue: string) {
     // 5. 【关键】计算新光标位置并恢复
+    const start = target.selectionStart || 0;
+    const end = target.selectionEnd || 0;
+    const oldValue = target.value;
     let newStart = start;
     let newEnd = end;
 
@@ -218,14 +248,35 @@ export default class Input extends FormInner {
       newStart = Math.min(newValue.length, start);
       newEnd = newStart;
     }
-    $target.value = newValue;
-    $target.setSelectionRange(newStart, newEnd);
+    target.value = newValue;
+    target.setSelectionRange(newStart, newEnd);
+  }
+
+  _input = (e: Event) => {
+    const $target = e.target as HTMLInputElement;
+    let oldValue = $target.value;
+    let newValue = oldValue;
+    if (this._state.allowInput != null) {
+      let dotIndex = this._state.allowInput.indexOf(".");
+      let precision =
+        dotIndex === -1 ? dotIndex : parseInt(this._state.allowInput.substring(dotIndex + 1));
+      newValue = this._numberInputParse(oldValue, {
+        integer: this._state.allowInput.includes("integer"),
+        negative: this._state.allowInput.startsWith("-"),
+        precision: precision,
+      });
+      newValue = String(newValue);
+    }
+    if (this.parser != null) {
+      newValue = this.parser(newValue);
+    }
+    this._calcCurosorPosition($target, newValue);
     this.setValue(newValue);
     this.#renderClearable();
   };
 
   #renderClearable() {
-    if (this.clearable) {
+    if (this._state.clearable) {
       let $clearWrapper = $one(".l-clearable", this.root);
       if (this.value.length > 0) {
         if ($clearWrapper == null) {
@@ -316,46 +367,33 @@ export default class Input extends FormInner {
     return startsWithMinus ? "-" + str : str;
   }
 
+  protected innerBlockChange(innerBlock: boolean) {
+    if (innerBlock) {
+      addClass(this, "is-block");
+    } else {
+      removeClass(this, "is-block");
+    }
+  }
+
   private _getStyleObj() {
     const styleObj: Record<string, string> = {};
-    if (this._isBlock()) {
-      styleObj["--l-input-width"] = "100%";
-    }
     if (this.width) {
       styleObj["--l-input-width"] = this.width;
     }
     return styleObj;
   }
 
-  private _isBlock() {
-    if (this.block === true) return true;
-    if (this.formItemAttrs.innerBlock === true) return true;
-    if (this.formAttrs.innerBlock === true) return true;
-    return false;
-  }
-
-  private _updateError() {
-    if (this.error) {
+  private _updateError(isError = false) {
+    if (isError) {
       addClass(this, "is-error");
     } else {
       removeClass(this, "is-error");
     }
   }
 
-  private _validateChange = (result: true | Record<string, string>, name?: string) => {
-    const thisName = this.getName() as string;
-    if (thisName) {
-      const error = result === true ? false : result[thisName] != null;
-      if (name == null || (name === thisName && this.error != error)) {
-        this.error = error;
-        this._updateError();
-      }
-      const keys = Object.keys(result);
-      if (keys[0] === thisName) {
-        this.focus();
-      }
-    }
-  };
+  protected validResult(msg?: string): void {
+    this._updateError(msg != null);
+  }
 
   #handleChange = (e: Event) => {
     const $target = e.target as HTMLInputElement;
@@ -363,7 +401,7 @@ export default class Input extends FormInner {
       new CustomEvent("change", {
         bubbles: true,
         composed: true,
-        detail: { value: $target.value },
+        detail: { value: $target.value, name: this.getName() },
       }),
     );
   };

@@ -1,14 +1,22 @@
+import { effect } from "alien-signals";
 import FormInner from "../form/form_inner";
-import { initAttr, parseAttrValue } from "../utils";
-import { $$, $one, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
+import { parseAttrValue, stopSignal } from "../utils";
+import { $$, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
 
-export default class Check extends FormInner {
-  /** 是否选中 */
-  private _checked = false;
-  label?: string;
+type CheckState = {
   /** 是否为按钮样式 */
-  button = false;
-  _inputType = "radio"; // input类型
+  button: boolean;
+  label?: string;
+  indeterminate: boolean;
+};
+
+export default class Check extends FormInner<CheckState> {
+  /** 是否选中 */
+  private _checked: boolean;
+  _inputType: "radio" | "checkbox"; // input类型
+  $input?: HTMLInputElement;
+  _groupCtx?: Signal<string[]>;
+  _groupCtxStop?: SignalStop;
 
   setChecked(isChecked: boolean) {
     this._checked = isChecked;
@@ -21,6 +29,8 @@ export default class Check extends FormInner {
 
   constructor() {
     super();
+    this._checked = false;
+    this._inputType = "radio";
     // 防止浏览器将组件视为原生 checkbox
     Object.defineProperty(this, "checked", {
       configurable: true,
@@ -31,27 +41,35 @@ export default class Check extends FormInner {
   }
 
   static get observedAttributes() {
-    return ["disabled", "checked", "value", "name"];
+    return ["checked", "label", "button", "indeterminate", ...FormInner.observedAttributes];
   }
 
   connectedCallback(): void {
-    initAttr(this);
     super.connectedCallback();
     if (this.getChecked()) {
-      addClass(this, "is-checked");
+      this.setChecked(true);
     }
     if (this.isDisabled()) {
       addClass(this, "is-disabled");
     }
+    this._updateIndeterminate();
+    this.emitInject("check-context-request", (context: Signal<string[]>) => {
+      this._groupCtx = context;
+    });
+    this._groupCtxStop = effect(() => {
+      if (this.value == null) return;
+      const values = this._groupCtx ? this._groupCtx() : [];
+      this.setChecked(values.includes(this.value));
+    });
   }
 
   afterInit(): void {
     on(this, "click", this.#handleClick);
-    console.log("inner value: " + this.value);
   }
 
   beforeDestroy(): void {
     off(this, "click", this.#handleClick);
+    this._groupCtxStop = stopSignal(this._groupCtxStop);
   }
 
   render() {
@@ -62,13 +80,12 @@ export default class Check extends FormInner {
       name: this.getName(),
       value: this.value,
       checked: this.getChecked(),
+      disabled: this.isDisabled() ? "disabled" : undefined,
     }) as HTMLInputElement;
-    if (this.isDisabled()) {
-      $input.disabled = true;
-    }
+    this.$input = $input;
     fragment.appendChild($input);
 
-    if (!this.button) {
+    if (!this._state.button) {
       const $inner = $$("span", { class: "l-check__inner" });
       fragment.appendChild($inner);
     }
@@ -78,7 +95,7 @@ export default class Check extends FormInner {
       part: "label",
     });
     const $labelSlot = $$("slot", {
-      textContent: this.label,
+      textContent: this._state.label,
     });
     $label.appendChild($labelSlot);
     fragment.appendChild($label);
@@ -87,11 +104,22 @@ export default class Check extends FormInner {
   }
 
   protected attributeChange(name: string, _oldValue: string, newValue: string): void {
-    if (name === "checked") {
-      const checked = parseAttrValue(newValue, false, "checked");
-      if (checked !== this.getChecked()) {
-        this.setChecked(checked);
-      }
+    switch (name) {
+      case "checked":
+        const isChecked = parseAttrValue(newValue, false, "checked");
+        this.setChecked(isChecked);
+        break;
+      case "button":
+        this._state[name] = parseAttrValue(newValue, false, name);
+        break;
+      case "indeterminate":
+        const isIndeterminate = parseAttrValue(newValue, false, name);
+        this._state.indeterminate = isIndeterminate;
+        this._updateIndeterminate();
+        break;
+      case "label":
+        this._state.label = newValue;
+        break;
     }
   }
 
@@ -101,19 +129,38 @@ export default class Check extends FormInner {
     } else {
       removeClass(this, "is-checked");
     }
-    const $input = $one("input", this.root) as HTMLInputElement;
-    if ($input) {
-      $input.checked = this.getChecked();
+
+    if (this.$input) {
+      this.$input.checked = this.getChecked();
     }
   }
 
   protected disabledChange(): void {
     toggleClass(this, "is-disabled");
+    if (this.$input) {
+      this.$input.disabled = this.isDisabled();
+    }
+  }
+
+  private _updateIndeterminate() {
+    if (this._state.indeterminate) {
+      addClass(this, "is-indeterminate");
+    } else {
+      removeClass(this, "is-indeterminate");
+    }
   }
 
   #handleClick = () => {
     if (this.isDisabled()) return;
-    this._doChangeAction();
+    if (this.value && this._groupCtx) {
+      // 处于 group 中
+      this.emitChange();
+    } else {
+      // 通过 checked 属性控制
+      const isChecked = this._inputType === "radio" ? true : !this.getChecked();
+      this.setChecked(isChecked);
+      this.emitChange();
+    }
   };
 
   emitChange() {
@@ -124,6 +171,7 @@ export default class Check extends FormInner {
         checked: this.getChecked(),
       },
       composed: true,
+      bubbles: true,
     });
   }
 

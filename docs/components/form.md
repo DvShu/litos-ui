@@ -1,13 +1,14 @@
 # Form
 
-Form
+表单控件，自带数据域管理。包含数据录入、校验、重置以及对应样式。
 
 ## 引用
 
 ```js
-import { Form, FormItem, regist } from "litos-ui";
+import { Form, FormItem, regist, Space } from "litos-ui";
 
 regist([Form, FormItem]);
+regist([Space]); // 表单按钮组的间距
 ```
 
 ## 演示
@@ -31,6 +32,18 @@ regist([Form, FormItem]);
           console.log($target.getData());
         });
 
+        // 自定义验证
+        const $customValidForm = $one('#customValidForm');
+        const $customSubmitBtn = $one('#customSubmit');
+        $customSubmitBtn.addEventListener('click', (event) => {
+          $customValidForm.setErrors({
+            name: '姓名不能为空',
+            password: '密码不能为空',
+            confimPassword: '确认密码不能为空',
+          });
+        });
+        
+
         const $positionRadio = $one('#positionRadio');
         on($positionRadio, 'change', handlePositionChange);
       }
@@ -49,32 +62,94 @@ regist([Form, FormItem]);
 
 ### 基础用法
 
-基本的表单数据域控制展示，包含布局、初始化、验证、提交。数据验证采用 [ph-utils/validator](https://gitee.com/towardly/ph/wikis/utils/validator)
+基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [ph-utils/validator](https://gitee.com/towardly/ph/wikis/utils/validator)
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-form id="lform">
-    <l-form-item required label="姓名" name="name">
+    <l-form-item required label="姓名" prop="name">
       <l-input placeholder="请输入姓名"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" name="password">
+    <l-form-item required label="密码" prop="password">
       <l-input placeholder="请输入密码" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" verify="same:password" name="confimPassword">
+    <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
       <l-input placeholder="请再次输入密码" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
-      <l-button html-type="reset">重置</l-button>
-      <l-button html-type="submit" type="primary">提交</l-button>
+      <l-space>
+        <l-button html-type="reset">重置</l-button>
+        <l-button html-type="submit" type="primary">提交</l-button>
+      </l-space>
     </l-form-item>
   </l-form>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 1. 如果想要实现按钮之间的间隔，需要引入 `litos-ui/styles/reset.css` 文件
+> 1. 如果想要实现按钮之间的间隔，需要引入 `Space` 组件
 > 2. 当 `Button` 在 `Form` 里面时，如果 `Button` 的 `html-type` 属性为 `reset`、`submit` 时会自动触发表单的重置、提交。
+
+### 自定义验证
+
+对于复杂的表单，如果默认的验证不符合需求，可以通过给 `Form` 传递 `novalidate="on"` 禁用默认验证，然后手动调用 `Form` 的 `setErrors(errors: Reocord<string, any>)` 传递验证的错误信息即可。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-form id="customValidForm" novalidate="on">
+    <l-form-item required label="姓名" prop="name">
+      <l-input placeholder="请输入姓名"></l-input>
+    </l-form-item>
+    <l-form-item required label="密码" prop="password">
+      <l-input placeholder="请输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item required label="确认密码" prop="confimPassword">
+      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item label="">
+      <l-button type="primary" id="customSubmit">提交</l-button>
+    </l-form-item>
+  </l-form>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-form id="customValidForm" novalidate="on">
+    <l-form-item required label="姓名" prop="name">
+      <l-input placeholder="请输入姓名"></l-input>
+    </l-form-item>
+    <l-form-item required label="密码" prop="password">
+      <l-input placeholder="请输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item required label="确认密码" prop="confimPassword">
+      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    </l-form-item>
+    <l-form-item label="">
+      <l-button id="customSubmit" type="primary">提交</l-button>
+    </l-form-item>
+  </l-form>
+</textarea>
+<textarea lang="ts">
+  import { $one } from 'ph-utils/dom';
+  //-
+  // 自定义验证
+  const $customValidForm = $one('#customValidForm');
+  const $customSubmitBtn = $one('#customSubmit');
+  $customSubmitBtn.addEventListener('click', (event) => {
+    $customValidForm.setErrors({
+      name: '姓名不能为空',
+      password: '密码不能为空',
+      confimPassword: '确认密码不能为空',
+    });
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> 验证成功的字段，可以不传或者传递为 `undefined`、`null`
+> 当然也可以手动验证数据，然后分别调用输入框以及 `FormItem` 的 `setError({})` 方法设置错误
 
 ### `InnerBlock`
 
@@ -84,13 +159,13 @@ regist([Form, FormItem]);
 <l-code-preview>
 <textarea lang="html">
   <l-form inner-block>
-    <l-form-item required label="姓名" name="name">
+    <l-form-item required label="姓名" prop="name">
       <l-input placeholder="请输入姓名" value="张三"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" name="password">
+    <l-form-item required label="密码" prop="password">
       <l-input placeholder="请输入密码" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" verify="same:password" name="confimPassword">
+    <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
       <l-input placeholder="请再次输入密码" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
@@ -213,6 +288,7 @@ regist([Form, FormItem]);
 | `validate` | 对整个表单进行校验的方法 | `() => void` |
 | `validateField` | 对部分表单字段进行校验的方法 | `(props: string | string[]) => void` |
 | `clearValidate` | 移除表单项的校验结果 | `() => void` |
+| `setErrors(errors: Record<string, string>)` | 设置表单错误信息 | - |
 
 ### FormItem Attributes
 
@@ -223,7 +299,7 @@ regist([Form, FormItem]);
 | `verify` | 内置验证规则:`required`-必填,`same:password`-一般用于验证确认密码,`mobile`-验证电话号码 | `string` | - |
 | `pattern` | 正则表达式 | `string` | - |
 | `validity` | 验证失败时的提示信息 | `string` | - |
-| `name` | 表单域 `name` 字段 | `string` | - |
+| `prop` | 对应表单域 `name` | `string` | - |
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `required` | 是否必填 | `boolean` | `false` |
 | `disabled` | 是否禁用 | `boolean` | `false` |

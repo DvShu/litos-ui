@@ -1,4 +1,4 @@
-import { isBlank } from "ph-utils";
+import { isBlank, isNumeric } from "ph-utils";
 
 let seed = -1; // 用于构建多个id，避免重复
 
@@ -119,4 +119,16 @@ export function setAttrs(el: HTMLElement, attrs: [string, string | undefined | b
  */
 export function kebabToCamel(attr: string) {
   return attr.replace(/-(\w)/g, (match, p1) => p1.toUpperCase());
+}
+
+export function stopSignal(fn?: SignalStop) {
+  if (fn) {
+    fn();
+  }
+  return undefined;
+}
+
+export function unitNumberStr(value?: string, unit = "px") {
+  if (!value) return value;
+  return isNumeric(value) ? `${value}${unit}` : value;
 }

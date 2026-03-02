@@ -13,7 +13,7 @@ export default class Raido extends Check {
   }
 
   _doChangeAction(): void {
-    this.setAttribute("checked", "checked");
+    this.setChecked(true);
     this.emitChange();
   }
 }

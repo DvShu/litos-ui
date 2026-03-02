@@ -1,12 +1,23 @@
 import { getAttr } from "ph-utils/dom";
 
-export default class BaseComponent extends HTMLElement {
+export default class BaseComponent<T = Record<string, any>> extends HTMLElement {
   static baseName = "base-component";
   /** 组件是否渲染完成, 是否已经调用 connectedCallback */
-  public rendered: boolean = false;
+  public rendered: boolean;
+  // state
+  protected _state: T;
+  // 是否正在批量更新
+  protected _pendingUpdate: boolean;
+  protected _pendingTask?: number; // 延迟任务id
+  protected _changedProperties: Set<string>; // 已改变的属性集合
+
+
   public constructor(shadow = true, init: Partial<ShadowRootInit> = {}) {
     super();
     this.rendered = false;
+    this._state = {} as T;
+    this._pendingUpdate = false;
+    this._changedProperties = new Set();
     if (shadow) {
       this.attachShadow({ mode: "open", ...init });
     }
@@ -20,7 +31,45 @@ export default class BaseComponent extends HTMLElement {
   }
 
   // 当属性发生变化时调用的回调函数
-  attributeChangedCallback(_name: string, _oldValue: string, _newValue: string) {}
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
+    if (oldValue === newValue) return;
+    this.attributeChanged(name, oldValue, newValue);
+    // 记录发生变化的属性名
+    this._changedProperties.add(name);
+
+    if (this.rendered) {
+      this.batchUpdate();
+    }
+  }
+
+  protected attributeChanged(name: string, oldValue: string, newValue: string) {
+
+  }
+
+  cancelPending() {
+    if (this._pendingTask) {
+      cancelAnimationFrame(this._pendingTask);
+      this._pendingTask = undefined;
+      this._pendingUpdate = false;
+    }
+  }
+
+  batchUpdate() {
+    if (this._pendingUpdate) return;
+    this.cancelPending();
+    this._pendingUpdate = true;
+
+    requestAnimationFrame(() => {
+      // 提取本帧变动的属性，并清空以便下一帧收集
+      const changedProps = new Set(this._changedProperties);
+      this._changedProperties.clear();
+
+      this.updateDOM(changedProps);
+      this._pendingUpdate = false;
+    });
+  }
+
+  protected updateDOM(changedProps: Set<string>) { }
 
   /** @deprecated */
   get shadow() {
@@ -96,28 +145,29 @@ export default class BaseComponent extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.cancelPending();
     this.removeEvents();
     this.beforeDestroy();
     this.root.innerHTML = "";
     this.rendered = false;
   }
 
-  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
+  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment { }
 
   /**
    * 初始化事件
    * @deprecated 自0.12.0起弃用，使用 afterInit() 替代
    */
-  initEvents() {}
-  afterInit() {}
+  initEvents() { }
+  afterInit() { }
 
   /** 移除事件 */
   /**
    * 移除事件
    * @deprecated 自0.12.0起弃用，使用 beforeDestroy() 替代
    */
-  removeEvents() {}
-  beforeDestroy() {}
+  removeEvents() { }
+  beforeDestroy() { }
 
   /**
    * 触发自定义事件
@@ -129,5 +179,16 @@ export default class BaseComponent extends HTMLElement {
     return this.dispatchEvent(
       new CustomEvent(name, { bubbles: true, composed: false, ...eventOption }),
     );
+  }
+
+  emitInject(name: string, callback: (context: Signal<any>) => void) {
+    this.emit(name, {
+      bubbles: true,
+      composed: true,
+      detail: {
+        context: name,
+        callback,
+      },
+    });
   }
 }
