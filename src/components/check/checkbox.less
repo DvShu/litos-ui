@@ -1,21 +1,8 @@
-.l-check__inner::after {
-  content: "";
-  width: calc(var(--l-check-size) * 0.6);
-  height: calc(var(--l-check-size) * 0.3);
-  display: block;
-  border: solid 1px transparent;
-  border-right: none;
-  border-top: none;
-  transform: rotate(-45deg);
-  transition: border-color 0.2s ease-in-out;
-  margin-top: -3px;
-}
-
 /* indeterminate */
-:host([indeterminate]) .l-check__inner {
+:host(.is-indeterminate) .l-check__inner {
   background-color: var(--l-primary-color, #722ed1);
 }
-:host([indeterminate]) .l-check__inner::after {
+:host(.is-indeterminate) .l-check__inner::after {
   content: "";
   width: calc(var(--l-check-size) * 0.4);
   height: 1px;
@@ -29,6 +16,20 @@
 }
 
 /* checked */
+.l-check__inner::after,
+:host(.is-checked) .l-check__inner::after {
+  content: "";
+  width: calc(var(--l-check-size) * 0.6);
+  height: calc(var(--l-check-size) * 0.3);
+  display: block;
+  border: solid 1px transparent;
+  border-right: none;
+  border-top: none;
+  transform: rotate(-45deg);
+  transition: border-color 0.2s ease-in-out;
+  margin-top: -3px;
+}
+
 :host(.is-checked) .l-check__inner {
   background-color: var(--l-primary-color, #722ed1);
 }

@@ -7,6 +7,7 @@ type CheckState = {
   /** 是否为按钮样式 */
   button: boolean;
   label?: string;
+  indeterminate: boolean;
 };
 
 export default class Check extends FormInner<CheckState> {
@@ -40,7 +41,7 @@ export default class Check extends FormInner<CheckState> {
   }
 
   static get observedAttributes() {
-    return ["checked", "label", "button", ...FormInner.observedAttributes];
+    return ["checked", "label", "button", "indeterminate", ...FormInner.observedAttributes];
   }
 
   connectedCallback(): void {
@@ -51,6 +52,7 @@ export default class Check extends FormInner<CheckState> {
     if (this.isDisabled()) {
       addClass(this, "is-disabled");
     }
+    this._updateIndeterminate();
     this.emitInject("check-context-request", (context: Signal<string[]>) => {
       this._groupCtx = context;
     });
@@ -108,7 +110,12 @@ export default class Check extends FormInner<CheckState> {
         this.setChecked(isChecked);
         break;
       case "button":
-        this._state.button = parseAttrValue(newValue, false, "button");
+        this._state[name] = parseAttrValue(newValue, false, name);
+        break;
+      case "indeterminate":
+        const isIndeterminate = parseAttrValue(newValue, false, name);
+        this._state.indeterminate = isIndeterminate;
+        this._updateIndeterminate();
         break;
       case "label":
         this._state.label = newValue;
@@ -135,18 +142,24 @@ export default class Check extends FormInner<CheckState> {
     }
   }
 
+  private _updateIndeterminate() {
+    if (this._state.indeterminate) {
+      addClass(this, "is-indeterminate");
+    } else {
+      removeClass(this, "is-indeterminate");
+    }
+  }
+
   #handleClick = () => {
     if (this.isDisabled()) return;
     if (this.value && this._groupCtx) {
       // 处于 group 中
-      this.emit('change', { bubbles: true, composed: true, detail: { value: this.value } });
+      this.emitChange();
     } else {
       // 通过 checked 属性控制
-      if (this._inputType === 'radio') {
-        this.setChecked(true);
-      } else {
-        this.setChecked(!this.getChecked());
-      }
+      const isChecked = this._inputType === "radio" ? true : !this.getChecked();
+      this.setChecked(isChecked);
+      this.emitChange();
     }
   };
 
@@ -158,8 +171,9 @@ export default class Check extends FormInner<CheckState> {
         checked: this.getChecked(),
       },
       composed: true,
+      bubbles: true,
     });
   }
 
-  _doChangeAction() { }
+  _doChangeAction() {}
 }

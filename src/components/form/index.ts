@@ -216,4 +216,5 @@ export default class Form extends BaseComponent<FormState> {
   public setErrors(errorObj: Record<string, any>) {
     this.errors(errorObj);
   }
+
 }
