@@ -1,5 +1,5 @@
 import { formatClass, formatStyle, $one, on, off } from "ph-utils/dom";
-import { parseAttrValue } from "../utils";
+import { parseAttrValue, unitNumberStr } from "../utils";
 import Validator from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -38,7 +38,7 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   static get observedAttributes() {
-    return ["label-position", "inner-block", "inline", "novalidate"];
+    return ["label-position", "inner-block", "inline", "novalidate", "label-width"];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
@@ -49,6 +49,9 @@ export default class Form extends BaseComponent<FormState> {
       case "inner-block":
         const isBlock = parseAttrValue(newValue, false, name);
         this.context({ innerBlock: isBlock });
+        break;
+      case "label-width":
+        this._state.labelWidth = unitNumberStr(newValue) as string;
         break;
       default:
         const value = parseAttrValue(newValue, false, name);
@@ -66,6 +69,13 @@ export default class Form extends BaseComponent<FormState> {
           this._state.inline ? "l-form-inline" : undefined,
           `l-form--${this._state.labelPosition}`,
         ]);
+      }
+    }
+    if (changedProps.has("label-width")) {
+      if (this._state.labelWidth) {
+        this.style.setProperty('--l-form-label-width', this._state.labelWidth);
+      } else {
+        this.style.removeProperty('--l-form-label-width');
       }
     }
   }
@@ -97,10 +107,10 @@ export default class Form extends BaseComponent<FormState> {
       this._state.inline ? "l-form-inline" : undefined,
       `l-form--${this._state.labelPosition}`,
     ]);
-    const styleStr = formatStyle({
-      "--l-form-label-width": this._state.labelWidth ? this._state.labelWidth : "",
-    });
-    return `<form class="${classStr}" style="${styleStr}"><slot></slot></form>`;
+    if (this._state.labelWidth) {
+      this.style.setProperty('--l-form-label-width', this._state.labelWidth);
+    }
+    return `<form class="${classStr}"><slot></slot></form>`;
   }
 
   public ruleChange = (e: CustomEvent) => {
