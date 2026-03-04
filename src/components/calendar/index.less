@@ -4,3 +4,34 @@
   width: 100%;
   height: 100%;
 }
+
+.calendar-table {
+  width: 100%;
+  height: 100%;
+
+  thead {
+    height: var(--calendar-header-height, auto);
+  }
+
+  th {
+    font-weight: 400;
+    cursor: default;
+  }
+}
+
+.day {
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 13px;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  &.active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+  }
+}
