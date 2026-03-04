@@ -29,11 +29,13 @@ regist([Checkbox]);
       $allCheck.checked = false;
     } else {
       $allCheck.setAttribute('indeterminate', ''); // 部分选中
+      $allCheck.checked = false;
     }
   }
 
   function handleAllCheckChange(e) {
     const checked = e.detail.checked;
+    $allCheck.removeAttribute('indeterminate');
     if (checked) {
       $group.value = 'CD&BJ&SZ&HZ'; // 全选
     } else {
