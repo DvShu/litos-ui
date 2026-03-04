@@ -62,7 +62,6 @@ export default class Input extends FormInner<InputState> {
     return this.getValue();
   }
 
-
   static get observedAttributes() {
     return [
       "disabled",
@@ -75,6 +74,7 @@ export default class Input extends FormInner<InputState> {
       "minlength",
       "inputmode",
       "type",
+      "placeholder",
     ];
   }
 
@@ -88,7 +88,6 @@ export default class Input extends FormInner<InputState> {
     if (this.error) {
       addClass(this, "is-error");
     }
-
   }
 
   disconnectedCallback(): void {
@@ -102,6 +101,7 @@ export default class Input extends FormInner<InputState> {
       case "maxlength":
       case "minlength":
       case "inputmode":
+      case "placeholder":
       case "type":
         this._state[name] = newValue;
         break;
@@ -113,27 +113,6 @@ export default class Input extends FormInner<InputState> {
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    /* 旧代码注释：
-    // clearable  
-    if (this._state.clearable) {
-      addClass(this, "l-input--clearable");
-    } else {
-      removeClass(this, "l-input--clearable");
-    }
-
-    // error
-    this._updateError(this._state.error != null);
-
-    // maxlength
-    this._updateAttr("maxlength", this._state.maxlength);
-
-    // minlength
-    this._updateAttr("minlength", this._state.minlength);
-
-    // inputmode
-    this._updateAttr("inputmode", this._state.inputmode);
-    */
-
     // 新的按条件更新逻辑:
     if (changedProps.has("clearable")) {
       if (this._state.clearable) {
