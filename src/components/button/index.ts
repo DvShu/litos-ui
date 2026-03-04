@@ -1,13 +1,6 @@
 import { initAttr, kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
-import {
-  formatClass,
-  addClass,
-  removeClass,
-  formatStyle,
-  on,
-  off,
-} from "ph-utils/dom";
+import { formatClass, addClass, removeClass, formatStyle, on, off } from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
 //@ts-ignore
 import buttonCss from "./index.less?inline";
@@ -25,7 +18,7 @@ type ButtonState = {
   type: "normal" | "primary";
   shape: "default" | "round" | "circle";
   loadingText: string;
-}
+};
 
 export default class Button extends BaseComponent<ButtonState> {
   public static baseName = "button";
@@ -44,7 +37,7 @@ export default class Button extends BaseComponent<ButtonState> {
       type: "normal",
       shape: "default",
       loadingText: "加载中……",
-    }
+    };
   }
 
   get disabled() {
@@ -78,7 +71,18 @@ export default class Button extends BaseComponent<ButtonState> {
 
   // 初始化属性观察器
   static get observedAttributes() {
-    return ["loading", "color", "text", "ghost", "disabled", "height", "html-type", "type", "shape", "loading-text"];
+    return [
+      "loading",
+      "color",
+      "text",
+      "ghost",
+      "disabled",
+      "height",
+      "html-type",
+      "type",
+      "shape",
+      "loading-text",
+    ];
   }
 
   protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
@@ -97,7 +101,7 @@ export default class Button extends BaseComponent<ButtonState> {
         break;
       case "html-type":
       case "loading-text":
-        this._state[kebabToCamel(name) as 'htmlType'] = newValue;
+        this._state[kebabToCamel(name) as "htmlType"] = newValue;
         break;
     }
   }
@@ -112,7 +116,11 @@ export default class Button extends BaseComponent<ButtonState> {
         this.setDisabled(this.disabled);
       }
       if (changedProps.has("color") && this._state.color) {
-        this.$btn.style.cssText = this.applyColor(this._state.color, this._state.text, this._state.ghost);
+        this.$btn.style.cssText = this.applyColor(
+          this._state.color,
+          this._state.text,
+          this._state.ghost,
+        );
       }
     }
 
@@ -122,9 +130,8 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText([animationCss, buttonCss]);
-    this.render();
+    super.connectedCallback();
     if (this.isFormButton()) {
       on(this, "click", this._handleClick);
     }
@@ -170,7 +177,7 @@ export default class Button extends BaseComponent<ButtonState> {
       $btn.disabled = true;
     }
     $btn.type = this._state.htmlType as "button";
-    const btnStyle = this.applyColor(this._state.color || '', text, ghost);
+    const btnStyle = this.applyColor(this._state.color || "", text, ghost);
     if (btnStyle) {
       $btn.style.cssText = btnStyle;
     }
@@ -223,13 +230,12 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   private _handleClick = () => {
-    if (this._state.htmlType === 'reset' || this._state.htmlType === 'submit') {
-      this.emit('form-action', {
+    if (this._state.htmlType === "reset" || this._state.htmlType === "submit") {
+      this.emit("form-action", {
         bubbles: true,
         composed: true,
-        detail: this._state.htmlType
-      })
+        detail: this._state.htmlType,
+      });
     }
   };
-
 }

@@ -181,6 +181,5 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   public reset() {
     this._isReset = true;
     this.value = this._resetValue || "";
-    console.log("reset");
   }
 }

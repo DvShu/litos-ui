@@ -61,7 +61,7 @@ regist(LoadingIcon);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button loading>按钮</l-button>
+  <l-button id="loadingBtn" loading>按钮</l-button>
   <l-button type="primary" loading loading-text="Loading">按钮</l-button>
 </textarea>
 </l-code-preview>

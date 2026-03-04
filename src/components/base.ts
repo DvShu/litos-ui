@@ -11,7 +11,6 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
   protected _pendingTask?: number; // 延迟任务id
   protected _changedProperties: Set<string>; // 已改变的属性集合
 
-
   public constructor(shadow = true, init: Partial<ShadowRootInit> = {}) {
     super();
     this.rendered = false;
@@ -36,15 +35,12 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     this.attributeChanged(name, oldValue, newValue);
     // 记录发生变化的属性名
     this._changedProperties.add(name);
-
     if (this.rendered) {
       this.batchUpdate();
     }
   }
 
-  protected attributeChanged(name: string, oldValue: string, newValue: string) {
-
-  }
+  protected attributeChanged(name: string, oldValue: string, newValue: string) {}
 
   cancelPending() {
     if (this._pendingTask) {
@@ -58,7 +54,6 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     if (this._pendingUpdate) return;
     this.cancelPending();
     this._pendingUpdate = true;
-
     requestAnimationFrame(() => {
       // 提取本帧变动的属性，并清空以便下一帧收集
       const changedProps = new Set(this._changedProperties);
@@ -69,7 +64,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     });
   }
 
-  protected updateDOM(changedProps: Set<string>) { }
+  protected updateDOM(changedProps: Set<string>) {}
 
   /** @deprecated */
   get shadow() {
@@ -152,22 +147,22 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     this.rendered = false;
   }
 
-  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment { }
+  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
 
   /**
    * 初始化事件
    * @deprecated 自0.12.0起弃用，使用 afterInit() 替代
    */
-  initEvents() { }
-  afterInit() { }
+  initEvents() {}
+  afterInit() {}
 
   /** 移除事件 */
   /**
    * 移除事件
    * @deprecated 自0.12.0起弃用，使用 beforeDestroy() 替代
    */
-  removeEvents() { }
-  beforeDestroy() { }
+  removeEvents() {}
+  beforeDestroy() {}
 
   /**
    * 触发自定义事件

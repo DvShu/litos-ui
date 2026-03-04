@@ -73,9 +73,9 @@ export default class Form extends BaseComponent<FormState> {
     }
     if (changedProps.has("label-width")) {
       if (this._state.labelWidth) {
-        this.style.setProperty('--l-form-label-width', this._state.labelWidth);
+        this.style.setProperty("--l-form-label-width", this._state.labelWidth);
       } else {
-        this.style.removeProperty('--l-form-label-width');
+        this.style.removeProperty("--l-form-label-width");
       }
     }
   }
@@ -108,7 +108,7 @@ export default class Form extends BaseComponent<FormState> {
       `l-form--${this._state.labelPosition}`,
     ]);
     if (this._state.labelWidth) {
-      this.style.setProperty('--l-form-label-width', this._state.labelWidth);
+      this.style.setProperty("--l-form-label-width", this._state.labelWidth);
     }
     return `<form class="${classStr}"><slot></slot></form>`;
   }
@@ -193,7 +193,6 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   public submit() {
-    console.log(this._state.novalidate);
     if (this._state.novalidate) {
       this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
     } else {
@@ -226,5 +225,4 @@ export default class Form extends BaseComponent<FormState> {
   public setErrors(errorObj: Record<string, any>) {
     this.errors(errorObj);
   }
-
 }
