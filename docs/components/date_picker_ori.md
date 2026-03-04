@@ -45,19 +45,19 @@ regist(DatePicker);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-date-picker value="2025-04-02"></l-date-picker>
-  <l-date-picker type="datetime-local" value="2025-05-02 17:00"></l-date-picker>
-  <l-date-picker type="time" value="17:00"></l-date-picker>
-  <l-date-picker type="month"></l-date-picker>
-  <l-date-picker type="week"></l-date-picker>
+  <l-date-picker-ori value="2025-04-02"></l-date-picker-ori>
+  <l-date-picker-ori type="datetime-local" value="2025-05-02 17:00"></l-date-picker-ori>
+  <l-date-picker-ori type="time" value="17:00"></l-date-picker-ori>
+  <l-date-picker-ori type="month"></l-date-picker-ori>
+  <l-date-picker-ori type="week"></l-date-picker-ori>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-date-picker value="2025-04-02"></l-date-picker>
-  <l-date-picker type="datetime-local" value="2025-05-02 17:00"></l-date-picker>
-  <l-date-picker type="time" value="17:00"></l-date-picker>
-  <l-date-picker type="month"></l-date-picker>
-  <l-date-picker type="week"></l-date-picker>
+  <l-date-picker-ori value="2025-04-02"></l-date-picker-ori>
+  <l-date-picker-ori type="datetime-local" value="2025-05-02 17:00"></l-date-picker-ori>
+  <l-date-picker-ori type="time" value="17:00"></l-date-picker-ori>
+  <l-date-picker-ori type="month"></l-date-picker-ori>
+  <l-date-picker-ori type="week"></l-date-picker-ori>
 </textarea>
 <textarea lang="js">
   import { on, $ } from 'ph-utils/dom';
@@ -81,7 +81,7 @@ regist(DatePicker);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-date-picker min="2025-04-01" max="2025-04-30"></l-date-picker>
+  <l-date-picker-ori min="2025-04-01" max="2025-04-30"></l-date-picker-ori>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -93,7 +93,7 @@ regist(DatePicker);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-date-picker range min="2025-04-01" max="2025-04-15" allow-empty="off" id="picker"></l-date-picker>
+  <l-date-picker-ori range min="2025-04-01" max="2025-04-15" allow-empty="off" id="picker"></l-date-picker-ori>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -121,7 +121,6 @@ regist(DatePicker);
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `change` | 日期改变时触发, 通过 `event.detail` 可以获取到当前值 | `(event: CustomEvent)` |
-
 
 ### DatePicker CSS Variables
 

@@ -137,8 +137,12 @@ export default defineConfig({
             link: "/components/form",
           },
           {
-            text: "DatePicker 日期选择器",
-            link: "/components/date_picker",
+            text: "DatePickerOri 日期选择器",
+            link: "/components/date_picker_ori",
+          },
+          {
+            text: "Calenar 日历",
+            link: "/components/calendar",
           },
         ],
       },

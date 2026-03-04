@@ -1,54 +1,80 @@
-import { initAttr } from "../utils";
 // @ts-ignore
 import css from "./index.less?inline";
 import FormInner from "../form/form_inner";
-import { $$, formatStyle, $, iterate, on, off } from "ph-utils/dom";
+import { $$, $, on, off, iterate } from "ph-utils/dom";
 import { parse } from "ph-utils/date";
+import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 
-export default class DatePicker extends FormInner {
-  public static baseName = "date-picker";
+type DateInputType = "date" | "datetime-local" | "time" | "month" | "week";
 
+type DatePickerOriState = {
   /** 是否显示日期范围选择 */
-  public range = false;
+  range: boolean;
   /** 范围选择器时，为了性能考虑, 立即改变一个日期后，会延迟 300ms 通知, 以响应其它选择器, 0 - 立即触发 */
-  emitTimeout = 300;
-  /** 原生 type 属性 */
-  public type: "date" | "datetime-local" | "time" | "month" | "week" = "date";
-  public width?: string;
+  delay: number;
+  type: DateInputType;
+  width?: string;
   /** 日期范围 */
   min?: string;
   max?: string;
-  allowEmpty = true;
+  allowEmpty: boolean;
+};
 
-  #inners: HTMLInputElement[] = [];
-  #dateValues: string[] = [];
-  #t = -1;
+export default class DatePicker extends FormInner {
+  public static baseName = "date-picker-ori";
+
+  #inners!: HTMLInputElement[];
+  #dateValues: string[];
+  #t?: number;
   // 至上一次触发change后，是否有更改
-  #isUpdated = false;
+  #isUpdated;
+  _state: DatePickerOriState;
 
-  set value(value: string) {
-    this.setValue(value);
-    this.#dateValues = value.split(",");
-    iterate(this.#inners, (inner, index) => {
-      (inner as HTMLInputElement).value = this.#dateValues[index];
-    });
+  public constructor() {
+    super();
+    this._state = {
+      range: false,
+      delay: 300,
+      type: "date",
+      allowEmpty: true,
+    };
+    this.#dateValues = [];
+    this.#isUpdated = false;
+  }
+
+  public setValue(v: string) {
+    super.setValue(v);
+    this.#dateValues = v.split(",");
+    if (this.rendered) {
+      iterate(this.#inners, ($input, index) => {
+        $input.value = this.#dateValues[index];
+      });
+    }
+  }
+
+  static get observedAttributes(): string[] {
+    return [
+      ...FormInner.observedAttributes,
+      "range",
+      "delay",
+      "type",
+      "width",
+      "min",
+      "max",
+      "allow-empty",
+    ];
   }
 
   connectedCallback(): void {
-    initAttr(this);
     this.loadStyleText(css);
-    const styles: Record<string, string> = {};
-    if (this.width) {
-      styles["--l-date-picker-width"] = this.width;
-    }
-    this.style.cssText = formatStyle(styles);
+    this._updateWidth();
     super.connectedCallback();
   }
 
   afterInit(): void {
     this.#inners = $(".l-date-inner", this.root) as HTMLInputElement[];
     on(this.#inners, "change", this.#change);
-    if (this.range) {
+    if (this._state.range) {
       on(this.#inners, "focus", this.#handleFocus);
       on(this.#inners, "blur", this.#handleBlur);
     }
@@ -56,27 +82,51 @@ export default class DatePicker extends FormInner {
 
   beforeDestroy(): void {
     off(this.#inners, "change", this.#change);
-    if (this.range) {
+    if (this._state.range) {
       off(this.#inners, "focus", this.#handleFocus);
       off(this.#inners, "blur", this.#handleBlur);
     }
     this.#clearTimer();
   }
 
-  protected attributeChange(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
-    if (name === "value" && newValue !== this._value) {
-      this.value = newValue;
+  protected attributeChange(name: string, oldValue: string, newValue: string): void {
+    switch (name) {
+      case "type":
+      case "min":
+      case "max":
+        this._state[name] = newValue as any;
+        break;
+      case "range":
+      case "allow-empty":
+        this._state[kebabToCamel(name) as "range"] = parseAttrValue(newValue, false, name) as any;
+        break;
+      case "delay":
+        this._state.delay = parseAttrValue(newValue, 300);
+        break;
+      case "width":
+        this._state.width = unitNumberStr(newValue);
+        break;
+    }
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("width")) {
+      this._updateWidth();
+    }
+  }
+
+  private _updateWidth() {
+    if (!this._state.width) {
+      this.style.removeProperty("--l-date-picker-width");
+    } else {
+      this.style.setProperty("--l-date-picker-width", this._state.width);
     }
   }
 
   render() {
     const fragment = document.createDocumentFragment();
     fragment.appendChild(this.#createInner(0));
-    if (this.range) {
+    if (this._state.range) {
       const $divier = $$("span", {
         class: "l-date-range-divider",
         textContent: "-",
@@ -89,14 +139,14 @@ export default class DatePicker extends FormInner {
 
   #createInner(index: 0 | 1 = 0) {
     return $$("input", {
-      type: this.type,
+      type: this._state.type,
       class: `l-date-inner l-date-inner${index}`,
       name: this.getName(),
       value: this.#dateValues[index],
       "l-datepicker": `${index}`,
-      disabled: this.isDisabled(),
-      min: this.min,
-      max: this.max,
+      disabled: this.isDisabled() ? true : undefined,
+      min: this._state.min,
+      max: this._state.max,
     });
   }
 
@@ -104,7 +154,7 @@ export default class DatePicker extends FormInner {
     const $target = e.target as HTMLInputElement;
     const index = Number($target.getAttribute("l-datepicker"));
     let value = $target.value;
-    if (!value && !this.allowEmpty) {
+    if (!value && !this._state.allowEmpty) {
       value = this._resetValue || "";
       value = value.split(",")[index];
       $target.value = value;
@@ -122,7 +172,7 @@ export default class DatePicker extends FormInner {
       this.#inners[0].max = value;
     }
 
-    if (this.range) {
+    if (this._state.range) {
       this.#timerEmitChange();
     } else {
       this.#emitChange();
@@ -142,7 +192,7 @@ export default class DatePicker extends FormInner {
       this.#t = setTimeout(() => {
         this.#emitChange();
         this.#isUpdated = false;
-      }, this.emitTimeout) as any;
+      }, this._state.delay) as any;
     }
   }
 
@@ -162,7 +212,7 @@ export default class DatePicker extends FormInner {
           dateStr: this.#dateValues,
           dates: this.#dateValues.map((dateStr) => parse(dateStr)),
         },
-      })
+      }),
     );
   }
 }

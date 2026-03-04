@@ -19,7 +19,7 @@ function sourceTemplate(name, componentName, _fileName) {
     "  static get observedAttributes() {",
     "    return []",
     "  }\r\n",
-    "  attributeChangedCallback(name: string,oldValue: string,newValue: string) {",
+    "  attributeChanged(name: string,oldValue: string,newValue: string) {",
     "    name = kebabToCamel(name);",
     '    const parsedValue = parseAttrValue(newValue,this[name as "id"] as any,name) as any;',
     '    if (parsedValue !== this[name as "id"]) {',
@@ -98,14 +98,8 @@ function createComponentTemplate(name) {
   const sourcePath = path.join(compoentsPath, fileName);
   mkdir(sourcePath)
     .then(() => {
-      write(
-        path.join(sourcePath, "index.less"),
-        '@import "../styles/component_base.less";'
-      ).then();
-      write(
-        path.join(sourcePath, "index.ts"),
-        sourceTemplate(name, componetName, fileName)
-      ).then();
+      write(path.join(sourcePath, "index.less"), '@import "../styles/component_base.less";').then();
+      write(path.join(sourcePath, "index.ts"), sourceTemplate(name, componetName, fileName)).then();
     })
     .catch(() => {
       console.log("");
@@ -133,7 +127,7 @@ function createComponentTemplate(name) {
             text: "${name}",
             link: "/components/${fileName}",
           },
-          /* TemplateItem */`
+          /* TemplateItem */`,
       );
       return write(configPath, configContent);
     })
@@ -145,7 +139,7 @@ function createComponentTemplate(name) {
     .then((content) => {
       content = content.replace(
         "//Web Components Import",
-        `import ${name} from "./${fileName}";\n//Web Components Import\nregist(${name})`
+        `import ${name} from "./${fileName}";\n//Web Components Import\nregist(${name})`,
       );
       content = content.trim() + `\nimport "./${fileName}/index.less";\n`;
       return write(iifePath, content);

@@ -1,8 +1,5 @@
 export * from "./utils";
-export {
-  set as addClickOutside,
-  remove as removeClickOutside,
-} from "./utils/clickoutside";
+export { set as addClickOutside, remove as removeClickOutside } from "./utils/clickoutside";
 
 export { default as BaseComponent } from "./base";
 
@@ -67,7 +64,7 @@ export { default as TabbarItem } from "./tabbar/item";
 export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
 
-export { default as DatePicker } from "./date_picker";
+export { default as DatePicker } from "./date_picker_ori";
 
 export { default as Menu } from "./menu";
 export { default as MenuItem } from "./menu/menu_item";
@@ -100,3 +97,5 @@ export { default as Table } from "./table";
 export type { Column } from "./table/types";
 
 export { default as Space } from "./space";
+
+export { default as Calendar } from "./calendar";

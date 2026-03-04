@@ -33,7 +33,7 @@ import Theme from "./theme";
 import ThemeColor from "./theme/theme_color";
 import MdInput from "./md_input";
 import Modal from "./modal";
-import DatePicker from "./date_picker";
+import DatePicker from "./date_picker_ori";
 import Menu from "./menu";
 import Carousel from "./carousel";
 import Qrcode from "./qrcode";
@@ -47,8 +47,10 @@ import Image from "./image";
 import Select from "./select";
 import Table from "./table";
 import Space from "./space";
+import Calendar from "./calendar";
 //Web Components Import
-regist(Space)
+regist(Calendar);
+regist(Space);
 regist(Table);
 regist(Select);
 regist(Image);
@@ -145,3 +147,4 @@ import "./image/index.less";
 import "./select/index.less";
 import "./table/index.less";
 import "./space/index.less";
+import "./calendar/index.less";
