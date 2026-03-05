@@ -10,12 +10,15 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
   protected _pendingUpdate: boolean;
   protected _pendingTask?: number; // 延迟任务id
   protected _changedProperties: Set<string>; // 已改变的属性集合
+  /** 版本, 1 - 直接调用 render, 2 - 渲染 render_v2 */
+  protected version: number;
 
   public constructor(shadow = true, init: Partial<ShadowRootInit> = {}) {
     super();
     this.rendered = false;
     this._state = {} as T;
     this._pendingUpdate = false;
+    this.version = 1;
     this._changedProperties = new Set();
     if (shadow) {
       this.attachShadow({ mode: "open", ...init });
@@ -96,6 +99,14 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     this.createStyle(text);
   }
 
+  public styleHtml(styleText: string | string[]) {
+    let text = styleText;
+    if (Array.isArray(text)) {
+      text = text.join("");
+    }
+    return `<style>${text}</style>`;
+  }
+
   /**
    * 获取属性值
    * @param key 属性名称
@@ -132,8 +143,34 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     }
   }
 
+  public appendToRootV2(
+    template?: HTMLElement | string | DocumentFragment,
+    style?: string | string[],
+  ) {
+    const htmls: string[] = [];
+    if (style) {
+      htmls.push(this.styleHtml(style));
+    }
+    if (template) {
+      if (typeof template === "string") {
+        htmls.push(template);
+      } else {
+        let $tmp = document.createElement("div");
+        $tmp.appendChild(template);
+        htmls.push($tmp.innerHTML);
+        $tmp = undefined as any;
+      }
+    }
+    this.root.innerHTML = htmls.join("");
+  }
+
   connectedCallback() {
-    this.appendToRoot(this.render() as any);
+    if (this.version === 1) {
+      this.appendToRoot(this.render() as any);
+    } else {
+      const res = this.render_v2();
+      this.appendToRootV2(res.template, res.style);
+    }
     this.rendered = true;
     this.initEvents();
     this.afterInit();
@@ -147,7 +184,15 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     this.rendered = false;
   }
 
-  render(): void | string | HTMLElement | HTMLElement[] | DocumentFragment {}
+  render(): void | string | HTMLElement | DocumentFragment {}
+
+  /**
+   * 渲染器
+   * @returns [渲染节点,内容, 模板样式]
+   */
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {};
+  }
 
   /**
    * 初始化事件
