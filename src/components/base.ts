@@ -35,9 +35,9 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
   // 当属性发生变化时调用的回调函数
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (oldValue === newValue) return;
-    this.attributeChanged(name, oldValue, newValue);
     // 记录发生变化的属性名
     this._changedProperties.add(name);
+    this.attributeChanged(name, oldValue, newValue);
     if (this.rendered) {
       this.batchUpdate();
     }

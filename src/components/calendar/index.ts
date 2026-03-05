@@ -3,7 +3,7 @@ import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import { parse } from "ph-utils/date";
-import { $$ } from "ph-utils/dom";
+import { $one } from "ph-utils/dom";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
 import { get } from "ph-utils/storage";
@@ -11,6 +11,8 @@ import { format } from "ph-utils/date";
 
 type CalendarState = {
   locale: string;
+  minDate?: string;
+  maxDate?: string;
 };
 
 export default class Calendar extends FormInner<CalendarState> {
@@ -18,6 +20,7 @@ export default class Calendar extends FormInner<CalendarState> {
 
   private _currentDate: Date;
   private _langData: LangItem;
+  private $container?: HTMLTableElement;
 
   public constructor() {
     super();
@@ -31,12 +34,23 @@ export default class Calendar extends FormInner<CalendarState> {
   }
 
   public setValue(v: string) {
-    super.setValue(v);
-    this._currentDate = parse(v);
+    if (v != this.value) {
+      super.setValue(v);
+      this._currentDate = parse(v);
+      this.rerenderBody();
+    }
   }
 
   connectedCallback(): void {
     super.connectedCallback();
+  }
+
+  afterInit(): void {
+    this.$container = $one(".calendar-table", this.root) as HTMLTableElement;
+  }
+
+  beforeDestroy(): void {
+    this.$container = undefined;
   }
 
   static get observedAttributes() {
@@ -51,24 +65,32 @@ export default class Calendar extends FormInner<CalendarState> {
           this._langData = langs[newValue];
         }
         break;
-
-      default:
+      case "min-date":
+      case "max-date":
+        this._state[kebabToCamel(name) as "minDate"] = newValue;
         break;
     }
   }
 
   protected updateDOM(changedProps: Set<string>): void {
     if (changedProps.has("locale")) {
+      this.rerenderHeader();
+    } else {
+    }
+    if (this.$container) {
+      this.$container.innerHTML = this.rerender();
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  private _renderHeader() {
+    const temp = this._langData.weekdays.map((weekday) => `<th>${weekday}</th>`).join("");
+    return `<tr>${temp}</tr>`;
+  }
+
+  private _renderBody() {
     const year = this._currentDate.getFullYear();
     const month = this._currentDate.getMonth();
-    const currentDate = this._currentDate.getDate(); // 当前日期
-
-    // 1. 生成表头 (thead)
-    const theadRows = this._langData.weekdays.map((weekday) => `<th>${weekday}</th>`).join("");
+    const today = format(null, "yyyy-mm-dd");
 
     // 2. 计算网格数据区间
     const firstDate = new Date(year, month, 1);
@@ -102,32 +124,56 @@ export default class Calendar extends FormInner<CalendarState> {
       if (i < startDayIdx) {
         // 上个月的补全
         tdContent = `${prevDaysCount - startDayIdx + i + 1}`;
-        tdClass += " empty";
+        tdClass += " prev-month";
         titlePrefix = prevTitlePrefix;
       } else if (i < startDayIdx + daysCount) {
         // 本月的天数
         const day = i - startDayIdx + 1;
         tdContent = `${day}`;
-        if (day === currentDate) {
-          tdClass += " active";
-        }
         titlePrefix = currTitlePrefix;
       } else {
         // 下个月的补全
         tdContent = `${i - startDayIdx - daysCount + 1}`;
-        tdClass += " empty";
+        tdClass += " next-month disabled";
         titlePrefix = nextTitlePrefix;
       }
       const title = `${titlePrefix}-${tdContent.padStart(2, "0")}`;
+      if (title === today) {
+        tdClass += " today";
+      }
+      if (title === this.value) {
+        tdClass += " active";
+      }
       tbodyHtml += `<td class="${tdClass}" title="${title}">${tdContent}</td>`;
 
       if (i % 7 === 6) {
         tbodyHtml += "</tr>";
       }
     }
+    return tbodyHtml;
+  }
 
+  rerenderHeader() {
+    if (this.$container) {
+      const $header = $one("thead", this.$container) as HTMLTableElement;
+      $header.innerHTML = this._renderHeader();
+    }
+  }
+
+  rerenderBody() {
+    if (this.$container) {
+      const $body = $one("tbody", this.$container) as HTMLTableElement;
+      $body.innerHTML = this._renderBody();
+    }
+  }
+
+  rerender() {
+    return `<thead>${this._renderHeader()}</thead><tbody>${this._renderBody()}</tbody>`;
+  }
+
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
     // 4. 返回完整拼接的 table 字符串
-    const template = `<table class="calendar-table"><thead><tr>${theadRows}</tr></thead><tbody>${tbodyHtml}</tbody></table>`;
+    const template = `<table class="calendar-table">${this.rerender()}</table>`;
 
     return {
       template: template,
