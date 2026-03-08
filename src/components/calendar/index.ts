@@ -2,17 +2,16 @@ import FormInner from "../form/form_inner";
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { parse } from "ph-utils/date";
 import { $one } from "ph-utils/dom";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
 import { get } from "ph-utils/storage";
-import { format } from "ph-utils/date";
+import { format, parse, startOf, endOf } from "ph-utils/date";
 
 type CalendarState = {
   locale: string;
-  minDate?: string;
-  maxDate?: string;
+  minDate: number;
+  maxDate: number;
 };
 
 export default class Calendar extends FormInner<CalendarState> {
@@ -29,6 +28,8 @@ export default class Calendar extends FormInner<CalendarState> {
     const appLocale = get("l_app_locale", "zh-CN", { storage: "session" });
     this._state = {
       locale: appLocale,
+      minDate: -Infinity,
+      maxDate: Infinity,
     };
     this._langData = langs[appLocale];
   }
@@ -66,8 +67,10 @@ export default class Calendar extends FormInner<CalendarState> {
         }
         break;
       case "min-date":
+        this._state.minDate = startOf(newValue).getTime();
+        break;
       case "max-date":
-        this._state[kebabToCamel(name) as "minDate"] = newValue;
+        this._state.maxDate = endOf(newValue).getTime();
         break;
     }
   }
@@ -108,6 +111,12 @@ export default class Calendar extends FormInner<CalendarState> {
     // 下一个月
     const nextDate = new Date(year, month + 1, 1);
     const nextTitlePrefix = format(nextDate, "yyyy-mm");
+
+    const firstGridDate = new Date(firstDate);
+    firstGridDate.setDate(firstGridDate.getDate() - startDayIdx);
+    let currentGridTs = firstGridDate.setHours(0, 0, 0, 0);
+
+    const ONE_DAY_MS = 86400000; // 一天的毫秒数
 
     // 3. 一次性生成 42 个格子 (tbody)
     let tbodyHtml = "";
