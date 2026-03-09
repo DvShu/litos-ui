@@ -3,14 +3,14 @@
 }
 .l-form {
   display: flex;
-  gap: 20px;
+  gap: var(--l-form-gap, 20px);
   flex-flow: column nowrap;
 }
 
 /** 行内表单 */
 .l-form-inline {
   display: flex;
-  gap: 20px;
+  gap: var(--l-form-gap, 20px);
   flex-flow: row wrap;
 }
 .l-form.l-form-inline {
