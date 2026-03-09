@@ -26,7 +26,7 @@ function renderModal(
   title: string,
   content: string,
   options: PromptOptions,
-  type = "alert"
+  type = "alert",
 ): Promise<boolean | string> {
   return new Promise((resolve) => {
     const inner: string[] = [];
@@ -37,12 +37,8 @@ function renderModal(
     }
     inner.push(`<span slot="header">${title}</span>`);
     if (type === "prompt") {
-      inner.push(
-        `<l-form-item label="${content}" label-position="top" inner-block>`
-      );
-      inner.push(
-        `<l-input placeholder="${options.placeholder || ""}"></l-input>`
-      );
+      inner.push(`<l-form-item label="${content}" label-position="top" inner-block>`);
+      inner.push(`<l-input placeholder="${options.placeholder || ""}"></l-input>`);
       inner.push("</l-form-item>");
     } else {
       inner.push(`<span>${content}</span>`);
@@ -62,7 +58,7 @@ function renderModal(
         $modal.remove();
         $modal = undefined as any;
       },
-      { once: true }
+      { once: true },
     );
     on(
       $modal,
@@ -73,29 +69,25 @@ function renderModal(
           const $input = $one(".l-modal-box l-input") as HTMLInputElement;
           value = $input.value;
         }
-        $modal.removeAttribute("open");
+        $modal.removeAttribute("show");
         resolve(value);
       },
-      { once: true }
+      { once: true },
     );
     on(
       $modal,
       "cancel",
       () => {
-        $modal.removeAttribute("open");
+        $modal.removeAttribute("show");
         resolve(false);
       },
-      { once: true }
+      { once: true },
     );
     document.body.appendChild($modal);
   });
 }
 
-function alert(
-  content: string,
-  title?: string,
-  option?: AlertOptions
-): Promise<boolean> {
+function alert(content: string, title?: string, option?: AlertOptions): Promise<boolean> {
   regist([Button, Modal, CloseIcon]);
   return new Promise((resolve) => {
     const opts = {

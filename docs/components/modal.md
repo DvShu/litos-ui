@@ -99,19 +99,19 @@ regist(CloseIcon);
 
 ### 基础用法
 
-需要设置 `open` 属性，它接收 `Boolean`，当为 `true` 时显示 `Modal`。`header` 属性用于定义标题，它是可选的，默认值为空。
+需要设置 `show` 属性，它接收 `Boolean`，当为 `true` 时显示 `Modal`。`header-title` 属性用于定义标题，它是可选的，默认值为空。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open1" header="Header" vertical-align="middle">
+  <l-modal for="open1" header-title="Header" vertical-align="middle">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open1" header="Header">
+  <l-modal for="open1" header-title="Header">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
@@ -178,14 +178,14 @@ regist(CloseIcon);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open3" header="异步关闭">
+  <l-modal for="open3" header-title="异步关闭">
     <span>对话框内容</span>
   </l-modal>
   <l-button id="open3" type="primary">打开-异步关闭</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open3" header="异步关闭">
+  <l-modal for="open3" header-title="异步关闭">
     <span>对话框内容</span>
   </l-modal>
   <l-button id="open3" type="primary">打开-异步关闭</l-button>
@@ -221,14 +221,14 @@ regist(CloseIcon);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open4" header="Title" close="2">
+  <l-modal for="open4" header-title="Title" close="2">
     <span>对话框内容</span>
   </l-modal>
   <l-button id="open4" type="primary">打开</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open3" header="异步关闭">
+  <l-modal for="open3" header-title="异步关闭">
     <span>对话框内容</span>
   </l-modal>
   <l-button id="open3" type="primary">打开-异步关闭</l-button>
@@ -255,14 +255,14 @@ regist(CloseIcon);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open5" header="Title" mobile close="0" vertical-align="middle">
+  <l-modal for="open5" header-title="Title" mobile close="0" vertical-align="middle">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open5" type="primary">open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open5" header="Title" mobile close="0" vertical-align="middle">
+  <l-modal for="open5" header-title="Title" mobile close="0" vertical-align="middle">
     <span>这是内容</span>
   </l-modal>
   <l-button id="open5" type="primary">open</l-button>
@@ -325,7 +325,8 @@ regist(CloseIcon);
 | `destroy-on-close` | 关闭时销毁 Modal 里的子元素 | `boolean` | `false` |
 | `mask-closable` | 点击蒙层是否允许关闭 | `boolean` | `true` |
 | `mask` | 是否显示遮罩层 | `boolean` | `true` |
-| `header` | 头部标题文本 | `string` | `""` |
+| `header` | 是否显示头部 | `boolean` | `true` |
+| `header-title` | 头部标题文本 | `string` | `""` |
 | `footer` | 是否展示底部 | `boolean` | `true` |
 | `cancel-text` | 取消按钮文字 | `string` | `取消` |
 | `ok-text` | 确定按钮文字 | `string` | `确定` |
