@@ -57,7 +57,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     if (this._pendingUpdate) return;
     this.cancelPending();
     this._pendingUpdate = true;
-    requestAnimationFrame(() => {
+    this._pendingTask = requestAnimationFrame(() => {
       // 提取本帧变动的属性，并清空以便下一帧收集
       const changedProps = new Set(this._changedProperties);
       this._changedProperties.clear();
