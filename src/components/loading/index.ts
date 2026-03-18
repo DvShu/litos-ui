@@ -174,6 +174,13 @@ class LoadingInstance {
     this.hide();
     this.el = undefined as any;
   }
+
+  public updateLoadingText(text: string) {
+    const $loadingText = $one(".l-loading-text", this.el);
+    if ($loadingText) {
+      $loadingText.textContent = text;
+    }
+  }
 }
 
 function getElementLoadingParams(el: HTMLElement) {

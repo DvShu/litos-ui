@@ -33,6 +33,21 @@ import "litos-ui/styles/loading.css";
     }, 3000)
   }
 
+  function handleUpdateText() {
+    const loading1 = Loading.create({
+      to: '#startLoading1Parent',
+      fullscreen: false
+    });
+
+    setTimeout(() => {
+      loading1.updateLoadingText("重新加载中……");
+    }, 3000);
+
+    setTimeout(() => {
+      loading1.hide();
+    }, 6000);
+  }
+
   function handleStartBarLoading(e) {
     const id = e.target.getAttribute('data-loading');
     Loading.init(id);
@@ -49,10 +64,12 @@ import "litos-ui/styles/loading.css";
         Loading.init('loading1');
         Loading.init('loading2');
         Loading.init('loading5');
+        console.log()
         on($one('[l-loading="loading3"]'), 'click', handleLoading);
         on($one('#startLoading'), 'click', handleStartLoading);
         on($one('#startBarLoading'), 'click', handleStartBarLoading);
         on($one('#endBarLoading'), 'click', handleEndBarLoading);
+        on($one('#startLoading1'), 'click', handleUpdateText);
       }
     })
   });
@@ -62,6 +79,7 @@ import "litos-ui/styles/loading.css";
     off($one('#startLoading'), 'click', handleStartLoading);
     off($one('#startBarLoading'), 'click', handleStartBarLoading);
     off($one('#endBarLoading'), 'click', handleEndBarLoading);
+    off($one('#startLoading1'), 'click', handleUpdateText);
   });
 </script>
 
@@ -262,6 +280,35 @@ loading2.hide();
   const $startLoading = document.getElementById('startLoading');
   $startLoading.addEventListener('click', () => {
     const loading = LLoading.create();
+    setTimeout(() => {
+      loading.hide();
+    }, 3000);
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+使用编程方式时，可以修改加载文案。调用 `loading1.updateLoadingText(str)`
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div id="startLoading1Parent" style="height:150px;border:1px solid #dedede;padding:5px;">
+    <l-button id="startLoading1">开始</l-button>
+  </div>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button id="startLoading">按钮</l-button>
+</textarea>
+<textarea lang="js">
+  const $startLoading = document.getElementById('startLoading');
+  $startLoading.addEventListener('click', () => {
+    const loading = LLoading.create();
+    setTimeout(() => {
+      loading.updateLoadingText("重新加载中……");
+    }, 3000);
     setTimeout(() => {
       loading.hide();
     }, 3000);
