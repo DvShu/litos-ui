@@ -124,7 +124,7 @@ function removeLoading(el: HTMLElement, _option: LoadingInstanceParams) {
   });
 }
 
-class LoadingInstance {
+export class LoadingInstance {
   /** 加载容器 */
   public el!: HTMLElement;
   public option!: Required<Omit<LoadingInstanceParams, "to" | "zindex">>;
@@ -161,18 +161,23 @@ class LoadingInstance {
   /** 显示进度条 */
   public show() {
     this.isLoading = true;
-    addLoading(this.el, this.option);
+    if (this.el) {
+      addLoading(this.el, this.option);
+    }
   }
 
   /** 隐藏进度条 */
   public hide() {
     this.isLoading = false;
-    removeLoading(this.el, this.option);
+    if (this.el) {
+      removeLoading(this.el, this.option);
+    }
   }
 
   destroy() {
     this.hide();
     this.el = undefined as any;
+    return undefined;
   }
 
   public updateLoadingText(text: string) {
@@ -235,4 +240,6 @@ export default {
       removeLoading(params.fullscreen ? document.body : el, params);
     });
   },
+
+  LoadingInstance,
 };

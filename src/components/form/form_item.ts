@@ -20,6 +20,7 @@ type FormItemState = {
   pattern?: string;
   /** 验证消息 */
   validity?: string;
+  prop?: string;
 };
 
 export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
@@ -74,6 +75,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
         this._state.required = isRequired;
         break;
       case "prop":
+        this._state.prop = newValue;
         this.context({ ...this.context(), prop: newValue });
         break;
     }
@@ -131,7 +133,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
   }
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
-    const prop = this.getAttr("prop");
+    const prop = this._state.prop;
     if (prop) {
       const schema = { ...rules, key: prop };
       this._updateRules(schema);
