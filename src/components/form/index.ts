@@ -1,4 +1,4 @@
-import { formatClass, formatStyle, $one, on, off } from "ph-utils/dom";
+import { formatClass, $one, on, off } from "ph-utils/dom";
 import { parseAttrValue, unitNumberStr } from "../utils";
 import Validator from "ph-utils/validator";
 //@ts-ignore

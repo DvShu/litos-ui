@@ -20,13 +20,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse>
-    <l-collapse-item name="1" header-text="红灯" expand>
+    <l-collapse-item prop="1" header-text="红灯" expand>
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -36,19 +36,19 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 
 ### 手动展开
 
-将 `collapse` 标签的 `name` 设置为展开项, 多个项用 `&` 分隔
+将 `collapse` 标签的 `prop` 设置为展开项, 多个项用 `&` 分隔
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-collapse name="1&3">
-    <l-collapse-item name="1" header-text="红灯">
+  <l-collapse prop="1&3">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -66,13 +66,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse accordion>
-    <l-collapse-item name="1" header-text="红灯" expand>
+    <l-collapse-item prop="1" header-text="红灯" expand>
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -88,13 +88,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right">
-    <l-collapse-item name="1" header-text="红灯">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -110,13 +110,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between">
-    <l-collapse-item name="1" header-text="红灯">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -132,13 +132,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between" background>
-    <l-collapse-item name="1" header-text="红灯">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -154,13 +154,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between" background gap="10px">
-    <l-collapse-item name="1" header-text="红灯">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -176,13 +176,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between" background border-radius="5px">
-    <l-collapse-item name="1" header-text="红灯">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -205,13 +205,13 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
     gap="10px"
     grid
   >
-    <l-collapse-item name="1" header-text="红灯">
+    <l-collapse-item prop="1" header-text="红灯">
       <div>红灯 - 停</div>
     </l-collapse-item>
-    <l-collapse-item name="2" header-text="绿灯">
+    <l-collapse-item prop="2" header-text="绿灯">
       <div>绿灯 - 行</div>
     </l-collapse-item>
-    <l-collapse-item name="3" header-text="黄灯">
+    <l-collapse-item prop="3" header-text="黄灯">
       <div>黄灯 - 等</div>
     </l-collapse-item>
   </l-collapse>
@@ -226,7 +226,7 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `name` | 展开的面板,展开多选时以 `&` 分隔 | `string` | - |
+| `prop` | 展开的面板,展开多选时以 `&` 分隔 | `string` | - |
 | `grid` | 网格模式 | `boolean` | `false` |
 | `gap` | 面板间距 | `string` | `0px` |
 | `border-radius` | 圆角 | `string` | `0px` |
@@ -240,7 +240,7 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `name` | 面板名称 | `string` | - |
+| `prop` | 面板名称 | `string` | - |
 | `header-text` | 标题栏文本 | `string` | - |
 | `expand` | 是否展开 | `boolean` | `false` |
 

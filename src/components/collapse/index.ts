@@ -3,34 +3,35 @@ import { parseAttrValue, kebabToCamel, unitNumberStr } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import { $$, on, off, iterate } from "ph-utils/dom";
+import { signal } from "alien-signals";
+import type { CollapseContext } from "./types";
 
 type CollapseState = {
-  arrowPlacement?: "left" | "right";
-  headerJustify?: "flex-start" | "flex-end" | "space-between";
-  /** 是否带有背景边框 */
-  background?: boolean;
-  gap?: string;
   borderRadius?: string;
   grid?: boolean;
   accordion?: boolean;
+  prop?: string;
 };
 
 export default class Collapase extends BaseComponent<CollapseState> {
   public static baseName = "collapse";
 
-  private _expandItems: Set<string>;
+  private context: CollapseContext;
+  private expands: Signal<string[]>;
 
   public constructor() {
     super();
     this.version = 2;
-    this._state = {
+    this.context = signal({
       arrowPlacement: "left",
       headerJustify: "flex-start",
-      grid: false,
-      accordion: true,
       background: false,
+    });
+    this.expands = signal([]);
+    this._state = {
+      grid: false,
+      accordion: false,
     };
-    this._expandItems = new Set<string>();
   }
 
   static get observedAttributes() {
@@ -42,8 +43,7 @@ export default class Collapase extends BaseComponent<CollapseState> {
       "border-radius",
       "grid",
       "accordion",
-      "name",
-      "expand",
+      "prop",
     ];
   }
 
@@ -51,24 +51,34 @@ export default class Collapase extends BaseComponent<CollapseState> {
     switch (name) {
       case "arrow-placement":
       case "header-justify":
-        this._state[kebabToCamel(name) as "arrowPlacement"] = newValue as any;
+        const newContext = { ...this.context() };
+        newContext[kebabToCamel(name) as "arrowPlacement"] = newValue as any;
+        this.context(newContext);
         break;
       case "gap":
+        this.context({ ...this.context(), gap: unitNumberStr(newValue) });
+        break;
       case "border-radius":
-        const v = unitNumberStr(newValue);
-        this._state[kebabToCamel(name) as "gap"] = v;
+        this._state.borderRadius = unitNumberStr(newValue);
         break;
       case "background":
+        this.context({ ...this.context(), background: parseAttrValue(newValue, false, name) });
+        break;
       case "accordion":
       case "grid":
         this._state[name as "grid"] = parseAttrValue(newValue, false, name);
         break;
-      case "expand":
-        this._expandItems.clear();
-        const item = newValue.split("&");
-        item.forEach((v: string) => {
-          this._expandItems.add(v);
-        });
+      case "prop":
+        if (newValue !== this._state.prop) {
+          this._state.prop = newValue;
+          const propItems = [];
+          const items = newValue.split("&");
+          for (let i = 0, len = items.length; i < len; i++) {
+            propItems.push(items[i]);
+          }
+          this.expands(propItems);
+        }
+
         break;
     }
   }
@@ -87,8 +97,8 @@ export default class Collapase extends BaseComponent<CollapseState> {
   }
 
   _setStyleAndClass() {
-    if (this._state.gap) {
-      this.style.setProperty("--l-collapse-gap", this._state.gap);
+    if (this.context().gap) {
+      this.style.setProperty("--l-collapse-gap", this.context().gap as string);
     } else {
       this.style.removeProperty("--l-collapse-gap");
     }
@@ -105,57 +115,40 @@ export default class Collapase extends BaseComponent<CollapseState> {
   }
 
   afterInit(): void {
+    this._setStyleAndClass();
+    on(this, "collapse-context-request", this._provide);
     on(this, "expand-change", this._onChange as any);
-    const children = this.children;
-    iterate(children, (child) => {
-      const name = child.getAttribute("name");
-      if (name) {
-        if (this._expandItems.size > 0) {
-          if (this._expandItems.has(name)) {
-            child.setAttribute("expand", "on");
-          }
-        } else {
-          let expand: any = child.getAttribute("expand");
-          if (expand != null) {
-            expand = parseAttrValue(expand, false, "expand");
-            if (expand) {
-              this._expandItems.add(name);
-            }
-          }
-        }
-      }
-    });
-    if (this._expandItems.size > 0) {
-      const children = this.children;
-      iterate(children, (child) => {
-        const name = child.getAttribute("name");
-        if (name && this._expandItems.has(name)) {
-          child.setAttribute("expand", "on");
-        }
-      });
+  }
+
+  private _provide(e: CustomEvent) {
+    const { context, callback } = e.detail;
+    if (context === "collapse-context-request") {
+      callback(this.context, this.expands);
     }
   }
 
   beforeDestroy(): void {
+    off(this, "collapse-context-request", this._provide);
     off(this, "expand-change", this._onChange as any);
   }
 
   _onChange = (e: CustomEvent) => {
     const detail = e.detail;
+    let old = this.expands();
     if (detail.expand) {
-      if (this.accordion) {
-        const children = this.children;
-        iterate(children, (child) => {
-          if ((child as any).name !== detail.name) {
-            (child as any).expand = false;
-          }
-        });
-        this._expandItems.clear();
+      if (this._state.accordion) {
+        old = [detail.prop];
+      } else if (!old.includes(detail.prop)) {
+        old.push(detail.prop);
       }
-      this._expandItems.add(detail.name);
     } else {
-      this._expandItems.delete(detail.name);
+      let spliceIndex = old.indexOf(detail.prop);
+      if (spliceIndex !== -1) {
+        old.splice(spliceIndex, 1);
+      }
     }
-    this.emit("change", { detail: { expandedNames: [...this._expandItems] } });
+    this.expands([...old]);
+    this._state.prop = old.join("&");
+    this.emit("change", { detail: { expands: old, value: this._state.prop } });
   };
 }
