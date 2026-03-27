@@ -6,7 +6,7 @@ import { $one } from "ph-utils/dom";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
 import { get } from "ph-utils/storage";
-import { format, parse, startOf, endOf } from "ph-utils/date";
+import { format, parse, startOf, endOf, timestamp } from "ph-utils/date";
 
 type CalendarState = {
   locale: string;
@@ -14,7 +14,7 @@ type CalendarState = {
   maxDate: number;
   year: number;
   month: number;
-  type: "select" | "range";
+  type: "single" | "range" | "multiple";
 };
 
 export default class Calendar extends FormInner<CalendarState> {
@@ -37,7 +37,7 @@ export default class Calendar extends FormInner<CalendarState> {
       maxDate: Infinity,
       year: now.getFullYear(),
       month: now.getMonth(),
-      type: "select",
+      type: "single",
     };
     this._langData = langs[appLocale];
     this._selectDates = [];
@@ -46,7 +46,7 @@ export default class Calendar extends FormInner<CalendarState> {
   public setValue(v: string) {
     if (v != this.value) {
       super.setValue(v);
-      if (this._state.type === "select") {
+      if (this._state.type !== "range") {
         this._selectDates = v.split(",");
       } else {
         this._range = v.split(",").map((item) => parse(item).getTime()) as [number, number];
@@ -100,7 +100,7 @@ export default class Calendar extends FormInner<CalendarState> {
         this._state.month = parseAttrValue(newValue, this._state.month + 1) - 1;
         break;
       case "type":
-        this._state.type = newValue as "select" | "range";
+        this._state.type = newValue as "single";
         break;
     }
   }
@@ -189,7 +189,7 @@ export default class Calendar extends FormInner<CalendarState> {
       if (title === this.value) {
         tdClass += " active";
       }
-      tbodyHtml += `<td class="${tdClass}" title="${title}">${tdContent}</td>`;
+      tbodyHtml += `<td class="${tdClass}" title="${title}" l-day="${currentGridTs}">${tdContent}</td>`;
       // 步进：移动到下一天的时间戳
       currentGridTs += ONE_DAY_MS;
       if (i % 7 === 6) {
@@ -219,60 +219,11 @@ export default class Calendar extends FormInner<CalendarState> {
 
   render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
     // 4. 返回完整拼接的 table 字符串
-    const template = `<table class="calendar-table">${this.rerender()}</table>`;
+    const template = `<table class="calendar-table" l-day="__stop__">${this.rerender()}</table>`;
 
     return {
       template: template,
       style: [css],
     };
-  }
-  //只要 minDate、maxDate、_rangeStart、_rangeEnd、_hoverDate、_selectedDates 任何一个发生了改变，都调用这个统一的函数。
-  private _updateCellsState() {
-    // if (!this._dayCells || this._dayCells.length === 0) return;
-    // 1. 提前提取状态，避免在循环内部重复读取 this
-    // const min = this._state.minDate;
-    // const max = this._state.maxDate;
-    // const mode = this._state.mode; // 'single' | 'range' | 'multiple'
-    // const val = this.value; // 单选的值
-    // // 区间选择的状态
-    // const rangeStart = this._rangeStart;
-    // const rangeEnd = this._rangeEnd || this._hoverDate;
-    // let rangeMin = 0,
-    //   rangeMax = 0;
-    // if (rangeStart && rangeEnd) {
-    //   rangeMin = Math.min(rangeStart, rangeEnd);
-    //   rangeMax = Math.max(rangeStart, rangeEnd);
-    // }
-    // // 2. 一次性遍历 42 个节点
-    // this._dayCells.forEach((td) => {
-    //   // 假设渲染时存了 data-ts 时间戳
-    //   const tsStr = td.dataset.ts;
-    //   if (!tsStr) return;
-    //   const ts = parseInt(tsStr, 10);
-    //   // --- A. 计算所有布尔值状态 ---
-    //   // 禁用状态
-    //   const isDisabled = ts < min || ts > max;
-    //   // 单选模式状态
-    //   // const title = td.getAttribute("title"); // 如果用 title 比对的话
-    //   // const isSingleActive = mode === 'single' && title === val;
-    //   // 区间模式状态
-    //   const isRangeStart = mode === "range" && !!rangeStart && ts === rangeStart;
-    //   const isRangeEnd = mode === "range" && !!rangeEnd && ts === rangeEnd;
-    //   const isInRange = mode === "range" && rangeMin > 0 && ts > rangeMin && ts < rangeMax;
-    //   // 多选模式状态
-    //   const isMultiActive = mode === "multiple" && this._selectedDates.has(ts);
-    //   // --- B. 统一应用到 classList ---
-    //   // 重点：把所有状态通过 toggle 批量映射到 DOM 上
-    //   td.classList.toggle("disabled", isDisabled);
-    //   // td.classList.toggle("active", isSingleActive || isMultiActive);
-    //   // 如果被禁用，强制不展示任何高亮效果
-    //   if (isDisabled) {
-    //     td.classList.remove("active", "range-start", "range-end", "in-range");
-    //   } else {
-    //     td.classList.toggle("range-start", isRangeStart);
-    //     td.classList.toggle("range-end", isRangeEnd);
-    //     td.classList.toggle("in-range", isInRange);
-    //   }
-    // });
   }
 }

@@ -23,30 +23,30 @@
   .next-month {
     color: var(--l-calendar-off-text-color, #a8abb2);
   }
-
-  .today {
-    color: var(--l-primary-color, #007bff);
-  }
 }
 
 .day {
   text-align: center;
   cursor: pointer;
   transition: background-color 0.2s;
-  font-size: 13px;
+  font-size: 14px;
 
-  &:hover {
+  &:hover:not(.disabled) {
     background-color: rgba(0, 0, 0, 0.04);
   }
 
   &.disabled {
-    background-color: rgba(0, 0, 0, 0.04);
+    color: var(--l-calendar-off-text-color, #a8abb2);
     cursor: not-allowed;
   }
 
-  &.active {
+  &.active:not(.disabled) {
     background-color: var(--l-primary-color, #007bff);
     color: white;
     font-weight: bold;
+  }
+
+  &.today {
+    color: var(--l-primary-color, #007bff);
   }
 }

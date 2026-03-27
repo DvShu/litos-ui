@@ -14,18 +14,25 @@ regist(Calendar);
 
 ### 基础用法
 
-使用
+渲染 `year`、`month` 渲染指定年月的日历。默认为当前年月。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar></l-calendar>
+  <l-calendar year="2026" month="2"></l-calendar>
 </textarea>
-<div class="source">
+</l-code-preview>
+</ClientOnly>
+
+### 限制可选日期
+
+通过 `min-date`、`max-date` 属性可以限制可选日期的范围。
+
+<ClientOnly>
+<l-code-preview>
 <textarea lang="html">
-  <l-calendar></l-calendar>
+  <l-calendar min-date="2026-03-20" max-date="2026-03-25"></l-calendar>
 </textarea>
-</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -64,4 +71,5 @@ regist(Calendar);
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
+
 | - | - | - |
