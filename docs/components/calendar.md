@@ -12,6 +12,42 @@ regist(Calendar);
 
 ## 演示
 
+<script setup>
+  import { $one, on, off } from 'ph-utils/dom';
+  import { onMounted, onUnmounted, nextTick } from 'vue';
+
+  let $calendar1;
+
+  function handleDayClick(e) {
+    const detail = e.detail;
+    if (!detail.isActiveMonth) {
+      const dateItem = detail.day.split('-');
+      $calendar1.setAttribute('year', dateItem[0]);
+      $calendar1.setAttribute('month', Number(dateItem[1]));
+    }
+  }
+
+
+  onMounted(() => {
+    nextTick(() => {
+      if (!import.meta.env.SSR) {
+        $calendar1 = $one('#calendar1');
+        if ($calendar1) {
+          on($calendar1, 'day-click', handleDayClick);
+        }
+      }
+    });
+  });
+
+  onUnmounted(() => {
+    if (!import.meta.env.SSR) {
+      if ($calendar1) {
+        off($calendar1, 'day-click', handleDayClick);
+      }
+    }
+  });
+</script>
+
 ### 基础用法
 
 渲染 `year`、`month` 渲染指定年月的日历。默认为当前年月。
@@ -32,6 +68,18 @@ regist(Calendar);
 <l-code-preview>
 <textarea lang="html">
   <l-calendar min-date="2026-03-20" max-date="2026-03-25"></l-calendar>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 日期切换
+
+通过监听 `day-click` 事件来获取点击的日期，并实现点击上一月、下一月日期时，切换日期
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-calendar id="calendar1"></l-calendar>
 </textarea>
 </l-code-preview>
 </ClientOnly>

@@ -1,12 +1,12 @@
-import FormInner from "../form/form_inner";
-import { parseAttrValue, kebabToCamel } from "../utils";
+import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $one } from "ph-utils/dom";
+import { $one, off, on, shouldEventNext } from "ph-utils/dom";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
 import { get } from "ph-utils/storage";
-import { format, parse, startOf, endOf, timestamp } from "ph-utils/date";
+import { format, startOf, endOf, timestamp } from "ph-utils/date";
+import BaseComponent from "../base";
 
 type CalendarState = {
   locale: string;
@@ -14,10 +14,10 @@ type CalendarState = {
   maxDate: number;
   year: number;
   month: number;
-  type: "single" | "range" | "multiple";
+  type: "select" | "range";
 };
 
-export default class Calendar extends FormInner<CalendarState> {
+export default class Calendar extends BaseComponent<CalendarState> {
   public static baseName = "calendar";
 
   private _langData: LangItem;
@@ -25,59 +25,85 @@ export default class Calendar extends FormInner<CalendarState> {
   /** 选择的日期列表 */
   private _selectDates: string[];
   private _range?: [number, number];
+  private _value: string;
 
   public constructor() {
     super();
     this.version = 2;
     const appLocale = get("l_app_locale", "zh-CN", { storage: "session" });
     const now = new Date();
+    this._value = "";
     this._state = {
       locale: appLocale,
       minDate: -Infinity,
       maxDate: Infinity,
       year: now.getFullYear(),
+      type: "select",
       month: now.getMonth(),
-      type: "single",
     };
     this._langData = langs[appLocale];
     this._selectDates = [];
   }
 
+  get value() {
+    return this._value;
+  }
+
+  set value(v: string) {
+    this.setValue(v);
+  }
+
   public setValue(v: string) {
-    if (v != this.value) {
-      super.setValue(v);
-      if (this._state.type !== "range") {
-        this._selectDates = v.split(",");
-      } else {
-        this._range = v.split(",").map((item) => parse(item).getTime()) as [number, number];
-      }
-      this.batchUpdate();
+    if (v != this._value) {
+      this._value = v;
+      this._updateValue();
     }
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  private _updateValue() {
+    if (this._state.type === "range") {
+      this._range = this._value.split(",").map((v: string) => {
+        return timestamp(v, "ms");
+      }) as [number, number];
+      this._selectDates = [];
+    } else {
+      this._selectDates = this._value.split("&");
+      this._range = undefined;
+    }
+    this.batchUpdate();
   }
 
   afterInit(): void {
     this.$container = $one(".calendar-table", this.root) as HTMLTableElement;
+    on(this.root, "click", this.handleCellClick);
   }
 
   beforeDestroy(): void {
     this.$container = undefined;
+    off(this.root, "click", this.handleCellClick);
   }
 
   static get observedAttributes() {
-    return [
-      ...FormInner.observedAttributes,
-      "locale",
-      "year",
-      "month",
-      "min-date",
-      "max-date",
-      "type",
-    ];
+    return ["value", "locale", "year", "month", "min-date", "max-date", "type"];
   }
+
+  handleCellClick = (e: Event) => {
+    const [next, day, target] = shouldEventNext(e, "l-day", this.root);
+    if (next) {
+      const clazzList = target.classList;
+      let isActiveMonth = !clazzList.contains("prev-month") && !clazzList.contains("next-month");
+
+      this.emit("day-click", {
+        detail: {
+          minTimestamp: this._state.minDate,
+          maxTimestamp: this._state.maxDate,
+          dayTimestamp: Number(day),
+          day: target.title,
+          isActiveMonth,
+        },
+      });
+    }
+  };
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
@@ -100,7 +126,11 @@ export default class Calendar extends FormInner<CalendarState> {
         this._state.month = parseAttrValue(newValue, this._state.month + 1) - 1;
         break;
       case "type":
-        this._state.type = newValue as "single";
+        this._state.type = newValue as "select";
+        this._updateValue();
+        break;
+      case "value":
+        this.setValue(newValue);
         break;
     }
   }
@@ -112,6 +142,8 @@ export default class Calendar extends FormInner<CalendarState> {
       if (this.$container) {
         this.$container.innerHTML = this.rerender();
       }
+    } else {
+      this.rerenderBody();
     }
   }
 
@@ -186,7 +218,7 @@ export default class Calendar extends FormInner<CalendarState> {
       if (title === today) {
         tdClass += " today";
       }
-      if (title === this.value) {
+      if (this._selectDates.includes(title)) {
         tdClass += " active";
       }
       tbodyHtml += `<td class="${tdClass}" title="${title}" l-day="${currentGridTs}">${tdContent}</td>`;

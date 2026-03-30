@@ -140,10 +140,6 @@ export default defineConfig({
             text: "DatePickerOri 日期选择器",
             link: "/components/date_picker_ori",
           },
-          {
-            text: "Calenar 日历",
-            link: "/components/calendar",
-          },
         ],
       },
       {
@@ -197,6 +193,10 @@ export default defineConfig({
           {
             text: "Space 间距",
             link: "/components/space",
+          },
+          {
+            text: "Calenar 日历",
+            link: "/components/calendar",
           },
           /* TemplateItem */
         ],
