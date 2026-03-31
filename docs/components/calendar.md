@@ -17,6 +17,8 @@ regist(Calendar);
   import { onMounted, onUnmounted, nextTick } from 'vue';
 
   let $calendar1;
+  let $calendar2;
+  let selectedDates = [];
 
   function handleDayClick(e) {
     const detail = e.detail;
@@ -27,13 +29,28 @@ regist(Calendar);
     }
   }
 
+  function handleDayClick2(e) {
+    const detail = e.detail;
+    let i = selectedDates.indexOf(detail.day);
+    if (i !== -1) {
+      selectedDates.splice(i, 1);
+    } else {
+      selectedDates.push(detail.day);
+    }
+    $calendar2.value = selectedDates.join("&");
+  }
+
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
         $calendar1 = $one('#calendar1');
+        $calendar2 = $one('#calendar2');
         if ($calendar1) {
           on($calendar1, 'day-click', handleDayClick);
+        }
+        if ($calendar2) {
+          on($calendar2, 'day-click', handleDayClick2);
         }
       }
     });
@@ -43,6 +60,9 @@ regist(Calendar);
     if (!import.meta.env.SSR) {
       if ($calendar1) {
         off($calendar1, 'day-click', handleDayClick);
+      }
+      if ($calendar2) {
+        off($calendar2, 'day-click', handleDayClick2);
       }
     }
   });
@@ -81,6 +101,76 @@ regist(Calendar);
 <textarea lang="html">
   <l-calendar id="calendar1"></l-calendar>
 </textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 选中日期
+
+通过 `type=select` 然后设置 `value` 属性，可以选中指定的日期。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-calendar id="calendar2"></l-calendar>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-calendar id="calendar2"></l-calendar>
+</textarea>
+<textarea lang="js">
+  const $calendar2 = $one('#calendar2');
+  const selectedDates = [];
+  //-
+  function handleDayClick2(e) {
+    const detail = e.detail;
+    let i = selectedDates.indexOf(detail.day);
+    if (i !== -1) {
+      selectedDates.splice(i, 1);
+    } else {
+      selectedDates.push(detail.day);
+    }
+    $calendar2.value = selectedDates.join("&");
+  }
+  //-
+  on($calendar2, 'day-click', handleDayClick2);
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> `value` 的值通过 `&` 分隔实现选择多个日期
+
+### 范围选择
+
+通过 `type=range` 然后设置 `value` 属性为一个 `[number,number]` 格式的值，可以选中的日期范围。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-calendar id="calendar3"></l-calendar>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-calendar id="calendar3"></l-calendar>
+</textarea>
+<textarea lang="js">
+  const $calendar3 = $one('#calendar3');
+  const selectedDates = [];
+  //-
+  function handleDayClick3(e) {
+    const detail = e.detail;
+    let i = selectedDates.indexOf(detail.day);
+    if (i !== -1) {
+      selectedDates.splice(i, 1);
+    } else {
+      selectedDates.push(detail.day);
+    }
+    $calendar3.value = selectedDates.join("&");
+  }
+  //-
+  on($calendar3, 'day-click', handleDayClick3);
+</textarea>
+</div>
 </l-code-preview>
 </ClientOnly>
 
