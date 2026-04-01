@@ -62,9 +62,17 @@ export default class Calendar extends BaseComponent<CalendarState> {
 
   private _updateValue() {
     if (this._state.type === "range") {
-      this._range = this._value.split(",").map((v: string) => {
-        return timestamp(v, "ms");
-      }) as [number, number];
+      if (this._value) {
+        console.log(this._value);
+        this._range = this._value.split(",").map((v: string) => {
+          // 校验 v 是否是纯数字
+          if (!/^\d+$/.test(v)) return timestamp(v, "ms");
+          if (v.length === 10) return Number(v) * 1000;
+          return Number(v);
+        }) as [number, number];
+      } else {
+        this._range = undefined;
+      }
       this._selectDates = [];
     } else {
       this._selectDates = this._value.split("&");
@@ -90,20 +98,24 @@ export default class Calendar extends BaseComponent<CalendarState> {
   handleCellClick = (e: Event) => {
     const [next, day, target] = shouldEventNext(e, "l-day", this.root);
     if (next) {
-      const clazzList = target.classList;
-      let isActiveMonth = !clazzList.contains("prev-month") && !clazzList.contains("next-month");
-
-      this.emit("day-click", {
-        detail: {
-          minTimestamp: this._state.minDate,
-          maxTimestamp: this._state.maxDate,
-          dayTimestamp: Number(day),
-          day: target.title,
-          isActiveMonth,
-        },
-      });
+      this._emitDayAction(target, "click", day);
     }
   };
+
+  private _emitDayAction(target: HTMLElement, action: string, day: string) {
+    const clazzList = target.classList;
+    let isActiveMonth = !clazzList.contains("prev-month") && !clazzList.contains("next-month");
+
+    this.emit(`day-${action}`, {
+      detail: {
+        minTimestamp: this._state.minDate,
+        maxTimestamp: this._state.maxDate,
+        dayTimestamp: Number(day),
+        day: target.title,
+        isActiveMonth,
+      },
+    });
+  }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
@@ -220,6 +232,19 @@ export default class Calendar extends BaseComponent<CalendarState> {
       }
       if (this._selectDates.includes(title)) {
         tdClass += " active";
+      }
+      if (this._range) {
+        console.log("range");
+        const start = this._range[0];
+        const end = this._range[1];
+        console.log(this._range);
+        if (start === currentGridTs) {
+          tdClass += " range-start";
+        } else if (end === currentGridTs) {
+          tdClass += " range-end";
+        } else if (start < currentGridTs && currentGridTs < end) {
+          tdClass += " range";
+        }
       }
       tbodyHtml += `<td class="${tdClass}" title="${title}" l-day="${currentGridTs}">${tdContent}</td>`;
       // 步进：移动到下一天的时间戳

@@ -18,7 +18,10 @@ regist(Calendar);
 
   let $calendar1;
   let $calendar2;
+  let $calendar3;
   let selectedDates = [];
+  let startRangeSelect = false;
+  let rangeDate = [];
 
   function handleDayClick(e) {
     const detail = e.detail;
@@ -40,17 +43,40 @@ regist(Calendar);
     $calendar2.value = selectedDates.join("&");
   }
 
+  function handleDayClick3(e) {
+    const detail = e.detail;
+    console.log(detail);
+    if (!startRangeSelect) {
+      startRangeSelect = true;
+      rangeDate = [detail.dayTimestamp, detail.dayTimestamp];
+    } else {
+      rangeDate[1] = detail.dayTimestamp;
+      if (rangeDate[0] > rangeDate[1]) {
+        const temp = rangeDate[0];
+        rangeDate[0] = rangeDate[1];
+        rangeDate[1] = temp;
+      }
+      startRangeSelect = false;
+    }
+    $calendar3.value = rangeDate.join(",");
+  }
+
+  function handleDayHover(e) {}
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
         $calendar1 = $one('#calendar1');
         $calendar2 = $one('#calendar2');
+        $calendar3 = $one('#calendar3');
         if ($calendar1) {
           on($calendar1, 'day-click', handleDayClick);
         }
         if ($calendar2) {
           on($calendar2, 'day-click', handleDayClick2);
+        }
+        if ($calendar3) {
+          on($calendar3, 'day-click', handleDayClick3);
         }
       }
     });
@@ -63,6 +89,9 @@ regist(Calendar);
       }
       if ($calendar2) {
         off($calendar2, 'day-click', handleDayClick2);
+      }
+      if ($calendar3) {
+        off($calendar3, 'day-click', handleDayClick3);
       }
     }
   });
@@ -142,16 +171,16 @@ regist(Calendar);
 
 ### 范围选择
 
-通过 `type=range` 然后设置 `value` 属性为一个 `[number,number]` 格式的值，可以选中的日期范围。
+通过 `type=range` 然后设置 `value` 属性为一个 `number,number` 格式的值，可以选中的日期范围。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar id="calendar3"></l-calendar>
+  <l-calendar id="calendar3" type="range"></l-calendar>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-calendar id="calendar3"></l-calendar>
+  <l-calendar id="calendar3" type="range"></l-calendar>
 </textarea>
 <textarea lang="js">
   const $calendar3 = $one('#calendar3');
