@@ -84,11 +84,15 @@ export default class Calendar extends BaseComponent<CalendarState> {
   afterInit(): void {
     this.$container = $one(".calendar-table", this.root) as HTMLTableElement;
     on(this.root, "click", this.handleCellClick);
+    on(this.$container, "mouseover", this.handleCellHover);
   }
 
   beforeDestroy(): void {
-    this.$container = undefined;
     off(this.root, "click", this.handleCellClick);
+    if (this.$container) {
+      off(this.$container, "mouseover", this.handleCellHover);
+      this.$container = undefined;
+    }
   }
 
   static get observedAttributes() {
@@ -99,6 +103,13 @@ export default class Calendar extends BaseComponent<CalendarState> {
     const [next, day, target] = shouldEventNext(e, "l-day", this.root);
     if (next) {
       this._emitDayAction(target, "click", day);
+    }
+  };
+
+  handleCellHover = (e: Event) => {
+    const [next, day, target] = shouldEventNext(e, "l-day", this.root);
+    if (next) {
+      this._emitDayAction(target, "hover", day);
     }
   };
 

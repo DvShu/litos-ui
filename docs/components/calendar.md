@@ -43,25 +43,33 @@ regist(Calendar);
     $calendar2.value = selectedDates.join("&");
   }
 
+  function updateRangeEnd(endDate) {
+    rangeDate[1] = endDate;
+    if (rangeDate[0] > rangeDate[1]) {
+      const temp = rangeDate[0];
+      rangeDate[0] = rangeDate[1];
+      rangeDate[1] = temp;
+    }
+  }
+
   function handleDayClick3(e) {
     const detail = e.detail;
-    console.log(detail);
     if (!startRangeSelect) {
       startRangeSelect = true;
       rangeDate = [detail.dayTimestamp, detail.dayTimestamp];
     } else {
-      rangeDate[1] = detail.dayTimestamp;
-      if (rangeDate[0] > rangeDate[1]) {
-        const temp = rangeDate[0];
-        rangeDate[0] = rangeDate[1];
-        rangeDate[1] = temp;
-      }
+      updateRangeEnd(detail.dayTimestamp);
       startRangeSelect = false;
     }
     $calendar3.value = rangeDate.join(",");
   }
 
-  function handleDayHover(e) {}
+  function handleDayHover(e) {
+    if (!startRangeSelect) return;
+    const detail = e.detail;
+    updateRangeEnd(detail.dayTimestamp);
+    $calendar3.value = rangeDate.join(",");
+  }
 
   onMounted(() => {
     nextTick(() => {
@@ -77,6 +85,7 @@ regist(Calendar);
         }
         if ($calendar3) {
           on($calendar3, 'day-click', handleDayClick3);
+          on($calendar3, 'day-hover', handleDayHover);
         }
       }
     });
@@ -92,6 +101,7 @@ regist(Calendar);
       }
       if ($calendar3) {
         off($calendar3, 'day-click', handleDayClick3);
+        off($calendar3, 'day-hover', handleDayHover);
       }
     }
   });
@@ -184,20 +194,39 @@ regist(Calendar);
 </textarea>
 <textarea lang="js">
   const $calendar3 = $one('#calendar3');
-  const selectedDates = [];
+  let startRangeSelect = false;
+  let rangeDate = [];
+  //-
+  function updateRangeEnd(endDate) {
+    rangeDate[1] = endDate;
+    if (rangeDate[0] > rangeDate[1]) {
+      const temp = rangeDate[0];
+      rangeDate[0] = rangeDate[1];
+      rangeDate[1] = temp;
+    }
+  }
   //-
   function handleDayClick3(e) {
     const detail = e.detail;
-    let i = selectedDates.indexOf(detail.day);
-    if (i !== -1) {
-      selectedDates.splice(i, 1);
+    if (!startRangeSelect) {
+      startRangeSelect = true;
+      rangeDate = [detail.dayTimestamp, detail.dayTimestamp];
     } else {
-      selectedDates.push(detail.day);
+      updateRangeEnd(detail.dayTimestamp);
+      startRangeSelect = false;
     }
-    $calendar3.value = selectedDates.join("&");
+    $calendar3.value = rangeDate.join(",");
+  }
+  //-
+  function handleDayHover(e) {
+    if (!startRangeSelect) return;
+    const detail = e.detail;
+    updateRangeEnd(detail.dayTimestamp);
+    $calendar3.value = rangeDate.join(",");
   }
   //-
   on($calendar3, 'day-click', handleDayClick3);
+  on($calendar3, 'day-hover', handleDayHover);
 </textarea>
 </div>
 </l-code-preview>
@@ -210,7 +239,13 @@ regist(Calendar);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| - | - | - | - |
+| `min-date` | 最小日期, 例如: `2026-04-03` | `string` | - |
+| `max-date` | 最大日期, 例如: `2026-04-03` | `string` | - |
+| `year` | 年份, 例如: `2026` | `number` | 当前年份 |
+| `month` | 月份, 例如: `4` | `number` | 当前月份 |
+| `type` | 日历类型，可选值 `select`、`range` | `string` | `select` |
+| `value` | 选中日期，当 type 为 select 时为选中日期字符串以 `&`，当 type 为 range 时为两个日期的组合字符串（逗号分隔）; 同时也是 `value` 属性 | `string` | - |
+| `locale` | 语言 | `string` | `zh-CN` |
 
 ### Calendar Slots
 
@@ -225,18 +260,13 @@ regist(Calendar);
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `click` | 点击按钮时触发 | `(event: Event)` |
-
-### Calendar Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| - | - | - |
+| `day-click` | 点击日期时触发 | `(detail: {isActiveMonth: boolean, day: string, dayTimestamp: number})` |
+| `day-hover` | 鼠标悬停日期时触发 | `(detail: {isActiveMonth: boolean, day: string, dayTimestamp: number})` |
 
 ### Calendar CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-
-| - | - | - |
+| --- | --- | --- 
+| `--calendar-header-height` | 周信息栏高度 | `auto` |
+| `--l-calendar-off-text-color` | 当日期不是当前年月时的文字颜色 | `#a8abb2` |
