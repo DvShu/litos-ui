@@ -17,7 +17,7 @@ function getPopoverOffsetByAxis(
   mainAlign: string,
   crossAlign: string,
   offset = 10,
-  axis = "x"
+  axis = "x",
 ) {
   const attrKey = axis === "x" ? "width" : "height";
   let filterKeys = ["left", "right", "top", "bottom"];
@@ -49,11 +49,7 @@ function getPopoverOffsetByAxis(
 export function getOverflowAncestors(element: HTMLElement) {
   const scrollableElements = [];
   let current: HTMLElement | null = element;
-  while (
-    current &&
-    current !== document.body &&
-    current !== document.documentElement
-  ) {
+  while (current && current !== document.body && current !== document.documentElement) {
     const style = window.getComputedStyle(current);
     const overflow = style.overflow + style.overflowX + style.overflowY;
     if (/(scroll|auto)/i.test(overflow)) {
@@ -79,7 +75,7 @@ function impactDetect(
   popoverRect: DOMRect,
   mainAlign: string,
   crossAlign: string,
-  offset = 10
+  offset = 10,
 ) {
   // 获取滚动容器
   let container = document.documentElement;
@@ -90,14 +86,7 @@ function impactDetect(
   const maxHeight = window.innerHeight + scrollTop - 10;
   const maxWidth = window.innerWidth + scrollLeft - 10;
   // 判断 垂直 方向是否在显示区域内
-  let topDiff = getPopoverOffsetByAxis(
-    targetRect,
-    popoverRect,
-    mainAlign,
-    crossAlign,
-    offset,
-    "y"
-  );
+  let topDiff = getPopoverOffsetByAxis(targetRect, popoverRect, mainAlign, crossAlign, offset, "y");
   let y = targetRect.top + scrollTop - topDiff;
   const yEnd = y + popoverRect.height;
   // 1. 首先判断下边界是否超出屏幕
@@ -127,7 +116,7 @@ function impactDetect(
     mainAlign,
     crossAlign,
     offset,
-    "x"
+    "x",
   );
   // 1. 首先判断右边界是否超出屏幕
   let x = targetRect.left + scrollLeft - leftDiff;
@@ -150,22 +139,8 @@ function impactDetect(
       mainAlign = "right";
     }
   }
-  topDiff = getPopoverOffsetByAxis(
-    targetRect,
-    popoverRect,
-    mainAlign,
-    crossAlign,
-    offset,
-    "y"
-  );
-  leftDiff = getPopoverOffsetByAxis(
-    targetRect,
-    popoverRect,
-    mainAlign,
-    crossAlign,
-    offset,
-    "x"
-  );
+  topDiff = getPopoverOffsetByAxis(targetRect, popoverRect, mainAlign, crossAlign, offset, "y");
+  leftDiff = getPopoverOffsetByAxis(targetRect, popoverRect, mainAlign, crossAlign, offset, "x");
   x = targetRect.left + scrollLeft - leftDiff;
   y = targetRect.top + scrollTop - topDiff;
   const placement = `${mainAlign}${crossAlign === "" ? "" : "-" + crossAlign}`;
@@ -191,7 +166,7 @@ function getArrowPosition(
   reference: HTMLElement,
   floating: HTMLElement,
   mainAlign: string,
-  crossAlign: string
+  crossAlign: string,
 ) {
   const referenceRect = reference.getBoundingClientRect();
   const floatingRect = floating.getBoundingClientRect();
@@ -253,7 +228,7 @@ type UpdatePositionProps = {
 export function updatePosition(
   reference: HTMLElement,
   floating: HTMLElement,
-  options: UpdatePositionProps = { placement: "top", offset: 10, arrowSize: 8 }
+  options: UpdatePositionProps = { placement: "top", offset: 10, arrowSize: 8 },
 ) {
   // 获取水平和垂直方向的位置
   let mainPos = "bottom";
@@ -278,13 +253,7 @@ export function updatePosition(
     popoverRect.width = width;
     floating.style.width = `${width}px`;
   }
-  const impactRes = impactDetect(
-    targetRect,
-    popoverRect,
-    mainPos,
-    crossPos,
-    options.offset || 10
-  );
+  const impactRes = impactDetect(targetRect, popoverRect, mainPos, crossPos, options.offset || 10);
   floating.style.setProperty("left", `${impactRes.x}px`);
   floating.style.setProperty("top", `${impactRes.y}px`);
   let $arrow = $one(".l-popover-arrow", floating);
@@ -293,7 +262,7 @@ export function updatePosition(
       reference,
       floating,
       impactRes.mainAlign,
-      impactRes.crossAlign
+      impactRes.crossAlign,
     );
     let cssText = ``;
     if (options.arrowSize !== 8) {
@@ -326,7 +295,7 @@ export function updatePosition(
 export function autoUpdate(
   reference: HTMLElement,
   floating: HTMLElement,
-  options: UpdatePositionProps
+  options: UpdatePositionProps,
 ) {
   let $reference = reference;
   let $floating = floating;
@@ -380,10 +349,7 @@ type PopoverInitProps = {
    * @param datas referecnce 节点上的 data 属性集
    * @returns
    */
-  updateContent?: (
-    popoverElement: HTMLElement,
-    datas?: Record<string, any>
-  ) => void;
+  updateContent?: (popoverElement: HTMLElement, datas?: Record<string, any>) => void;
   /** 触发方式, 默认: hover */
   trigger?: "click" | "hover" | "focus" | "manual";
   /** 主题, default - 白底, tooltip - 黑底 */
@@ -400,7 +366,8 @@ type PopoverInitProps = {
   offset?: number;
   /** 点击 Popover 内具有 data-action 的元素时触发 */
   onPopoverAction?: (action: string, target: HTMLElement) => void;
-  onOpenChange?: (isOpen: boolean) => void;
+  /** 显示/隐藏时触发 */
+  onOpenChange?: (isOpen: boolean, popoverElement?: HTMLElement) => void;
   disabled?: boolean;
 };
 
@@ -564,7 +531,7 @@ export class Popover {
       if (this.$reference === reference) {
         return;
       }
-      this.hide()
+      this.hide();
     }
     this.$reference = reference;
     if (!this.popoverElement) {
@@ -577,11 +544,9 @@ export class Popover {
       }
       this._destroyUpdater();
 
-      const placement: string =
-        referenceDatas.placement || this.options.placement || "top";
+      const placement: string = referenceDatas.placement || this.options.placement || "top";
       const offset = Number(referenceDatas.offset || this.options.offset || 10);
-      const popoverWidth =
-        referenceDatas.popoverWidth || this.options.popoverWidth;
+      const popoverWidth = referenceDatas.popoverWidth || this.options.popoverWidth;
       this.popoverElement.style.display = "block";
       let popWidth;
       if (popoverWidth) {
@@ -617,7 +582,7 @@ export class Popover {
     }
     this.$reference = undefined;
     if (this.options.onOpenChange) {
-      this.options.onOpenChange(false);
+      this.options.onOpenChange(false, this.popoverElement);
     }
   }
 
@@ -634,11 +599,7 @@ export class Popover {
 
   _onOuterTap = (e: Event) => {
     const $target = e.target as HTMLElement;
-    if (
-      this.$reference &&
-      !this.$reference.contains($target) &&
-      this.$reference != $target
-    ) {
+    if (this.$reference && !this.$reference.contains($target) && this.$reference != $target) {
       // 点击的是触发区域外
       if (this.options.trigger === "focus") {
         this.hide();
@@ -647,15 +608,10 @@ export class Popover {
       // 判断是否点击的是 Popover
       if (
         this.popoverElement &&
-        (this.popoverElement.contains($target) ||
-          this.popoverElement == $target)
+        (this.popoverElement.contains($target) || this.popoverElement == $target)
       ) {
         // 点击的是 Popover
-        const [next, action, target] = shouldEventNext(
-          e,
-          "data-action",
-          this.popoverElement
-        );
+        const [next, action, target] = shouldEventNext(e, "data-action", this.popoverElement);
         if (next) {
           let confirmAction = "";
           if (action === "popconfirm-cancel") {
@@ -750,18 +706,15 @@ export const popconfirmProps: PopconfirmInitProps = {
     children.push('</div><div class="l-popconfirm-content"></div></div>');
     children.push('<div class="l-popconfirm-footer">');
     children.push(
-      '<l-button class="l-popconfirm-btn" data-action="popconfirm-cancel">取消</l-button>'
+      '<l-button class="l-popconfirm-btn" data-action="popconfirm-cancel">取消</l-button>',
     );
     children.push(
-      '<l-button class="l-popconfirm-btn" type="primary" data-action="popconfirm-ok">确定</l-button>'
+      '<l-button class="l-popconfirm-btn" type="primary" data-action="popconfirm-ok">确定</l-button>',
     );
     children.push("</div>");
     return children.join("");
   },
-  updateContent: (
-    popover: HTMLElement,
-    referenceDatas?: Record<string, any>
-  ) => {
+  updateContent: (popover: HTMLElement, referenceDatas?: Record<string, any>) => {
     const $content = popover.querySelector(".l-popconfirm-content");
     if ($content && referenceDatas) {
       $content.innerHTML = referenceDatas.content || "";
@@ -771,7 +724,7 @@ export const popconfirmProps: PopconfirmInitProps = {
 
 function getReferenceElement(
   node: HTMLElement,
-  refereceClass: string
+  refereceClass: string,
 ): HTMLElement | null | HTMLElement[] {
   if (node.classList.contains(refereceClass)) {
     return node;
@@ -794,7 +747,7 @@ function getReferenceElement(
 export function createPopoverObserver(
   observeElement: HTMLElement,
   refereceClass: string,
-  popover: Popover
+  popover: Popover,
 ) {
   let observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {

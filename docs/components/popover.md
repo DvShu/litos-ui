@@ -473,21 +473,24 @@ new Popover({
 | --- | --- | --- | --- |
 | `reference` | 触发元素, 不传,则查询所有的 `.l-popover-reference` | `HTMLElement`、`HTMLElement[]`、`string` | `-` |
 | `popover` | `Popover`元素节点, 不传会自动创建 | `HTMLElement` | `-` |
-| `contentRender` | 内容渲染函数 | `() => HTMLElement | string | DocumentFragment` | `-` |
-| `updateContent` | 内容更新函数, `datas` 为 `reference` 节点上的 `data` 属性集 | `(popoverElement: HTMLElement, datas?: Record<string, any>) => void` | `-` |
-| `trigger` | 触发方式 | `hover`、`click`、`focus` | `hover` |
+| `contentRender` | 内容渲染函数 | `() => HTMLElement \| string \| DocumentFragment` | `-` |
+| `updateContent` | 内容更新函数, 每次显示的时候，都会调用这个函数更新渲染内容; `datas` 为 `reference` 节点上的 `data` 属性集 | `(popoverElement: HTMLElement, datas?: Record<string, any>) => void` | `-` |
+| `trigger` | 触发方式 | `hover`、`click`、`focus`、`manual`[手动控制] | `hover` |
 | `offset` | 偏移量 | `number` | `10` |
 | `arrow` | 是否显示箭头 | `boolean` | `true` |
 | `arrowSize` | 箭头大小 | `number` | `8` |
 | `width` | 宽度 | `string`、`number` | `-` |
-| `theme` | 主题 | `default`、`tooltip` | `default` |
+| `theme` | 主题 | `default`、`tooltip`、`popconfirm` | `default` |
 | `placement` | 位置 | `top`、`top-start`、`top-end`、`bottom`、`bottom-start`、`bottom-end`、`left`、`left-start`、`left-end`、`right`、`right-start`、`right-end` | `top` |
 | `popoverWidth` | 弹出宽度, `trigger` 保持和触发元素宽度一致 | `string`、`trigger` | `-` |
 | `onPopoverAction` | 点击 `Popover` 内具有 `data-action` 的元素时触发 | `(action: string) => void` | `-` |
+| `onOpenChange` | 显示/隐藏时触发 | `(isOpen: boolean, popoverElement?: HTMLElement) => void` | `-` |
 
-### Popover CSS Variables
+### Popover Methods
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| 变量名 | 说明 | 参数 |
 | --- | --- | --- |
-| `-` | - | `-` |
+| `destroy` | 销毁 | `-` |
+| `hide` | 隐藏 | `-` |
+| `show` | 显示 | `(rereference: HTMLElement)` 浮层所对齐的 `HTML` 元素 |

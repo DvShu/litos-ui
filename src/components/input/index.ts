@@ -1,8 +1,8 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "ph-utils/dom";
 import { parseAttrValue, unitNumberStr } from "../utils";
 import FormInner from "../form/form_inner";
-//@ts-ignore
 import css from "./index.less?inline";
+import innerCss from "./input_inner.less?inline";
 
 interface InputState {
   /** 原生 input 的类型，默认为 "text" */
@@ -39,6 +39,7 @@ export default class Input extends FormInner<InputState> {
 
   public constructor() {
     super();
+    this.version = 2;
     this._state = {
       type: "text",
       placeholder: "",
@@ -78,9 +79,7 @@ export default class Input extends FormInner<InputState> {
     ];
   }
 
-  connectedCallback(): void {
-    this.loadStyleText([css]);
-    super.connectedCallback();
+  afterInit(): void {
     this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
@@ -88,8 +87,7 @@ export default class Input extends FormInner<InputState> {
     this._updateError(this._state.error != null);
   }
 
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
+  beforeDestroy(): void {
     off(this.$inner as HTMLInputElement, "input", this._input);
   }
 
@@ -153,6 +151,13 @@ export default class Input extends FormInner<InputState> {
         this.$inner.removeAttribute(key);
       }
     }
+  }
+
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: [css, innerCss],
+    };
   }
 
   render() {

@@ -1,0 +1,19 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  height: var(--l-form-control-height, 32px);
+  border: 1px solid var(--l-border-color, #dedede);
+  padding: 0 8px;
+  border-radius: var(--l-border-radius, 3px);
+  width: var(--l-date-picker-width, 140px);
+  gap: 8px;
+  transition: border-color 0.3s;
+}
+:host(:hover) {
+  border-color: var(--l-primary-color-light2, #66b3ff);
+}
+.icon {
+  color: rgba(0, 0, 0, 0.35);
+  min-width: 0;
+  flex-shrink: 0;
+}

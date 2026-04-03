@@ -12,16 +12,16 @@
   table-layout: fixed;
 
   thead {
-    height: var(--calendar-header-height, auto);
+    height: var(--l-calendar-header-height, 32px);
   }
 
   th {
     font-weight: 400;
     cursor: default;
+    border-bottom: 1px solid rgb(239, 239, 245);
   }
 
-  .prev-month,
-  .next-month {
+  .excluded {
     color: var(--l-calendar-off-text-color, #a8abb2);
   }
 }
@@ -53,7 +53,7 @@
   &.range {
     background-color: var(--l-primary-color-light4, #cce6ff);
   }
-  &.range-start, 
+  &.range-start,
   &.range-end {
     background-color: var(--l-primary-color, #007bff);
     color: #ffffff;

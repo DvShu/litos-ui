@@ -79,12 +79,13 @@ regist(MyIcon, "my-icon");
 
 ### 颜色和尺寸
 
-修改颜色和尺寸可以通过 `color` 和 `font-size` 修改
+修改颜色和尺寸可以通过 `color` 和 `font-size` 样式修改；也可以通过 `color` 和 `size` 属性修改
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-caret-bottom-icon style="color:red;font-size:32px;" />
+  <l-caret-bottom-icon style="color:red;font-size:32px;"></l-caret-bottom-icon>
+  <l-caret-bottom-icon color="red" size="32"></l-caret-bottom-icon>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -97,3 +98,11 @@ regist(MyIcon, "my-icon");
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `view-box` | svg view box  | `string` | `0 0 1024 1024` |
+
+### 样式变量
+
+<!-- prettier-ignore -->
+| 名称 | 描述 | 默认值 |
+| --- | --- | --- |
+| `--l-icon-size` | 尺寸 | `-` |
+| `--l-icon-color` | 颜色 | `-` |

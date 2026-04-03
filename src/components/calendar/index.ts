@@ -1,7 +1,7 @@
 import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $one, off, on, shouldEventNext } from "ph-utils/dom";
+import { $one, off, on, shouldEventNext, hasClass } from "ph-utils/dom";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
 import { get } from "ph-utils/storage";
@@ -115,16 +115,13 @@ export default class Calendar extends BaseComponent<CalendarState> {
   };
 
   private _emitDayAction(target: HTMLElement, action: string, day: string) {
-    const clazzList = target.classList;
-    let isActiveMonth = !clazzList.contains("prev-month") && !clazzList.contains("next-month");
-
     this.emit(`day-${action}`, {
       detail: {
         minTimestamp: this._state.minDate,
         maxTimestamp: this._state.maxDate,
         dayTimestamp: Number(day),
         day: target.title,
-        isActiveMonth,
+        isActiveMonth: !hasClass(target, "excluded"),
       },
     });
   }
@@ -222,7 +219,7 @@ export default class Calendar extends BaseComponent<CalendarState> {
       if (i < startDayIdx) {
         // 上个月的补全
         tdContent = `${prevDaysCount - startDayIdx + i + 1}`;
-        tdClass += " prev-month";
+        tdClass += " excluded";
         titlePrefix = prevTitlePrefix;
       } else if (i < startDayIdx + daysCount) {
         // 本月的天数
@@ -232,7 +229,7 @@ export default class Calendar extends BaseComponent<CalendarState> {
       } else {
         // 下个月的补全
         tdContent = `${i - startDayIdx - daysCount + 1}`;
-        tdClass += " next-month";
+        tdClass += " excluded";
         titlePrefix = nextTitlePrefix;
       }
 

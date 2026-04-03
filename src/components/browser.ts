@@ -48,7 +48,9 @@ import Select from "./select";
 import Table from "./table";
 import Space from "./space";
 import Calendar from "./calendar";
+import DatePicker from "./date_picker";
 //Web Components Import
+regist(DatePicker)
 regist(Calendar);
 regist(Space);
 regist(Table);
@@ -148,3 +150,4 @@ import "./select/index.less";
 import "./table/index.less";
 import "./space/index.less";
 import "./calendar/index.less";
+import "./date_picker/index.less";

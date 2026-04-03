@@ -15,6 +15,7 @@ import "../../../styles/modal_box.css";
 import "../../../styles/popover.css";
 import "../../../styles/select.css";
 import "../../../styles/dark.css";
+import "../../../styles/datepicker.css";
 
 export default {
   extends: DefaultTheme,
@@ -30,16 +31,10 @@ export default {
           module.regist(component);
         }
       }
-      const CodePreview = await import(
-        "../../../src/app_components/code_preview"
-      );
-      const SourceCode = await import(
-        "../../../src/app_components/source_code"
-      );
+      const CodePreview = await import("../../../src/app_components/code_preview");
+      const SourceCode = await import("../../../src/app_components/source_code");
       const IconList = await import("../../../src/app_components/icon_list");
-      const CustomTheme = await import(
-        "../../../src/app_components/custom_theme"
-      );
+      const CustomTheme = await import("../../../src/app_components/custom_theme");
       module.regist(CodePreview.default, "l-code-preview");
       module.regist(SourceCode.default, "l-source-code");
       module.regist(IconList.default, "l-icon-list");

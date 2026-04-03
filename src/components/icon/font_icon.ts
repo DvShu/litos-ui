@@ -16,19 +16,14 @@ export default class FontIcon extends BaseIcon {
     return "";
   }
 
-  render() {
-    super.render();
-  }
-
-  disconnectedCallback(): void {
+  beforeDestroy(): void {
     if (this._t != null) {
       cancelAnimationFrame(this._t);
       this._t = undefined;
     }
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  afterInit() {
     const name = this.getAttribute("name");
     this._start = Date.now();
     if (name) {
@@ -50,7 +45,7 @@ export default class FontIcon extends BaseIcon {
       if (!viewBox) {
         viewBox = "0 0 1024 1024";
       }
-      const $svg = this.shadow.querySelector("svg");
+      const $svg = this.root.querySelector("svg");
       if ($svg != null) {
         $svg.setAttribute("viewBox", viewBox);
         $svg.innerHTML = $symbol.innerHTML;

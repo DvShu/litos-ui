@@ -140,6 +140,10 @@ export default defineConfig({
             text: "DatePickerOri 日期选择器",
             link: "/components/date_picker_ori",
           },
+          {
+            text: "DatePicker 日期选择器",
+            link: "/components/date_picker",
+          },
         ],
       },
       {
