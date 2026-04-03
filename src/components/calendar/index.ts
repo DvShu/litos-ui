@@ -23,13 +23,14 @@ export default class Calendar extends BaseComponent<CalendarState> {
   private _langData: LangItem;
   private $container?: HTMLTableElement;
   /** 选择的日期列表 */
-  private _selectDates: string[];
-  private _range?: [number, number];
+  private _selectDates: Set<string>;
+  private _range: [number, number];
   private _value: string;
 
   public constructor() {
     super();
     this.version = 2;
+    // 获取语言, 适配未来的整个工程的语言
     const appLocale = get("l_app_locale", "zh-CN", { storage: "session" });
     const now = new Date();
     this._value = "";
@@ -42,7 +43,8 @@ export default class Calendar extends BaseComponent<CalendarState> {
       month: now.getMonth(),
     };
     this._langData = langs[appLocale];
-    this._selectDates = [];
+    this._selectDates = new Set();
+    this._range = [0, 0];
   }
 
   get value() {
@@ -63,7 +65,6 @@ export default class Calendar extends BaseComponent<CalendarState> {
   private _updateValue() {
     if (this._state.type === "range") {
       if (this._value) {
-        console.log(this._value);
         this._range = this._value.split(",").map((v: string) => {
           // 校验 v 是否是纯数字
           if (!/^\d+$/.test(v)) return timestamp(v, "ms");
@@ -71,12 +72,12 @@ export default class Calendar extends BaseComponent<CalendarState> {
           return Number(v);
         }) as [number, number];
       } else {
-        this._range = undefined;
+        this._range = [0, 0];
       }
-      this._selectDates = [];
+      this._selectDates.clear();
     } else {
-      this._selectDates = this._value.split("&");
-      this._range = undefined;
+      this._selectDates = new Set(this._value.split("&"));
+      this._range = [0, 0];
     }
     this.batchUpdate();
   }
@@ -182,6 +183,8 @@ export default class Calendar extends BaseComponent<CalendarState> {
 
     // 2. 计算网格数据区间
     const firstDate = new Date(year, month, 1);
+    // 获取当月第一天是星期几 (0=周一, 6=周日)
+    // JS 的 getDay() 返回 0=周日，需要转换为周一开始的体系
     let startDayIdx = firstDate.getDay() - 1;
     if (startDayIdx < 0) startDayIdx = 6;
 
@@ -205,6 +208,7 @@ export default class Calendar extends BaseComponent<CalendarState> {
 
     // 3. 一次性生成 42 个格子 (tbody)
     let tbodyHtml = "";
+    const [start, end] = this._range || [];
     for (let i = 0; i < 42; i++) {
       // 每 7 天是一个新行
       if (i % 7 === 0) {
@@ -241,14 +245,10 @@ export default class Calendar extends BaseComponent<CalendarState> {
       if (title === today) {
         tdClass += " today";
       }
-      if (this._selectDates.includes(title)) {
+      if (this._selectDates.has(title)) {
         tdClass += " active";
       }
-      if (this._range) {
-        console.log("range");
-        const start = this._range[0];
-        const end = this._range[1];
-        console.log(this._range);
+      if (start && end) {
         if (start === currentGridTs) {
           tdClass += " range-start";
         } else if (end === currentGridTs) {
