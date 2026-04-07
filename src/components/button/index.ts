@@ -1,10 +1,8 @@
-import { kebabToCamel, parseAttrValue } from "../utils";
+import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
 import { formatClass, addClass, removeClass, formatStyle, on, off } from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
-//@ts-ignore
 import buttonCss from "./index.less?inline";
-//@ts-ignore
 import animationCss from "../styles/animation.css?inline";
 
 type ButtonState = {
@@ -84,17 +82,20 @@ export default class Button extends BaseComponent<ButtonState> {
       "type",
       "shape",
       "loading-text",
+      "size",
     ];
   }
 
   protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
     switch (name) {
       case "color":
-      case "height":
       case "shape":
       case "type":
       case "size":
         this._state[name] = newValue as never;
+        break;
+      case "height":
+        this._state[name] = unitNumberStr(newValue);
         break;
       case "text":
       case "ghost":
@@ -125,10 +126,19 @@ export default class Button extends BaseComponent<ButtonState> {
           this._state.ghost,
         );
       }
+      if (changedProps.has("type")) {
+        this._replaceBtnClass(1, `l-btn-${this._state.type}`);
+      }
+      if (changedProps.has("size")) {
+        this._replaceBtnClass(2, `l-btn-${this._state.size}`);
+      }
+      if (changedProps.has("shape")) {
+        this._replaceBtnClass(3, `l-btn-${this._state.shape}`);
+      }
     }
 
     if (changedProps.has("height")) {
-      this._updateHeight(this._state.height);
+      this._updateHeight();
     }
   }
 
@@ -137,7 +147,7 @@ export default class Button extends BaseComponent<ButtonState> {
     if (this.isFormButton()) {
       on(this, "click", this._handleClick);
     }
-    this._updateHeight(this._state.height);
+    this._updateHeight();
   }
 
   disconnectedCallback(): void {
@@ -227,12 +237,20 @@ export default class Button extends BaseComponent<ButtonState> {
     return formatStyle(cssVars);
   }
 
-  private _updateHeight(height?: string | number) {
-    if (height) {
-      if (typeof height === "number") {
-        height = `${height}px`;
+  private _updateHeight() {
+    if (this._state.height) {
+      this.style.setProperty("--l-btn-height", this._state.height);
+    } else {
+      this.style.removeProperty("--l-btn-height");
+    }
+  }
+
+  private _replaceBtnClass(i: number, newClass: string) {
+    if (this.$btn) {
+      const old = this.$btn.classList.item(i);
+      if (old) {
+        this.$btn.classList.replace(old, newClass);
       }
-      this.style.setProperty("--l-btn-height", height);
     }
   }
 
