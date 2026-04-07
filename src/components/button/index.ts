@@ -1,4 +1,4 @@
-import { initAttr, kebabToCamel, parseAttrValue } from "../utils";
+import { kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import { formatClass, addClass, removeClass, formatStyle, on, off } from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
@@ -9,7 +9,7 @@ import animationCss from "../styles/animation.css?inline";
 
 type ButtonState = {
   loading: boolean;
-  htmlType: string;
+  htmlType: "submit" | "reset" | "button";
   text: boolean;
   ghost: boolean;
   color?: string;
@@ -18,16 +18,17 @@ type ButtonState = {
   type: "normal" | "primary";
   shape: "default" | "round" | "circle";
   loadingText: string;
+  size: "small" | "large" | "default";
 };
 
 export default class Button extends BaseComponent<ButtonState> {
   public static baseName = "button";
-  // public htmlType: "submit" | "reset" | "button" = "button";
   _disabled = false;
   $btn?: HTMLButtonElement;
 
   constructor() {
     super();
+    this.version = 2;
     this._state = {
       loading: false,
       htmlType: "button",
@@ -37,6 +38,7 @@ export default class Button extends BaseComponent<ButtonState> {
       type: "normal",
       shape: "default",
       loadingText: "加载中……",
+      size: "default",
     };
   }
 
@@ -91,6 +93,7 @@ export default class Button extends BaseComponent<ButtonState> {
       case "height":
       case "shape":
       case "type":
+      case "size":
         this._state[name] = newValue as never;
         break;
       case "text":
@@ -101,7 +104,7 @@ export default class Button extends BaseComponent<ButtonState> {
         break;
       case "html-type":
       case "loading-text":
-        this._state[kebabToCamel(name) as "htmlType"] = newValue;
+        this._state[kebabToCamel(name) as "htmlType"] = newValue as "button";
         break;
     }
   }
@@ -130,7 +133,6 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   connectedCallback(): void {
-    this.loadStyleText([animationCss, buttonCss]);
     super.connectedCallback();
     if (this.isFormButton()) {
       on(this, "click", this._handleClick);
@@ -155,19 +157,24 @@ export default class Button extends BaseComponent<ButtonState> {
     return this._state.htmlType as "submit" | "reset" | "button";
   }
 
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      style: [animationCss, buttonCss],
+      template: this.render(),
+    };
+  }
+
   public render() {
-    const type = this._state.type;
     const $btn = document.createElement("button");
     const isLoading = this._state.loading;
-    const shape = this._state.shape;
     const text = this._state.text;
     const ghost = this._state.ghost;
     // class
     const classes = [
       "l-btn",
-      `l-btn-${type}`,
-      shape === "round" ? "l-btn-round" : "",
-      shape === "circle" ? "l-btn-circle" : "",
+      `l-btn-${this._state.type}`,
+      `l-btn-${this._state.size}`,
+      `l-btn-${this._state.shape}`,
       ghost ? "l-btn-ghost" : "",
       text ? "l-btn-text" : "",
       isLoading ? "l-btn-loading" : "",
@@ -188,7 +195,7 @@ export default class Button extends BaseComponent<ButtonState> {
     }
     $btn.setAttribute("part", "default");
     this.$btn = $btn;
-    this.root.appendChild($btn);
+    return $btn;
   }
 
   loadingBody() {

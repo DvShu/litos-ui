@@ -5,10 +5,29 @@
 ## 引用
 
 ```js
-import { regist, DatePicker, Calendar, CalendarIcon } from "litos-ui";
+import {
+  regist,
+  DatePicker,
+  Calendar,
+  CalendarIcon,
+  DArrowLeftIcon,
+  DArrowRightIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  Button,
+} from "litos-ui";
 import "litos-ui/styles/datepicker.css";
 
-regist([DatePicker, Calendar, CalendarIcon]);
+regist([
+  DatePicker,
+  Calendar,
+  CalendarIcon,
+  DArrowLeftIcon,
+  DArrowRightIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  Button,
+]);
 ```
 
 ## 演示

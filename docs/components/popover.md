@@ -220,7 +220,7 @@ const popover = new Popover();
 </l-code-preview>
 </ClientOnly>
 
-> 如果需要自定义触发方式，则可以通过引入 `updatePosition` 或者 `autoUpdate` 函数来，手动显示和隐藏弹出层。
+> 也可以通过 传递 `trigger:'manual;` 来自定义触发；如果需要自定义触发方式，则可以通过引入 `updatePosition` 或者 `autoUpdate` 函数来，手动显示和隐藏弹出层。
 
 ### 位置
 
@@ -485,6 +485,7 @@ new Popover({
 | `popoverWidth` | 弹出宽度, `trigger` 保持和触发元素宽度一致 | `string`、`trigger` | `-` |
 | `onPopoverAction` | 点击 `Popover` 内具有 `data-action` 的元素时触发 | `(action: string) => void` | `-` |
 | `onOpenChange` | 显示/隐藏时触发 | `(isOpen: boolean, popoverElement?: HTMLElement) => void` | `-` |
+| `onOutsideTap` | 点击 `Popover` 外部时触发, `isReference`: 是否点击的是触发区域, `isPopover`: 是否点击的是 `Popover` 主体 | `(e: Event, isReference: boolean, isPopover: boolean) => void` | `-` |
 
 ### Popover Methods
 

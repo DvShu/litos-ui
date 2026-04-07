@@ -368,6 +368,8 @@ type PopoverInitProps = {
   onPopoverAction?: (action: string, target: HTMLElement) => void;
   /** 显示/隐藏时触发 */
   onOpenChange?: (isOpen: boolean, popoverElement?: HTMLElement) => void;
+  /** 点击 Popover 外部时触发, isReference: 是否点击的是触发区域, isPopover: 是否点击的是 Popover 主体 */
+  onOutsideTap?: (e: Event, isReference: boolean, isPopover: boolean) => void;
   disabled?: boolean;
 };
 
@@ -599,17 +601,23 @@ export class Popover {
 
   _onOuterTap = (e: Event) => {
     const $target = e.target as HTMLElement;
-    if (this.$reference && !this.$reference.contains($target) && this.$reference != $target) {
+    const isReference =
+      this.$reference && !this.$reference.contains($target) && this.$reference != $target
+        ? true
+        : false;
+    const isPopover =
+      this.popoverElement &&
+      (this.popoverElement.contains($target) || this.popoverElement == $target)
+        ? true
+        : false;
+    if (this.options.trigger !== "manual" && !isReference) {
       // 点击的是触发区域外
       if (this.options.trigger === "focus") {
         this.hide();
         return;
       }
       // 判断是否点击的是 Popover
-      if (
-        this.popoverElement &&
-        (this.popoverElement.contains($target) || this.popoverElement == $target)
-      ) {
+      if (isPopover) {
         // 点击的是 Popover
         const [next, action, target] = shouldEventNext(e, "data-action", this.popoverElement);
         if (next) {
@@ -629,6 +637,9 @@ export class Popover {
         return;
       }
       this.hide();
+    }
+    if (this.options.onOutsideTap) {
+      this.options.onOutsideTap(e, !isReference, isPopover);
     }
   };
 
