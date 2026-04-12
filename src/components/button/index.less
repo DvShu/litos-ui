@@ -4,9 +4,9 @@
   --l-btn-text-color: #ffffff;
   --l-btn-hover-text-color: var(--l-btn-text-color);
   --l-btn-active-text-color: var(--l-btn-text-color);
-  /* 按钮的背景色 */
   /* 按钮的边框颜色 */
   --l-btn-border-color: var(--l-primary-color, #722ed1);
+  /* 按钮的背景色 */
   --l-btn-background: var(--l-btn-border-color);
   /* 按钮的悬浮边框 less lighten(var(--l-primary-color), 10) */
   --l-btn-hover-border-color: var(--l-primary-color-light1, #9254de);
@@ -30,6 +30,19 @@
 /* 使按钮适合其父宽度，100% */
 :host([block]) {
   width: 100%;
+}
+
+/* 按钮尺寸 */
+:host(.l-btn-small) {
+  --l-btn-height: 24px;
+  --l-btn-padding: 0 7px;
+}
+
+:host(.l-btn-large) {
+  --l-border-radius: 6px;
+  --l-btn-height: 40px;
+  --l-btn-padding: 0 15px;
+  font-size: 16px;
 }
 
 /* 默认按钮，按钮的基础样式 */

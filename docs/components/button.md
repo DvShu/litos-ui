@@ -40,6 +40,20 @@ regist(LoadingIcon);
 </l-code-preview>
 </ClientOnly>
 
+### 按钮尺寸
+
+按钮有大中小三种尺寸；通过设置 `size` 为 `large`、`small` 分别把按钮设为大、小尺寸。若不设置 `size`，则尺寸默认为 `default`。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button size="large">Default</l-button>
+  <l-button>Primary</l-button>
+  <l-button size="small">Primary</l-button>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ### 禁用状态
 
 使用 `disabled` 控制按钮禁用状态, 禁用状态下不可点击。该属性接受一个 `Boolean` 类型的值。

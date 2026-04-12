@@ -127,13 +127,13 @@ export default class Button extends BaseComponent<ButtonState> {
         );
       }
       if (changedProps.has("type")) {
-        this._replaceBtnClass(1, `l-btn-${this._state.type}`);
+        this._replaceBtnClass(1, `l-btn-${this._state.type || "normal"}`);
       }
       if (changedProps.has("size")) {
-        this._replaceBtnClass(2, `l-btn-${this._state.size}`);
+        this._replaceBtnClass(2, `l-btn-${this._state.size || "default"}`);
       }
       if (changedProps.has("shape")) {
-        this._replaceBtnClass(3, `l-btn-${this._state.shape}`);
+        this._replaceBtnClass(3, `l-btn-${this._state.shape || "default"}`);
       }
     }
 
@@ -143,6 +143,7 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   connectedCallback(): void {
+    this.className = `l-btn-${this._state.size || "default"} ${this.className}`;
     super.connectedCallback();
     if (this.isFormButton()) {
       on(this, "click", this._handleClick);
