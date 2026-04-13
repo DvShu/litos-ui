@@ -39,6 +39,7 @@ export { default as ZoomInIcon } from "./icon/zoom_in";
 export { default as ZoomOutIcon } from "./icon/zoom_out";
 export { default as SelectIcon } from "./icon/select";
 export { default as CalendarIcon } from "./icon/calendar";
+export { default as RefreshIcon } from "./icon/refresh";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";
