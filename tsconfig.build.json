@@ -7,7 +7,8 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "moduleResolution": "bundler",
-    "outDir": "lib"
+    "outDir": "lib",
+    "rootDir": "src/components"
   },
   "include": ["src/components/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules", "lib", "src/components/browser.ts"]

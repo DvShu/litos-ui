@@ -29,7 +29,6 @@ type ButtonState = {
 
 export default class Button extends BaseComponent<ButtonState> {
   public static baseName = "button";
-  _disabled = false;
   $btn?: HTMLButtonElement;
 
   constructor() {
@@ -49,7 +48,7 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   get disabled() {
-    return this._disabled;
+    return this._state.disabled;
   }
 
   set disabled(value: boolean) {
@@ -71,7 +70,7 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   setDisabled(value: boolean) {
-    this._disabled = value;
+    this._state.disabled = value;
     if (this.$btn) {
       this.$btn.disabled = value;
     }
