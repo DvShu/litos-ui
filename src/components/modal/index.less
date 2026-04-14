@@ -19,7 +19,7 @@
 .l-modal {
   --l-modal-translate: translate3d(0, 80px, 0);
   background-color: #ffffff;
-  border-radius: 5px;
+  border-radius: var(--l-modal-border-radius, 5px);
   width: var(--l-modal-width, 27%);
   margin: auto;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
@@ -33,7 +33,7 @@
 
 .l-modal-header {
   display: block;
-  padding: 10px;
+  padding: var(--l-modal-header-padding, 10px);
   font-size: 16px;
   border-bottom: 1px solid var(--l-modal-line-color, rgba(0, 0, 0, 0.06));
   font-weight: 600;
@@ -42,7 +42,7 @@
   gap: 5px;
 }
 .l-modal-footer {
-  padding: 10px;
+  padding: var(--l-modal-footer-padding, 10px);
   border-top: 1px solid var(--l-modal-line-color, rgba(0, 0, 0, 0.06));
   display: flex;
   justify-content: flex-end;

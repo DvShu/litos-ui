@@ -349,6 +349,7 @@ regist(CloseIcon);
 | `header` | 对话框头部 |
 | `container` | 对话框内容 |
 | `footer` | 对话框底部 |
+| `close-btn` | 关闭按钮 |
 
 ### Modal Slots
 
@@ -366,6 +367,7 @@ regist(CloseIcon);
 | --- | --- | --- |
 | `cancel` | 点击遮罩层或右上角叉或取消按钮的回调 | `(event: CustomEvent)` |
 | `ok` | 点击确定回调 | `(event: CustomEvent)` |
+| `close` | 关闭回调；在组件完全关闭后回调 | `(event: CustomEvent)` |
 
 ### Modal CSS Variables
 
@@ -374,6 +376,9 @@ regist(CloseIcon);
 | --- | --- | --- |
 | `--l-modal-zindex` | 对话框的层级 `z-index` | `100` |
 | `--l-modal-width` | 对话框宽度 | `27%` |
+| `--l-modal-header-padding` | 弹窗头部 `padding` | `10px` |
+| `--l-modal-footer-padding` | 弹窗底部 `padding` | `10px` |
+| `--l-modal-border-radius` | 弹窗圆角 | `5px` |
 
 ### ModalBox Methods
 

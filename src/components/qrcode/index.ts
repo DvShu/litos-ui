@@ -1,23 +1,30 @@
 import BaseComponent from "../base";
-//@ts-ignore
 import css from "./index.less?inline";
 import { QRCodeRender, renderToCanvas } from "qrcode-generator-es";
 import { $one } from "ph-utils/dom";
 
-export default class Qrcode extends BaseComponent {
+type QrcodeState = {
+  /** 二维码内容 */
+  text?: string;
+  /** 二维码颜色 */
+  fill: string;
+  /** 二维码大小 */
+  size?: string | number;
+  /** 二维码等级 */
+  level?: "L" | "M" | "Q" | "H";
+  /** 插入二维码中间的图标 */
+  icon?: string;
+};
+
+export default class Qrcode extends BaseComponent<QrcodeState> {
   public static baseName = "qrcode";
 
-  /** 二维码内容 */
-  public text?: string;
-  /** 二维码颜色 */
-  public fill: string = "#000000";
-  /** 二维码大小 */
-  public size?: string | number = "100";
-  /** 二维码等级 */
-  public level?: "L" | "M" | "Q" | "H" = "M";
-  /** 插入二维码中间的图标 */
-  public icon?: string;
   private _qrcode?: QRCodeRender;
+
+  constructor() {
+    super();
+    this.version = 2;
+  }
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -28,12 +35,15 @@ export default class Qrcode extends BaseComponent {
     return ["text", "fill", "size", "level", "icon"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
+  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     if (oldValue !== newValue) {
-      this[name as "text"] = newValue;
+      this._state[name as "text"] = newValue as never;
       this.#updateOption(name, newValue);
-      this.#drawQrcode();
     }
+  }
+
+  protected updateDOM(): void {
+    this.#drawQrcode();
   }
 
   afterInit(): void {
@@ -63,21 +73,27 @@ export default class Qrcode extends BaseComponent {
       if ($el) {
         this._qrcode = new QRCodeRender({
           renderFn: renderToCanvas,
-          text: this.text,
-          size: Number(this.size),
-          level: this.level,
-          fill: this.fill,
-          icon: this.icon ? { src: this.icon } : undefined,
+          text: this._state.text,
+          size: Number(this._state.size || 120),
+          level: this._state.level || "M",
+          fill: this._state.fill || "#000000",
+          icon: this._state.icon ? { src: this._state.icon } : undefined,
           el: $el,
         });
       }
     }
-    if (this._qrcode != null && this.text) {
+    if (this._qrcode != null && this._state.text) {
       this._qrcode.render();
     }
   }
 
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: css,
+    };
+  }
   render() {
-    return "<canvas class='renderer-el' width='100' height='100'></canvas>";
+    return `<canvas class='renderer-el'></canvas>`;
   }
 }

@@ -216,6 +216,7 @@ export default class Modal extends BaseComponent<ModalState> {
           type: "normal",
           class: `l-btn-modal-close l-modal-close${this._state.close}`,
           "modal-action": "close",
+          part: "close-btn",
         });
         const $closeIcon = $$("l-close-icon");
         $close.appendChild($closeIcon);
