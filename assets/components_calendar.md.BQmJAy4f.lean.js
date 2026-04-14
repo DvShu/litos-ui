@@ -1,3 +1,0 @@
-import{_ as l,C as n,o as r,c as s,ag as e,E as i,w as h,j as t}from"./chunks/framework.CwRcgf5g.js";const C=JSON.parse('{"title":"Calendar 日历","description":"","frontmatter":{},"headers":[],"relativePath":"components/calendar.md","filePath":"components/calendar.md","lastUpdated":1772619671000}'),o={name:"components/calendar.md"};function c(b,a,p,u,m,k){const d=n("ClientOnly");return r(),s("div",null,[a[1]||(a[1]=e("",7)),i(d,null,{default:h(()=>[...a[0]||(a[0]=[t("l-code-preview",null,[t("textarea",{lang:"html"},`  <l-calendar></l-calendar>
-`),t("div",{class:"source"},[t("textarea",{lang:"html"},`  <l-calendar></l-calendar>
-`)])],-1)])]),_:1}),a[2]||(a[2]=e("",11))])}const q=l(o,[["render",c]]);export{C as __pageData,q as default};
