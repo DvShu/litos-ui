@@ -1,6 +1,14 @@
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
-import { formatClass, addClass, removeClass, formatStyle, on, off } from "ph-utils/dom";
+import {
+  formatClass,
+  addClass,
+  removeClass,
+  formatStyle,
+  on,
+  off,
+  replaceClass,
+} from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
 import buttonCss from "./index.less?inline";
 import animationCss from "../styles/animation.css?inline";
@@ -113,9 +121,6 @@ export default class Button extends BaseComponent<ButtonState> {
   protected updateDOM(changedProps: Set<string>): void {
     // loading 和 disabled 更新
     if (this.$btn) {
-      if (changedProps.has("type")) {
-        this.$btn.classList.replace(this.$btn.classList.item(1), "l-btn-small");
-      }
       if (changedProps.has("loading")) {
         this.setLoading(this._state.loading);
       }
@@ -130,13 +135,13 @@ export default class Button extends BaseComponent<ButtonState> {
         );
       }
       if (changedProps.has("type")) {
-        this._replaceBtnClass(1, `l-btn-${this._state.type || "normal"}`);
+        replaceClass(this.$btn, 1, `l-btn-${this._state.type || "normal"}`);
       }
       if (changedProps.has("size")) {
-        this._replaceBtnClass(2, `l-btn-${this._state.size || "default"}`);
+        replaceClass(this.$btn, 2, `l-btn-${this._state.size || "default"}`);
       }
       if (changedProps.has("shape")) {
-        this._replaceBtnClass(3, `l-btn-${this._state.shape || "default"}`);
+        replaceClass(this.$btn, 3, `l-btn-${this._state.shape || "default"}`);
       }
     }
 
