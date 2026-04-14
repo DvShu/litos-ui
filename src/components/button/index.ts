@@ -113,6 +113,9 @@ export default class Button extends BaseComponent<ButtonState> {
   protected updateDOM(changedProps: Set<string>): void {
     // loading 和 disabled 更新
     if (this.$btn) {
+      if (changedProps.has("type")) {
+        this.$btn.classList.replace(this.$btn.classList.item(1), "l-btn-small");
+      }
       if (changedProps.has("loading")) {
         this.setLoading(this._state.loading);
       }
