@@ -43,7 +43,7 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "create": "node scripts/index.js create",
-    "dts:build": "tsc -p tsconfig.build.json && node scripts/dts.js",
+    "dts:build": "tsc -p tsconfig.build.json",
     "lib:build": "pnpm build && pnpm dts:build"
   },
   "dependencies": {
