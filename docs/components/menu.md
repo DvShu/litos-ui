@@ -65,7 +65,7 @@ regist(Menu);
     nextTick(() => {
       if (!import.meta.env.SSR) {
         const $menu = $one('#menu');
-        $menu.setItems(menuItems);
+        $menu.items = menuItems;
       }
     })
   });

@@ -7,10 +7,16 @@ import css from "./menu_item.less?inline";
 export default class Menu extends BaseComponent {
   static baseName = "menu-item";
 
-  connectedCallback(): void {
-    this.loadStyleText(css);
-    initAttr(this);
-    super.connectedCallback();
+  public constructor() {
+    super();
+    this.version = 2;
+  }
+
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: css,
+    };
   }
 
   render() {

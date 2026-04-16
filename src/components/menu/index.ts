@@ -25,12 +25,14 @@ export default class Menu extends BaseComponent<MenuState> {
   /** 是否手风琴模式, 只有一个子菜单展开 */
   accordion = false;
   private _items: MenuItem[];
+  private _itemCache: WeakMap<HTMLElement, string>;
   private _menuEl?: HTMLElement;
 
   public constructor() {
     super();
     this._items = [];
     this.version = 2;
+    this._itemCache = new WeakMap();
   }
 
   static get observedAttributes() {
@@ -66,6 +68,7 @@ export default class Menu extends BaseComponent<MenuState> {
   beforeDestroy(): void {
     off(this, "click", this.#handleClick);
     this._menuEl = undefined;
+    this._itemCache = undefined as any;
   }
 
   render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
@@ -181,13 +184,17 @@ export default class Menu extends BaseComponent<MenuState> {
     });
   }
 
-  public setItems(items: MenuItem[]) {
-    this._items = items;
-    const a = this.buildPathMap(items);
+  set items(menuItems: MenuItem[]) {
+    this._items = menuItems;
+    const a = this.buildPathMap(menuItems);
     console.log(a);
     if (this._menuEl) {
       this._menuEl.replaceChildren(this._renderItems());
     }
+  }
+
+  get items() {
+    return this._items;
   }
 
   private _renderItems() {

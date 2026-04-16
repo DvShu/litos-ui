@@ -1,5 +1,3 @@
-@import "./base.less";
-
 :host {
   --l-menu-width: 240px;
   --l-menu-height: auto;
@@ -16,5 +14,46 @@
 }
 
 .l-menu {
-  .menu();
+  display: block;
+  font-size: 14px;
+  position: relative;
+  color: var(--l-menu-color);
+  background: var(--l-menu-background);
+  box-sizing: border-box;
+  transition:
+    height 0.3s,
+    width 0.3s;
+  overflow: hidden;
+  border-right: 1px solid var(--l-border-color, #dedede);
+}
+
+.l-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 0 10px 0 calc(10px + var(--l-menu-level) * 15px);
+  height: var(--l-menu-item-height);
+  cursor: pointer;
+  box-sizing: border-box;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-right: 2px solid transparent;
+  transition:
+    color 0.3s,
+    background-color 0.3s,
+    border-color 0.3s;
+  &:hover {
+    background-color: var(--l-primary-color-light5);
+  }
+}
+.l-menu-item.active {
+  background-color: var(--l-menu-active-background);
+  color: var(--l-menu-active-color);
+}
+
+.l-menu-icon-wrap {
+  display: inline-flex;
+  font-size: 14px;
+  margin-right: 5px;
 }
