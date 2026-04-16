@@ -12,6 +12,65 @@ regist(Menu);
 
 ## 演示
 
+<script setup>
+  import { onMounted, onUnmounted, nextTick } from 'vue';
+  import { $one, on, off, $$ } from 'ph-utils/dom';
+
+  const menuItems = [
+    {
+      key: "N1",
+      label: "导航一",
+      icon: () => {
+        return $$('iconify-icon', { icon: 'tdesign:app' });
+      },
+      children: [
+        { key: "A1", label: "选项1" },
+        { key: "A2", label: "选项2" },
+        { key: "A3", label: "选项3" },
+      ],
+    },
+    {
+      key: "N2",
+      label: "导航二",
+      icon: () => {
+        return $$('iconify-icon', { icon: 'solar:bug-outline' });
+      },
+      children: [
+        { key: "B1", label: "选项1" },
+        { key: "B2", label: "选项2" },
+        { key: "B3", label: "选项3" },
+      ],
+    },
+    {
+      key: "N3",
+      label: "导航二",
+      icon: () => {
+        return $$('iconify-icon', { icon: 'stash:light-bulb' });
+      },
+      children: [
+        { key: "C1", label: "选项1" },
+        { key: "C2", label: "选项2" },
+      ],
+    },
+    {
+      key: "N4",
+      label: "选项2",
+      icon: () => {
+        return $$('iconify-icon', { icon: 'solar:book-linear' });
+      },
+    },
+  ];
+
+  onMounted(() => {
+    nextTick(() => {
+      if (!import.meta.env.SSR) {
+        const $menu = $one('#menu');
+        $menu.setItems(menuItems);
+      }
+    })
+  });
+</script>
+
 ### 侧栏
 
 垂直菜单，可内嵌子菜单。
@@ -20,30 +79,6 @@ regist(Menu);
 <l-code-preview>
 <textarea lang="html">
   <l-menu id="menu" selected-index="A1">
-    <l-sub-menu index="N1">
-      <iconify-icon icon="tdesign:app" slot="icon"></iconify-icon>
-      <span slot="title">导航一</span>
-      <l-menu-item index="A1">选项1</l-menu-item>
-      <l-menu-item index="A2">选项2</l-menu-item>
-      <l-menu-item index="A3">选项3</l-menu-item>
-    </l-sub-menu>
-    <l-sub-menu index="N2">
-      <iconify-icon icon="solar:bug-outline" slot="icon"></iconify-icon>
-      <span slot="title">导航二</span>
-      <l-menu-item index="B1">选项1</l-menu-item>
-      <l-menu-item index="B2">选项2</l-menu-item>
-      <l-menu-item index="B3">选项3</l-menu-item>
-    </l-sub-menu>
-    <l-sub-menu index="N3">
-      <iconify-icon icon="stash:light-bulb" slot="icon"></iconify-icon>
-      <span slot="title">导航二</span>
-      <l-menu-item index="C1">选项1</l-menu-item>
-      <l-menu-item index="C2">选项2</l-menu-item>
-    </l-sub-menu>
-    <l-menu-item index="N4">
-      <iconify-icon icon="solar:book-linear" slot="icon"></iconify-icon>
-      <span>选项2</span>
-    </l-menu-item>
   </l-menu>
 </textarea>
 </l-code-preview>

@@ -1,10 +1,19 @@
 import { $$, on, $one, off, $, iterate } from "ph-utils/dom";
 import BaseComponent from "../base";
-import { initAttr, parseAttrValue } from "../utils";
-// @ts-ignore
+import { parseAttrValue } from "../utils";
 import css from "./index.less?inline";
+import type { MenuItem } from "./types";
 
-export default class Menu extends BaseComponent {
+type MenuState = {
+  /** 水平/垂直菜单 */
+  orientation?: "horizontal" | "vertical";
+  /** 主题 */
+  theme?: "light" | "dark";
+  /** 是否手风琴模式, 只有一个子菜单展开 */
+  accordion?: boolean;
+};
+
+export default class Menu extends BaseComponent<MenuState> {
   public static baseName = "menu";
 
   /** 当前选中的菜单项 key 数组, 用 , 分割 */
@@ -15,27 +24,20 @@ export default class Menu extends BaseComponent {
   theme: "light" | "dark" = "light";
   /** 是否手风琴模式, 只有一个子菜单展开 */
   accordion = false;
+  private _items: MenuItem[];
+  private _menuEl?: HTMLElement;
 
-  connectedCallback(): void {
-    initAttr(this);
-    this.classList.add(
-      "l-menu",
-      `l-menu--${this.orientation}`,
-      `l-menu-${this.theme}`
-    );
-    this.loadStyleText(css);
-    super.connectedCallback();
+  public constructor() {
+    super();
+    this._items = [];
+    this.version = 2;
   }
 
   static get observedAttributes() {
     return ["selected-index", "orientation", "accordion"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (name === "accordion") {
       const actualValue = parseAttrValue(newValue, false, "accordion");
       if (actualValue !== this.accordion) {
@@ -55,22 +57,26 @@ export default class Menu extends BaseComponent {
   }
 
   afterInit(): void {
+    this.classList.add("l-menu", `l-menu--${this.orientation}`, `l-menu-${this.theme}`);
     on(this, "click", this.#handleClick);
     this.updateSelectedKeys(this.selectedIndex);
+    this._menuEl = $one(".l-menu", this.root) as HTMLElement;
   }
 
   beforeDestroy(): void {
     off(this, "click", this.#handleClick);
+    this._menuEl = undefined;
   }
 
-  render() {
-    return $$("slot");
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      style: css,
+      template: $$("div", { class: "l-menu" }),
+    };
   }
 
   #handleClick = (e: Event) => {
-    const { type, key, keyPaths, target } = this.#nodeKeys(
-      e.target as HTMLElement
-    );
+    const { type, key, keyPaths, target } = this.#nodeKeys(e.target as HTMLElement);
     if (target) {
       if (type === 2) {
         // 展开/折叠菜单
@@ -93,10 +99,7 @@ export default class Menu extends BaseComponent {
     }
   };
 
-  #nodeKeys(
-    target: HTMLElement,
-    iterateItem?: (item: HTMLElement, key: string) => void
-  ) {
+  #nodeKeys(target: HTMLElement, iterateItem?: (item: HTMLElement, key: string) => void) {
     let type = 0; // 标记当前节点类型 0: 菜单, 1: 菜单项, 2: 子菜单
     let key = "";
     let currentTarget;
@@ -177,4 +180,89 @@ export default class Menu extends BaseComponent {
       }
     });
   }
+
+  public setItems(items: MenuItem[]) {
+    this._items = items;
+    const a = this.buildPathMap(items);
+    console.log(a);
+    if (this._menuEl) {
+      this._menuEl.replaceChildren(this._renderItems());
+    }
+  }
+
+  private _renderItems() {
+    const fragment = document.createDocumentFragment();
+    for (let i = 0, len = this._items.length; i < len; i++) {
+      fragment.appendChild(this._renderItem(this._items[i]));
+    }
+    return fragment;
+  }
+
+  private _renderItem(item: MenuItem): HTMLElement {
+    if (item.children && item.children.length > 0) {
+      return this._renderSubMenu(item);
+    }
+    return this._renderMenuItem(item);
+  }
+
+  private _renderMenuItem(item: MenuItem): HTMLElement {
+    const el = $$("l-menu-item", {
+      index: item.key,
+    });
+    if (item.icon) {
+      const $itemIcon = item.icon(item);
+      $itemIcon.setAttribute("slot", "icon");
+      el.appendChild($itemIcon);
+    }
+    el.appendChild(this._renderTitle(item));
+    return el;
+  }
+
+  private _renderSubMenu(item: MenuItem): HTMLElement {
+    const el = $$("l-sub-menu", {
+      index: item.key,
+    });
+    // 图标
+    if (item.icon) {
+      const $icon = item.icon(item);
+      $icon.setAttribute("slot", "icon");
+      el.appendChild($icon);
+    }
+    const $label = this._renderTitle(item);
+    $label.setAttribute("slot", "title");
+    el.appendChild($label);
+    // 子菜单容器
+    if (item.children) {
+      for (let i = 0, len = item.children.length; i < len; i++) {
+        el.appendChild(this._renderItem(item.children![i]));
+      }
+    }
+    return el;
+  }
+
+  private _renderTitle(item: MenuItem) {
+    let $label: HTMLElement;
+    if (typeof item.label === "string") {
+      $label = $$("span", {
+        textContent: item.label,
+      });
+    } else {
+      $label = item.label(item);
+    }
+    return $label;
+  }
+
+  /** 构建所有的路径path */
+  private buildPathMap = (items: MenuItem[]): Map<string, string[]> => {
+    const pathMap = new Map<string, string[]>();
+    const dfs = (nodes: MenuItem[], parentPath: string[]) => {
+      for (const node of nodes) {
+        const currentPath = [...parentPath, node.key];
+        pathMap.set(node.key, currentPath);
+        if (node.children) dfs(node.children, currentPath);
+      }
+    };
+    dfs(items, []);
+    return pathMap;
+  };
 }
