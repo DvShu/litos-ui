@@ -1,4 +1,4 @@
-import { $$, on, $one, off, $, iterate } from "ph-utils/dom";
+import { $$, on, $one, off, $, iterate, replaceClass } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
 import css from "./index.less?inline";
@@ -11,64 +11,64 @@ type MenuState = {
   theme?: "light" | "dark";
   /** 是否手风琴模式, 只有一个子菜单展开 */
   accordion?: boolean;
+  /** 当前选中的菜单项 key 数组, 用 , 分割 */
+  selectedIndex: string;
 };
 
 export default class Menu extends BaseComponent<MenuState> {
   public static baseName = "menu";
 
-  /** 当前选中的菜单项 key 数组, 用 , 分割 */
-  selectedIndex = "";
-  /** 水平/垂直菜单 */
-  orientation: "horizontal" | "vertical" = "vertical";
-  /** 主题 */
-  theme: "light" | "dark" = "light";
   /** 是否手风琴模式, 只有一个子菜单展开 */
   accordion = false;
   private _items: MenuItem[];
-  private _itemCache: WeakMap<HTMLElement, string>;
   private _menuEl?: HTMLElement;
 
   public constructor() {
     super();
     this._items = [];
     this.version = 2;
-    this._itemCache = new WeakMap();
+    this._state = {
+      orientation: "vertical",
+      selectedIndex: "",
+      theme: "light",
+    };
   }
 
   static get observedAttributes() {
-    return ["selected-index", "orientation", "accordion"];
+    return ["selected-index", "orientation", "accordion", "theme"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
-    if (name === "accordion") {
-      const actualValue = parseAttrValue(newValue, false, "accordion");
-      if (actualValue !== this.accordion) {
-        this.accordion = actualValue;
-      }
-    }
-    if (!this.rendered) return;
-    if (name === "selected-index") {
-      if (this.selectedIndex !== newValue) {
-        this.updateSelectedKeys(newValue);
-      }
-    } else if (name === "orientation") {
-      const classes = this.classList;
-      classes.remove(`l-menu--${oldValue}`);
-      classes.add(`l-menu--${newValue}`);
+  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
+    switch (name) {
+      case "selected-index":
+        this._state.selectedIndex = newValue;
+        if (this.rendered) {
+          this.updateSelectedKeys(newValue);
+        }
+        break;
+      case "orientation":
+        replaceClass(this, `l-menu--${oldValue}`, `l-menu--${newValue}`);
+        break;
+      case "theme":
+        replaceClass(this, `l-menu-${oldValue}`, `l-menu-${newValue}`);
+        break;
+      case "accordion":
+        this._state.accordion = parseAttrValue(newValue, false, "accordion");
+        break;
     }
   }
 
   afterInit(): void {
-    this.classList.add("l-menu", `l-menu--${this.orientation}`, `l-menu-${this.theme}`);
-    on(this, "click", this.#handleClick);
-    this.updateSelectedKeys(this.selectedIndex);
+    const orientation = this._state.orientation || "vertical";
+    const theme = this._state.theme || "light";
+    this.classList.add("l-menu", `l-menu--${orientation}`, `l-menu-${theme}`);
+    on(this, "click", this._handleClick);
     this._menuEl = $one(".l-menu", this.root) as HTMLElement;
   }
 
   beforeDestroy(): void {
-    off(this, "click", this.#handleClick);
+    off(this, "click", this._handleClick);
     this._menuEl = undefined;
-    this._itemCache = undefined as any;
   }
 
   render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
@@ -78,7 +78,7 @@ export default class Menu extends BaseComponent<MenuState> {
     };
   }
 
-  #handleClick = (e: Event) => {
+  _handleClick = (e: Event) => {
     const { type, key, keyPaths, target } = this.#nodeKeys(e.target as HTMLElement);
     if (target) {
       if (type === 2) {
@@ -121,12 +121,10 @@ export default class Menu extends BaseComponent<MenuState> {
         }
       }
       if (type === 0) {
-        if (tagName === "L-MENU-ITEM") {
-          type = 1;
+        const menuRole = target.getAttribute("menu-role");
+        if (menuRole) {
+          type = Number(menuRole);
           currentTarget = target;
-        } else if (tagName === "L-SUB-MENU") {
-          currentTarget = target;
-          type = 2;
         }
       }
       target = target.parentElement as HTMLElement;
@@ -145,7 +143,7 @@ export default class Menu extends BaseComponent<MenuState> {
    * @param collapseOther - 可选参数，默认为 false。是否折叠其他子菜单。
    */
   expandSubmenus(keys: string[], collapseOther = false) {
-    const $submenus = $("l-sub-menu[index]", this) as HTMLElement[];
+    const $submenus = $(".l-menu-submenu[index]", this) as HTMLElement[];
     iterate($submenus, ($submenu) => {
       const keyValue = $submenu.getAttribute("index") || "";
       if (keys.includes(keyValue)) {
@@ -158,8 +156,8 @@ export default class Menu extends BaseComponent<MenuState> {
   }
 
   updateSelectedKeys(key: string) {
-    this.selectedIndex = key;
-    const $item = $one(`l-menu-item[index="${key}"]`, this) as HTMLElement;
+    this._state.selectedIndex = key;
+    const $item = $one(`.l-menu-item[index="${key}"]`, this) as HTMLElement;
     if ($item) {
       const a = this.#nodeKeys($item, (item) => {
         item.setAttribute("active", ""); // 激活菜单项
@@ -170,7 +168,7 @@ export default class Menu extends BaseComponent<MenuState> {
   }
 
   #unselect(activePath: string[]) {
-    const $items = $("l-menu-item[active]", this) as HTMLElement[];
+    const $items = $(".l-menu-item[active]", this) as HTMLElement[];
     iterate($items, ($item) => {
       const key = $item.getAttribute("index") || "";
       if (!activePath.includes(key)) {
@@ -186,8 +184,6 @@ export default class Menu extends BaseComponent<MenuState> {
 
   set items(menuItems: MenuItem[]) {
     this._items = menuItems;
-    const a = this.buildPathMap(menuItems);
-    console.log(a);
     if (this._menuEl) {
       this._menuEl.replaceChildren(this._renderItems());
     }
@@ -198,52 +194,76 @@ export default class Menu extends BaseComponent<MenuState> {
   }
 
   private _renderItems() {
+    if (this._state.selectedIndex) {
+      console.log(this.buildPathMap(this._items, this._state.selectedIndex));
+    }
     const fragment = document.createDocumentFragment();
     for (let i = 0, len = this._items.length; i < len; i++) {
-      fragment.appendChild(this._renderItem(this._items[i]));
+      fragment.appendChild(this._renderItem(this._items[i], 0));
     }
     return fragment;
   }
 
-  private _renderItem(item: MenuItem): HTMLElement {
+  private _renderItem(item: MenuItem, level = 0): HTMLElement {
     if (item.children && item.children.length > 0) {
-      return this._renderSubMenu(item);
+      return this._renderSubMenu(item, level);
     }
     return this._renderMenuItem(item);
   }
 
   private _renderMenuItem(item: MenuItem): HTMLElement {
-    const el = $$("l-menu-item", {
+    const el = $$("div", {
+      class: "l-menu-item",
       index: item.key,
+      "menu-role": "1",
     });
     if (item.icon) {
       const $itemIcon = item.icon(item);
       $itemIcon.setAttribute("slot", "icon");
-      el.appendChild($itemIcon);
+
+      const $iconWrapper = $$("span", { class: "l-menu-icon-wrap" });
+      $iconWrapper.appendChild($itemIcon);
+      el.appendChild($iconWrapper);
     }
     el.appendChild(this._renderTitle(item));
     return el;
   }
 
-  private _renderSubMenu(item: MenuItem): HTMLElement {
-    const el = $$("l-sub-menu", {
+  private _renderSubMenu(item: MenuItem, level: number): HTMLElement {
+    const el = $$("div", {
       index: item.key,
+      class: "l-menu-submenu",
+      "menu-role": "2",
     });
-    // 图标
+    el.setAttribute("data-level", String(level));
+    // title
+    const $title = $$("div", { class: "l-submenu-title" });
+
+    // icon
     if (item.icon) {
       const $icon = item.icon(item);
-      $icon.setAttribute("slot", "icon");
-      el.appendChild($icon);
+      const $iconWrapper = $$("span", { class: "l-menu-icon-wrap" });
+      $iconWrapper.appendChild($icon);
+      $title.appendChild($iconWrapper);
     }
-    const $label = this._renderTitle(item);
-    $label.setAttribute("slot", "title");
-    el.appendChild($label);
-    // 子菜单容器
+
+    $title.appendChild(this._renderTitle(item));
+
+    // arrow
+    const $arrow = $$("l-arrow-right-icon", { class: "l-submenu-arrow-icon" });
+    $title.appendChild($arrow);
+    el.appendChild($title);
     if (item.children) {
+      const $content = $$("div", {
+        class: ["l-menu"],
+      });
+      $content.style.setProperty("--l-menu-level", String(level + 1));
       for (let i = 0, len = item.children.length; i < len; i++) {
-        el.appendChild(this._renderItem(item.children![i]));
+        $content.appendChild(this._renderItem(item.children![i], level + 1));
       }
+      el.appendChild($content);
     }
+
     return el;
   }
 
@@ -259,17 +279,27 @@ export default class Menu extends BaseComponent<MenuState> {
     return $label;
   }
 
-  /** 构建所有的路径path */
-  private buildPathMap = (items: MenuItem[]): Map<string, string[]> => {
+  private buildPathMap(items: MenuItem[]): Map<string, string[]>;
+  private buildPathMap(items: MenuItem[], key: string): string[];
+  private buildPathMap(items: MenuItem[], key?: string): Map<string, string[]> | string[] {
     const pathMap = new Map<string, string[]>();
+    let found = false;
     const dfs = (nodes: MenuItem[], parentPath: string[]) => {
       for (const node of nodes) {
+        if (found) return;
         const currentPath = [...parentPath, node.key];
         pathMap.set(node.key, currentPath);
+        if (key != null && key === node.key) {
+          found = true;
+          return;
+        }
         if (node.children) dfs(node.children, currentPath);
       }
     };
     dfs(items, []);
+    if (key != null) {
+      return pathMap.get(key) || [];
+    }
     return pathMap;
-  };
+  }
 }

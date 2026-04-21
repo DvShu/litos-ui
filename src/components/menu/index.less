@@ -26,8 +26,12 @@
   overflow: hidden;
   border-right: 1px solid var(--l-border-color, #dedede);
 }
+.l-menu .l-menu {
+  --l-border-color: transparent;
+}
 
-.l-menu-item {
+.l-menu-item,
+.l-submenu-title {
   display: flex;
   align-items: center;
   padding: 0 10px 0 calc(10px + var(--l-menu-level) * 15px);
@@ -56,4 +60,36 @@
   display: inline-flex;
   font-size: 14px;
   margin-right: 5px;
+}
+
+.l-menu-submenu {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+}
+
+.l-submenu-arrow-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transition: transform 0.3s;
+  transform: translate3d(0, -50%, 0) rotate(90deg);
+  color: var(--l-info-color);
+}
+
+/* 折叠 */
+.l-menu-submenu.collapsed .l-submenu-arrow-icon {
+  transform: translate3d(0, -50%, 0) rotate(0);
+}
+.l-menu--collapsed {
+  display: none;
+}
+.l-menu--hide {
+  position: absolute;
+  visibility: hidden;
+}
+
+/* 激活 */
+.l-menu-submenu.active .l-submenu-title {
+  color: var(--l-primary-color);
 }

@@ -1,16 +1,6 @@
-import {
-  $$,
-  $one,
-  addClass,
-  removeClass,
-  on,
-  off,
-  toggleClass,
-} from "ph-utils/dom";
+import { $$, $one, addClass, removeClass, on, off, toggleClass } from "ph-utils/dom";
 import BaseComponent from "../base";
 import { initAttr, parseAttrValue } from "../utils";
-// @ts-ignore
-import css from "./sub_menu.less?inline";
 
 export default class SubMenu extends BaseComponent {
   static baseName = "sub-menu";
@@ -22,7 +12,6 @@ export default class SubMenu extends BaseComponent {
   #transitionT?: number;
 
   connectedCallback(): void {
-    this.loadStyleText(css);
     initAttr(this);
     if (!this.expanded) {
       addClass(this, "collapsed");
@@ -48,11 +37,7 @@ export default class SubMenu extends BaseComponent {
     return ["expanded", "active"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
     if (!this.rendered) return;
     if (name === "expanded") {
       const expanded = parseAttrValue(newValue, false, "expanded");
