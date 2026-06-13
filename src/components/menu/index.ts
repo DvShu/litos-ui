@@ -4,15 +4,9 @@ import { parseAttrValue } from "../utils";
 import css from "./index.less?inline";
 import type { MenuItem } from "./types";
 
-const DEFAULT_ORIENTATION = "vertical";
-const DEFAULT_THEME = "light";
 const TRANSITION_FALLBACK_MS = 350;
 
 type MenuState = {
-  /** 水平/垂直菜单 */
-  orientation?: "horizontal" | "vertical";
-  /** 主题 */
-  theme?: "light" | "dark";
   /** 是否手风琴模式, 只有一个子菜单展开 */
   accordion?: boolean;
   /** 当前选中的菜单项 key 数组, 用 , 分割 */
@@ -40,14 +34,12 @@ export default class Menu extends BaseComponent<MenuState> {
     this.#transitionMeta = new Map();
     this.version = 2;
     this._state = {
-      orientation: DEFAULT_ORIENTATION,
       selectedIndex: "",
-      theme: DEFAULT_THEME,
     };
   }
 
   static get observedAttributes() {
-    return ["selected-index", "orientation", "accordion", "theme"];
+    return ["selected-index", "accordion"];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
@@ -58,25 +50,15 @@ export default class Menu extends BaseComponent<MenuState> {
           this.updateSelectedKeys(this._state.selectedIndex);
         }
         break;
-      case "orientation":
-        this._state.orientation = (newValue as MenuState["orientation"]) || DEFAULT_ORIENTATION;
-        this.#syncVariantClasses();
-        if (this.rendered && this._state.orientation === "horizontal") {
-          this.#resetSubmenuTransitionState();
-        }
-        break;
-      case "theme":
-        this._state.theme = (newValue as MenuState["theme"]) || DEFAULT_THEME;
-        this.#syncVariantClasses();
-        break;
       case "accordion":
-        this._state.accordion = parseAttrValue(newValue, false, "accordion");
+        this.accordion = parseAttrValue(newValue, false, "accordion");
+        this._state.accordion = this.accordion;
         break;
     }
   }
 
   afterInit(): void {
-    this.#syncVariantClasses();
+    this.classList.add("l-menu", "l-menu--vertical");
     on(this.root, "click", this._handleClick);
     on(this.root, "transitionend", this._onTransitionEnd as any);
     this._menuEl = $one(".l-menu", this.root) as HTMLElement;
@@ -107,7 +89,7 @@ export default class Menu extends BaseComponent<MenuState> {
         const isExpanded = target.hasAttribute("expanded");
         this._toggleSubMenu(target, !isExpanded);
         if (!isExpanded && this.accordion) {
-          this.expandSubmenus(keyPaths, true);
+          this.#collapseSiblings(target);
         }
       } else if (type === 1) {
         // 点击菜单, 激活菜单项
@@ -206,22 +188,6 @@ export default class Menu extends BaseComponent<MenuState> {
     const isCurrentlyExpanded = $submenu.hasAttribute("expanded");
     if (expand === isCurrentlyExpanded) return;
 
-    if (this._state.orientation === "horizontal") {
-      this.#cancelAnimation(key);
-      this.#transitionMeta.set(key, { expand });
-      if (expand) {
-        $submenu.setAttribute("expanded", "");
-        $submenu.classList.remove("collapsed");
-        $content.classList.remove("l-menu--collapsed");
-      } else {
-        $submenu.removeAttribute("expanded");
-        $submenu.classList.add("collapsed");
-        $content.classList.add("l-menu--collapsed");
-      }
-      this.#transitionMeta.delete(key);
-      return;
-    }
-
     // 清理旧的 timer 和 rAF
     this.#cancelAnimation(key);
 
@@ -283,6 +249,18 @@ export default class Menu extends BaseComponent<MenuState> {
       cancelAnimationFrame(oldRaf);
       this.#rafIds.delete(key);
     }
+  }
+
+  /** 手风琴模式：折叠与当前子菜单同级的其他已展开子菜单 */
+  #collapseSiblings($submenu: HTMLElement) {
+    const $parent = $submenu.parentElement;
+    if (!$parent) return;
+    const $siblings = $(".l-menu-submenu[expanded]", $parent) as HTMLElement[];
+    iterate($siblings, ($sib) => {
+      if ($sib !== $submenu) {
+        this._toggleSubMenu($sib, false);
+      }
+    });
   }
 
   private _onTransitionEnd = (e: TransitionEvent) => {
@@ -412,29 +390,6 @@ export default class Menu extends BaseComponent<MenuState> {
     return $label;
   }
 
-  #syncVariantClasses() {
-    const orientation = this._state.orientation || this.getAttribute("orientation") || DEFAULT_ORIENTATION;
-    const theme = this._state.theme || this.getAttribute("theme") || DEFAULT_THEME;
-
-    this.classList.add("l-menu");
-    this.classList.remove("l-menu--horizontal", "l-menu--vertical", "l-menu-light", "l-menu-dark");
-    this.classList.add(`l-menu--${orientation}`, `l-menu-${theme}`);
-  }
-
-  #resetSubmenuTransitionState() {
-    const $submenus = $(".l-menu-submenu[index]", this.root) as HTMLElement[];
-    iterate($submenus, ($submenu) => {
-      const key = $submenu.getAttribute("index") || "";
-      this.#cancelAnimation(key);
-      this.#transitionMeta.delete(key);
-      const $content = $one(".l-menu", $submenu) as HTMLElement;
-      if ($content) {
-        $content.style.removeProperty("height");
-        $content.classList.remove("l-menu--hide");
-      }
-    });
-  }
-
   #findPath(items: MenuItem[], key: string): string[] {
     const dfs = (nodes: MenuItem[], parentPath: string[]): string[] => {
       for (const node of nodes) {
@@ -454,4 +409,5 @@ export default class Menu extends BaseComponent<MenuState> {
 
     return dfs(items, []);
   }
+
 }

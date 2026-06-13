@@ -1,8 +1,6 @@
 :host {
   --l-menu-width: 240px;
   --l-menu-height: auto;
-  --l-menu-color: #333333;
-  --l-menu-background: #ffffff;
   --l-menu-level: 0;
   --l-menu-item-height: 40px;
   --l-menu-item-padding-x: 10px;
@@ -18,8 +16,6 @@
   height: var(--l-menu-height);
   display: block;
   box-sizing: border-box;
-  color: var(--l-menu-color);
-  background: var(--l-menu-background);
 }
 
 .l-menu {
@@ -28,7 +24,6 @@
   position: relative;
   min-width: 0;
   color: inherit;
-  background: var(--l-menu-background);
   box-sizing: border-box;
   overflow-x: hidden;
   transition:
@@ -111,61 +106,6 @@
 /* 激活 */
 .l-menu-submenu.active .l-submenu-title {
   color: var(--l-menu-item-active-color);
-}
-
-/* 暗色主题 */
-:host(.l-menu-dark) {
-  --l-menu-color: #ffffffd9;
-  --l-menu-background: #001529;
-  --l-menu-border-color: rgba(255, 255, 255, 0.08);
-  --l-menu-item-hover-background: rgba(255, 255, 255, 0.1);
-  --l-menu-item-active-background: rgba(255, 255, 255, 0.14);
-  --l-menu-arrow-color: rgba(255, 255, 255, 0.45);
-}
-.l-menu-dark .l-menu {
-  background: #000c17;
-}
-.l-menu-dark .l-menu-item,
-.l-menu-dark .l-submenu-title {
-  color: #ffffffd9;
-  &:hover {
-    color: #fff;
-    background-color: var(--l-menu-item-hover-background);
-  }
-}
-.l-menu-dark .l-menu-item.active {
-  color: #fff;
-  background-color: var(--l-primary-color);
-}
-.l-menu-dark .l-menu-submenu.active .l-submenu-title {
-  color: #fff;
-}
-
-/* 水平菜单 */
-:host(.l-menu--horizontal) {
-  --l-menu-width: 100%;
-  --l-menu-height: var(--l-menu-item-height);
-  --l-menu-border-color: var(--l-border-color, #dedede);
-}
-.l-menu--horizontal > .l-menu {
-  display: flex;
-  align-items: stretch;
-  border-right: none;
-  border-bottom: var(--l-menu-border-width) solid var(--l-menu-border-color);
-}
-.l-menu--horizontal > .l-menu > .l-menu-item {
-  border-right: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  &:hover,
-  &.active {
-    border-bottom-color: var(--l-primary-color);
-  }
-}
-.l-menu--horizontal > .l-menu > .l-menu-submenu > .l-submenu-title {
-  border-right: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

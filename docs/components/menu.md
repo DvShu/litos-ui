@@ -78,7 +78,7 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-menu id="menu" selected-index="A1" accordion>
+  <l-menu id="menu" selected-index="A1">
   </l-menu>
 </textarea>
 </l-code-preview>
@@ -120,4 +120,5 @@ regist(Menu);
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
+
 | `--l` | x | `#fff` |
