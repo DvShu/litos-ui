@@ -78,7 +78,7 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-menu id="menu" selected-index="A1">
+  <l-menu id="menu" selected-index="A1" accordion>
   </l-menu>
 </textarea>
 </l-code-preview>
