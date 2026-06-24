@@ -82,17 +82,6 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    /* 旧代码注释：
-    // required
-    this._updateRequired();
-
-    // label
-    this._updateLabel();
-
-    // error
-    this._updateError();
-    */
-
     // 新的按条件更新逻辑:
     if (changedProps.has("required")) {
       this._updateRequired();
@@ -101,7 +90,6 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     if (changedProps.has("label")) {
       this._updateLabel();
     }
-
     if (changedProps.has("error")) {
       this._updateError();
     }

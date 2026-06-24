@@ -21,10 +21,11 @@ type ButtonState = {
   color?: string;
   height?: string;
   disabled: boolean;
-  type: "normal" | "primary";
+  type: "normal" | "primary" | "normal-v2";
   shape: "default" | "round" | "circle";
   loadingText: string;
   size: "small" | "large" | "default";
+  boxShadow: "box-shadow-none" | "box-shadow";
 };
 
 export default class Button extends BaseComponent<ButtonState> {
@@ -44,6 +45,7 @@ export default class Button extends BaseComponent<ButtonState> {
       shape: "default",
       loadingText: "加载中……",
       size: "default",
+      boxShadow: "box-shadow-none",
     };
   }
 
@@ -90,6 +92,7 @@ export default class Button extends BaseComponent<ButtonState> {
       "shape",
       "loading-text",
       "size",
+      "box-shadow",
     ];
   }
 
@@ -114,6 +117,11 @@ export default class Button extends BaseComponent<ButtonState> {
       case "loading-text":
         this._state[kebabToCamel(name) as "htmlType"] = newValue as "button";
         break;
+      case "box-shadow":
+        const bs = parseAttrValue(newValue, false, "box-shadow");
+        console.log(bs);
+        this._state.boxShadow = `box-shadow${bs ? "" : "-none"}`;
+        break;
     }
   }
 
@@ -136,11 +144,11 @@ export default class Button extends BaseComponent<ButtonState> {
       if (changedProps.has("type")) {
         replaceClass(this.$btn, 1, `l-btn-${this._state.type || "normal"}`);
       }
-      if (changedProps.has("size")) {
-        replaceClass(this.$btn, 2, `l-btn-${this._state.size || "default"}`);
-      }
       if (changedProps.has("shape")) {
-        replaceClass(this.$btn, 3, `l-btn-${this._state.shape || "default"}`);
+        replaceClass(this.$btn, 2, `l-btn-${this._state.shape || "default"}`);
+      }
+      if (changedProps.has("box-shadow")) {
+        replaceClass(this.$btn, 3, `l-btn-${this._state.boxShadow}`);
       }
     }
 
@@ -176,6 +184,7 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    this._changedProperties.clear();
     return {
       style: [animationCss, buttonCss],
       template: this.render(),
@@ -191,8 +200,8 @@ export default class Button extends BaseComponent<ButtonState> {
     const classes = [
       "l-btn",
       `l-btn-${this._state.type}`,
-      `l-btn-${this._state.size}`,
       `l-btn-${this._state.shape}`,
+      `l-btn-${this._state.boxShadow}`,
       ghost ? "l-btn-ghost" : "",
       text ? "l-btn-text" : "",
       isLoading ? "l-btn-loading" : "",

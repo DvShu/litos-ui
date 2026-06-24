@@ -6,7 +6,9 @@
   align-items: center;
   padding: 0 7px;
   border: 1px solid var(--l-input-border-color, #dedede);
-  transition: border-color 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
   border-radius: var(--l-border-radius, 3px);
   vertical-align: middle;
   box-sizing: border-box;
@@ -15,6 +17,7 @@
 
 :host(:focus) {
   --l-input-border-color: var(--l-primary-color, #722ed1);
+  box-shadow: 0 0 0 3px var(--l-primary-color-light5);
 }
 
 /* block */
@@ -29,7 +32,10 @@
 
 /* error */
 :host(.is-error) {
-  --l-input-border-color: #ed3f13;
+  --l-input-border-color: var(--l-error-color);
+}
+:host(.is-error:focus) {
+  box-shadow: 0 0 0 3px var(--l-error-color-light5);
 }
 
 /* prefix、suffix */

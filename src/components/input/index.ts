@@ -84,7 +84,6 @@ export default class Input extends FormInner<InputState> {
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
     this.style.cssText = formatStyle(this._getStyleObj()) + this.getAttr("style", "");
-    this._updateError(this._state.error != null);
   }
 
   beforeDestroy(): void {

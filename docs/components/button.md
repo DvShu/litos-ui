@@ -14,13 +14,14 @@ regist(LoadingIcon);
 
 ### 按钮类型
 
-使用 `type` 控制按钮类型, 提供两种类型: `normal`, `primary`。
+使用 `type` 控制按钮类型, 提供两种类型: `normal`, `normal-v2`, `primary`；通过设置 `box-shadow` 按钮 `hover` 时阴影效果；
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button>Default</l-button>
-  <l-button type="primary">Primary</l-button>
+  <l-button box-shadow>Default</l-button>
+  <l-button type="normal-v2" box-shadow>Default</l-button>
+  <l-button type="primary" box-shadow>Primary</l-button>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -199,6 +200,7 @@ regist(LoadingIcon);
 | `html-type` | 原生的 `type` 属性; `button`、`submit`、`reset` | `string` | `button` |
 | `loading-text` | 加载状态时显示的文字 | `string`  | - |
 | `color` | 自定义按钮颜色 | `string` | - |
+| `box-shadow` | 按钮阴影 | `boolean` | - |
 
 ### Button Slots
 

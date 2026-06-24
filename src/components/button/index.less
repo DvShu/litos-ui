@@ -76,17 +76,18 @@
   color: var(--l-btn-hover-text-color);
   background: var(--l-btn-hover-background);
 }
+.l-btn-box-shadow:hover {
+  box-shadow: 0 4px 12px var(--l-primary-color-light4);
+}
 
 .l-btn:active {
-  border-color: var(
-    --l-btn-active-border-color,
-    var(--l-btn-active-background)
-  );
+  border-color: var(--l-btn-active-border-color, var(--l-btn-active-background));
   color: var(--l-btn-active-text-color);
   background: var(--l-btn-active-background);
 }
 
-.l-btn-normal {
+.l-btn-normal,
+.l-btn-normal-v2 {
   /* 按钮的文字颜色 */
   --l-btn-text-color: auto;
   /* 按钮的背景色 */
@@ -97,10 +98,14 @@
   --l-btn-hover-text-color: var(--l-primary-color-light1, #9254de);
   /* 按钮的点击颜色 */
   --l-btn-active-text-color: var(--l-primary-color-dark1, #531dab);
-  --l-btn-hover-background: #fff;
-  --l-btn-active-background: #fff;
+  --l-btn-hover-background: transparent;
+  --l-btn-active-background: transparent;
   --l-btn-hover-border-color: var(--l-btn-hover-text-color);
   --l-btn-active-border-color: var(--l-btn-active-text-color);
+}
+.l-btn-normal-v2 {
+  --l-btn-hover-background: var(--l-primary-color-light5);
+  --l-btn-active-background: var(--l-primary-color-light4);
 }
 
 /* primary 按钮样式 */

@@ -245,7 +245,7 @@ regist([Space]); // 表单按钮组的间距
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form-item id="form1" label="姓名" inner-block>
+  <l-form-item id="form1" label="姓名">
     <l-input placeholder="请输入文本"></l-input>
   </l-form-item>
 </textarea>
@@ -304,6 +304,7 @@ regist([Space]); // 表单按钮组的间距
 | `required` | 是否必填 | `boolean` | `false` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
+| `error` | 错误提示 | `string` | `-` |
 
 ### FormItem Slots
 
