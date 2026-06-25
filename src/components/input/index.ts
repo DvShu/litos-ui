@@ -140,6 +140,9 @@ export default class Input extends FormInner<InputState> {
     if (changedProps.has("block")) {
       this.innerBlockChange(this._state.block);
     }
+    if (changedProps.has("placeholder")) {
+      if (this.$inner) this.$inner.placeholder = this._state.placeholder;
+    }
   }
 
   _updateAttr(key: string, value: any) {
@@ -259,7 +262,12 @@ export default class Input extends FormInner<InputState> {
     if (this.parser != null) {
       newValue = this.parser(newValue);
     }
-    this._calcCurosorPosition($target, newValue);
+    try {
+      this._calcCurosorPosition($target, newValue);
+    } catch (e: any) {
+      console.warn(e);
+    }
+
     this.setValue(newValue);
     this.#renderClearable();
   };

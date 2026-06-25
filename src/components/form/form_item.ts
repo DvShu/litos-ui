@@ -93,6 +93,8 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     if (changedProps.has("error")) {
       this._updateError();
     }
+    if (changedProps.has("validity")) {
+    }
   }
 
   connectedCallback(): void {

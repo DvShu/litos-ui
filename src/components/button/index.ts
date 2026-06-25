@@ -1,14 +1,6 @@
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
-import {
-  formatClass,
-  addClass,
-  removeClass,
-  formatStyle,
-  on,
-  off,
-  replaceClass,
-} from "ph-utils/dom";
+import { formatClass, addClass, removeClass, formatStyle, on, off, $one } from "ph-utils/dom";
 import { adjust } from "ph-utils/color";
 import buttonCss from "./index.less?inline";
 import animationCss from "../styles/animation.css?inline";
@@ -119,7 +111,6 @@ export default class Button extends BaseComponent<ButtonState> {
         break;
       case "box-shadow":
         const bs = parseAttrValue(newValue, false, "box-shadow");
-        console.log(bs);
         this._state.boxShadow = `box-shadow${bs ? "" : "-none"}`;
         break;
     }
@@ -141,14 +132,8 @@ export default class Button extends BaseComponent<ButtonState> {
           this._state.ghost,
         );
       }
-      if (changedProps.has("type")) {
-        replaceClass(this.$btn, 1, `l-btn-${this._state.type || "normal"}`);
-      }
-      if (changedProps.has("shape")) {
-        replaceClass(this.$btn, 2, `l-btn-${this._state.shape || "default"}`);
-      }
-      if (changedProps.has("box-shadow")) {
-        replaceClass(this.$btn, 3, `l-btn-${this._state.boxShadow}`);
+      if (changedProps.has("type") || changedProps.has("shape") || changedProps.has("box-shadow")) {
+        this.$btn.className = this._resetBtnClass();
       }
     }
 
@@ -191,22 +176,19 @@ export default class Button extends BaseComponent<ButtonState> {
     };
   }
 
+  afterInit(): void {
+    if (!this.$btn) {
+      this.$btn = $one(".l-btn", this.root) as HTMLButtonElement;
+    }
+  }
+
   public render() {
     const $btn = document.createElement("button");
     const isLoading = this._state.loading;
     const text = this._state.text;
     const ghost = this._state.ghost;
     // class
-    const classes = [
-      "l-btn",
-      `l-btn-${this._state.type}`,
-      `l-btn-${this._state.shape}`,
-      `l-btn-${this._state.boxShadow}`,
-      ghost ? "l-btn-ghost" : "",
-      text ? "l-btn-text" : "",
-      isLoading ? "l-btn-loading" : "",
-    ];
-    $btn.className = formatClass(classes);
+    $btn.className = this._resetBtnClass();
     if (this.disabled || isLoading) {
       $btn.disabled = true;
     }
@@ -221,7 +203,6 @@ export default class Button extends BaseComponent<ButtonState> {
       $btn.innerHTML = "<slot></slot>";
     }
     $btn.setAttribute("part", "default");
-    this.$btn = $btn;
     return $btn;
   }
 
@@ -262,13 +243,16 @@ export default class Button extends BaseComponent<ButtonState> {
     }
   }
 
-  private _replaceBtnClass(i: number, newClass: string) {
-    if (this.$btn) {
-      const old = this.$btn.classList.item(i);
-      if (old) {
-        this.$btn.classList.replace(old, newClass);
-      }
-    }
+  private _resetBtnClass() {
+    return formatClass([
+      "l-btn",
+      `l-btn-${this._state.type}`,
+      `l-btn-${this._state.shape}`,
+      `l-btn-${this._state.boxShadow}`,
+      this._state.ghost ? "l-btn-ghost" : "",
+      this._state.text ? "l-btn-text" : "",
+      this._state.loading ? "l-btn-loading" : "",
+    ]);
   }
 
   private _handleClick = () => {
