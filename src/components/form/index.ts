@@ -1,5 +1,5 @@
 import { formatClass, $one, on, off } from "ph-utils/dom";
-import { parseAttrValue, unitNumberStr } from "../utils";
+import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import Validator from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -11,6 +11,7 @@ interface FormState {
   inline: boolean;
   labelPosition: "left" | "right" | "top";
   labelWidth: string;
+  labelHeight?: string;
   novalidate: boolean;
 }
 
@@ -24,6 +25,7 @@ export default class Form extends BaseComponent<FormState> {
 
   constructor() {
     super();
+    this.version = 2;
     this._state = {
       /** 是否行内表单 */
       inline: false,
@@ -38,7 +40,7 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   static get observedAttributes() {
-    return ["label-position", "inner-block", "inline", "novalidate", "label-width"];
+    return ["label-position", "inner-block", "inline", "novalidate", "label-width", "label-height"];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
@@ -51,8 +53,10 @@ export default class Form extends BaseComponent<FormState> {
         this.context({ innerBlock: isBlock });
         break;
       case "label-width":
-        this._state.labelWidth = unitNumberStr(newValue) as string;
+      case "label-height":
+        this._state[kebabToCamel(name) as "labelHeight"] = unitNumberStr(newValue) as string;
         break;
+
       default:
         const value = parseAttrValue(newValue, false, name);
         this._state[name as "inline"] = value;
@@ -78,11 +82,17 @@ export default class Form extends BaseComponent<FormState> {
         this.style.removeProperty("--l-form-label-width");
       }
     }
+    if (changedProps.has("label-height")) {
+      if (this._state.labelHeight) {
+        this.style.setProperty("--l-form-label-height", this._state.labelHeight);
+      } else {
+        this.style.removeProperty("--l-form-label-height");
+      }
+    }
   }
 
   connectedCallback(): void {
     on(this, "form-context-request", this._provide);
-    this.loadStyleText([css]);
     super.connectedCallback();
   }
 
@@ -99,6 +109,13 @@ export default class Form extends BaseComponent<FormState> {
     off(this, "form-context-request", this._provide);
     off(this, "form-action", this._formAction);
     super.disconnectedCallback();
+  }
+
+  render_v2() {
+    return {
+      style: [css],
+      template: this.render(),
+    };
   }
 
   render() {
@@ -209,7 +226,7 @@ export default class Form extends BaseComponent<FormState> {
    */
   public async validate() {
     try {
-      await this.validator.validate(this._data);
+      await this.validator.validate(this._data || {});
       this.errors({});
       return Promise.resolve(true);
     } catch (err: any) {

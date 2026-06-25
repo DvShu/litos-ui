@@ -69,13 +69,13 @@ regist([Space]); // 表单按钮组的间距
 <textarea lang="html">
   <l-form id="lform">
     <l-form-item required label="姓名" prop="name">
-      <l-input placeholder="请输入姓名"></l-input>
+      <l-input placeholder="请输入姓名" value=""></l-input>
     </l-form-item>
     <l-form-item required label="密码" prop="password">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+      <l-input placeholder="请输入密码" type="password" value=""></l-input>
     </l-form-item>
     <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
-      <l-input placeholder="请再次输入密码" type="password"></l-input>
+      <l-input placeholder="请再次输入密码" type="password" value=""></l-input>
     </l-form-item>
     <l-form-item label="">
       <l-space>
