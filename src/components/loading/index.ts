@@ -1,4 +1,5 @@
 import { $one, hasClass, addClass, $$, $, iterate } from "ph-utils/dom";
+import { clear } from "ph-utils/storage";
 
 type LoadingInstanceParams = {
   /** 是否全屏显示, 默认: true */
@@ -101,16 +102,20 @@ function removeLoading(el: HTMLElement, _option: LoadingInstanceParams) {
   let $spinner = $one(`${prefix} > .l-loading-spinner`, el);
 
   if (!$spinner) return;
+  let _endT = -1;
 
   function transEnd() {
     if ($mask) {
       $mask.remove();
       $mask = null;
     }
-    $spinner!.remove();
-    $spinner = null;
+    if ($spinner) {
+      $spinner.remove();
+      $spinner = null;
+    }
     const removeClasses = ["l-loading", "l-loading-fullscreen", "l-loading-lock"];
     el.classList.remove(...removeClasses);
+    clearTimeout(_endT);
   }
   $spinner.addEventListener("transitionend", transEnd, { once: true });
   requestAnimationFrame(() => {
@@ -119,7 +124,7 @@ function removeLoading(el: HTMLElement, _option: LoadingInstanceParams) {
     }
     addClass($spinner!, "l-loading-bar--finish");
     $spinner!.style.opacity = "0";
-    setTimeout(() => {
+    _endT = setTimeout(() => {
       transEnd();
     }, 3000);
   });

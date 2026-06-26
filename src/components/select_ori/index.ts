@@ -2,7 +2,8 @@ import FormInner from "../form/form_inner";
 import { tagAttrs } from "../utils";
 import { $one, on, off } from "ph-utils/dom";
 //@ts-ignore
-import css from "../input/index.less?inline";
+import inputcss from "../input/input_inner.less?inline";
+import css from "./index.less?inline";
 
 type Option = { label: string; value: string };
 
@@ -10,6 +11,11 @@ export default class SelectOri extends FormInner {
   public static baseName = "select-ori";
 
   private $select?: HTMLSelectElement;
+
+  constructor() {
+    super();
+    this.version = 2;
+  }
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -28,6 +34,14 @@ export default class SelectOri extends FormInner {
     }
     this.$select = undefined;
   }
+
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: [css, inputcss],
+    };
+  }
+
   render() {
     let $children = this.innerHTML.trim();
     const attrs = tagAttrs([

@@ -245,4 +245,9 @@ regist([Checkbox]);
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l` | x | `#fff` |
+| `--l-check-size` | 复选框尺寸 | `14px` |
+| `--l-check-border-radius` | 复选框圆角 | `3px` |
+| `--l-primary-color` | 选中状态颜色 | `#722ed1` |
+| `--l-disabled-color` | 禁用状态颜色 | `#e6e6e6` |
+| `--l-form-control-height` | 按钮样式高度 | `32px` |
+| `--l-check-gap` | 复选框组间距 | `0px` |
