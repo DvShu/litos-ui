@@ -28,7 +28,6 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
     if ($spinner != null) return;
   }
   const fullClasses = ["l-loading"];
-  // addClass(el, "l-loading");
 
   // mask
   if (option.mask === 1 || (option.mask === 2 && option.shape === "circle")) {
@@ -98,20 +97,19 @@ function addLoading(el: HTMLElement, option: LoadingInstanceParams) {
 
 function removeLoading(el: HTMLElement, _option: LoadingInstanceParams) {
   const prefix = el.tagName === "BODY" ? "body" : ".l-loading";
-  const $mask = $one(`${prefix} > .l-loading-mask`, el);
-  const $spinner = $one(`${prefix} > .l-loading-spinner`, el) as HTMLElement;
+  let $mask = $one(`${prefix} > .l-loading-mask`, el);
+  let $spinner = $one(`${prefix} > .l-loading-spinner`, el);
 
   if (!$spinner) return;
 
   function transEnd() {
     if ($mask) {
       $mask.remove();
+      $mask = null;
     }
-    $spinner.remove();
-    const removeClasses = ["l-loading"];
-    if (el.tagName === "BODY") {
-      removeClasses.push("l-loading-fullscreen", "l-loading-lock");
-    }
+    $spinner!.remove();
+    $spinner = null;
+    const removeClasses = ["l-loading", "l-loading-fullscreen", "l-loading-lock"];
     el.classList.remove(...removeClasses);
   }
   $spinner.addEventListener("transitionend", transEnd, { once: true });
@@ -119,8 +117,11 @@ function removeLoading(el: HTMLElement, _option: LoadingInstanceParams) {
     if ($mask) {
       $mask.style.opacity = "0";
     }
-    addClass($spinner, "l-loading-bar--finish");
-    $spinner.style.opacity = "0";
+    addClass($spinner!, "l-loading-bar--finish");
+    $spinner!.style.opacity = "0";
+    setTimeout(() => {
+      transEnd();
+    }, 3000);
   });
 }
 

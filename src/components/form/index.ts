@@ -1,6 +1,7 @@
 import { formatClass, $one, on, off } from "ph-utils/dom";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import Validator from "ph-utils/validator";
+import type { SchemaType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./index.less?inline";
 import { signal } from "alien-signals";
@@ -134,6 +135,14 @@ export default class Form extends BaseComponent<FormState> {
     e.stopPropagation();
     this.validator.addSchema(e.detail);
   };
+
+  public addSchemas(schemas: SchemaType[]) {
+    this.validator.addSchemas(schemas);
+  }
+
+  public addSchema(schema: SchemaType) {
+    this.validator.addSchema(schema);
+  }
 
   private _provide(e: CustomEvent) {
     const { context, callback } = e.detail;
