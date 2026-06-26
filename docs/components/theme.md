@@ -26,9 +26,9 @@ regist([Button, SunIcon, MoonIcon]); // 按钮风格
 regist(SelectOri); // 下拉风格
 regist([Switch, SunIcon, MoonIcon]); // 开关风格
 // 图标单选风格[label="icon"]
-regist([Radio, SunIcon, MoonIcon, ThemeDefaultIcon]);
+regist([Radio, SunIcon, MoonIcon, ThemeDefaultIcon, RadioGroup]);
 // 文本单选风格
-regist(Radio);
+regist([Radio, RadioGroup]);
 ```
 
 ## 演示
@@ -53,9 +53,10 @@ initTheme().then();
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-theme></l-theme>
-  <l-theme type="select"></l-theme>
+  <l-theme style="vertical-align:middle;"></l-theme>
+  <l-theme type="select" style="vertical-align:middle;"></l-theme>
   <l-theme type="switch" style="vertical-align:middle;"></l-theme>
+  <l-theme type="radio" style="vertical-align:middle;" label="icon"></l-theme>
   <l-theme type="radio" style="vertical-align:middle;"></l-theme>
 </textarea>
 </l-code-preview>
@@ -89,11 +90,11 @@ initTheme().then();
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-radio id="customThemeRadio">
-    <span radio-value="auto">自</span>+
-    <span radio-value="light">浅</span>
-    <span radio-value="dark">深</span>
-  </l-radio>
+  <l-radio-group gap="15" id="customThemeRadio">
+    <radio value="auto">自</radio>
+    <radio value="light">浅</radio>
+    <radio value="dark">深</radio>
+  </l-radio-group>
 </textarea>
 <textarea lang="js">
   import { applyTheme } from "ph-utils/theme";

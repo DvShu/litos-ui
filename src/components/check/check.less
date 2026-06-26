@@ -25,7 +25,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: var(--l-check-border-radius, 3px);
+  border-radius: var(--l-check-border-radius, var(--l-border-radius, 13px));
   border: 1px solid #dcddd9;
   box-sizing: border-box;
   transition: border-color 0.3s ease-in-out;
@@ -68,13 +68,13 @@
 
 :host([button]:first-child) {
   border-left-width: 1px;
-  border-top-left-radius: var(--l-check-border-radius, 3px);
-  border-bottom-left-radius: var(--l-check-border-radius, 3px);
+  border-top-left-radius: var(--l-check-border-radius, var(--l-border-radius, 13px));
+  border-bottom-left-radius: var(--l-check-border-radius, var(--l-border-radius, 13px));
 }
 
 :host([button]:last-child) {
-  border-top-right-radius: var(--l-check-border-radius, 3px);
-  border-bottom-right-radius: var(--l-check-border-radius, 3px);
+  border-top-right-radius: var(--l-check-border-radius, var(--l-border-radius, 13px));
+  border-bottom-right-radius: var(--l-check-border-radius, var(--l-border-radius, 13px));
 }
 
 :host([button].is-checked) {

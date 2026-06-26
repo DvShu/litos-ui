@@ -1,7 +1,16 @@
 :host {
-  --l-input-border-color: var(--l-border-color, #dedede);
   display: inline-flex;
   height: var(--l-form-control-height, 32px);
-  border: 1px solid var(--l-input-border-color, #dedede);
+}
+.l-input__inner {
+  border: 1px solid var(--l-border-color, #dedede);
   border-radius: var(--l-border-radius, 3px);
+  transition: border-color .3s;
+}
+.l-input__inner:hover {
+  border-color: var(--l-primary-color-light1, #c6c6c6);
+}
+.l-input__inner:focus {
+  border-color: var(--l-primary-color, #1890ff);
+  box-shadow: 0 0 0 3px var(--l-primary-color-light5);
 }

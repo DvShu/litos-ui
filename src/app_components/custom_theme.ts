@@ -1,10 +1,9 @@
-import { elem, on, text, $one, off } from "ph-utils/dom";
-import { getTheme, toggleTheme, applyTheme } from "ph-utils/theme";
+import { on, $one, off } from "ph-utils/dom";
+import { getTheme, toggleTheme } from "ph-utils/theme";
 
 export default class CustomTheme extends HTMLElement {
   connectedCallback() {
-    this.innerHTML = `<l-radio id="customThemeRadio"><span radio-value="auto">自</span>'+
-    '<span radio-value="light">浅</span><span radio-value="dark">深</span></l-radio>`;
+    this.innerHTML = `<l-radio-group gap="15" id="customThemeRadio"><l-radio value="auto">自</l-radio><l-radio value="light">浅</l-radio><l-radio value="dark">深</l-radio></l-radio-group>`;
     const $el = $one("#customThemeRadio", this) as HTMLInputElement;
     $el.value = getTheme();
     on($el, "change", this.#handle);
@@ -31,7 +30,7 @@ export default class CustomTheme extends HTMLElement {
         {
           duration: 300,
           pseudoElement: "::view-transition-new(root)",
-        }
+        },
       );
     });
   };

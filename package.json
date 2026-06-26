@@ -49,7 +49,7 @@
   "dependencies": {
     "alien-signals": "^3.2.1",
     "iconify-icon": "^3.0.2",
-    "ph-utils": "^0.20.0",
+    "ph-utils": "^0.20.1",
     "qrcode-generator-es": "^2.1.3",
     "shiki": "^4.3.0"
   },

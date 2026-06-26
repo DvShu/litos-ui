@@ -1,6 +1,6 @@
 import FormInner from "../form/form_inner";
 import { tagAttrs } from "../utils";
-import { $one, on, off } from "ph-utils/dom";
+import { $one, off, on } from "ph-utils/dom";
 //@ts-ignore
 import inputcss from "../input/input_inner.less?inline";
 import css from "./index.less?inline";
@@ -18,7 +18,6 @@ export default class SelectOri extends FormInner {
   }
 
   connectedCallback(): void {
-    this.loadStyleText(css);
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
     if (this.value) {
@@ -38,7 +37,7 @@ export default class SelectOri extends FormInner {
   render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
     return {
       template: this.render(),
-      style: [css, inputcss],
+      style: [inputcss, css],
     };
   }
 

@@ -83,17 +83,18 @@ export default class Theme extends BaseComponent {
   }
 
   #radioRender() {
-    const $inner = create("l-radio", {
+    const $inner = create("l-radio-group", {
       class: "l-theme-inner",
     }) as HTMLInputElement;
     $inner.value = this.theme as string;
-    $inner.type = "button";
     const children = RADIO_ITEMS.map((item) => {
+      let inner = "";
       if (this.label === "icon") {
-        return `<${item.icon} radio-value="${item.value}"></${item.icon}>`;
+        inner = `<${item.icon}></${item.icon}>`;
       } else {
-        return `<span radio-value="${item.value}">${item.text}</span>`;
+        inner = item.text;
       }
+      return `<l-radio value="${item.value}" button>${inner}</l-radio>`;
     });
     $inner.innerHTML = children.join("");
     return $inner;
