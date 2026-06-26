@@ -69,13 +69,13 @@ regist([Space]); // 表单按钮组的间距
 <textarea lang="html">
   <l-form id="lform">
     <l-form-item required label="姓名" prop="name">
-      <l-input placeholder="请输入姓名"></l-input>
+      <l-input placeholder="请输入姓名" value=""></l-input>
     </l-form-item>
     <l-form-item required label="密码" prop="password">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+      <l-input placeholder="请输入密码" type="password" value=""></l-input>
     </l-form-item>
     <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
-      <l-input placeholder="请再次输入密码" type="password"></l-input>
+      <l-input placeholder="请再次输入密码" type="password" value=""></l-input>
     </l-form-item>
     <l-form-item label="">
       <l-space>
@@ -245,7 +245,7 @@ regist([Space]); // 表单按钮组的间距
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form-item id="form1" label="姓名" inner-block>
+  <l-form-item id="form1" label="姓名">
     <l-input placeholder="请输入文本"></l-input>
   </l-form-item>
 </textarea>
@@ -304,6 +304,7 @@ regist([Space]); // 表单按钮组的间距
 | `required` | 是否必填 | `boolean` | `false` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
+| `error` | 错误提示 | `string` | `-` |
 
 ### FormItem Slots
 

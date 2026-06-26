@@ -138,6 +138,18 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 </l-code-preview>
 </ClientOnly>
 
+### 错误状态
+
+通过 `error` 属性设置输入框为错误状态。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input placeholder="请输入内容" error block></l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ## API
 
 ### Input Attributes
@@ -155,6 +167,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 | `inputmode` | 输入模式, [inputmode](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Global_attributes/inputmode) | `string` | `text` |
 | `maxlength` | 最大输入长度 | `number` | - |
 | `minlength` | 最小输入长度 | `number` | - |
+| `error` | 是否显示错误状态 | `boolean` | `false` |
 
 ### Input Methods
 

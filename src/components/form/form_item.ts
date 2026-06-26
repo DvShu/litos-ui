@@ -1,5 +1,5 @@
 import { $one, addClass, removeClass, $$ } from "ph-utils/dom";
-import { parseAttrValue, stopSignal } from "../utils";
+import { kebabToCamel, parseAttrValue, stopSignal, unitNumberStr } from "../utils";
 import type { RuleType } from "ph-utils/validator";
 //@ts-ignore
 import css from "./form_item.less?inline";
@@ -21,6 +21,8 @@ type FormItemState = {
   /** 验证消息 */
   validity?: string;
   prop?: string;
+  labelWidth?: string;
+  labelHeight?: string;
 };
 
 export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
@@ -31,6 +33,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
 
   constructor() {
     super();
+    this.version = 2;
     this.contextEventName = "form-item-context-request";
     this._state = {
       labelPosition: "right",
@@ -50,6 +53,8 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
       "verify",
       "pattern",
       "validity",
+      "label-width",
+      "label-height",
     ];
   }
 
@@ -78,21 +83,14 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
         this._state.prop = newValue;
         this.context({ ...this.context(), prop: newValue });
         break;
+      case "label-width":
+      case "label-height":
+        this._state[kebabToCamel(name) as "labelWidth"] = unitNumberStr(newValue);
+        break;
     }
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    /* 旧代码注释：
-    // required
-    this._updateRequired();
-
-    // label
-    this._updateLabel();
-
-    // error
-    this._updateError();
-    */
-
     // 新的按条件更新逻辑:
     if (changedProps.has("required")) {
       this._updateRequired();
@@ -101,14 +99,26 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     if (changedProps.has("label")) {
       this._updateLabel();
     }
-
     if (changedProps.has("error")) {
       this._updateError();
+    }
+    if (changedProps.has("label-width")) {
+      if (this._state.labelWidth) {
+        this.style.setProperty("--l-form-label-width", this._state.labelWidth);
+      } else {
+        this.style.removeProperty("--l-form-label-width");
+      }
+    }
+    if (changedProps.has("label-height")) {
+      if (this._state.labelHeight) {
+        this.style.setProperty("--l-form-label-height", this._state.labelHeight);
+      } else {
+        this.style.removeProperty("--l-form-label-height");
+      }
     }
   }
 
   connectedCallback(): void {
-    this.loadStyleText([css]);
     super.connectedCallback();
     this._updateRequired();
     this._parseSchema();
@@ -138,6 +148,13 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
       const schema = { ...rules, key: prop };
       this._updateRules(schema);
     }
+  }
+
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: [css],
+    };
   }
 
   public render() {

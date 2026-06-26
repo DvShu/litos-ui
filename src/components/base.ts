@@ -38,6 +38,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     // 记录发生变化的属性名
     this._changedProperties.add(name);
     this.attributeChanged(name, oldValue, newValue);
+    // 延迟更新DOM，合并多次属性的变化为一次渲染
     if (this.rendered) {
       this.batchUpdate();
     }
@@ -174,6 +175,9 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     this.rendered = true;
     this.initEvents();
     this.afterInit();
+    if (this._changedProperties.size > 0) {
+      this.updateDOM(this._changedProperties);
+    }
   }
 
   disconnectedCallback() {

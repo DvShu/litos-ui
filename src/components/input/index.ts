@@ -84,7 +84,6 @@ export default class Input extends FormInner<InputState> {
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
     this.style.cssText = formatStyle(this._getStyleObj()) + this.getAttr("style", "");
-    this._updateError(this._state.error != null);
   }
 
   beforeDestroy(): void {
@@ -140,6 +139,9 @@ export default class Input extends FormInner<InputState> {
 
     if (changedProps.has("block")) {
       this.innerBlockChange(this._state.block);
+    }
+    if (changedProps.has("placeholder")) {
+      if (this.$inner) this.$inner.placeholder = this._state.placeholder;
     }
   }
 
@@ -260,7 +262,12 @@ export default class Input extends FormInner<InputState> {
     if (this.parser != null) {
       newValue = this.parser(newValue);
     }
-    this._calcCurosorPosition($target, newValue);
+    try {
+      this._calcCurosorPosition($target, newValue);
+    } catch (e: any) {
+      console.warn(e);
+    }
+
     this.setValue(newValue);
     this.#renderClearable();
   };

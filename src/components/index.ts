@@ -68,8 +68,6 @@ export { default as Theme } from "./theme";
 export { default as ThemeColor } from "./theme/theme_color";
 
 export { default as Menu } from "./menu";
-export { default as MenuItem } from "./menu/menu_item";
-export { default as SubMenu } from "./menu/sub_menu";
 
 export { default as Carousel } from "./carousel";
 export { default as CarouselItem } from "./carousel/item";
@@ -98,5 +96,6 @@ export { default as Table } from "./table";
 export type { Column } from "./table/types";
 
 export { default as Space } from "./space";
+
 
 export { default as Calendar } from "./calendar";
