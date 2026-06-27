@@ -1,4 +1,4 @@
-import { parseAttrValue, kebabToCamel } from "../utils";
+import { parseAttrValue, kebabToCamel, unitNumberStr } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import { $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/dom";
@@ -6,59 +6,72 @@ import FormInner from "../form/form_inner";
 import { Popover } from "../utils/popover";
 import { debounce } from "ph-utils/web";
 
-type SelectOption = {
+export type SelectOption = {
   class?: string;
   render?: (
     option: SelectOption,
     isSelect: boolean,
-    selectedValues?: any | any[]
+    selectedValues?: any | any[],
   ) => HTMLElement | DocumentFragment;
   label?: string;
   value?: any;
   [index: string]: any;
 };
 
-export default class Select extends FormInner {
+type SelectState = {
+  /** 是否启用过滤 */
+  filterable?: boolean;
+  placeholder: string;
+  /** 选项 label 的字段名 */
+  labelField: string;
+  /** 选项 value 的字段名 */
+  valueField: string;
+  /** 是否支持多选 */
+  multiple?: boolean;
+  /** 多选时是否折叠标签 */
+  collapseTags?: boolean;
+
+  /** 宽度 */
+  width?: string;
+  /** 是否可清除 */
+  clearable?: boolean;
+
+  /** 是否远程搜索 */
+  remote: boolean;
+  /** 是否加载中, 远程搜索时使用 */
+  loading?: boolean;
+  /** 是否展开下拉选择 */
+  expanded?: boolean;
+};
+
+export default class Select extends FormInner<SelectState> {
   public static baseName = "select";
 
   /** 选中的标签 */
   public selectedLabels: string[] = [];
-
-  /** 是否启用过滤 */
-  public filterable?: boolean = false;
-  public placeholder?: string = "请选择";
-  /** 选项 label 的字段名 */
-  public labelField: string = "label";
-  /** 选项 value 的字段名 */
-  public valueField: string = "value";
-  /** 是否支持多选 */
-  public multiple?: boolean = false;
-  /** 多选时是否折叠标签 */
-  public collapseTags?: boolean = false;
-  /** 是否加载中, 远程搜索时使用 */
-  public _loading?: boolean = false;
-  /** 宽度 */
-  public width?: string;
-  /** 是否可清除 */
-  public clearable?: boolean = false;
-  /** 是否展开下拉选择 */
-  public _expanded: boolean = false;
-  public remote = false;
   public filter?: (match: string, option: SelectOption) => boolean;
 
-  public options?: SelectOption[] = [];
+  public _options?: SelectOption[] = [];
+  /** 备份数据, 搜索过滤时有用 */
   private _backOptions?: SelectOption[];
   public inputHandler?: (match: string) => void;
+  /** 下拉弹窗主体 */
   private _popover?: Popover;
   private _searchEl?: HTMLInputElement;
 
   constructor() {
     super(true, false);
-  }
-
-  connectedCallback(): void {
-    this.loadStyleText(css);
-    super.connectedCallback();
+    this.version = 2;
+    this._state = {
+      filterable: false,
+      placeholder: "请选择",
+      labelField: "label",
+      valueField: "value",
+      multiple: false,
+      collapseTags: false,
+      clearable: false,
+      remote: false,
+    };
   }
 
   public setInputHandler(handler: (match: string) => void) {
@@ -70,7 +83,7 @@ export default class Select extends FormInner {
   }
 
   public get loading() {
-    return this._loading;
+    return this._state.loading;
   }
 
   public set loading(loading: boolean | undefined) {
@@ -78,14 +91,12 @@ export default class Select extends FormInner {
   }
 
   public setLoading(loading: boolean) {
-    this._loading = loading;
+    this._state.loading = loading;
     let $loading = $one(".l-select-loading", this.root);
     if (loading) {
       // 显示加载
       if (!$loading) {
-        this.root.appendChild(
-          $$("l-loading-icon", { class: "l-select-loading" })
-        );
+        this.root.appendChild($$("l-loading-icon", { class: "l-select-loading" }));
       }
       this.classList.add("l-select--loading");
     }
@@ -96,16 +107,8 @@ export default class Select extends FormInner {
     }
   }
 
-  private get expanded() {
-    return this._expanded;
-  }
-
-  private set expanded(value: boolean) {
-    this.setExpanded(value);
-  }
-
   public setExpanded(value: boolean) {
-    this._expanded = value;
+    this._state.expanded = value;
     if (value) {
       this.classList.add("l-select--expand");
       if (this._searchEl) {
@@ -138,7 +141,7 @@ export default class Select extends FormInner {
     if (typeof value === "string") {
       v = value.split(",");
     }
-    if (this.multiple) {
+    if (this._state.multiple) {
       if (!Array.isArray(v)) {
         v = [v];
       }
@@ -153,10 +156,10 @@ export default class Select extends FormInner {
   }
 
   private _updateSelectedLabels() {
-    if (this.options) {
-      this.selectedLabels = this.options
-        .filter((item) => this._isOptionSelect(item[this.valueField as string]))
-        .map((item) => item[this.labelField as string]);
+    if (this._options) {
+      this.selectedLabels = this._options
+        .filter((item) => this._isOptionSelect(item[this._state.valueField as string]))
+        .map((item) => item[this._state.labelField as string]);
       return;
     }
     this.selectedLabels = [];
@@ -175,42 +178,48 @@ export default class Select extends FormInner {
       "value-field",
       "width",
       "clearable",
-      "expanded",
       "remote",
     ];
   }
 
-  protected attributeChange(
-    name: string,
-    _oldValue: string,
-    newValue: string
-  ): void {
-    name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name
-    ) as any;
-    if (parsedValue !== this[name as "id"]) {
-      this[name as "id"] = parsedValue;
-    }
-    if (this.rendered) {
-      switch (name) {
-        case "width":
-          if (parsedValue) {
-            this.style.setProperty("--l-select-width", parsedValue);
-          } else {
-            this.style.removeProperty("--l-select-width");
-          }
-          break;
-      }
+  protected attributeChange(name: string, _oldValue: string, newValue: string): void {
+    switch (name) {
+      case "width":
+        this._state.width = unitNumberStr(newValue);
+        break;
+      case "label-field":
+      case "value-field":
+        this._state[name as "valueField"] = newValue;
+        break;
     }
   }
 
-  public setOptions(options: any[]): void {
-    this.options = options;
-    this._backOptions = [...options];
-    if (this._popover && this.expanded) {
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("width")) {
+      if (this._state.width) {
+        this.style.setProperty("--l-select-width", this._state.width);
+      } else {
+        this.style.removeProperty("--l-select-width");
+      }
+    }
+    if (changedProps.has("label-field") || changedProps.has("value-field")) {
+      this._updatePopoverContent();
+    }
+  }
+
+  public get options() {
+    return this._options;
+  }
+
+  public set options(opts: SelectOption[] | undefined) {
+    this.setOptions(opts);
+  }
+
+  public setOptions(options: SelectOption[] | undefined): void {
+    console.log(options);
+    this._options = options;
+    this._backOptions = [...(options || [])];
+    if (this._popover && this._state.expanded) {
       this._popover.updatePopoverContent();
     }
   }
@@ -218,7 +227,7 @@ export default class Select extends FormInner {
   private _isOptionSelect(value?: any) {
     let isSelect = false;
     if (value != null && this.value != null) {
-      if (this.multiple) {
+      if (this._state.multiple) {
         isSelect = this.value.includes(value);
       } else {
         isSelect = value === this.value;
@@ -237,7 +246,7 @@ export default class Select extends FormInner {
           {
             class: "l-select-icon",
           },
-          optionElement
+          optionElement,
         );
       }
     } else {
@@ -250,40 +259,37 @@ export default class Select extends FormInner {
 
   private _renderOption() {
     const children: string[] = [];
-    if (this.options) {
-      const len = this.options.length;
+    if (this._options) {
+      const len = this._options.length;
       for (let i = 0; i < len; i++) {
-        const item = this.options[i];
-        const itemSelected = this._isOptionSelect(
-          item[this.valueField as string]
-        );
-        const $li = $$("li", {
-          class: [
-            "l-select-option",
-            itemSelected ? "l-select-option--selected" : undefined,
-          ],
-          "data-action": `${i}`,
-        });
-        // text
-        $$(
-          "span",
-          {
+        const item = this._options[i];
+        const value = item[this._state.valueField];
+        const label = item[this._state.labelField];
+        const itemSelected = this._isOptionSelect(value);
+        const lichildren: HTMLElement[] = [
+          // text
+          $$("span", {
             class: "l-select-option-content",
-            textContent: item[this.labelField as string],
-            title: item[this.labelField as string],
-          },
-          $li
-        );
+            textContent: label,
+            title: label,
+          }),
+        ];
         // select
         if (itemSelected) {
-          $$(
-            "l-select-icon",
-            {
+          lichildren.push(
+            $$("l-select-icon", {
               class: "l-select-icon",
-            },
-            $li
+            }),
           );
         }
+        const $li = $$(
+          "li",
+          {
+            class: ["l-select-option", itemSelected ? "l-select-option--selected" : undefined],
+            "data-action": `${i}`,
+          },
+          lichildren,
+        );
         children.push($li.outerHTML);
       }
     }
@@ -305,20 +311,20 @@ export default class Select extends FormInner {
 
   public isEmpty() {
     let isEmpty = true;
-    if (!this.multiple && this.value != null && this.value !== "") {
+    if (!this._state.multiple && this.value != null && this.value !== "") {
       isEmpty = false;
     }
-    if (this.multiple && this.value && this.value.length > 0) {
+    if (this._state.multiple && this.value && this.value.length > 0) {
       isEmpty = false;
     }
     return isEmpty;
   }
 
   private _toggleClearable(isHide = false) {
-    if (this.clearable) {
+    if (this._state.clearable) {
       // 显示 清除按钮
       let $clearIcon = $one(".l-select-clear", this.root);
-      if (isHide || this.isEmpty() || this.loading) {
+      if (isHide || this.isEmpty() || this._state.loading) {
         if ($clearIcon) {
           $clearIcon.remove();
         }
@@ -332,7 +338,7 @@ export default class Select extends FormInner {
             class: "l-select-clear",
             "data-action": "clear",
           },
-          this.root
+          this.root,
         );
       }
       this.classList.add("l-select--clearable");
@@ -358,7 +364,7 @@ export default class Select extends FormInner {
   }
 
   private _updatePopoverContent() {
-    if (this._popover && this.expanded) {
+    if (this._popover && this._state.expanded) {
       this._popover.updatePopoverContent();
     }
   }
@@ -368,11 +374,11 @@ export default class Select extends FormInner {
     const [next, action, target] = shouldEventNext(
       e,
       "data-action",
-      e.currentTarget as HTMLElement
+      e.currentTarget as HTMLElement,
     );
     if (next) {
       if (action === "clear") {
-        this.value = this.multiple ? [] : "";
+        this.value = this._state.multiple ? [] : "";
         this.selectedLabels = [];
         this._toggleClearable(true);
         this._reRenderLabels();
@@ -382,7 +388,7 @@ export default class Select extends FormInner {
         this.selectedLabels.splice(index, 1);
         (this._value as any[]).splice(index, 1);
         this._updatePopoverContent();
-        if (this.collapseTags) {
+        if (this._state.collapseTags) {
           this._reRenderLabels();
         } else {
           if (target.parentElement) {
@@ -408,19 +414,19 @@ export default class Select extends FormInner {
   };
 
   private _onSearchInput = (e: Event) => {
-    if (this.inputHandler && this.filterable) {
+    if (this.inputHandler && this._state.filterable) {
       const searchValue = (e.target as HTMLInputElement).value;
       this.inputHandler(searchValue);
     }
   };
 
   private _handleFilte = (match: string) => {
-    if (this.remote) {
+    if (this._state.remote) {
       this.emit("search", { detail: { value: match } });
       return;
     }
-    this.options = this._filteOption(match);
-    if (this._popover && this.expanded) {
+    this._options = this._filteOption(match);
+    if (this._popover && this._state.expanded) {
       this._popover.updatePopoverContent();
     }
   };
@@ -433,7 +439,7 @@ export default class Select extends FormInner {
         if (this.filter) {
           return this.filter(match, option);
         }
-        return option[this.labelField].includes(match);
+        return option[this._state.labelField].includes(match);
       });
     }
     return opts;
@@ -453,9 +459,6 @@ export default class Select extends FormInner {
     }
 
     this.disabledChange();
-    if (this.width) {
-      this.style.setProperty("--l-select-width", this.width);
-    }
     if (!this._popover) {
       this._popover = new Popover({
         arrow: false,
@@ -478,14 +481,14 @@ export default class Select extends FormInner {
           this.setExpanded(isOpen);
         },
         onPopoverAction: (action, target) => {
-          if (action && this.options) {
+          if (action && this._options) {
             const index = Number(action);
-            const option = this.options[index];
-            const value = option[this.valueField];
-            const label = option[this.labelField];
+            const option = this._options[index];
+            const value = option[this._state.valueField];
+            const label = option[this._state.labelField];
             let oldValue = this.value;
             let oldLabels = this.selectedLabels;
-            if (this.multiple === true) {
+            if (this._state.multiple === true) {
               // 多选
               if (!oldValue) {
                 oldValue = [value];
@@ -515,11 +518,11 @@ export default class Select extends FormInner {
             this._value = oldValue;
             this.selectedLabels = oldLabels;
             const isSelect = this._isOptionSelect(value);
-            if (!this.multiple) {
+            if (!this._state.multiple) {
               // 单选移除之前的选中态
               const $oldSelected = $(
                 ".l-select-option--selected",
-                target.parentElement as HTMLElement
+                target.parentElement as HTMLElement,
               ) as HTMLElement[];
               iterate($oldSelected, (oldOption) => {
                 this._updateOptionSelect(oldOption, false);
@@ -529,12 +532,12 @@ export default class Select extends FormInner {
             this._updateOptionSelect(target, isSelect);
             // 重新渲染标签
             this._reRenderLabels();
-            if (!this.multiple && this._popover) {
+            if (!this._state.multiple && this._popover) {
               // 单选关闭弹窗
               this._popover.hide();
             }
             // 焦点
-            if (this._searchEl && this.multiple) {
+            if (this._searchEl && this._state.multiple) {
               this._searchEl.focus();
             }
           }
@@ -548,7 +551,7 @@ export default class Select extends FormInner {
     off(this, "mouseleave", this._onMouseLeave);
     off(this.root, "click", this._onRootTap);
     off(this, "click", this._onTap);
-    this.options = undefined;
+    this._options = undefined;
     if (this._popover) {
       this._popover.destroy();
       this._popover = undefined;
@@ -570,6 +573,13 @@ export default class Select extends FormInner {
     this.filter = undefined;
   }
 
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: [css],
+    };
+  }
+
   render() {
     const fragment = document.createDocumentFragment();
     // select main
@@ -579,11 +589,11 @@ export default class Select extends FormInner {
     const $tags = this._renderSelectedLabels();
     $main.appendChild($tags);
     // filter
-    if (this.filterable) {
-      let placeholder = this.placeholder || "请选择";
+    if (this._state.filterable) {
+      let placeholder = this._state.placeholder || "请选择";
       let value = "";
       if (this.selectedLabels.length > 0) {
-        if (!this.multiple) {
+        if (!this._state.multiple) {
           placeholder = this.selectedLabels[0];
           value = this.selectedLabels[0];
         } else {
@@ -595,7 +605,7 @@ export default class Select extends FormInner {
           class: "l-select-filter",
           placeholder,
           value,
-        })
+        }),
       );
     }
     fragment.appendChild($main);
@@ -667,10 +677,10 @@ export default class Select extends FormInner {
 
   private _updateSearchValue() {
     if (this._searchEl) {
-      let placeholder = this.placeholder || "请选择";
+      let placeholder = this._state.placeholder || "请选择";
       let value = "";
       if (this.selectedLabels.length > 0) {
-        if (!this.multiple) {
+        if (!this._state.multiple) {
           placeholder = this.selectedLabels[0];
           value = this.selectedLabels[0];
         } else {
@@ -687,24 +697,22 @@ export default class Select extends FormInner {
     const fragment = document.createDocumentFragment();
     let selectedLen = this.selectedLabels.length;
     if (selectedLen > 0) {
-      if (!this.multiple) {
+      if (!this._state.multiple) {
         // 单选
-        if (!this.filterable) {
+        if (!this._state.filterable) {
           fragment.appendChild(
             $$("span", {
               class: "l-selected-item",
               textContent: this.selectedLabels[0],
-            })
+            }),
           );
         }
       } else {
         // 多选
-        if (this.collapseTags) {
+        if (this._state.collapseTags) {
           fragment.appendChild(this._renderTag(this.selectedLabels[0]));
           if (selectedLen > 1) {
-            fragment.appendChild(
-              this._renderTag(`+${selectedLen - 1}`, -1, false)
-            );
+            fragment.appendChild(this._renderTag(`+${selectedLen - 1}`, -1, false));
           }
         } else {
           for (let i = 0; i < selectedLen; i++) {
@@ -713,12 +721,12 @@ export default class Select extends FormInner {
         }
       }
     } else {
-      if (!this.filterable) {
+      if (!this._state.filterable) {
         fragment.appendChild(
           $$("span", {
             class: "l-selected-item l-select-placeholder",
-            textContent: this.placeholder,
-          })
+            textContent: this._state.placeholder,
+          }),
         );
       }
     }
