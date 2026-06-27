@@ -14,6 +14,8 @@ interface FormState {
   labelWidth: string;
   labelHeight?: string;
   novalidate: boolean;
+  /** 验证错误，不直接处理，而是通过事件上报 */
+  emitError: boolean;
 }
 
 export default class Form extends BaseComponent<FormState> {
@@ -33,6 +35,7 @@ export default class Form extends BaseComponent<FormState> {
       labelPosition: "right",
       labelWidth: "80px",
       novalidate: false,
+      emitError: false,
     };
     this.validator = new Validator([]);
     this.context = signal({ innerBlock: false });
@@ -41,7 +44,15 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   static get observedAttributes() {
-    return ["label-position", "inner-block", "inline", "novalidate", "label-width", "label-height"];
+    return [
+      "label-position",
+      "inner-block",
+      "inline",
+      "novalidate",
+      "label-width",
+      "label-height",
+      "emit-error",
+    ];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
@@ -60,7 +71,7 @@ export default class Form extends BaseComponent<FormState> {
 
       default:
         const value = parseAttrValue(newValue, false, name);
-        this._state[name as "inline"] = value;
+        this._state[kebabToCamel(name) as "inline"] = value;
         break;
     }
   }
@@ -140,6 +151,14 @@ export default class Form extends BaseComponent<FormState> {
     this.validator.addSchemas(schemas);
   }
 
+  public setSchemas(schemas: SchemaType[]) {
+    this.validator.setSchemas(schemas);
+  }
+
+  public setSchema(schema: SchemaType) {
+    this.validator.setSchema(schema);
+  }
+
   public addSchema(schema: SchemaType) {
     this.validator.addSchema(schema);
   }
@@ -171,15 +190,28 @@ export default class Form extends BaseComponent<FormState> {
       this.validator
         .validateKey(name, value, this._data)
         .then(() => {
-          const oldValud = this.errors();
-          oldValud[name] = undefined;
-          this.errors({ ...oldValud });
+          const oldValue = this.errors();
+          oldValue[name] = undefined;
+          this.setValidateErrors({ ...oldValue });
         })
         .catch((err) => {
-          this.errors({ ...this.errors(), ...err.detail });
+          this.setValidateErrors({ ...this.errors(), ...err.detail });
         });
     }
   };
+
+  public setValidateErrors(
+    errs: Record<string, string | undefined>,
+    all: string | string[] | boolean = true,
+  ) {
+    if (this._state.emitError) {
+      this.emit("validate-error", {
+        detail: { errors: errs, all },
+      });
+    } else {
+      this.errors(errs);
+    }
+  }
 
   public validateField(field: string | string[]) {
     const tacks: Promise<{ key: string; value: any }>[] = [];
@@ -203,7 +235,8 @@ export default class Form extends BaseComponent<FormState> {
             validResult[result.value.key] = undefined;
           }
         }
-        this.errors({ ...this.errors(), ...validResult });
+        const errors = { ...this.errors(), ...validResult };
+        this.setValidateErrors(errors, field);
       });
     }
   }
@@ -223,8 +256,19 @@ export default class Form extends BaseComponent<FormState> {
       this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
     } else {
       this.validate().then((valid) => {
-        if (valid) {
+        if (valid.result) {
           this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
+        } else {
+          if (this._state.emitError) {
+            this.emit("validate-error", {
+              detail: {
+                errors: valid.errors,
+                all: true,
+              },
+            });
+          } else {
+            this.errors(valid.errors);
+          }
         }
       });
     }
@@ -236,11 +280,15 @@ export default class Form extends BaseComponent<FormState> {
   public async validate() {
     try {
       await this.validator.validate(this._data || {});
-      this.errors({});
-      return Promise.resolve(true);
+      return Promise.resolve({
+        result: true,
+        errors: {},
+      });
     } catch (err: any) {
-      this.errors(err.detail);
-      return Promise.resolve(false);
+      return Promise.resolve({
+        result: false,
+        errors: err.detail,
+      });
     }
   }
 

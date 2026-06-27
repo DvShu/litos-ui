@@ -16,35 +16,116 @@ regist([Space]); // 表单按钮组的间距
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import { $one, on, off } from 'ph-utils/dom';
+  
+  let $form, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
+  let lang = 'zh';
+  let errors = {};
+  const i18n = {
+    zh: {
+      mobile_required: '手机号不能为空',
+      mobile_invalid: '请输入正确的手机号码',
+      password_required: '密码不能为空',
+      password_min6: '密码至少为6位',
+      password_invalid: '密码必须包含字母和数字'
+    },
+    en: {
+      mobile_required: 'Mobile is required',
+      mobile_invalid: 'Please enter a valid mobile number',
+      password_required: 'Password is required',
+      password_min6: 'Password length is at least 6 digits',
+      password_invalid: 'Password contain letters and numbers'
+    }
+  }
 
   function handlePositionChange(e) {
     const position = e.target.value;
-    const $form = $one('#positionForm');
-    $form.setAttribute('label-position', position);
+    const $posform = $one('#positionForm');
+    $posform.setAttribute('label-position', position);
+  }
+
+  function handleFormSubmit(event) {
+    const $target = event.target;
+    console.log($target.getData());
+  }
+
+  function handleCustomClick() {
+    const $customValidForm = $one('#customValidForm');
+    $customValidForm.setErrors({
+      name: '姓名不能为空',
+      password: '密码不能为空',
+      confimPassword: '确认密码不能为空',
+    });
+  }
+
+  function handleI18nSubmit(event) {
+    const $target = event.target;
+    errors = {};
+    console.log($target.getData());
+  }
+
+  function setI18nErrors() {
+    const showErrors = {};
+    for (const key in errors) {
+      const errorMessage = errors[key];
+      if (errorMessage) {
+        if (errorMessage in i18n[lang]) {
+          showErrors[key] = i18n[lang][errorMessage];
+        } else {
+          showErrors[key] = errorMessage;
+        }
+      }
+    }
+    $i18nForm.setErrors(showErrors);
+  }
+
+  function handleI18nError(event) {
+    const detail = event.detail;
+    const errs = detail.errors;
+    if (detail.all === true) {
+      errors = errs;
+    }
+    setI18nErrors(errs);
+  }
+
+  function handleLangChange(e) {
+    lang = e.detail.value;
+    if (Object.keys(errors).length) {
+      setI18nErrors(errors);
+    }
   }
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        const $form = $one('#lform');
-        $form.addEventListener('submit', (event) => {
-          const $target = event.target;
-          console.log($target.getData());
-        });
+        $form = $one('#lform');
+        on($form, 'submit', handleFormSubmit);
 
         // 自定义验证
-        const $customValidForm = $one('#customValidForm');
-        const $customSubmitBtn = $one('#customSubmit');
-        $customSubmitBtn.addEventListener('click', (event) => {
-          $customValidForm.setErrors({
-            name: '姓名不能为空',
-            password: '密码不能为空',
-            confimPassword: '确认密码不能为空',
-          });
-        });
-        
+        $customSubmitBtn = $one('#customSubmit');
+        on($customSubmitBtn, 'click', handleCustomClick);
 
-        const $positionRadio = $one('#positionRadio');
+        // 自定义验证 - 支持 i18n
+        $i18nForm = $one('#i18nForm');
+        $langCheck = $one("#langCheck");
+        $i18nForm.setSchemas([{
+          key: 'mobile', 
+          rules: [
+            { rule: 'required', message: 'mobile_required' },
+            { rule: 'mobile', message: 'mobile_invalid' },
+          ]
+        }, {
+          key: 'password',
+          rules: [
+            { rule: 'required', message: 'password_required' },
+            { rule: (v) => v.length >= 6, message: 'password_min6' },
+            { rule: /^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]{6,15})$/, message: 'password_invalid' }
+          ]
+        }]);
+        on($i18nForm, 'validate-error', handleI18nError);
+        on($i18nForm, 'submit', handleI18nSubmit);
+        on($langCheck, 'change', handleLangChange);
+
+        $positionRadio = $one('#positionRadio');
         on($positionRadio, 'change', handlePositionChange);
       }
     })
@@ -52,7 +133,19 @@ regist([Space]); // 表单按钮组的间距
 
   onUnmounted(() => {
     if (!import.meta.env.SSR) {
-      const $positionRadio = $one('#positionRadio');
+      if ($form) { 
+        off($form, 'submit', handleFormSubmit);
+      }
+      if ($customSubmitBtn) {
+        off($customSubmitBtn, 'click', handleCustomClick);
+      }
+      if ($i18nForm) {
+        off($i18nForm, 'validate-error', handleI18nError);
+        off($i18nForm, 'submit', handleI18nSubmit);
+      }
+      if ($langCheck) {
+        off($langCheck, 'change', handleLangChange);
+      }
       if ($positionRadio) {
         off($positionRadio, 'change', handlePositionChange);
       }
@@ -150,6 +243,138 @@ regist([Space]); // 表单按钮组的间距
 
 > 验证成功的字段，可以不传或者传递为 `undefined`、`null`
 > 当然也可以手动验证数据，然后分别调用输入框以及 `FormItem` 的 `setError({})` 方法设置错误
+
+### 验证多语言支持
+
+通过自定义验证的方式，可以配置多语言支持。通过调用 `Form` 的 `setSchemas` 方法，可以设置自定义验证规则; 然后给 `Form` 设置 `emit-error` 表明验证失败后，通过 `validate-error` 自定义事件来处理，传递验证失败的数据, 然后再通过 `setErrors` 传递自定义验证数据
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div>
+    <l-radio-group value="zh" id="langCheck">
+      <l-radio label="中文" value="zh" button></l-radio>
+      <l-radio label="En" value="en" button></l-radio>
+    </l-radio-group>
+    <hr/>
+    <l-form id="i18nForm" emit-error>
+      <l-form-item required label="手机号" prop="mobile">
+        <l-input placeholder="请输入手机号"></l-input>
+      </l-form-item>
+      <l-form-item required label="密码" prop="password">
+        <l-input placeholder="请输入密码" type="password"></l-input>
+      </l-form-item>
+      <l-form-item label="">
+        <l-button type="primary" html-type="submit">提交</l-button>
+      </l-form-item>
+    </l-form>
+  </div>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <div>
+    <l-radio-group value="zh" id="langCheck">
+      <l-radio label="中文" value="zh" button></l-radio>
+      <l-radio label="En" value="en" button></l-radio>
+    </l-radio-group>
+    <hr/>
+    <l-form id="i18nForm" emit-error>
+      <l-form-item required label="手机号" prop="mobile">
+        <l-input placeholder="请输入手机号"></l-input>
+      </l-form-item>
+      <l-form-item required label="密码" prop="password">
+        <l-input placeholder="请输入密码" type="password"></l-input>
+      </l-form-item>
+      <l-form-item label="">
+        <l-button type="primary" html-type="submit">提交</l-button>
+      </l-form-item>
+    </l-form>
+  </div>
+</textarea>
+<textarea lang="ts">
+  import { $one, on } from 'ph-utils/dom';
+  //-
+  let $i18nForm, $langCheck;
+  let lang = 'zh';
+  let errors = {};
+  const i18n = {
+    zh: {
+      mobile_required: '手机号不能为空',
+      mobile_invalid: '请输入正确的手机号码',
+      password_required: '密码不能为空',
+      password_min6: '密码至少为6位',
+      password_invalid: '密码必须包含字母和数字'
+    },
+    en: {
+      mobile_required: 'Mobile is required',
+      mobile_invalid: 'Please enter a valid mobile number',
+      password_required: 'Password is required',
+      password_min6: 'Password length is at least 6 digits',
+      password_invalid: 'Password contain letters and numbers'
+    }
+  }
+  //-
+  function handleI18nSubmit(event) {
+    const $target = event.target;
+    errors = {};
+    console.log($target.getData());
+  }
+  //-
+  function setI18nErrors() {
+    const showErrors = {};
+    for (const key in errors) {
+      const errorMessage = errors[key];
+      if (errorMessage) {
+        if (errorMessage in i18n[lang]) {
+          showErrors[key] = i18n[lang][errorMessage];
+        } else {
+          showErrors[key] = errorMessage;
+        }
+      }
+    }
+    $i18nForm.setErrors(showErrors);
+  }
+  //-
+  function handleI18nError(event) {
+    const detail = event.detail;
+    const errs = detail.errors;
+    if (detail.all === true) {
+      errors = errs;
+    }
+    setI18nErrors(errs);
+  }
+  //-
+  function handleLangChange(e) {
+    lang = e.detail.value;
+    if (Object.keys(errors).length) {
+      setI18nErrors(errors);
+    }
+  }
+  $i18nForm = $one('#i18nForm');
+  $langCheck = $one("#langCheck");
+  $i18nForm.setSchemas([{
+    key: 'mobile', 
+    rules: [
+      { rule: 'required', message: 'mobile_required' },
+      { rule: 'mobile', message: 'mobile_invalid' },
+  ]}, {
+    key: 'password',
+    rules: [
+      { rule: 'required', message: 'password_required' },
+      { rule: (v) => v.length >= 6, message: 'password_min6' },
+      { rule: /^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]{6,15})$/, message: 'password_invalid' }
+    ]
+  }]);
+  on($i18nForm, 'validate-error', handleI18nError);
+  on($i18nForm, 'submit', handleI18nSubmit);
+  on($langCheck, 'change', handleLangChange);
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+> 要求传递的 `key` 必须和 `FormItem` 的 `prop` 字段一致，否则不会生效
+> 传递的规则里，将 `message` 定义为一个唯一性的标记，用来标识自定义验证的错误信息
 
 ### `InnerBlock`
 
