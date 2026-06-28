@@ -602,42 +602,42 @@ export class Popover {
   _onOuterTap = (e: Event) => {
     const $target = e.target as HTMLElement;
     const isReference =
-      this.$reference && !this.$reference.contains($target) && this.$reference != $target
-        ? false
-        : true;
+      this.$reference && (this.$reference.contains($target) || this.$reference == $target)
+        ? true
+        : false;
     const isPopover =
       this.popoverElement &&
       (this.popoverElement.contains($target) || this.popoverElement == $target)
         ? true
         : false;
-    if (!isReference) {
-      // 判断是否点击的是 Popover
-      if (isPopover) {
-        // 点击的是 Popover
-        const [next, action, target] = shouldEventNext(e, "data-action", this.popoverElement);
-        if (next) {
-          let confirmAction = "";
-          if (action === "popconfirm-cancel") {
-            confirmAction = "cancel";
-          } else if (action === "popconfirm-ok") {
-            confirmAction = "ok";
-          }
-          if (confirmAction) {
-            this.hide();
-          }
-          if (this.options.onPopoverAction) {
-            this.options.onPopoverAction(confirmAction || action, target);
-          }
+    // 判断是否点击的是 Popover
+    if (isPopover) {
+      // 点击的是 Popover
+      const [next, action, target] = shouldEventNext(e, "data-action", this.popoverElement);
+      if (next) {
+        let confirmAction = "";
+        if (action === "popconfirm-cancel") {
+          confirmAction = "cancel";
+        } else if (action === "popconfirm-ok") {
+          confirmAction = "ok";
         }
-        return;
+        if (confirmAction) {
+          this.hide();
+        }
+        if (this.options.onPopoverAction) {
+          this.options.onPopoverAction(confirmAction || action, target);
+        }
       }
+      return;
+    }
+    if (!isReference) {
       if (this.options.trigger !== "manual") {
         this.hide();
         return;
       }
     }
-    if (this.options.onOutsideTap && !isPopover && isReference) {
-      this.options.onOutsideTap(e, !isReference, isPopover);
+    if (this.options.onOutsideTap) {
+      this.options.onOutsideTap(e, isReference, isPopover);
     }
   };
 

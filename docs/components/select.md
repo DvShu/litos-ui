@@ -48,7 +48,6 @@ regist([CloseFilledIcon]);
     const $target = e.target;
     if ($target.loading) return;
     $target.loading = true;
-    // $target.setAttribute('loading', 'on');
     setTimeout(() => {
       const searchValue = e.detail.value;
       const options = fruits.filter((item) => {
@@ -58,7 +57,6 @@ regist([CloseFilledIcon]);
       });
       $target.setOptions(options);
       $target.loading = false;
-      // $target.setAttribute('loading', 'off');
     }, 1500);
   }
 
@@ -71,7 +69,7 @@ regist([CloseFilledIcon]);
             el.setOptions(options);
           });
           $selects[0].value = 0;
-          $selects[7].setFilter(filter);
+          // $selects[7].setFilter(filter);
 
           $selects[8].setOptions([]);
           on($selects[8], 'search', handleSearch);

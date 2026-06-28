@@ -92,6 +92,7 @@ export default class Select extends FormInner<SelectState> {
 
   public setLoading(loading: boolean) {
     this._state.loading = loading;
+    if (!this.rendered) return;
     let $loading = $one(".l-select-loading", this.root);
     if (loading) {
       // 显示加载
@@ -189,6 +190,7 @@ export default class Select extends FormInner<SelectState> {
         break;
       case "label-field":
       case "value-field":
+      case "placeholder":
         this._state[name as "valueField"] = newValue;
         break;
       case "multiple":
@@ -197,6 +199,9 @@ export default class Select extends FormInner<SelectState> {
       case "collapse-tags":
       case "remote":
         this._state[kebabToCamel(name) as "multiple"] = parseAttrValue(newValue, false, name);
+        break;
+      case "loading":
+        this.setLoading(parseAttrValue(newValue, false, name));
         break;
     }
   }
@@ -247,13 +252,10 @@ export default class Select extends FormInner<SelectState> {
     if (isSelect) {
       optionElement.classList.add("l-select-option--selected");
       if (!$selectIcon) {
-        $$(
-          "l-select-icon",
-          {
-            class: "l-select-icon",
-          },
-          optionElement,
-        );
+        $selectIcon = $$("l-select-icon", {
+          class: "l-select-icon",
+        });
+        optionElement.appendChild($selectIcon);
       }
     } else {
       optionElement.classList.remove("l-select-option--selected");
@@ -338,13 +340,11 @@ export default class Select extends FormInner<SelectState> {
         return;
       }
       if (!$clearIcon) {
-        $$(
-          "l-close-filled-icon",
-          {
+        this.root.appendChild(
+          $$("l-close-filled-icon", {
             class: "l-select-clear",
             "data-action": "clear",
-          },
-          this.root,
+          }),
         );
       }
       this.classList.add("l-select--clearable");
@@ -376,9 +376,8 @@ export default class Select extends FormInner<SelectState> {
   }
 
   private _onRootTap = (e: Event) => {
-    console.log("root tap");
     e.stopPropagation();
-    const [next, action, target] = shouldEventNext(
+    const [next, action, _target] = shouldEventNext(
       e,
       "data-action",
       e.currentTarget as HTMLElement,
@@ -391,18 +390,12 @@ export default class Select extends FormInner<SelectState> {
         this._reRenderLabels();
         this._updatePopoverContent();
       } else {
+        // 删除多选标签
         const index = Number(action);
         this.selectedLabels.splice(index, 1);
         (this._value as any[]).splice(index, 1);
         this._updatePopoverContent();
-        if (this._state.collapseTags) {
-          this._reRenderLabels();
-        } else {
-          if (target.parentElement) {
-            target.parentElement.remove();
-            this._updateSearchValue();
-          }
-        }
+        this._reRenderLabels(); // 重新渲染标签
         if (this._searchEl) {
           this._searchEl.focus();
         }
@@ -473,6 +466,7 @@ export default class Select extends FormInner<SelectState> {
         placement: "bottom",
         popoverWidth: "trigger",
         trigger: "manual",
+        reference: this,
         theme: "select",
         disabled: this.isDisabled(),
         contentRender() {
@@ -488,7 +482,9 @@ export default class Select extends FormInner<SelectState> {
           this.setExpanded(isOpen);
         },
         onOutsideTap: (_e, isReference, isPopover) => {
-          if (!isPopover && !isReference) this._popover?.hide();
+          if (!isPopover && !isReference) {
+            this._popover?.hide();
+          }
         },
         onPopoverAction: (action, target) => {
           if (action && this._options) {
@@ -532,7 +528,6 @@ export default class Select extends FormInner<SelectState> {
             }
             this._value = oldValue;
             this.selectedLabels = oldLabels;
-
             const isSelect = this._isOptionSelect(value);
             if (!this._state.multiple) {
               // 单选移除之前的选中态
