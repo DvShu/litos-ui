@@ -5,7 +5,7 @@ import type { FormItemSignal, FormSignal } from "./types";
 import { effect } from "alien-signals";
 
 export default class FormInner<T = Record<string, any>> extends BaseComponent<T> {
-  public disabled = false;
+  public _disabled = false;
   public _value: any = undefined;
   public _resetValue?: any; // 重置值(即初始化值)
   protected _firstPushValue = true; // 初始化时是否推送数据到 Form
@@ -68,7 +68,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         this[name] = newValue;
         break;
       case "disabled":
-        this.disabled = parseAttrValue(newValue, false, name);
+        this.setDisabled(parseAttrValue(newValue, false, name));
         break;
       case "inner-block":
         const innerBlock = parseAttrValue(newValue, false, name);
@@ -138,7 +138,20 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   }
 
   public isDisabled() {
-    return this.disabled;
+    return this._disabled;
+  }
+
+  public get disabled() {
+    return this._disabled;
+  }
+
+  public set disabled(value: boolean) {
+    this.setDisabled(value);
+  }
+
+  public setDisabled(value: boolean) {
+    this._disabled = value;
+    this.disabledChange();
   }
 
   public getName() {

@@ -128,7 +128,7 @@ regist([CloseFilledIcon]);
 
 > 也可以通过 `l-form-item` 或 `l-form-item` 组件的 `disabled` 属性设置禁用状态
 
-### 多选用
+### 多选
 
 设置 `multiple` 属性即可启用多选，默认情况下选中值会以 `Tag` 组件的形式展现， 你也可以设置 `collapse-tags` 属性将它们合并为一段文字。
 

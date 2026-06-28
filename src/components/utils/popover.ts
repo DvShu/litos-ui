@@ -603,19 +603,14 @@ export class Popover {
     const $target = e.target as HTMLElement;
     const isReference =
       this.$reference && !this.$reference.contains($target) && this.$reference != $target
-        ? true
-        : false;
+        ? false
+        : true;
     const isPopover =
       this.popoverElement &&
       (this.popoverElement.contains($target) || this.popoverElement == $target)
         ? true
         : false;
-    if (this.options.trigger !== "manual" && !isReference) {
-      // 点击的是触发区域外
-      if (this.options.trigger === "focus") {
-        this.hide();
-        return;
-      }
+    if (!isReference) {
       // 判断是否点击的是 Popover
       if (isPopover) {
         // 点击的是 Popover
@@ -636,9 +631,12 @@ export class Popover {
         }
         return;
       }
-      this.hide();
+      if (this.options.trigger !== "manual") {
+        this.hide();
+        return;
+      }
     }
-    if (this.options.onOutsideTap) {
+    if (this.options.onOutsideTap && !isPopover && isReference) {
       this.options.onOutsideTap(e, !isReference, isPopover);
     }
   };

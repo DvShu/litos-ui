@@ -191,6 +191,13 @@ export default class Select extends FormInner<SelectState> {
       case "value-field":
         this._state[name as "valueField"] = newValue;
         break;
+      case "multiple":
+      case "clearable":
+      case "filterable":
+      case "collapse-tags":
+      case "remote":
+        this._state[kebabToCamel(name) as "multiple"] = parseAttrValue(newValue, false, name);
+        break;
     }
   }
 
@@ -216,7 +223,6 @@ export default class Select extends FormInner<SelectState> {
   }
 
   public setOptions(options: SelectOption[] | undefined): void {
-    console.log(options);
     this._options = options;
     this._backOptions = [...(options || [])];
     if (this._popover && this._state.expanded) {
@@ -370,6 +376,7 @@ export default class Select extends FormInner<SelectState> {
   }
 
   private _onRootTap = (e: Event) => {
+    console.log("root tap");
     e.stopPropagation();
     const [next, action, target] = shouldEventNext(
       e,
@@ -480,6 +487,9 @@ export default class Select extends FormInner<SelectState> {
         onOpenChange: (isOpen) => {
           this.setExpanded(isOpen);
         },
+        onOutsideTap: (_e, isReference, isPopover) => {
+          if (!isPopover && !isReference) this._popover?.hide();
+        },
         onPopoverAction: (action, target) => {
           if (action && this._options) {
             const index = Number(action);
@@ -515,8 +525,14 @@ export default class Select extends FormInner<SelectState> {
               oldValue = value;
               oldLabels = [label];
             }
+            if (this._value != oldValue) {
+              this.emit("change", {
+                detail: { value: oldValue, labels: oldLabels }, // 兼容旧版本写法
+              });
+            }
             this._value = oldValue;
             this.selectedLabels = oldLabels;
+
             const isSelect = this._isOptionSelect(value);
             if (!this._state.multiple) {
               // 单选移除之前的选中态
