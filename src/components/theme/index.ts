@@ -117,7 +117,7 @@ export default class Theme extends BaseComponent {
     if (this.type === "button") {
       this.#updateButtonChild(this.#$inner as any);
     }
-    this.dispatchEvent(new CustomEvent("change", { detail: newTheme }));
+    this.emit("change", { detail: newTheme });
   };
 
   #initEvents() {

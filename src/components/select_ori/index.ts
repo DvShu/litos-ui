@@ -42,12 +42,12 @@ export default class SelectOri extends FormInner {
   }
 
   render() {
-    let $children = this.innerHTML.trim();
+    const children = this.innerHTML.trim();
     const attrs = tagAttrs([
       ["name", this.getName()],
       ["disabled", this.isDisabled()],
     ]);
-    return `<select class="l-input__inner"${attrs}>${$children}</select>`;
+    return `<select class="l-input__inner"${attrs}>${children}</select>`;
   }
 
   protected disabledChange(): void {
@@ -90,6 +90,6 @@ export default class SelectOri extends FormInner {
   private _handleChange = (e: Event) => {
     const value = (e.target as HTMLSelectElement).value;
     super.setValue(value);
-    this.dispatchEvent(new CustomEvent("change", { detail: value }));
+    this.emit("change", { detail: value });
   };
 }

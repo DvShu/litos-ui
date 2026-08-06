@@ -297,7 +297,7 @@ export default class Modal extends BaseComponent<ModalState> {
         this.#destroy();
       }
       this.classList.remove("open");
-      this.dispatchEvent(new CustomEvent("close"));
+      this.emit("close");
     });
     const $mask = $one(".l-mask", this.root);
     if ($mask) {

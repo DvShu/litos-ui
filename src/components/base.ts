@@ -44,7 +44,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     }
   }
 
-  protected attributeChanged(name: string, oldValue: string, newValue: string) {}
+  protected attributeChanged(_name: string, _oldValue: string, _newValue: string) {}
 
   cancelPending() {
     if (this._pendingTask) {
@@ -221,7 +221,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
    */
   emit(name: string, eventOption?: Partial<CustomEventInit>) {
     return this.dispatchEvent(
-      new CustomEvent(name, { bubbles: true, composed: false, ...eventOption }),
+      new CustomEvent(name, { bubbles: true, composed: true, ...eventOption }),
     );
   }
 

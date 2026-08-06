@@ -56,6 +56,6 @@ export default class ColorPicker extends FormInner {
   private _handleChange = (e: Event) => {
     const value = (e.target as HTMLInputElement).value;
     super.setValue(value);
-    this.dispatchEvent(new CustomEvent("change", { detail: value }));
+    this.emit("change", { detail: value });
   };
 }

@@ -5,3 +5,4 @@ lib
 scripts/version.js
 scripts/version.sh
 dist
+.mimocode

@@ -253,11 +253,11 @@ export default class Form extends BaseComponent<FormState> {
 
   public submit() {
     if (this._state.novalidate) {
-      this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
+      this.emit("submit", { detail: this.getData() });
     } else {
       this.validate().then((valid) => {
         if (valid.result) {
-          this.dispatchEvent(new CustomEvent("submit", { detail: this.getData() }));
+          this.emit("submit", { detail: this.getData() });
         } else {
           if (this._state.emitError) {
             this.emit("validate-error", {
