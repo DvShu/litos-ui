@@ -13,7 +13,7 @@ import "litos-ui/styles/message.css";
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import { elem, iterate, on } from 'ph-utils/dom';
+  import { elem, iterate, on } from 'ph-utils/browser';
   import LMessage from '../../src/components/message'
 
   let $btns;
@@ -68,7 +68,7 @@ import "litos-ui/styles/message.css";
 </textarea>
 <textarea lang="js">
   import { Message } from 'litos-ui';
-  import { elem, on } from 'ph-utils/dom';
+  import { elem, on } from 'ph-utils/browser';
   //-
   on(elem('l-button')[0], 'click', () => {
     Message.show({ message: '这是一条普通的提示信息' });

@@ -16,7 +16,7 @@ import "litos-ui/styles/loading.css";
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import Loading from '../../src/components/loading';
-  import { on, off, $one } from 'ph-utils/dom';
+  import { on, off, $one } from 'ph-utils/browser';
 
   function handleLoading() {
     Loading.init('loading3');

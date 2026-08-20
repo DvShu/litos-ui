@@ -3,15 +3,7 @@ import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import type { Column, SortOption } from "./types";
-import {
-  $$,
-  $one,
-  formatStyle,
-  iterate,
-  on,
-  off,
-  shouldEventNext
-} from "ph-utils/dom";
+import { $$, $one, formatStyle, iterate, on, off, shouldEventNext } from "ph-utils/browser";
 import { random } from "ph-utils";
 
 type ChangeFixedParams = {
@@ -61,7 +53,7 @@ export default class Table extends BaseComponent {
     this.data = data;
     this.sortInfo = sortInfo;
     if (this.columns && this.columns.length > 0) {
-      this.rerender(sortInfo ? 'all' : "body");
+      this.rerender(sortInfo ? "all" : "body");
     }
   }
 
@@ -91,11 +83,7 @@ export default class Table extends BaseComponent {
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name
-    ) as any;
+    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
       switch (name) {
@@ -113,7 +101,7 @@ export default class Table extends BaseComponent {
           this._changeMaxHeight();
           break;
         case "tableLayout":
-          this._changeCssVar("table-layout", parsedValue);
+          this._changeCssVar("layout", parsedValue);
           break;
       }
     }
@@ -233,20 +221,20 @@ export default class Table extends BaseComponent {
     $th.appendChild(
       $$("span", {
         textContent: column.title,
-      })
+      }),
     );
     if (column.sorter) {
       // 排序，显示排序图标
       const $caret = $$("span", { class: "caret-wrapper" });
       $caret.appendChild($$("span", { class: "sort-caret ascending" }));
       $caret.appendChild($$("span", { class: "sort-caret descending" }));
-      $th.classList.add('sort-column');
-      $th.setAttribute('data-action', 'sort');
-      $th.setAttribute('data-col', `${index}`);
+      $th.classList.add("sort-column");
+      $th.setAttribute("data-action", "sort");
+      $th.setAttribute("data-col", `${index}`);
       $th.appendChild($caret);
     }
     if (this.sortInfo && this.sortInfo.key === column.key) {
-      $th.classList.add(this.sortInfo.order === 'asc' ? 'sort-asc' : 'sort-desc');
+      $th.classList.add(this.sortInfo.order === "asc" ? "sort-asc" : "sort-desc");
     }
     return $th;
   }
@@ -277,12 +265,7 @@ export default class Table extends BaseComponent {
     return $tbody;
   }
 
-  private _bodyRowRender(
-    columns: Column[],
-    rowIndex: number,
-    rowData: any,
-    tr: HTMLElement
-  ) {
+  private _bodyRowRender(columns: Column[], rowIndex: number, rowData: any, tr: HTMLElement) {
     for (let i = 0, len = columns.length; i < len; i++) {
       const column = columns[i];
       if (column.children && column.children.length > 0) {
@@ -333,11 +316,7 @@ export default class Table extends BaseComponent {
    * @param rightOffset 右边固定列偏移
    * @returns
    */
-  private _parseColumns(
-    columns: Column[],
-    leftOffset: number,
-    rightOffset: number
-  ): Column[] {
+  private _parseColumns(columns: Column[], leftOffset: number, rightOffset: number): Column[] {
     const result: Column[] = [];
     for (let i = 0, len = columns.length; i < len; i++) {
       const column = columns[i];
@@ -360,11 +339,7 @@ export default class Table extends BaseComponent {
       }
       // 如果有多级表头, 递归解析
       if (column.children) {
-        const childrenColumns = this._parseColumns(
-          column.children,
-          leftOffset,
-          rightOffset
-        );
+        const childrenColumns = this._parseColumns(column.children, leftOffset, rightOffset);
         column.titleRowspan = column.titleRowspan || 1;
         if (!column.titleColspan) {
           column.titleColspan = childrenColumns.reduce((prev, cur) => {
@@ -436,21 +411,21 @@ export default class Table extends BaseComponent {
     const [isNext, action, target] = shouldEventNext(
       e,
       "data-action",
-      e.currentTarget as HTMLElement
+      e.currentTarget as HTMLElement,
     );
     if (isNext) {
       const dataset = target.dataset;
-      if (action === 'sort') {
+      if (action === "sort") {
         const colIndex = parseInt(dataset.col as string);
         const sortCol = (this.columns as Column[])[colIndex];
         // 排序方向
-        const sortDir = (this.sortInfo && this.sortInfo.order === 'desc') ? 'asc' : 'desc';
+        const sortDir = this.sortInfo && this.sortInfo.order === "desc" ? "asc" : "desc";
         this.sortInfo = { key: sortCol.key as string, order: sortDir };
-        if (sortCol.sorter === 'custom') {
-          this.emit("sort", { detail: { index:colIndex, key: sortCol.key, dir: sortDir } });
+        if (sortCol.sorter === "custom") {
+          this.emit("sort", { detail: { index: colIndex, key: sortCol.key, dir: sortDir } });
         } else {
           this.data = this._dataSort();
-          this.rerender('all');
+          this.rerender("all");
         }
       } else {
         this.emit(action, { detail: dataset });
@@ -474,7 +449,7 @@ export default class Table extends BaseComponent {
     return this.data.sort((a, b) => {
       const aValue = a[key];
       const bValue = b[key];
-      if (order === 'asc') return aValue - bValue;
+      if (order === "asc") return aValue - bValue;
       return bValue - aValue;
     });
   }

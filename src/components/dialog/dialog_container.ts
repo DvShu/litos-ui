@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 //@ts-ignore
 import css from "./dialog_container.css?inline";
-import { $$, formatClass, $one, $, iterate, on, off, shouldEventNext } from "ph-utils/dom";
+import { $$, formatClass, $one, $, iterate, on, off, shouldEventNext } from "ph-utils/browser";
 
 type DialogContainerState = {
   /** 是否显示标题栏 */

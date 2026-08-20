@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$, on, off, shouldEventNext } from "ph-utils/dom";
+import { $$, on, off, shouldEventNext } from "ph-utils/browser";
 import { isBlank } from "ph-utils";
 
 export default class PageHeader extends BaseComponent {

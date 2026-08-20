@@ -15,7 +15,7 @@ regist(CloseIcon); // 需要 closable 引入
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { transition } from 'ph-utils/dom';
+  import { transition } from 'ph-utils/browser';
 
   let $addBtn;
   let $tagContainer;
@@ -117,7 +117,7 @@ regist(CloseIcon); // 需要 closable 引入
   <div id="tag-container"></div>
 </textarea>
 <textarea lang="js">
-  import { transition } from 'ph-utils/dom';
+  import { transition } from 'ph-utils/browser';
   //-
   function handleAddTag() {
     if ($tagContainer) {

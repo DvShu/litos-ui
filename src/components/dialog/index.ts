@@ -6,7 +6,7 @@ import {
   addClass,
   removeClass,
   getAttr,
-} from "ph-utils/dom";
+} from "ph-utils/browser";
 
 type DialogProps = {
   /** 对话框在垂直方向位置 */

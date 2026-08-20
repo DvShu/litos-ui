@@ -10,8 +10,8 @@ import {
   on,
   off,
   shouldEventNext,
-} from "ph-utils/dom";
-import { debounce } from "ph-utils/web";
+} from "ph-utils/browser";
+import { debounce } from "ph-utils/browser";
 import { parseAttrValue } from "../utils";
 import AutoPlayTimer from "./timer";
 import type { AutoPlayTimerT } from "./timer";

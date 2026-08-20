@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel, unitNumberStr } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$, on, off, iterate } from "ph-utils/dom";
+import { $$, on, off } from "ph-utils/browser";
 import { signal } from "alien-signals";
 import type { CollapseContext } from "./types";
 

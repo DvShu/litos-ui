@@ -1,4 +1,4 @@
-import { on, off, $, iterate, $one } from "ph-utils/dom";
+import { on, off, $, iterate, $one } from "ph-utils/browser";
 
 function init() {
   let $tabs = $(".l-tabs") as HTMLElement[];

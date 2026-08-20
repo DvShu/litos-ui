@@ -1,6 +1,6 @@
 import FormInner from "../form/form_inner";
 import { tagAttrs } from "../utils";
-import { $one, off, on } from "ph-utils/dom";
+import { $one, off, on } from "ph-utils/browser";
 //@ts-ignore
 import inputcss from "../input/input_inner.less?inline";
 import css from "./index.less?inline";

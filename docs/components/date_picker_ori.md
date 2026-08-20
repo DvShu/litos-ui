@@ -14,7 +14,7 @@ regist(DatePicker);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
 
   let $picker;
 
@@ -60,7 +60,7 @@ regist(DatePicker);
   <l-date-picker-ori type="week"></l-date-picker-ori>
 </textarea>
 <textarea lang="js">
-  import { on, $ } from 'ph-utils/dom';
+  import { on, $ } from 'ph-utils/browser';
   //-
   const $pickers = $('l-date-picker');
   on($pickers, 'change', (e) => {

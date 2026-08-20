@@ -9,7 +9,7 @@ import {
   hasClass,
   addClass,
   removeClass,
-} from "ph-utils/dom";
+} from "ph-utils/browser";
 
 export default class DescriptionPanel extends BaseComponent {
   public static baseName = "description-panel";

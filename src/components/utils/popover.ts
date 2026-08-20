@@ -1,4 +1,4 @@
-import { $one, on, off, $, iterate, $$, shouldEventNext } from "ph-utils/dom";
+import { $one, on, off, $, iterate, $$, shouldEventNext } from "ph-utils/browser";
 
 /**
  * 根据给定的目标元素矩形、弹出层矩形、主轴对齐方式、交叉轴对齐方式、偏移量和轴方向，计算弹出层相对于目标元素的偏移量。

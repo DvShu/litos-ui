@@ -1,6 +1,6 @@
 import { icons } from "../icons";
-import { $one, on, off, shouldEventNext } from "ph-utils/dom";
-import { copy } from "ph-utils/copy";
+import { $one, on, off, shouldEventNext } from "ph-utils/browser";
+import { copy } from "ph-utils/browser";
 import Message from "../components/message";
 
 export default class IconList extends HTMLElement {

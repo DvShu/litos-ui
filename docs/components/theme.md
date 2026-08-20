@@ -39,7 +39,7 @@ regist([Radio, RadioGroup]);
 ::: code-group
 
 ```js [main.ts]
-import { initTheme } from "ph-utils/theme";
+import { initTheme } from "ph-utils/browser";
 
 initTheme().then();
 ```
@@ -66,7 +66,7 @@ initTheme().then();
 
 ```javascript
 // main.js
-import { initTheme } from "ph-utils/theme";
+import { initTheme } from "ph-utils/browser";
 
 // await initTheme();
 initTheme().then();
@@ -97,7 +97,7 @@ initTheme().then();
   </l-radio-group>
 </textarea>
 <textarea lang="js">
-  import { applyTheme } from "ph-utils/theme";
+  import { applyTheme } from "ph-utils/browser";
   //-
   const $radio = document.querySelector('#customThemeRadio');
   //-
@@ -186,7 +186,7 @@ initTheme().then();
 
 ```javascript
 // main.js
-import { initColorTheme } from "ph-utils/theme";
+import { initColorTheme } from "ph-utils/browser";
 
 initColorTheme().then();
 ```

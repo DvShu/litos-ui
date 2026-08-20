@@ -11,7 +11,7 @@ import {
   $one,
   addClass,
   removeClass,
-} from "ph-utils/dom";
+} from "ph-utils/browser";
 
 export default class ImageHTML extends BaseComponent {
   public static baseName = "image";

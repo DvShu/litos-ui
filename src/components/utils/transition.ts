@@ -1,4 +1,4 @@
-import { iterate, transition, $ } from "ph-utils/dom";
+import { iterate, transition, $ } from "ph-utils/browser";
 
 /**
  * 初始化元素过渡, 同时会监听 l-transition-emit 变化自动执行隐藏动画, show - 显示元素, hide - 隐藏元素

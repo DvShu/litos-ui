@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue, tagAttr, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { formatClass, on, off, shouldEventNext, $one } from "ph-utils/dom";
+import { formatClass, on, off, shouldEventNext, $one } from "ph-utils/browser";
 
 export default class Pagination extends BaseComponent {
   public static baseName = "pagination";

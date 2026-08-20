@@ -1,10 +1,10 @@
 import { parseAttrValue, kebabToCamel, unitNumberStr } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/dom";
+import { $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/browser";
 import FormInner from "../form/form_inner";
 import { Popover } from "../utils/popover";
-import { debounce } from "ph-utils/web";
+import { debounce } from "ph-utils/browser";
 
 export type SelectOption = {
   class?: string;

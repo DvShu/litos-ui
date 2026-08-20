@@ -3,8 +3,8 @@ import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import { isBlank } from "ph-utils";
-import { adjust } from "ph-utils/color";
-import { $$, shouldEventNext, on, off, $one } from "ph-utils/dom";
+import { adjust } from "ph-utils";
+import { $$, shouldEventNext, on, off, $one } from "ph-utils/browser";
 
 export default class Tag extends BaseComponent {
   public static baseName = "tag";

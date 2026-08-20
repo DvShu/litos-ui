@@ -1,7 +1,7 @@
 import FormInner from "../form/form_inner";
 import css from "./index.less?inline";
 import inputCss from "../input/input_inner.less?inline";
-import { $$, on, off } from "ph-utils/dom";
+import { $$, on } from "ph-utils/browser";
 import { unitNumberStr } from "../utils";
 import { Popover } from "../utils/popover";
 

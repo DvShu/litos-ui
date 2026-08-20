@@ -11,7 +11,7 @@ import {
   addClass,
   shouldEventNext,
   $$,
-} from "ph-utils/dom";
+} from "ph-utils/browser";
 //@ts-ignore
 import css from "./index.less?inline";
 

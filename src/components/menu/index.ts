@@ -1,4 +1,4 @@
-import { $$, on, $one, off, $, iterate } from "ph-utils/dom";
+import { $$, on, $one, off, $, iterate } from "ph-utils/browser";
 import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
 import css from "./index.less?inline";

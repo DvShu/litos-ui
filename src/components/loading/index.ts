@@ -1,5 +1,4 @@
-import { $one, hasClass, addClass, $$, $, iterate } from "ph-utils/dom";
-import { clear } from "ph-utils/storage";
+import { $one, hasClass, addClass, $$, $, iterate } from "ph-utils/browser";
 
 type LoadingInstanceParams = {
   /** 是否全屏显示, 默认: true */

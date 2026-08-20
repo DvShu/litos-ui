@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
-import { $one, create, off, on } from "ph-utils/dom";
-import { getTheme, applyTheme } from "ph-utils/theme";
+import { $one, create, off, on } from "ph-utils/browser";
+import { getTheme, applyTheme } from "ph-utils/browser";
 //@ts-ignore
 import css from "./index.less?inline";
 

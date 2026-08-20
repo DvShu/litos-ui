@@ -1,6 +1,6 @@
 import { codeToHtml } from "shiki";
 import { random } from "ph-utils";
-import { elem, getAttr } from "ph-utils/dom";
+import { elem, getAttr } from "ph-utils/browser";
 
 export default class SourceCode extends HTMLElement {
   async connectedCallback() {

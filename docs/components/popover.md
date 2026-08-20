@@ -19,7 +19,7 @@ const popover = new Popover();
 <script setup>
   import { Popover, popconfirmProps, createPopoverObserver } from '../../src/components/utils/popover';
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { transition } from 'ph-utils/dom';
+  import { transition } from 'ph-utils/browser';
 
   let popover;
   let popover1;
@@ -408,7 +408,7 @@ new Popover({
 </textarea>
 <textarea lang="js">
   import { createPopoverObserver, Popover } from 'litos-ui';
-  import { transition } from 'ph-utils/dom';
+  import { transition } from 'ph-utils/browser';
   //-
   let tagGroup = document.getElementById('tagGroup');
   let addTagBtn = document.getElementById('addTag');

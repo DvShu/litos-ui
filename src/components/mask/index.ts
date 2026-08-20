@@ -12,7 +12,7 @@ import {
   on,
   off,
   shouldEventNext,
-} from "ph-utils/dom";
+} from "ph-utils/browser";
 
 export default class Mask extends BaseComponent {
   public static baseName = "mask";

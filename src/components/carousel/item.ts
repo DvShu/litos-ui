@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { $$ } from "ph-utils/dom";
+import { $$ } from "ph-utils/browser";
 //@ts-ignore
 import css from "./item.less?inline";
 

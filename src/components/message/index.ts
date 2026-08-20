@@ -1,5 +1,5 @@
 import { useId, regist } from "../utils";
-import { transition } from "ph-utils/dom";
+import { transition } from "ph-utils/browser";
 import MaskClose from "../icon/close_filled";
 import Success from "../icon/success";
 import Warn from "../icon/warn";

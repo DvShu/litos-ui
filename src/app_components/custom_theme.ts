@@ -1,5 +1,5 @@
-import { on, $one, off } from "ph-utils/dom";
-import { getTheme, toggleTheme } from "ph-utils/theme";
+import { on, $one, off } from "ph-utils/browser";
+import { getTheme, toggleTheme } from "ph-utils/browser";
 
 export default class CustomTheme extends HTMLElement {
   connectedCallback() {

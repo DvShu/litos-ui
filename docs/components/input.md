@@ -13,7 +13,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
 
   let $input;
 
@@ -92,7 +92,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
   <l-input id="input" placeholder="请输入正整数"></l-input>
 </textarea>
 <textarea lang="ts">
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
   //-
   function numericParse(value) {
     let val = parseInt(value, 10)

@@ -1,4 +1,4 @@
-import { elem, on, text } from "ph-utils/dom";
+import { elem, on, text } from "ph-utils/browser";
 
 export default class CodePreview extends HTMLElement {
   private handleCollapse: (e: Event) => void;

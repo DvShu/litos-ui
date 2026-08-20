@@ -1,4 +1,4 @@
-import { getAttr } from "ph-utils/dom";
+import { getAttr } from "ph-utils/browser";
 
 export default class BaseComponent<T = Record<string, any>> extends HTMLElement {
   static baseName = "base-component";
@@ -68,7 +68,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     });
   }
 
-  protected updateDOM(changedProps: Set<string>) {}
+  protected updateDOM(_changedProps: Set<string>) {}
 
   /** @deprecated */
   get shadow() {

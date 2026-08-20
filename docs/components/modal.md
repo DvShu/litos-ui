@@ -17,7 +17,7 @@ regist(CloseIcon);
 ## 演示
 
 <script setup>
-  import { $one, on, off, $, iterate, $$ } from 'ph-utils/dom';
+  import { $one, on, off, $, iterate, $$ } from 'ph-utils/browser';
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import LModalBox from '../../src/components/modal/modal_box'
 

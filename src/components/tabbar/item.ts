@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./item.less?inline";
-import { $one, $$, addClass, removeClass } from "ph-utils/dom";
+import { $one, $$, addClass, removeClass } from "ph-utils/browser";
 
 export default class TabbarItem extends BaseComponent {
   public static baseName = "tabbar-item";

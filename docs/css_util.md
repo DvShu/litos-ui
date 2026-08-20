@@ -4,7 +4,7 @@
 
 <script setup>
   import { nextTick, onMounted, onUnmounted } from 'vue';
-  import { $, $one, on, off, iterate } from 'ph-utils/dom';
+  import { $, $one, on, off, iterate } from 'ph-utils/browser';
   import { createTransition } from '../src/components/utils/transition';
 
   const trans = createTransition();
@@ -69,7 +69,7 @@ import "litos-ui/styles/transition.css";
   <span l-transition="l-opacity" class="ml-10">Hello world</span>
 </textarea>
 <textarea lang="js">
-  import { $one, on } from 'ph-utils/dom';
+  import { $one, on } from 'ph-utils/browser';
   //-
   on($one('#toggle'), 'click', (e) => {
     const $target = $one('[l-transition]');
@@ -103,7 +103,7 @@ import "litos-ui/styles/transition.css";
   <div l-transition="l-fadein" class="ml-10 inline" style="--l-fadein-offset:-50px;">Hello world</div>
 </textarea>
 <textarea lang="js">
-  import { $one, on } from 'ph-utils/dom';
+  import { $one, on } from 'ph-utils/browser';
   //-
   on($one('#toggle'), 'click', (e) => {
     const $target = $one('[l-transition]');
@@ -135,7 +135,7 @@ import "litos-ui/styles/transition.css";
   <div l-transition="l-scale" class="ml-10 inline">Hello world</div>
 </textarea>
 <textarea lang="js">
-  import { $one, on } from 'ph-utils/dom';
+  import { $one, on } from 'ph-utils/browser';
   //-
   on($one('#toggle'), 'click', (e) => {
     const $target = $one('[l-transition]');

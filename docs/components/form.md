@@ -15,7 +15,7 @@ regist([Space]); // 表单按钮组的间距
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
   
   let $form, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
   let lang = 'zh';
@@ -224,7 +224,7 @@ regist([Space]); // 表单按钮组的间距
   </l-form>
 </textarea>
 <textarea lang="ts">
-  import { $one } from 'ph-utils/dom';
+  import { $one } from 'ph-utils/browser';
   //-
   // 自定义验证
   const $customValidForm = $one('#customValidForm');
@@ -292,7 +292,7 @@ regist([Space]); // 表单按钮组的间距
   </div>
 </textarea>
 <textarea lang="ts">
-  import { $one, on } from 'ph-utils/dom';
+  import { $one, on } from 'ph-utils/browser';
   //-
   let $i18nForm, $langCheck;
   let lang = 'zh';

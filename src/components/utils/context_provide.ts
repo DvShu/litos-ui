@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { on, off } from 'ph-utils/dom'
+import { on, off } from 'ph-utils/browser'
 
 export default class ContextProvide<T, V> extends BaseComponent<V> {
 

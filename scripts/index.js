@@ -1,6 +1,6 @@
 import { mkdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { write } from "ph-utils/file";
+import { write } from "ph-utils/node";
 import { snakeCaseStyle } from "ph-utils";
 import { styleText } from "node:util";
 

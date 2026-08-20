@@ -14,7 +14,7 @@ regist(Switch);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
 
   let $customSwitch;
 

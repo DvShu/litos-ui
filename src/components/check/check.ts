@@ -1,7 +1,7 @@
 import { effect } from "alien-signals";
 import FormInner from "../form/form_inner";
 import { parseAttrValue, stopSignal } from "../utils";
-import { $$, on, off, addClass, toggleClass, removeClass } from "ph-utils/dom";
+import { $$, on, off, addClass, toggleClass, removeClass } from "ph-utils/browser";
 
 type CheckState = {
   /** 是否为按钮样式 */

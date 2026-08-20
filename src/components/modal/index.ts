@@ -5,7 +5,7 @@ import css from "./index.less?inline";
 // @ts-ignore
 import maskCss from "../styles/mask.css?inline";
 
-import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/dom";
+import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils/index";
 
 type ModalState = {

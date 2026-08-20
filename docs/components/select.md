@@ -33,7 +33,7 @@ regist([CloseFilledIcon]);
 ## 演示
 
 <script setup>
-  import { $, iterate, on, off } from 'ph-utils/dom';
+  import { $, iterate, on, off } from 'ph-utils/browser';
   import { onMounted, onUnmounted, nextTick } from 'vue';
   const fruits = ["苹果", "香蕉", "橙子", "葡萄", "柠檬", "草莓", "樱桃", "芒果", "猕猴桃", "杨梅", "菠萝", "西瓜", "哈密瓜", "桃子", "梨", "柿子", "榴莲", "椰子", "龙眼", "荔枝"];
   const options = fruits.map((item, i) => { return { value: i, label: item } });

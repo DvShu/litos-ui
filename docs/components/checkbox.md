@@ -14,7 +14,7 @@ regist([Checkbox]);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
 
   let $allCheck;
   let $group;
@@ -160,7 +160,7 @@ regist([Checkbox]);
   </l-checkbox-group>
 </textarea>
 <textarea lang="ts">
-  import { $one, on, off } from 'ph-utils/dom';
+  import { $one, on, off } from 'ph-utils/browser';
   //-
   function handleGroupChange(e) {
     const valueLen = e.detail.value.length;

@@ -1,5 +1,5 @@
 import FormInner from "../form/form_inner";
-import { on, off, $$ } from "ph-utils/dom";
+import { on, off, $$ } from "ph-utils/browser";
 //@ts-ignore
 import css from "./index.less?inline";
 import { unitNumberStr } from "../utils";

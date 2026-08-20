@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { parseAttrValue, stopSignal } from "../utils";
-import { getAttr } from "ph-utils/dom";
+import { getAttr } from "ph-utils/browser";
 import type { FormItemSignal, FormSignal } from "./types";
 import { effect } from "alien-signals";
 

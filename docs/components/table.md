@@ -16,7 +16,7 @@ regist(Table);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick  }  from 'vue';
-  import { $, iterate, $$, on, off } from 'ph-utils/dom'
+  import { $, iterate, $$, on, off } from 'ph-utils/browser'
 
   let $tables;
 
@@ -172,7 +172,7 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'ph-utils/dom';
+  import { on, $$ } from 'ph-utils/browser';
   //-
   const $table = $('.data-table');
   //-
@@ -297,7 +297,7 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'ph-utils/dom';
+  import { on, $$ } from 'ph-utils/browser';
   //-
   const $table = $('.data-table');
   //-
@@ -373,8 +373,8 @@ regist(Table);
 | `border` | 是否显示四周边框 | `boolean` | `false` |
 | `fixed-head` | 是否固定表头 | `boolean` | `false` |
 | `fixed-column` | 是否固定列，在进行列解析时，会自动确认该属性 | `boolean` | `false` |
-| `max-height` | 最大高度 | `number \| string` | `undefined` |
-| `table-layout` | 表格布局 | `"auto" \| "fixed"` | `undefined` |
+| `max-height` | 最大高度 | `number \| string` | `-` |
+| `table-layout` | 表格布局 | `"auto" \| "fixed"` | `-` |
 
 ### Table Column Attributes
 

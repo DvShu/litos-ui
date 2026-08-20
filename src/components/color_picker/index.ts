@@ -1,4 +1,4 @@
-import { $one, on, off } from "ph-utils/dom";
+import { $one, on, off } from "ph-utils/browser";
 import FormInner from "../form/form_inner";
 import { initAttr, setAttrs } from "../utils";
 //@ts-ignore
