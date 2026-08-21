@@ -2,91 +2,84 @@ import BaseComponent from "../base";
 import { parseAttrValue, tagAttr, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { formatClass, on, off, shouldEventNext, $one } from "ph-utils/browser";
+import { on, off, shouldEventNext, $one, clsx } from "ph-utils/browser";
 
-export default class Pagination extends BaseComponent {
+type PaginationProps = {
+  /** 数据总数 */
+  total: number;
+  /** 总页数 */
+  pageCount: number;
+  /** 每页显示条目个数, 默认: 10 */
+  pageSize: number;
+  /** 对齐方式, 默认: start */
+  align: "start" | "center" | "end";
+  /** 是否为简单分页, 默认: false */
+  simple: boolean;
+  /** 单页隐藏, 默认: false */
+  hideOnSinglePage: boolean;
+  /** 当前页码, 默认: 1 */
+  currentPage: number;
+};
+
+export default class Pagination extends BaseComponent<PaginationProps> {
   public static baseName = "pagination";
 
-  /** 数据总数 */
-  public total?: number;
-  /** 总页数 */
-  public pageCount?: number;
-  /** 每页显示条目个数 */
-  public pageSize?: number = 10;
-  /** 对齐方式 */
-  public align?: "start" | "center" | "end";
-  /** 是否为简单分页 */
-  public simple?: boolean = false;
-  /** 单页隐藏 */
-  public hideOnSinglePage?: boolean = false;
-
-  /** 当前页码 */
-  #current = 1;
-  /** 总页数 */
-  #totalPage = 0;
-
-  public get current() {
-    return this.#current;
-  }
-
-  public set current(current: number) {
-    this.setCurrent(current);
-  }
-
-  public setCurrent(current: number) {
-    if (current !== this.#current) {
-      this.#current = current;
-      this.rerender();
-    }
-  }
-
-  connectedCallback(): void {
-    this.loadStyleText(css);
-    super.connectedCallback();
+  constructor() {
+    super();
+    this.version = 2;
+    this._state = {
+      total: 0,
+      pageCount: 0,
+      pageSize: 10,
+      align: "start",
+      simple: false,
+      hideOnSinglePage: false,
+      currentPage: 1,
+    };
   }
 
   static get observedAttributes(): string[] | null | undefined {
     return [
       "align",
-      "current",
+      "current-page",
       "page-count",
       "total",
       "hide-on-single-page",
       "simple",
+      "page-size",
     ];
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string,
-    newValue: string
-  ): void {
-    name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name
-    ) as any;
-    if (parsedValue !== this[name as "align"]) {
-      this[name as "align"] = parsedValue;
-      switch (name) {
-        case "align":
-          this.style.setProperty(
-            "--l-pagination-justify-content",
-            parsedValue === "center" ? parsedValue : `flex-${parsedValue}`
-          );
-          break;
-        case "total":
-        case "page-count":
-          this.#totalPage = this.#calcTotalPage();
-          break;
-        case "simple":
-        case "hide-on-single-page":
-          if (this.rendered) {
-            this.rerender();
-          }
-          break;
-      }
+  protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
+    switch (name) {
+      case "align":
+        this._state.align = (newValue || "start") as "start" | "center" | "end";
+        break;
+      case "total":
+      case "page-count":
+      case "page-size":
+      case "current-page":
+        const v = parseAttrValue(newValue, this._state[name as "total"]);
+        this._state[kebabToCamel(name) as "total"] = v;
+        if (name === "total" || name === "page-count") {
+          this._state.pageCount = this.#calcTotalPage();
+        }
+        break;
+      case "simple":
+      case "hide-on-single-page":
+        this._state[kebabToCamel(name) as "simple"] = parseAttrValue(newValue, false, name);
+        break;
+    }
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("align")) {
+      const value =
+        this._state.align === "center" ? this._state.align : `flex-${this._state.align}`;
+      this.style.setProperty("--l-pagination-justify-content", value);
+    } else {
+      this.rerender();
+      changedProps.clear();
     }
   }
 
@@ -103,6 +96,13 @@ export default class Pagination extends BaseComponent {
     return `<div class="l-pagination">${this.#renderMain()}</div>`;
   }
 
+  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+    return {
+      template: this.render(),
+      style: css,
+    };
+  }
+
   afterInit(): void {
     on(this.root, "click", this.#onTap);
     this.#initSimpleInput();
@@ -117,14 +117,16 @@ export default class Pagination extends BaseComponent {
     const [should, page] = shouldEventNext(e, "data-page", this.root);
     if (should) {
       let toPage = Number(page);
-      toPage = Math.min(this.#totalPage, Math.max(1, toPage));
-      if (toPage !== this.current) {
-        this.setCurrent(toPage);
+
+      toPage = Math.min(this._state.pageCount, Math.max(1, toPage));
+      if (toPage !== this._state.currentPage) {
+        this._state.currentPage = toPage;
+        this.rerender();
         this.emit("change", {
           detail: {
             current: toPage,
-            pageSize: this.pageSize || 10,
-            totalPage: this.#totalPage,
+            pageSize: this._state.pageSize || 10,
+            totalPage: this._state.pageCount,
           },
         });
       }
@@ -132,45 +134,43 @@ export default class Pagination extends BaseComponent {
   };
 
   #calcTotalPage() {
-    let pageCount = this.pageCount;
-    if (pageCount == null && this.total != null) {
-      pageCount = Math.ceil(this.total / (this.pageSize || 10));
-    }
-    if (pageCount == null || pageCount <= 0) {
-      pageCount = 1;
+    let pageCount = this._state.pageCount;
+    const total = this._state.total;
+    if (pageCount === 0 && total > 0) {
+      pageCount = Math.ceil(total / (this._state.pageSize || 10));
     }
     return pageCount;
   }
 
   #renderMain() {
-    if (this.#totalPage <= 1) return "";
+    if (this._state.pageCount <= 1) return "";
     const children: string[] = [];
     // 上一页切换按钮
     children.push(
       this.#generateItemElem("l-button", {
         title: "上一页",
-        disabled: this.current === 1,
-        "data-page": this.current - 1,
+        disabled: this._state.currentPage === 1,
+        "data-page": this._state.currentPage - 1,
         innerHTML: "<l-arrow-left-icon></l-arrow-left-icon>",
         class: ["l-pagination-item", "l-pagination--btn", "prev-btn"],
-      })
+      }),
     );
 
-    if (this.simple) {
+    if (this._state.simple) {
       children.push(
         this.#generateItemElem("div", {
           class: ["l-pagination-item", "l-pagination-simple-layout"],
           innerHTML: [
             this.#generateItemElem("l-input", {
               inputmode: "numeric",
-              value: `${this.current}`,
+              value: `${this._state.currentPage}`,
               class: ["l-pagination-simple-input"],
               "allow-input": "integer",
             }),
             '<span class="l-pagination-simple-divide">/</span>',
-            `<span>${this.#totalPage}</span>`,
+            `<span>${this._state.pageCount}</span>`,
           ],
-        })
+        }),
       );
     } else {
       // 首页按钮
@@ -181,14 +181,14 @@ export default class Pagination extends BaseComponent {
           class: [
             "l-pagination-item",
             "l-pagination--link",
-            this.current === 1 ? "active" : "",
+            this._state.currentPage === 1 ? "active" : "",
           ],
           "data-page": "1",
-        })
+        }),
       );
 
       // 向前5页按钮
-      if (this.current > 4) {
+      if (this._state.currentPage > 4) {
         children.push(
           this.#generateItemElem("a", {
             title: "上5页",
@@ -197,28 +197,28 @@ export default class Pagination extends BaseComponent {
               "<l-more-icon class='more-icon'></l-more-icon>",
             ],
             class: ["l-pagination-item", "l-pagination--link"],
-            "data-page": `${this.current - 5}`,
-          })
+            "data-page": `${this._state.currentPage - 5}`,
+          }),
         );
       }
 
       // 中间部分，显示包括当前页在内的最多5页
       // 由于当显示到最末尾的时候，是不足5页的，所以需要再往前推
-      let start = Math.max(this.current - 2, 1);
-      let end = Math.min(this.current + 2, this.#totalPage);
+      let start = Math.max(this._state.currentPage - 2, 1);
+      let end = Math.min(this._state.currentPage + 2, this._state.pageCount);
       let diff = end - start;
       if (diff < 4) {
         // 不足5页，往后继续推
-        end = Math.min(this.#totalPage, end + diff);
+        end = Math.min(this._state.pageCount, end + (4 - diff));
       }
       diff = end - start;
       if (diff < 4) {
         // 还不足5页，往前推
-        start = Math.max(1, start - diff);
+        start = Math.max(1, start - (4 - diff));
       }
       for (let i = start; i <= end; i++) {
         if (i <= 1) continue;
-        if (i >= this.#totalPage) break;
+        if (i >= this._state.pageCount) break;
         children.push(
           this.#generateItemElem("a", {
             title: `${i}`,
@@ -226,15 +226,15 @@ export default class Pagination extends BaseComponent {
             class: [
               "l-pagination-item",
               "l-pagination--link",
-              this.current === i ? "active" : "",
+              this._state.currentPage === i ? "active" : "",
             ],
             "data-page": `${i}`,
-          })
+          }),
         );
       }
 
       // 向后5页
-      if (this.current < this.#totalPage - 3) {
+      if (this._state.currentPage < this._state.pageCount - 3) {
         children.push(
           this.#generateItemElem("a", {
             title: "下5页",
@@ -243,24 +243,24 @@ export default class Pagination extends BaseComponent {
               "<l-more-icon class='more-icon'></l-more-icon>",
             ],
             class: ["l-pagination-item", "l-pagination--link"],
-            "data-page": `${this.current + 5}`,
-          })
+            "data-page": `${this._state.currentPage + 5}`,
+          }),
         );
       }
 
       // 末页按钮
-      if (this.#totalPage > 1) {
+      if (this._state.pageCount > 1) {
         children.push(
           this.#generateItemElem("a", {
-            title: `${this.#totalPage}`,
-            innerHTML: `${this.#totalPage}`,
+            title: `${this._state.pageCount}`,
+            innerHTML: `${this._state.pageCount}`,
             class: [
               "l-pagination-item",
               "l-pagination--link",
-              this.current === this.#totalPage ? "active" : "",
+              this._state.currentPage === this._state.pageCount ? "active" : "",
             ],
-            "data-page": `${this.#totalPage}`,
-          })
+            "data-page": `${this._state.pageCount}`,
+          }),
         );
       }
     }
@@ -268,12 +268,12 @@ export default class Pagination extends BaseComponent {
     // 下一页切换按钮
     children.push(
       this.#generateItemElem("l-button", {
-        title: `${this.current + 1}`,
+        title: `${this._state.currentPage + 1}`,
         innerHTML: "<l-arrow-right-icon></l-arrow-right-icon>",
         class: ["l-pagination-item", "l-pagination--btn", "next-btn"],
-        disabled: this.current === this.#totalPage,
-        "data-page": `${this.current + 1}`,
-      })
+        disabled: this._state.currentPage === this._state.pageCount,
+        "data-page": `${this._state.currentPage + 1}`,
+      }),
     );
     return children.join("");
   }
@@ -300,10 +300,11 @@ export default class Pagination extends BaseComponent {
     const $target = e.target as HTMLInputElement;
     const value = $target.value;
     if (!value) {
-      $target.value = `${this.current}`;
+      $target.value = `${this._state.currentPage}`;
       return;
     }
-    this.setCurrent(Number(value));
+    this._state.currentPage = Number(value);
+    this.rerender();
   };
 
   #onKeyup = (e: KeyboardEvent) => {
@@ -312,7 +313,8 @@ export default class Pagination extends BaseComponent {
       const value = $target.value;
       if (value) {
         const toPage = Number(value);
-        this.setCurrent(toPage);
+        this._state.currentPage = toPage;
+        this.rerender();
       }
     }
   };
@@ -320,7 +322,7 @@ export default class Pagination extends BaseComponent {
   #simpleInputParser = (value: string) => {
     if (value) {
       let nvalue = Number(value);
-      nvalue = Math.max(1, Math.min(this.#totalPage, nvalue));
+      nvalue = Math.max(1, Math.min(this._state.pageCount, nvalue));
       value = String(nvalue);
     }
     return value;
@@ -337,7 +339,7 @@ export default class Pagination extends BaseComponent {
         }
       } else if (key === "class") {
         const clazz = options.class;
-        attrs.push(` class="${formatClass(clazz)}"`);
+        attrs.push(` class="${clsx(clazz)}"`);
       } else {
         attrs.push(tagAttr(key, options[key]));
       }

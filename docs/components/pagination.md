@@ -90,12 +90,12 @@ regist([
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `total` | 总条数 | `number` | `-` |
-| `page-count` | 总页数 | `number` | `-` |
+| `total` | 总条数 | `number` | `0` |
+| `page-count` | 总页数 | `number` | `0` |
 | `simple` | 简单分页 | `boolean` | `false` |
 | `hide-on-single-page` | 单页隐藏 | `boolean` | `false` |
 | `align` | 对齐方式 | `start`、`center`、`end` | `start` |
-| `current` | 当前页 | `number` | `1` |
+| `current-page` | 当前页 | `number` | `1` |
 | `page-size` | 每页条数 | `number` | `10` |
 
 ### Pagination Slots
