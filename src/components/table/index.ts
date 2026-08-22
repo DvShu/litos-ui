@@ -11,21 +11,33 @@ type ChangeFixedParams = {
   fixedHead?: boolean;
 };
 
-export default class Table extends BaseComponent {
+type TableState = {
+  /** 斑马纹 */
+  stripe: boolean;
+  /** 是否显示四周边框 */
+  border: boolean;
+  /** 是否固定表头 */
+  fixedHead: boolean;
+  /** 是否固定列，在进行列解析时，会自动确认该属性 */
+  fixedColumn: boolean;
+  /** 最大高度 */
+  maxHeight?: number | string;
+  /** 表格布局 */
+  tableLayout?: "auto" | "fixed";
+};
+
+export default class Table extends BaseComponent<TableState> {
   public static baseName = "table";
 
-  /** 斑马纹 */
-  public stripe = true;
-  /** 是否显示四周边框 */
-  public border = false;
-  /** 是否固定表头 */
-  public fixedHead = false;
-  /** 是否固定列，在进行列解析时，会自动确认该属性 */
-  public fixedColumn = false;
-  /** 最大高度 */
-  public maxHeight?: number | string;
-  /** 表格布局 */
-  public tableLayout?: "auto" | "fixed";
+  constructor() {
+    super();
+    this._state = {
+      stripe: true,
+      border: false,
+      fixedHead: false,
+      fixedColumn: false,
+    };
+  }
 
   public columns?: Column[] = [];
   public data?: any[] = [];
@@ -59,16 +71,16 @@ export default class Table extends BaseComponent {
 
   public changeFixed(params?: ChangeFixedParams) {
     const fixedParams = {
-      fixedHead: this.fixedHead,
-      fixedColumn: this.fixedColumn,
+      fixedHead: this._state.fixedHead,
+      fixedColumn: this._state.fixedColumn,
       ...params,
     };
-    this.fixedHead = fixedParams.fixedHead as boolean;
-    this.fixedColumn = fixedParams.fixedColumn as boolean;
+    this._state.fixedHead = fixedParams.fixedHead as boolean;
+    this._state.fixedColumn = fixedParams.fixedColumn as boolean;
     if (this.rendered) {
       const $table = $one(".l-table", this.root);
       if ($table) {
-        if (this.fixedHead || this.fixedColumn) {
+        if (this._state.fixedHead || this._state.fixedColumn) {
           $table.classList.add("l-table-fixed");
         } else {
           $table.classList.remove("l-table-fixed");
@@ -81,29 +93,40 @@ export default class Table extends BaseComponent {
     return ["stripe", "border", "fixed-head", "max-height", "table-layout"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
-    if (parsedValue !== this[name as "id"]) {
-      this[name as "id"] = parsedValue;
-      switch (name) {
-        case "stripe":
-          this._classAttrChannge("stripe", parsedValue);
-          break;
-        case "border":
-          this._classAttrChannge("border", parsedValue);
-          break;
-        case "fixedHead":
-          this._updateFixedHead();
-          this.changeFixed();
-          break;
-        case "maxHeight":
-          this._changeMaxHeight();
-          break;
-        case "tableLayout":
-          this._changeCssVar("layout", parsedValue);
-          break;
-      }
+  protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
+    const camelName = kebabToCamel(name);
+    switch (camelName) {
+      case "stripe":
+      case "border":
+      case "fixedHead":
+      case "fixedColumn":
+        this._state[camelName] = parseAttrValue(newValue, false, name);
+        break;
+      case "maxHeight":
+        this._state.maxHeight = newValue || undefined;
+        break;
+      case "tableLayout":
+        this._state.tableLayout = (newValue || undefined) as "auto" | "fixed" | undefined;
+        break;
+    }
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("stripe")) {
+      this._classAttrChannge("stripe", this._state.stripe);
+    }
+    if (changedProps.has("border")) {
+      this._classAttrChannge("border", this._state.border);
+    }
+    if (changedProps.has("fixedHead")) {
+      this._updateFixedHead();
+      this.changeFixed();
+    }
+    if (changedProps.has("maxHeight")) {
+      this._changeMaxHeight();
+    }
+    if (changedProps.has("tableLayout")) {
+      this._changeCssVar("layout", this._state.tableLayout as string);
     }
   }
 
@@ -111,9 +134,9 @@ export default class Table extends BaseComponent {
     const $table = $$("table", {
       class: [
         "l-table",
-        this.stripe ? "l-table-stripe" : "",
-        this.border ? "l-table-border" : "",
-        this.fixedHead || this.fixedColumn ? "l-table-fixed" : "",
+        this._state.stripe ? "l-table-stripe" : "",
+        this._state.border ? "l-table-border" : "",
+        this._state.fixedHead || this._state.fixedColumn ? "l-table-fixed" : "",
       ],
     });
 
@@ -151,7 +174,7 @@ export default class Table extends BaseComponent {
   }
 
   private _changeMaxHeight() {
-    let value = this.maxHeight;
+    let value = this._state.maxHeight;
     if (value) {
       if (typeof value === "number") {
         value = `${value}px`;
@@ -173,8 +196,8 @@ export default class Table extends BaseComponent {
     if (this.rendered) {
       const $thead = $one("thead", this.root);
       if ($thead) {
-        $thead.classList.toggle("l-fixed", this.fixedHead);
-        $thead.style.top = this.fixedHead ? "0" : "";
+        $thead.classList.toggle("l-fixed", this._state.fixedHead);
+        $thead.style.top = this._state.fixedHead ? "0" : "";
       }
     }
   }
@@ -182,10 +205,10 @@ export default class Table extends BaseComponent {
   private _headRender() {
     const $thead = $$("thead", {
       class: {
-        "l-fixed": this.fixedHead,
+        "l-fixed": this._state.fixedHead,
       },
       style: {
-        top: this.fixedHead ? "0" : undefined,
+        top: this._state.fixedHead ? "0" : undefined,
       },
     });
     if (this.columns) {
