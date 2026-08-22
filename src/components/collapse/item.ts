@@ -218,17 +218,18 @@ export default class CollapaseItem extends BaseComponent<CollapaseItemState> {
   };
 
   _createContentElement(hide = true) {
-    const $content = $$("div", {
-      class: "l-collapse-content",
-      style: hide ? "display: none;" : "",
-    });
-    $$(
+    const $content = $$(
       "div",
       {
-        class: "l-collapse-content-box",
-        innerHTML: "<slot></slot>",
+        class: "l-collapse-content",
+        style: hide ? "display: none;" : "",
       },
-      $content,
+      [
+        $$("div", {
+          class: "l-collapse-content-box",
+          innerHTML: "<slot></slot>",
+        }),
+      ],
     );
     return $content;
   }
