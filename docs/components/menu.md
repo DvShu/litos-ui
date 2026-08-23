@@ -1,6 +1,6 @@
 # Menu 菜单
 
-为网站提供导航功能的垂直菜单组件，支持多级嵌套子菜单、手风琴模式和自定义图标。
+为网站提供导航功能的垂直菜单组件，支持多级嵌套子菜单、手风琴模式、压缩模式和自定义图标。
 
 ## 引用
 
@@ -14,7 +14,7 @@ regist(Menu);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off, $$ } from 'ph-utils/browser';
+  import { $one, on, off, $$, $ } from 'ph-utils/browser';
 
   const menuItems = [
     {
@@ -61,6 +61,23 @@ regist(Menu);
     },
   ];
 
+  let roleBtns;
+  let $menuCollapsed;
+
+  function handleRoleBtnClick(e) {
+    const role = e.target.getAttribute('role');
+    if (role === 'collapsed') {
+      const action = e.target.getAttribute('data-action');
+      if ($menuCollapsed) {
+        if (action === 'collapse') {
+          $menuCollapsed.setAttribute('collapsed', '');
+        } else {
+          $menuCollapsed.removeAttribute('collapsed');
+        }
+      }
+    }
+  }
+
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
@@ -68,8 +85,26 @@ regist(Menu);
         $menu.items = menuItems;
         const $menuAccordion = $one('#menu-accordion');
         $menuAccordion.items = menuItems;
+        $menuCollapsed = $one('#menu-collapsed');
+        if ($menuCollapsed) $menuCollapsed.items = menuItems;
+        roleBtns = $('l-button[role]');
+        if (roleBtns) {
+          roleBtns.forEach(btn => {
+            on(btn, 'click', handleRoleBtnClick);
+          });
+        }
       }
     })
+  });
+
+  onUnmounted(() => {
+    if (!import.meta.env.SSR) {
+      if (roleBtns) {
+        roleBtns.forEach(btn => {
+          off(btn, 'click', handleRoleBtnClick);
+        });
+      }
+    }
   });
 </script>
 
@@ -153,6 +188,66 @@ regist(Menu);
 </l-code-preview>
 </ClientOnly>
 
+### 压缩模式
+
+设置 `collapsed` 属性，菜单将压缩为仅显示图标的窄栏模式，同时自动折叠所有已展开的子菜单。通过 `collapsed-width` 控制压缩后的宽度，`collapsed-icon-size` 控制压缩后的图标大小。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <div>
+    <l-button role="collapsed" data-action="expand">展开</l-button>
+    <l-button role="collapsed" data-action="collapse">折叠</l-button>
+  </div>
+  <l-menu id="menu-collapsed" collapsed collapsed-width="56" collapsed-icon-size="20">
+  </l-menu>
+</textarea>
+<div class="source">
+  <textarea lang="html">
+    <l-menu id="menu-collapsed" collapsed collapsed-width="56" collapsed-icon-size="20">
+    </l-menu>
+  </textarea>
+  <textarea lang="ts">
+    const menuItems = [
+      {
+        key: "N1",
+        label: "导航一",
+        icon: () => {
+          return $$('iconify-icon', { icon: 'tdesign:app' });
+        },
+        children: [
+          { key: "A1", label: "选项1" },
+          { key: "A2", label: "选项2" },
+          { key: "A3", label: "选项3" },
+        ],
+      },
+      {
+        key: "N2",
+        label: "导航二",
+        icon: () => {
+          return $$('iconify-icon', { icon: 'solar:bug-outline' });
+        },
+        children: [
+          { key: "B1", label: "选项1" },
+          { key: "B2", label: "选项2" },
+          { key: "B3", label: "选项3" },
+        ],
+      },
+      {
+        key: "N4",
+        label: "选项四",
+        icon: () => {
+          return $$('iconify-icon', { icon: 'solar:book-linear' });
+        },
+      },
+    ];
+    const $menu = $one('#menu-collapsed');
+    $menu.items = menuItems;
+  </textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ## MenuItem 数据结构
 
 <!-- prettier-ignore -->
@@ -172,6 +267,10 @@ regist(Menu);
 | --- | --- | --- | --- |
 | `selected-index` | 当前选中的菜单项 key | `string` | - |
 | `accordion` | 是否手风琴模式，只有一个子菜单展开 | `boolean` | `false` |
+| `collapsed` | 是否压缩菜单，只显示图标，隐藏文本并折叠所有子菜单 | `boolean` | `false` |
+| `collapsed-width` | 压缩后菜单宽度 | `number` | `-` |
+| `icon-size` | 图标大小 | `number` | `-` |
+| `collapsed-icon-size` | 压缩后图标大小 | `number` | `-` |
 
 ### Menu Properties
 
@@ -212,3 +311,6 @@ regist(Menu);
 | `--l-menu-border-color` | 菜单边框颜色 | `#dedede` |
 | `--l-menu-border-width` | 菜单边框宽度 | `1px` |
 | `--l-menu-arrow-color` | 子菜单箭头颜色 | `#8c8c8c` |
+| `--l-menu-collapsed-width` | 压缩后菜单宽度 | `56px` |
+| `--l-menu-icon-size` | 图标大小 | `14px` |
+| `--l-menu-collapsed-icon-size` | 压缩后图标大小 | `20px` |

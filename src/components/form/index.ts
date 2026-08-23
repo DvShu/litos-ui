@@ -1,6 +1,6 @@
 import { formatClass, $one, on, off } from "ph-utils/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
-import {Validator} from "ph-utils";
+import { Validator } from "ph-utils";
 import type { SchemaType } from "ph-utils";
 //@ts-ignore
 import css from "./index.less?inline";
@@ -187,16 +187,13 @@ export default class Form extends BaseComponent<FormState> {
     const needValid = Object.hasOwn(this._data, name);
     this._data[name] = value;
     if (!this._state.novalidate && needValid && valid) {
-      this.validator
-        .validateKey(name, value, this._data)
-        .then(() => {
-          const oldValue = this.errors();
-          oldValue[name] = undefined;
-          this.setValidateErrors({ ...oldValue });
-        })
-        .catch((err) => {
-          this.setValidateErrors({ ...this.errors(), ...err.detail });
-        });
+      try {
+        const oldValue = this.errors();
+        oldValue[name] = undefined;
+        this.setValidateErrors({ ...oldValue });
+      } catch (err: any) {
+        this.setValidateErrors({ ...this.errors(), ...err.detail });
+      }
     }
   };
 
@@ -213,31 +210,35 @@ export default class Form extends BaseComponent<FormState> {
     }
   }
 
-  public validateField(field: string | string[]) {
-    const tacks: Promise<{ key: string; value: any }>[] = [];
+  public async validateField(field: string | string[]) {
+    let isError = false;
+    let validResult: Record<string, any> = {};
     if (this._data != null) {
       if (Array.isArray(field)) {
         for (let i = 0, len = field.length; i < len; i++) {
           const f = field[i];
-          tacks.push(this.validator.validateKey(f, this._data[f], this._data));
-        }
-      } else {
-        tacks.push(this.validator.validateKey(field, this._data[field], this._data));
-      }
-
-      Promise.allSettled(tacks).then((results) => {
-        let validResult: Record<string, any> = {};
-        for (let i = 0, len = results.length; i < len; i++) {
-          const result = results[i];
-          if (result.status === "rejected") {
-            validResult = { ...validResult, ...result.reason.detail };
-          } else {
-            validResult[result.value.key] = undefined;
+          try {
+            validResult[f] = undefined;
+          } catch (e: any) {
+            validResult[f] = e.detail;
+            isError = true;
+            break;
           }
         }
-        const errors = { ...this.errors(), ...validResult };
-        this.setValidateErrors(errors, field);
-      });
+      } else {
+        try {
+          validResult[field] = undefined;
+        } catch (e: any) {
+          validResult[field] = e.detail;
+          isError = true;
+        }
+      }
+      if (isError) {
+        const e: any = new Error("validate field error");
+        e.detail = validResult;
+        return Promise.reject(e);
+      }
+      return Promise.resolve();
     }
   }
 
@@ -277,9 +278,9 @@ export default class Form extends BaseComponent<FormState> {
   /**
    * 校验全部表单数据
    */
-  public async validate() {
+  public validate() {
     try {
-      await this.validator.validate(this._data || {});
+      this.validator.validate(this._data || {});
       return Promise.resolve({
         result: true,
         errors: {},

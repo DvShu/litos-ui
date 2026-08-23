@@ -35,7 +35,7 @@ export default class CheckGroup extends FormInner<CheckGroupState> {
   attributeChange(name: string, _oldValue: any, newValue: any) {
     switch (name) {
       case "gap":
-        this._state.gap = unitNumberStr(newValue);
+        this._state.gap = unitNumberStr(newValue) as string;
         break;
     }
   }

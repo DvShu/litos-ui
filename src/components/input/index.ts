@@ -106,7 +106,7 @@ export default class Input extends FormInner<InputState> {
         this._state[name] = v;
         break;
       case "width":
-        this._state.width = unitNumberStr(newValue);
+        this._state.width = unitNumberStr(newValue) as string;
         break;
     }
   }

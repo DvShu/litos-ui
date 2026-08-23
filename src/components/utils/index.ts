@@ -128,7 +128,7 @@ export function stopSignal(fn?: SignalStop) {
   return undefined;
 }
 
-export function unitNumberStr(value?: string, unit = "px") {
+export function unitNumberStr(value?: string | null | undefined, unit = "px") {
   if (!value) return value;
   return isNumeric(value) ? `${value}${unit}` : value;
 }

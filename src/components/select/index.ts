@@ -186,7 +186,7 @@ export default class Select extends FormInner<SelectState> {
   protected attributeChange(name: string, _oldValue: string, newValue: string): void {
     switch (name) {
       case "width":
-        this._state.width = unitNumberStr(newValue);
+        this._state.width = unitNumberStr(newValue) as string;
         break;
       case "label-field":
       case "value-field":

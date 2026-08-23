@@ -30,7 +30,7 @@ export default class BaseIcon extends BaseComponent<ColorState> {
         this._state.color = newValue;
         break;
       case "size":
-        this._state.size = unitNumberStr(newValue);
+        this._state.size = unitNumberStr(newValue) as string;
         break;
     }
   }

@@ -104,7 +104,7 @@ export default class DatePicker extends FormInner {
         this._state.delay = parseAttrValue(newValue, 300);
         break;
       case "width":
-        this._state.width = unitNumberStr(newValue);
+        this._state.width = unitNumberStr(newValue) as string;
         break;
     }
   }

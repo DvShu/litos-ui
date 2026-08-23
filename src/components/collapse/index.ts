@@ -56,10 +56,10 @@ export default class Collapase extends BaseComponent<CollapseState> {
         this.context(newContext);
         break;
       case "gap":
-        this.context({ ...this.context(), gap: unitNumberStr(newValue) });
+        this.context({ ...this.context(), gap: unitNumberStr(newValue) as string });
         break;
       case "border-radius":
-        this._state.borderRadius = unitNumberStr(newValue);
+        this._state.borderRadius = unitNumberStr(newValue) as string;
         break;
       case "background":
         this.context({ ...this.context(), background: parseAttrValue(newValue, false, name) });

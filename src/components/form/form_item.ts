@@ -85,7 +85,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
         break;
       case "label-width":
       case "label-height":
-        this._state[kebabToCamel(name) as "labelWidth"] = unitNumberStr(newValue);
+        this._state[kebabToCamel(name) as "labelWidth"] = unitNumberStr(newValue) as string;
         break;
     }
   }

@@ -49,7 +49,7 @@ export default class DatePicker extends FormInner<DatePickerState> {
   attributeChange(name: string, oldValue: string, newValue: string) {
     switch (name) {
       case "width":
-        this._state.width = unitNumberStr(newValue);
+        this._state.width = unitNumberStr(newValue) as string;
         break;
     }
   }

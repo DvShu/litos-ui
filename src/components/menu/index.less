@@ -10,12 +10,16 @@
   --l-menu-item-active-color: var(--l-primary-color, #722ed1);
   --l-menu-item-active-background: var(--l-primary-color-light5, #f9f0ff);
   --l-menu-border-color: transparent;
-  --l-menu-border-width: 1px;
+  --l-menu-border-width: 0px;
   --l-menu-arrow-color: var(--l-info-color, #8c8c8c);
+  --l-menu-collapsed-width: 40px;
+  --l-menu-icon-size: 1.8rem;
+  --l-menu-collapsed-icon-size: 1.8rem;
   width: var(--l-menu-width);
   height: var(--l-menu-height);
   display: block;
   box-sizing: border-box;
+  transition: width 0.3s;
 }
 
 .l-menu {
@@ -71,7 +75,7 @@
 .l-menu-icon-wrap {
   display: inline-flex;
   align-items: center;
-  font-size: 14px;
+  font-size: var(--l-menu-icon-size);
   flex: 0 0 auto;
   line-height: 1;
 }
@@ -109,11 +113,23 @@
   color: var(--l-menu-item-active-color);
 }
 
+/* 压缩菜单 */
+:host(.menu--collapsed) {
+  width: var(--l-menu-collapsed-width);
+  .l-submenu-arrow-icon,
+  .l-menu-item--label {
+    display: none;
+  }
+  .l-menu-icon-wrap {
+    font-size: var(--l-menu-collapsed-icon-size, var(--l-menu-icon-size, 1.8rem));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .l-menu,
   .l-menu-item,
   .l-submenu-title,
   .l-submenu-arrow-icon {
-    transition: none !important;
+    transition: none;
   }
 }

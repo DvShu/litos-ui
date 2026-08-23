@@ -112,7 +112,7 @@ export default class Modal extends BaseComponent<ModalState> {
         this._state.close = parseAttrValue(newValue, 1);
         break;
       case "width":
-        this._state[name] = unitNumberStr(newValue);
+        this._state[name] = unitNumberStr(newValue) as string;
         break;
       case "vertical-align":
         this._state.verticalAlign = parseAttrValue(newValue, "top") as "top" | "bottom" | "middle";

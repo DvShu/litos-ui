@@ -97,7 +97,7 @@ export default class Button extends BaseComponent<ButtonState> {
         this._state[name] = newValue as never;
         break;
       case "height":
-        this._state[name] = unitNumberStr(newValue);
+        this._state[name] = unitNumberStr(newValue) as string;
         break;
       case "text":
       case "ghost":

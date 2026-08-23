@@ -1,6 +1,7 @@
 import { $$, on, $one, off, $, iterate } from "ph-utils/browser";
+import { snakeCaseStyle } from "ph-utils";
 import BaseComponent from "../base";
-import { parseAttrValue } from "../utils";
+import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import css from "./index.less?inline";
 import type { MenuItem } from "./types";
 
@@ -11,13 +12,20 @@ type MenuState = {
   accordion?: boolean;
   /** 当前选中的菜单项 key 数组, 用 , 分割 */
   selectedIndex: string;
+  /** 是否压缩菜单 */
+  collapsed?: boolean;
+
+  /** 压缩后菜单宽度 */
+  collapsedWidth?: string;
+  /** 图标大小 */
+  iconSize?: string;
+  /** 压缩后图标大小 */
+  collapsedIconSize?: string;
 };
 
 export default class Menu extends BaseComponent<MenuState> {
   public static baseName = "menu";
 
-  /** 是否手风琴模式, 只有一个子菜单展开 */
-  accordion = false;
   private _items: MenuItem[];
   private _menuEl?: HTMLElement;
   private _activeKeys: Set<string>;
@@ -39,21 +47,68 @@ export default class Menu extends BaseComponent<MenuState> {
   }
 
   static get observedAttributes() {
-    return ["selected-index", "accordion"];
+    return [
+      "selected-index",
+      "accordion",
+      "collapsed",
+      "collapsed-width",
+      "icon-size",
+      "collapsed-icon-size",
+    ];
   }
 
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
       case "selected-index":
         this._state.selectedIndex = newValue || "";
-        if (this.rendered) {
-          this.updateSelectedKeys(this._state.selectedIndex);
-        }
         break;
       case "accordion":
-        this.accordion = parseAttrValue(newValue, false, "accordion");
-        this._state.accordion = this.accordion;
+        this._state.accordion = parseAttrValue(newValue, false, "accordion");
         break;
+      case "collapsed":
+        this._state.collapsed = parseAttrValue(newValue, false, "collapsed");
+        break;
+      case "collapsed-width":
+      case "icon-size":
+      case "collapsed-icon-size":
+        const key = kebabToCamel(name);
+        this._state[key as "iconSize"] = newValue;
+        break;
+    }
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("collapsed")) {
+      if (this._state.collapsed) {
+        this.classList.add("menu--collapsed");
+        this.#collapseAllSubmenus();
+      } else {
+        this.classList.remove("menu--collapsed");
+      }
+    }
+    if (changedProps.has("selected-index")) {
+      this.updateSelectedKeys(this._state.selectedIndex);
+    }
+    if (changedProps.has("collapsed-width")) {
+      const v = unitNumberStr(this._state.collapsedWidth);
+      this.setStyleProperty("collapsed-width", v);
+    }
+    if (changedProps.has("icon-size")) {
+      const v = unitNumberStr(this._state.iconSize);
+      this.setStyleProperty("icon-size", v);
+    }
+    if (changedProps.has("collapsed-icon-size")) {
+      const v = unitNumberStr(this._state.collapsedIconSize);
+      this.setStyleProperty("collapsed-icon-size", v);
+    }
+  }
+
+  setStyleProperty(k: string, v: string | undefined | null) {
+    const prop = `--l-menu-${k}`;
+    if (v) {
+      this.style.setProperty(prop, v);
+    } else {
+      this.style.removeProperty(prop);
     }
   }
 
@@ -85,10 +140,10 @@ export default class Menu extends BaseComponent<MenuState> {
   _handleClick = (e: Event) => {
     const { type, key, keyPaths, target } = this.#nodeKeys(e.target as HTMLElement);
     if (target) {
-      if (type === 2) {
+      if (type === 2 && !this._state.collapsed) {
         const isExpanded = target.hasAttribute("expanded");
         this._toggleSubMenu(target, !isExpanded);
-        if (!isExpanded && this.accordion) {
+        if (!isExpanded && this._state.accordion) {
           this.#collapseSiblings(target);
         }
       } else if (type === 1) {
@@ -263,6 +318,14 @@ export default class Menu extends BaseComponent<MenuState> {
     });
   }
 
+  /** 折叠所有已展开的子菜单 */
+  #collapseAllSubmenus() {
+    const $submenus = $(".l-menu-submenu[expanded]", this.root) as HTMLElement[];
+    iterate($submenus, ($submenu) => {
+      this._toggleSubMenu($submenu, false);
+    });
+  }
+
   private _onTransitionEnd = (e: TransitionEvent) => {
     if (e.propertyName !== "height") return;
     const target = e.target as HTMLElement;
@@ -319,10 +382,12 @@ export default class Menu extends BaseComponent<MenuState> {
   }
 
   private _renderMenuItem(item: MenuItem): HTMLElement {
+    const label = item.label;
     const el = $$("div", {
       class: ["l-menu-item", this._activeKeys.has(item.key) ? "active" : ""],
       index: item.key,
       "menu-role": "1",
+      title: typeof label === "string" ? label : undefined,
     });
     if (item.icon) {
       const $itemIcon = item.icon(item);
@@ -340,7 +405,11 @@ export default class Menu extends BaseComponent<MenuState> {
     const isActive = this._activeKeys.has(item.key);
     const el = $$("div", {
       index: item.key,
-      class: ["l-menu-submenu", isActive ? "active" : undefined],
+      class: [
+        "l-menu-submenu",
+        isActive ? "active" : undefined,
+        isActive ? undefined : "collapsed",
+      ],
       "menu-role": "2",
     });
     if (isActive) {
@@ -348,7 +417,11 @@ export default class Menu extends BaseComponent<MenuState> {
     }
     el.setAttribute("data-level", String(level));
     // title
-    const $title = $$("div", { class: "l-submenu-title" });
+    const label = item.label;
+    const $title = $$("div", {
+      class: "l-submenu-title",
+      title: typeof label === "string" ? label : undefined,
+    });
 
     // icon
     if (item.icon) {
@@ -387,6 +460,7 @@ export default class Menu extends BaseComponent<MenuState> {
     } else {
       $label = item.label(item);
     }
+    $label.classList.add("l-menu-item--label");
     return $label;
   }
 
@@ -409,5 +483,4 @@ export default class Menu extends BaseComponent<MenuState> {
 
     return dfs(items, []);
   }
-
 }
