@@ -97,5 +97,6 @@ export type { Column } from "./table/types";
 
 export { default as Space } from "./space";
 
+export { default as Card } from "./card";
 
 export { default as Calendar } from "./calendar";

@@ -202,6 +202,10 @@ export default defineConfig({
             text: "Calenar 日历",
             link: "/components/calendar",
           },
+          {
+            text: "Card 卡片",
+            link: "/components/card",
+          },
           /* TemplateItem */
         ],
       },

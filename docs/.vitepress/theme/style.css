@@ -4,11 +4,7 @@
 
   /* hero标题渐变色 */
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: -webkit-linear-gradient(
-    120deg,
-    #bd34fe,
-    #41d1ff
-  );
+  --vp-home-hero-name-background: -webkit-linear-gradient(120deg, #bd34fe, #41d1ff);
 
   /*hero logo背景渐变色 */
   --vp-home-hero-image-background-image: linear-gradient(
@@ -163,6 +159,9 @@ l-button[type="gradient"]::part(default) {
 }
 .grid-cols-4 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.gap-4 {
+  gap: 1.5rem;
 }
 
 .polygon-rhombus::part(default) {
