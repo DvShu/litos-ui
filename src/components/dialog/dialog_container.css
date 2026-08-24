@@ -56,3 +56,34 @@
   padding: 0;
   background-color: #ffffff;
 }
+/* mobile */
+.l-dialog-main--mobile {
+  border-radius: 10px;
+}
+.l-dialog-main--mobile .l-dialog-header {
+  text-align: center;
+  border-bottom-color: transparent;
+  padding: 20px 10px 5px;
+  display: flex;
+  justify-content: center;
+}
+.l-dialog-main--mobile .l-dialog-container {
+  padding: 5px 15px 20px;
+  text-align: center;
+}
+.l-dialog-main--mobile .l-dialog-footer {
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+  padding: 0;
+  text-align: center;
+  height: 50px;
+  gap: 0;
+}
+.l-dialog-main--mobile .l-dialog-footer l-button {
+  flex-grow: 1;
+  height: 100%;
+}
+.l-dialog-main--mobile .l-dialog-footer l-button + l-button {
+  border-left: 1px solid var(--l-dialog-line-color, rgba(0, 0, 0, 0.06));
+}

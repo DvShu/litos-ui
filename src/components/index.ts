@@ -6,6 +6,7 @@ export { default as BaseComponent } from "./base";
 export { default as Message } from "./message";
 export { default as Dialog } from "./dialog";
 export { default as DialogContainer } from "./dialog/dialog_container";
+export { default as DialogBox } from "./dialog/dialog_box";
 export { default as Loading } from "./loading";
 export { default as Tabs } from "./tabs";
 export { default as Modal } from "./modal";

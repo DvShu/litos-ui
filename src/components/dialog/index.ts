@@ -1,12 +1,4 @@
-import {
-  $one,
-  on,
-  off,
-  hasClass,
-  addClass,
-  removeClass,
-  getAttr,
-} from "ph-utils/browser";
+import { $one, on, off, hasClass, addClass, removeClass, getAttr } from "ph-utils/browser";
 
 type DialogProps = {
   /** 对话框在垂直方向位置 */
@@ -20,7 +12,7 @@ type DialogProps = {
   /** 是否可以通过点击 mask 关闭对话框 */
   maskClosable?: boolean;
   /** 是否显示右上角关闭按钮, 1 - 显示在框内， 2 - 显示在框角, 0 - 不显示 */
-  showClose?: number;
+  close?: number;
 };
 
 /** 初始化对话框配置 */
@@ -30,97 +22,103 @@ type DialogInitialParams = DialogProps & {
   /** 返回 true 表明手动调用 done 关闭 */
   onAction?: (action: string, done: () => void) => boolean;
 };
-const Dialog = (option?: DialogInitialParams) => {
-  let $dialog: HTMLDialogElement;
-  let $container: HTMLElement | null | undefined;
-  let config: Required<DialogInitialParams>;
 
-  function handleKeydown(e: KeyboardEvent) {
+export default class Dialog {
+  private $dialog!: HTMLDialogElement;
+  private $container: HTMLElement | null | undefined;
+  private config!: Required<DialogInitialParams>;
+
+  constructor(option?: DialogInitialParams) {
+    if (option != null) {
+      this.init(option);
+    }
+  }
+
+  private handleKeydown = (e: KeyboardEvent) => {
     if (e.code === "Escape") {
       e.preventDefault();
-      close();
+      this.close();
     }
-  }
+  };
 
-  function handleClick(e: Event) {
-    if ($dialog.isSameNode(e.target as HTMLDialogElement)) {
-      // 点击的是遮罩
-      if (config && config.maskClosable) {
-        close();
+  private handleClick = (e: Event) => {
+    if (this.$dialog.isSameNode(e.target as HTMLDialogElement)) {
+      if (this.config && this.config.maskClosable) {
+        this.close();
       }
     }
-  }
+  };
 
-  function handleContainerAction(e: CustomEvent) {
+  private handleContainerAction = (e: CustomEvent) => {
     const action = e.detail.action;
-    if (config.onAction != null) {
-      config.onAction(action, close);
+    if (action === "ok" && this.$container?.hasAttribute("confirm-loading")) {
+      return;
     }
-  }
+    if (this.config.onAction != null) {
+      this.config.onAction(action, () => this.close());
+    }
+  };
 
   /**
    * 初始化对话框
    * @param option 配置项
    */
-  function init(option: DialogInitialParams) {
-    if (!config) {
+  init(option: DialogInitialParams) {
+    if (!this.config) {
       let tmpconfig = {
         escClose: true,
         verticalAlign: "top",
         maskClosable: true,
-        showClose: 1,
+        close: 1,
         ...option,
       };
-      $dialog = $one(option.el) as HTMLDialogElement;
-      if ($dialog) {
-        if (!hasClass($dialog, "l-dialog")) {
-          addClass($dialog, "l-dialog");
+      this.$dialog = $one(option.el) as HTMLDialogElement;
+      if (this.$dialog) {
+        if (!hasClass(this.$dialog, "l-dialog")) {
+          addClass(this.$dialog, "l-dialog");
         }
-        $container = $one("l-dialog-container", $dialog);
+        this.$container = $one("l-dialog-container", this.$dialog);
         // 垂直方向位置
-        const verticalAlign = getAttr($dialog, "vertical-align");
+        const verticalAlign = getAttr(this.$dialog, "vertical-align");
         tmpconfig.verticalAlign = verticalAlign || "top";
-        addClass($dialog, `l-dialog--vertical-${tmpconfig.verticalAlign}`);
-        // traslate
-        const translate = getAttr($dialog, "translate") || tmpconfig.translate;
+        addClass(this.$dialog, `l-dialog--vertical-${tmpconfig.verticalAlign}`);
+        // translate
+        const translate = getAttr(this.$dialog, "translate") || tmpconfig.translate;
         if (translate) {
-          $dialog.style.setProperty(
-            "--l-dialog-translate",
-            `translate3d(${translate})`
-          );
+          this.$dialog.style.setProperty("--l-dialog-translate", `translate3d(${translate})`);
         }
         // width
-        const width = getAttr($dialog, "width") || tmpconfig.width;
+        const width = getAttr(this.$dialog, "width") || tmpconfig.width;
         if (width) {
-          $dialog.style.setProperty("--l-dialog-width", width);
+          this.$dialog.style.setProperty("--l-dialog-width", width);
         }
-        // showClose
-        const showClose = getAttr($dialog, "show-close", 1);
-        if (showClose === 2) {
-          addClass($dialog, "l-dialog-close-outside");
+        // close
+        const close = getAttr(this.$dialog, "close", 1);
+        if (close === 2) {
+          addClass(this.$dialog, "l-dialog-close-outside");
         }
-        if ($container) {
-          $container.setAttribute("show-close", `${showClose}`);
+        if (this.$container) {
+          this.$container.setAttribute("close", `${close}`);
         }
-        tmpconfig.showClose = showClose;
+        tmpconfig.close = close;
         // 监听 esc
-        on($dialog, "keydown", handleKeydown as any);
-        on($dialog, "click", handleClick);
-        if ($container) {
-          on($container, "dialogAction", handleContainerAction as any);
+        on(this.$dialog, "keydown", this.handleKeydown as any);
+        on(this.$dialog, "click", this.handleClick);
+        if (this.$container) {
+          on(this.$container, "dialogAction", this.handleContainerAction as any);
         }
       }
-      config = tmpconfig as any;
+      this.config = tmpconfig as any;
     }
   }
 
   /**
    * 打开对话框
    */
-  function open() {
-    if ($dialog) {
-      $dialog.showModal();
-      addClass($dialog, "l-dialog--open");
+  open() {
+    if (this.$dialog) {
+      this.$dialog.showModal();
+      addClass(this.$dialog, "l-dialog--open");
       addClass(document.body, "l-body--dialog-open");
     }
   }
@@ -128,91 +126,81 @@ const Dialog = (option?: DialogInitialParams) => {
   /**
    * 关闭对话框
    */
-  function close() {
-    if ($dialog && hasClass($dialog, "l-dialog--open")) {
+  close() {
+    if (this.$dialog && hasClass(this.$dialog, "l-dialog--open")) {
       on(
-        $dialog,
+        this.$dialog,
         "transitionend",
         () => {
-          $dialog.close();
+          this.$dialog.close();
           removeClass(document.body, "l-body--dialog-open");
         },
-        { once: true }
+        { once: true },
       );
-      removeClass($dialog, "l-dialog--open");
+      removeClass(this.$dialog, "l-dialog--open");
     }
   }
 
-  function destroy() {
-    if ($dialog) {
-      close();
-      off($dialog, "keydown", handleKeydown as any);
-      off($dialog, "click", handleClick);
-      if ($container) {
-        off($container, "dialogAction", handleContainerAction as any);
+  destroy() {
+    if (this.$dialog) {
+      this.close();
+      off(this.$dialog, "keydown", this.handleKeydown as any);
+      off(this.$dialog, "click", this.handleClick);
+      if (this.$container) {
+        off(this.$container, "dialogAction", this.handleContainerAction as any);
       }
-      $container = undefined;
-      $dialog = undefined as any;
+      this.$container = undefined;
+      this.$dialog = undefined as any;
     }
   }
 
-  function setProp(
-    key: keyof DialogProps,
-    value: DialogProps[keyof DialogProps]
-  ) {
-    if (config) {
-      config[key as "verticalAlign"] = value as "top";
-      if ($dialog) {
+  setProp(key: keyof DialogProps, value: DialogProps[keyof DialogProps]) {
+    if (this.config) {
+      this.config[key as "verticalAlign"] = value as "top";
+      if (this.$dialog) {
         if (key === "verticalAlign") {
-          const newClassName = $dialog.className.replace(
-            /l-dialog--vertical-\w+/g,
-            function () {
-              return `l-dialog--vertical-${value || "top"}`;
-            }
-          );
-          $dialog.className = newClassName;
+          const newClassName = this.$dialog.className.replace(/l-dialog--vertical-\w+/g, () => {
+            return `l-dialog--vertical-${value || "top"}`;
+          });
+          this.$dialog.className = newClassName;
         } else if (key === "translate") {
           if (value) {
-            $dialog.style.setProperty(
-              "--l-dialog-translate",
-              `translate3d(${value})`
-            );
+            this.$dialog.style.setProperty("--l-dialog-translate", `translate3d(${value})`);
           } else {
-            $dialog.style.removeProperty("--l-dialog-translate");
+            this.$dialog.style.removeProperty("--l-dialog-translate");
           }
         } else if (key === "width") {
           if (value) {
-            $dialog.style.setProperty("--l-dialog-width", value as string);
+            this.$dialog.style.setProperty("--l-dialog-width", value as string);
           } else {
-            $dialog.style.removeProperty("--l-dialog-width");
+            this.$dialog.style.removeProperty("--l-dialog-width");
           }
-        } else if (key === "showClose") {
-          if ($container) {
-            $container.setAttribute("show-close", `${value}`);
+        } else if (key === "close") {
+          if (this.$container) {
+            this.$container.setAttribute("close", `${value}`);
           }
         }
       }
     }
   }
 
-  function setProps(props: DialogProps) {
+  setProps(props: DialogProps) {
     for (const key in props) {
-      setProp(key as "verticalAlign", props[key as "verticalAlign"]);
+      this.setProp(key as "verticalAlign", props[key as "verticalAlign"]);
     }
   }
 
-  if (option != null) {
-    init(option);
+  /**
+   * 设置确定按钮 loading 状态
+   * @param loading 是否 loading
+   */
+  setConfirmLoading(loading: boolean) {
+    if (this.$container) {
+      if (loading) {
+        this.$container.setAttribute("confirm-loading", "");
+      } else {
+        this.$container.removeAttribute("confirm-loading");
+      }
+    }
   }
-
-  return {
-    init,
-    open,
-    close,
-    destroy,
-    setProp,
-    setProps,
-  };
-};
-
-export default Dialog;
+}
