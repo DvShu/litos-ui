@@ -130,7 +130,7 @@ export default class Menu extends BaseComponent<MenuState> {
     this._menuEl = undefined;
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       style: css,
       template: $$("div", { class: "l-menu" }),

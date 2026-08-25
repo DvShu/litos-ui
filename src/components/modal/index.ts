@@ -2,8 +2,7 @@ import BaseComponent from "../base";
 
 // @ts-ignore
 import css from "./index.less?inline";
-// @ts-ignore
-import maskCss from "../styles/mask.css?inline";
+import maskSheet from "../styles/mask";
 
 import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils/index";
@@ -156,9 +155,10 @@ export default class Modal extends BaseComponent<ModalState> {
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
-      style: [maskCss, css],
+      style: [css],
+      styleSheets: [maskSheet],
     };
   }
 

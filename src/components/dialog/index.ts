@@ -20,7 +20,7 @@ type DialogInitialParams = DialogProps & {
   /** dialog 节点 */
   el: HTMLDialogElement | string;
   /** 返回 true 表明手动调用 done 关闭 */
-  onAction?: (action: string, done: () => void) => boolean;
+  onAction?: (action: string, done: () => void) => void;
 };
 
 export default class Dialog {

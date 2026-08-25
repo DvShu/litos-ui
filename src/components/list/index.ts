@@ -3,8 +3,7 @@ import { parseAttrValue } from "../utils";
 import { $one } from "ph-utils/browser";
 //@ts-ignore
 import css from "./index.less?inline";
-//@ts-ignore
-import animationCss from "../styles/animation.css?inline";
+import animationSheet from "../styles/animation";
 
 export default class List extends BaseComponent {
   public static baseName = "list";
@@ -41,7 +40,8 @@ export default class List extends BaseComponent {
   }
 
   connectedCallback(): void {
-    this.loadStyleText([css, animationCss]);
+    this.loadStyleText([css]);
+    this.root.adoptedStyleSheets = [animationSheet];
     super.connectedCallback();
     if (this.infinite) {
       this.observer = new IntersectionObserver((entries) => {

@@ -60,7 +60,7 @@ export default class DatePicker extends FormInner<DatePickerState> {
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     const fragment = document.createDocumentFragment();
     // input
     const $input = $$("input", { class: "l-input__inner", placeholder: "请选择日期" });

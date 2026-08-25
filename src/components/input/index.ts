@@ -155,7 +155,7 @@ export default class Input extends FormInner<InputState> {
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       template: this.render(),
       style: [css, innerCss],

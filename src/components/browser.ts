@@ -117,7 +117,7 @@ loadStyle();
 
 import "../../styles/reset.css";
 import "../../styles/message.css";
-import "./styles/animation.css";
+import "./styles/animation/index.css";
 import "./button/index.less";
 import "./icon/index.less";
 import "./input/index.less";

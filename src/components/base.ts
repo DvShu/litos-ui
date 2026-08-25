@@ -75,8 +75,8 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     return this.shadowRoot as ShadowRoot;
   }
 
-  get root(): ShadowRoot | HTMLElement {
-    return this.shadowRoot || this;
+  get root(): ShadowRoot {
+    return (this.shadowRoot || this) as ShadowRoot;
   }
 
   public createStyle(text: string) {
@@ -147,6 +147,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
   public appendToRootV2(
     template?: HTMLElement | string | DocumentFragment,
     style?: string | string[],
+    styleSheets?: CSSStyleSheet[],
   ) {
     const htmls: string[] = [];
     if (style) {
@@ -162,6 +163,9 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
         $tmp = undefined as any;
       }
     }
+    if (styleSheets) {
+      this.root.adoptedStyleSheets = styleSheets;
+    }
     this.root.innerHTML = htmls.join("");
   }
 
@@ -170,7 +174,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
       this.appendToRoot(this.render() as any);
     } else {
       const res = this.render_v2();
-      this.appendToRootV2(res.template, res.style);
+      this.appendToRootV2(res.template, res.style, res.styleSheets);
     }
     this.rendered = true;
     this.initEvents();
@@ -194,7 +198,11 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
    * 渲染器
    * @returns [渲染节点,内容, 模板样式]
    */
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2(): {
+    template?: string | HTMLElement | DocumentFragment;
+    style?: string | string[];
+    styleSheets?: CSSStyleSheet[];
+  } {
     return {};
   }
 

@@ -177,7 +177,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
     return $close;
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       style: css,
       template: this.render(),

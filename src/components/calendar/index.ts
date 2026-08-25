@@ -282,7 +282,7 @@ export default class Calendar extends BaseComponent<CalendarState> {
     return `<thead>${this._renderHeader()}</thead><tbody>${this._renderBody()}</tbody>`;
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     // 4. 返回完整拼接的 table 字符串
     const template = `<table class="calendar-table" l-day="__stop__">${this.rerender()}</table>`;
 

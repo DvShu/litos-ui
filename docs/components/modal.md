@@ -19,7 +19,12 @@ regist(CloseIcon);
 <script setup>
   import { $one, on, off, $, iterate, $$ } from 'ph-utils/browser';
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import LModalBox from '../../src/components/modal/modal_box'
+
+  let LModalBox;
+  if (!import.meta.env.SSR) {
+    const mod = await import('../../src/components/modal/modal_box');
+    LModalBox = mod.default;
+  }
 
   let $btns;
   let $modals;

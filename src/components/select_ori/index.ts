@@ -34,7 +34,7 @@ export default class SelectOri extends FormInner {
     this.$select = undefined;
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       template: this.render(),
       style: [inputcss, css],

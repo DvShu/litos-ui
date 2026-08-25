@@ -67,7 +67,7 @@ export default class BaseIcon extends BaseComponent<ColorState> {
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     const $svg = this.createEl("svg");
     $svg.classList.add("l-icon");
     if (!this.useLink) {

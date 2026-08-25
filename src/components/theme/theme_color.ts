@@ -17,7 +17,7 @@ export default class ThemeColor extends BaseComponent<ThemeColorState> {
     };
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       template: `<l-color-picker value="${this._state.color}"></l-color-picker>`,
     };

@@ -2,8 +2,8 @@ import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
 import { formatClass, addClass, removeClass, formatStyle, on, off, $one } from "ph-utils/browser";
 import { adjust } from "ph-utils";
-import buttonCss from "./index.less?inline";
-import animationCss from "../styles/animation.css?inline";
+import animationSheet from "../styles/animation";
+import buttonSheet from "./style";
 
 type ButtonState = {
   loading: boolean;
@@ -168,10 +168,10 @@ export default class Button extends BaseComponent<ButtonState> {
     return this._state.htmlType as "submit" | "reset" | "button";
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     this._changedProperties.clear();
     return {
-      style: [animationCss, buttonCss],
+      styleSheets: [buttonSheet, animationSheet],
       template: this.render(),
     };
   }

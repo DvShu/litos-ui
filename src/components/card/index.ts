@@ -49,7 +49,7 @@ export default class Card extends BaseComponent<CardState> {
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       style: cardCss,
       template: this.render(),

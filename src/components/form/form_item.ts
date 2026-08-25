@@ -150,7 +150,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     }
   }
 
-  render_v2(): { template?: string | HTMLElement | DocumentFragment; style?: string | string[] } {
+  render_v2() {
     return {
       template: this.render(),
       style: [css],

@@ -16,8 +16,16 @@ regist([DialogContainer, Button, CloseIcon]);
 <script setup>
   import { $one, on, off, $, iterate } from 'ph-utils/browser';
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import Dialog from '../../src/components/dialog'
-  import DialogBox from '../../src/components/dialog/dialog_box'
+
+  let Dialog, DialogBox;
+  if (!import.meta.env.SSR) {
+    const [dialogMod, dialogBoxMod] = await Promise.all([
+      import('../../src/components/dialog'),
+      import('../../src/components/dialog/dialog_box'),
+    ]);
+    Dialog = dialogMod.default;
+    DialogBox = dialogBoxMod.default;
+  }
 
   let dialogs = {};
   let $btns;
