@@ -144,6 +144,10 @@ export default defineConfig({
             text: "DatePicker 日期选择器",
             link: "/components/date_picker",
           },
+          {
+            text: "InputNumber 数字输入框",
+            link: "/components/input_number",
+          },
         ],
       },
       {

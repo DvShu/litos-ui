@@ -50,6 +50,7 @@ export { default as Checkbox } from "./check/checkbox";
 export { default as CheckboxGroup } from "./check/checkbox_group";
 export { default as Button } from "./button";
 export { default as Input } from "./input";
+export { default as InputNumber } from "./input_number";
 export { default as SelectOri } from "./select_ori";
 export { default as Switch } from "./switch";
 export { default as MdInput } from "./md_input";

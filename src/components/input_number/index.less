@@ -1,0 +1,151 @@
+:host {
+  --l-input-number-border-color: var(--l-border-color, #d9d9d9);
+  --l-input-number-btn-color: #606266;
+  --l-input-number-btn-hover-color: var(--l-primary-color, #722ed1);
+  --l-input-number-btn-disabled-color: #c0c4cc;
+  --l-input-number-bg: #ffffff;
+  --l-input-number-btn-bg: #f5f7fa;
+  --l-input-number-btn-hover-bg: var(--l-primary-color-light5, #f3e8ff);
+  --l-input-number-width: 170px;
+  display: inline-flex;
+  width: var(--l-input-number-width);
+  height: var(--l-form-control-height, 32px);
+  align-items: center;
+  border: 1px solid var(--l-input-number-border-color);
+  border-radius: var(--l-border-radius, 3px);
+  box-sizing: border-box;
+  vertical-align: middle;
+  background-color: var(--l-input-number-bg);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+}
+
+:host(:focus-within) {
+  --l-input-number-border-color: var(--l-primary-color, #722ed1);
+  box-shadow: 0 0 0 3px var(--l-primary-color-light5);
+}
+
+/* block */
+:host(.is-block) {
+  width: 100%;
+}
+
+/* disabled */
+:host(.is-disabled) {
+  background-color: var(--l-disabled-color, #f5f7fa);
+  cursor: not-allowed;
+}
+
+:host(.is-disabled) .l-input-number__btn {
+  color: var(--l-input-number-btn-disabled-color);
+  cursor: not-allowed;
+}
+
+:host(.is-disabled) .l-input-number__btn:hover {
+  background-color: var(--l-input-number-btn-bg);
+}
+
+/* error */
+:host(.is-error) {
+  --l-input-number-border-color: var(--l-error-color);
+}
+:host(.is-error:focus-within) {
+  box-shadow: 0 0 0 3px var(--l-error-color-light5);
+}
+
+/* 尺寸 */
+:host(.l-input-number--small) {
+  --l-form-control-height: 24px;
+  font-size: 12px;
+}
+
+:host(.l-input-number--large) {
+  --l-form-control-height: 40px;
+  --l-border-radius: 6px;
+  font-size: 16px;
+}
+
+/* 步进按钮 */
+.l-input-number__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: var(--l-input-number-btn-bg);
+  color: var(--l-input-number-btn-color);
+  cursor: pointer;
+  outline: none;
+  flex-shrink: 0;
+  transition: background-color 0.25s, color 0.25s;
+  -webkit-user-select: none;
+  user-select: none;
+  font-size: inherit;
+}
+
+.l-input-number__btn:hover:not(:disabled) {
+  background: var(--l-input-number-btn-hover-bg);
+  color: var(--l-input-number-btn-hover-color);
+}
+
+.l-input-number__btn:active:not(:disabled) {
+  background: var(--l-primary-color-light4, #e2d3fa);
+  color: var(--l-primary-color-dark1, #531dab);
+}
+
+.l-input-number__btn:disabled {
+  color: var(--l-input-number-btn-disabled-color);
+  cursor: not-allowed;
+}
+
+/* 隐藏控件时 */
+:host(.l-input-number--no-controls) .l-input-number__inner {
+  text-align: left;
+}
+
+/* 输入框 */
+.l-input-number__inner {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  padding: 0 8px;
+  text-align: center;
+  font-size: inherit;
+  color: var(--l-input-number-btn-color);
+  background: transparent;
+  box-sizing: border-box;
+  -moz-appearance: textfield;
+}
+
+.l-input-number__inner::-webkit-outer-spin-button,
+.l-input-number__inner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.l-input-number__inner::placeholder {
+  color: #c0c4cc;
+}
+
+/* dark mode */
+html.dark {
+  :host {
+    --l-input-number-bg: rgba(255, 255, 255, 0.06);
+    --l-input-number-btn-bg: rgba(255, 255, 255, 0.08);
+    --l-input-number-btn-color: rgba(255, 255, 255, 0.65);
+    --l-input-number-btn-hover-bg: var(--l-primary-color-light5);
+    --l-input-number-btn-disabled-color: rgba(255, 255, 255, 0.25);
+  }
+
+  :host(.is-disabled) {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .l-input-number__inner::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+  }
+}
