@@ -10,6 +10,7 @@ export { default as DialogBox } from "./dialog/dialog_box";
 export { default as Loading } from "./loading";
 export { default as Tabs } from "./tabs";
 export { default as Modal } from "./modal";
+export { default as ModalBox } from "./modal/modal_box";
 
 export { default as BaseIcon } from "./icon/base";
 export { default as ArrowDownIcon } from "./icon/arrow_down";
@@ -41,6 +42,7 @@ export { default as ZoomOutIcon } from "./icon/zoom_out";
 export { default as SelectIcon } from "./icon/select";
 export { default as CalendarIcon } from "./icon/calendar";
 export { default as RefreshIcon } from "./icon/refresh";
+export { default as CopyIcon } from "./icon/copy";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";

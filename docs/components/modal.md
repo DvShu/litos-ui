@@ -20,12 +20,6 @@ regist(CloseIcon);
   import { $one, on, off, $, iterate, $$ } from 'ph-utils/browser';
   import { onMounted, nextTick, onUnmounted } from 'vue';
 
-  let LModalBox;
-  if (!import.meta.env.SSR) {
-    const mod = await import('../../src/components/modal/modal_box');
-    LModalBox = mod.default;
-  }
-
   let $btns;
   let $modals;
 
@@ -33,15 +27,15 @@ regist(CloseIcon);
     const $target = e.target;
     const id = $target.id;
     if (id === 'alert') {
-      LModalBox.alert('这是一段内容', '标题').then(() => {
+      ModalBox.alert('这是一段内容', '标题').then(() => {
         console.log("alert close")
       })
     } else if (id === 'confirm') {
-      LModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
+      ModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
         console.log(ok)
       })
     } else if (id === 'prompt') {
-      LModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
+      ModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
         console.log(text)
       })
     } else {

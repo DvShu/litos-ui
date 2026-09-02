@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
-//@ts-ignore
-import css from "./dialog_container.css?inline";
+import style from "./dialog_container_style";
+
 import { $$, formatClass, $one, $, iterate, on, off, shouldEventNext } from "ph-utils/browser";
 
 type DialogContainerState = {
@@ -67,12 +67,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
   #handleEvent(e: Event) {
     const [next, action] = shouldEventNext(e, "data-action");
     if (next) {
-      this.dispatchEvent(
-        new CustomEvent("dialogAction", {
-          detail: { action },
-          composed: true,
-        }),
-      );
+      this.emit("dialogAction", { detail: { action } });
     }
   }
 
@@ -171,6 +166,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
       type: "normal",
       class: this.#closeBtnClass(),
       "data-action": "close",
+      part: "close-icon",
     });
     const $closeIcon = $$("l-close-icon");
     $close.appendChild($closeIcon);
@@ -179,8 +175,8 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
 
   render_v2() {
     return {
-      style: css,
       template: this.render(),
+      styleSheets: [style],
     };
   }
 
@@ -191,10 +187,11 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
     }
     const $main = $$("div", {
       class: ["l-dialog-main", this._state.mobile ? "l-dialog-main--mobile" : ""],
+      part: "main",
     });
     if (this._state.showHeader) {
       // header
-      const $header = $$("header", { class: "l-dialog-header" });
+      const $header = $$("header", { class: "l-dialog-header", part: "header" });
       const $headerSlot = $$("slot", { name: "header" });
       $headerSlot.textContent = this._state.header || "";
       $header.appendChild($headerSlot);
@@ -204,6 +201,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
     // body
     const $body = $$("div", {
       class: formatClass(["l-dialog-container", this._state.containerClass]),
+      part: "container",
     });
     const $bodySlot = $$("slot");
     $body.appendChild($bodySlot);
@@ -211,7 +209,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
 
     if (this._state.showFooter) {
       // footer
-      const $footer = $$("div", { class: "l-dialog-footer" });
+      const $footer = $$("div", { class: "l-dialog-footer", part: "footer" });
       const $footerSlot = $$("slot", { name: "footer" });
       if (this._state.showCancel) {
         const $cancelBtn = $$("l-button", {
