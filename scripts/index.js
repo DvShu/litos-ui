@@ -135,18 +135,6 @@ function createComponentTemplate(name) {
     })
     .then();
 
-  // iife模式
-  const iifePath = path.join(cwd, "src/components/browser.ts");
-  readFile(iifePath, "utf-8")
-    .then((content) => {
-      content = content.replace(
-        "//Web Components Import",
-        `import ${name} from "./${fileName}";\n//Web Components Import\nregist(${name})`,
-      );
-      content = content.trim() + `\nimport "./${fileName}/index.less";\n`;
-      return write(iifePath, content);
-    })
-    .then();
   console.log(styleText("green", "组件模板成功"));
 }
 

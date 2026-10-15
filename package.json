@@ -26,8 +26,6 @@
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
-  "unpkg": "./lib/litos-ui.min.js",
-  "jsdelivr": "./lib/litos-ui.min.js",
   "exports": {
     "./styles/*": "./styles/*",
     "./lib/*": "./lib/*",

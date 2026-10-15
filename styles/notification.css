@@ -1,0 +1,17 @@
+/**
+ * Notification 通知提醒框 - 深色模式
+ *
+ * 组件使用 Shadow DOM, 内部样式无法被外部选择器覆盖,
+ * 因此这里通过覆盖宿主节点上的 CSS 变量来实现深色模式
+ * (外部树的声明优先级高于组件内部的 :host 声明)。
+ */
+html.dark l-notification {
+  --l-notification-background: #1f1f1f;
+  --l-notification-title-color: rgba(255, 255, 255, 0.88);
+  --l-notification-message-color: rgba(255, 255, 255, 0.65);
+  --l-notification-shadow:
+    0 6px 16px 0 rgba(0, 0, 0, 0.4), 0 3px 6px -4px rgba(0, 0, 0, 0.5),
+    0 9px 28px 8px rgba(0, 0, 0, 0.3);
+  --l-notification-action-hover-background: rgba(255, 255, 255, 0.08);
+  --l-notification-close-hover-background: rgba(255, 255, 255, 0.12);
+}

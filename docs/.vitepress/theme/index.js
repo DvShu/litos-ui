@@ -2,6 +2,7 @@ import DefaultTheme from "vitepress/theme";
 import "./style.css";
 import "../../../styles/vars.css";
 import "../../../styles/message.css";
+import "../../../styles/notification.css";
 import "../../../styles/reset.css";
 import "../../../styles/transition.css";
 import "../../../styles/animation.css";

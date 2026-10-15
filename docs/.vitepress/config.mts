@@ -148,6 +148,10 @@ export default defineConfig({
             text: "InputNumber 数字输入框",
             link: "/components/input_number",
           },
+          {
+            text: "Upload 上传",
+            link: "/components/upload",
+          },
         ],
       },
       {
@@ -220,6 +224,10 @@ export default defineConfig({
           {
             text: "Message 消息提示",
             link: "/components/message",
+          },
+          {
+            text: "Notification 通知提醒框",
+            link: "/components/notification",
           },
           {
             text: "Popover 弹出气泡",

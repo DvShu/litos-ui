@@ -1,0 +1,210 @@
+:host {
+  /* 通知宽度 */
+  --l-notification-width: 330px;
+  /* 同一个方位的通知之间的间距 */
+  --l-notification-gap: 16px;
+  /* 距离视口边缘的距离, 由 js 同步到宿主节点上 */
+  --l-notification-offset: 16px;
+  /* 层级 */
+  --l-notification-zindex: 2000;
+  --l-notification-padding: 16px;
+  --l-notification-radius: 8px;
+  --l-notification-background: #ffffff;
+  --l-notification-shadow:
+    0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+  --l-notification-title-color: rgba(0, 0, 0, 0.88);
+  --l-notification-message-color: rgba(0, 0, 0, 0.65);
+  --l-notification-icon-size: 22px;
+  /* 动画时长 */
+  --l-notification-anim-duration: 0.3s;
+  /* 入场/离场的位移方向, 顶部方位从上方进入, 底部方位从下方进入 */
+  --l-notification-enter-offset: -20px;
+  /* 状态色 */
+  --l-notification-color: var(--l-primary-color, #007bff);
+  /* 行动点与关闭按钮的悬浮背景 */
+  --l-notification-action-hover-background: rgba(0, 0, 0, 0.04);
+  --l-notification-close-hover-background: rgba(0, 0, 0, 0.06);
+  position: fixed;
+  z-index: var(--l-notification-zindex, 2000);
+  width: var(--l-notification-width);
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  font-size: 14px;
+  line-height: 1.5715;
+  color: var(--l-notification-title-color);
+  /* 同一个方位的通知由 js 计算 top/bottom, 位置变化时平滑移动 */
+  transition:
+    top var(--l-notification-anim-duration) ease,
+    bottom var(--l-notification-anim-duration) ease;
+}
+
+/* 方位: 左右由方位决定, 上下由 js 计算后设置 */
+:host([placement="topLeft"]),
+:host([placement="bottomLeft"]) {
+  left: var(--l-notification-offset, 16px);
+  right: auto;
+}
+
+:host([placement="topRight"]),
+:host([placement="bottomRight"]) {
+  right: var(--l-notification-offset, 16px);
+  left: auto;
+}
+
+/* 底部方位从下方进入 */
+:host([placement="bottomLeft"]),
+:host([placement="bottomRight"]) {
+  --l-notification-enter-offset: 20px;
+}
+
+/* 关闭后保留在文档中的通知 */
+:host([hidden]) {
+  display: none;
+}
+
+/* 状态色 */
+:host([type="info"]) {
+  --l-notification-color: var(--l-primary-color, #007bff);
+}
+:host([type="success"]) {
+  --l-notification-color: var(--l-success-color, #52c41a);
+}
+:host([type="error"]) {
+  --l-notification-color: var(--l-error-color, #f5222d);
+}
+:host([type="warning"]) {
+  --l-notification-color: var(--l-warn-color, #faad14);
+}
+
+/* 入场/离场动画的起始状态: 淡出 + 位移 */
+:host(.l-notification-enter),
+:host(.l-notification-leave) {
+  opacity: 0;
+  transform: translateY(var(--l-notification-enter-offset)) scale(0.95);
+}
+
+/* 过渡在起始状态应用之后才开启, 避免从已显示状态反向过渡 */
+:host(.l-notification-enter-active),
+:host(.l-notification-leave-active) {
+  transition:
+    top var(--l-notification-anim-duration) ease,
+    bottom var(--l-notification-anim-duration) ease,
+    opacity var(--l-notification-anim-duration) ease,
+    transform var(--l-notification-anim-duration) ease;
+}
+
+.l-notification {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: var(--l-notification-padding);
+  background: var(--l-notification-background);
+  border-radius: var(--l-notification-radius);
+  box-shadow: var(--l-notification-shadow);
+  border-left: 4px solid var(--l-notification-color);
+  box-sizing: border-box;
+}
+
+/* 状态图标 */
+.l-notification-icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(var(--l-notification-icon-size) * 1.4);
+  font-size: var(--l-notification-icon-size);
+  color: var(--l-notification-color);
+}
+
+/* 内容区域 */
+.l-notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.l-notification-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--l-notification-title-color);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.l-notification-message {
+  color: var(--l-notification-message-color);
+  word-break: break-word;
+}
+
+.l-notification-message-text {
+  display: block;
+}
+
+/* 行动点 */
+.l-notification-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.l-notification-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid var(--l-notification-color);
+  border-radius: var(--l-border-radius, 3px);
+  background: transparent;
+  color: var(--l-notification-color);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    opacity 0.3s,
+    background-color 0.3s;
+}
+
+.l-notification-action:hover {
+  opacity: 0.8;
+  background: var(--l-notification-action-hover-background);
+}
+
+/* 关闭按钮 */
+.l-notification-close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin-left: auto;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--l-notification-message-color);
+  font-size: 14px;
+  cursor: pointer;
+  transition:
+    color 0.3s,
+    background-color 0.3s;
+}
+
+.l-notification-close:hover {
+  color: var(--l-notification-title-color);
+  background: var(--l-notification-close-hover-background);
+}
+
+/* 内容为空时不占用空间 */
+.l-notification-title[hidden],
+.l-notification-message[hidden],
+.l-notification-actions[hidden],
+.l-notification-icon[hidden],
+.l-notification-close[hidden],
+.l-notification-title-text[hidden],
+.l-notification-message-text[hidden] {
+  display: none;
+}

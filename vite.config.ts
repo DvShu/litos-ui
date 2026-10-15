@@ -23,7 +23,6 @@ for (const filename of entryFiles) {
   if (ignoreFiles.includes(filename)) {
     continue;
   }
-  if (filename === "browser.ts") continue;
   const filepath = path.parse(filename);
   if (filepath.ext === "" || filepath.ext === ".css" || filepath.ext === ".less") continue;
   const fileAbsName = path.join(dir, filename);

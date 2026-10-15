@@ -102,3 +102,12 @@ export { default as Space } from "./space";
 export { default as Card } from "./card";
 
 export { default as Calendar } from "./calendar";
+
+export { default as Upload } from "./upload";
+
+export { default as Notification } from "./notification";
+export type {
+  NotificationOptions,
+  NotificationType,
+  NotificationPlacement,
+} from "./notification";
