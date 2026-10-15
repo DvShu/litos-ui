@@ -14,7 +14,6 @@ import "litos-ui/styles/message.css";
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import { elem, iterate, on } from 'ph-utils/browser';
-  import LMessage from '../../src/components/message'
 
   let $btns;
   let id;
@@ -25,9 +24,9 @@ import "litos-ui/styles/message.css";
     const type = $target.getAttribute('data-type') || 'info';
     const duration = $target.getAttribute('data-duration') || 3000;
     if (type !== 'close') {
-      id = LMessage.show({ message, type, duration: Number(duration) });
+      id = Message.show({ message, type, duration: Number(duration) });
     } else {
-      LMessage.close(id);
+      Message.close(id);
     }
   }
 

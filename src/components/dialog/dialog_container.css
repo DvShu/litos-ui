@@ -10,9 +10,10 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
   border-radius: 5px;
   background-color: #ffffff;
+  padding: var(--l-dialog-main-padding, 0);
 }
 .l-dialog-header {
-  padding: 10px;
+  padding: var(--l-dialog-header-padding, 10px);
   font-size: 16px;
   border-bottom: 1px solid var(--l-dialog-line-color, rgba(0, 0, 0, 0.06));
   font-weight: 600;
@@ -21,14 +22,14 @@
   gap: 5px;
 }
 .l-dialog-footer {
-  padding: 10px;
+  padding: var(--l-dialog-footer-padding, 10px);
   border-top: 1px solid var(--l-dialog-line-color, rgba(0, 0, 0, 0.06));
   display: flex;
   justify-content: flex-end;
   gap: 10px;
 }
 .l-dialog-container {
-  padding: 15px 10px;
+  padding: var(--l-dialog-container-padding, 15px 10px);
   font-size: 14px;
 }
 .l-btn-dialog-close {
@@ -36,8 +37,8 @@
   position: absolute;
 }
 .l-dialog-close1 {
-  right: 5px;
-  top: 6px;
+  right: var(--l-dialog-close-right, 5px);
+  top: var(--l-dialog-close-top, 6px);
 }
 .l-dialog-close1::part(default) {
   width: auto;
@@ -47,8 +48,8 @@
   font-size: 16px;
 }
 .l-dialog-close2 {
-  right: 0;
-  top: 0;
+  right: var(--l-dialog-close-right, 0);
+  top: var(--l-dialog-close-top, 0);
 }
 .l-dialog-close2::part(default) {
   width: 20px;

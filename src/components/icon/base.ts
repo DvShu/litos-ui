@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { unitNumberStr } from "../utils";
-import css from "./index.less?inline";
+import style from "./icon_style";
 
 type ColorState = {
   color?: string;
@@ -11,11 +11,13 @@ export default class BaseIcon extends BaseComponent<ColorState> {
   public static baseName = "base-icon";
   public useLink: boolean;
   public viewBox: string;
+  public strokeIcon: boolean;
 
   constructor() {
     super();
     this.useLink = false;
     this.viewBox = "0 0 1024 1024";
+    this.strokeIcon = false;
     this.version = 2;
     this._state = {};
   }
@@ -42,7 +44,6 @@ export default class BaseIcon extends BaseComponent<ColorState> {
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    console.log("up");
     if (changedProps.has("color")) {
       this._updateColor();
     }
@@ -70,6 +71,9 @@ export default class BaseIcon extends BaseComponent<ColorState> {
   render_v2() {
     const $svg = this.createEl("svg");
     $svg.classList.add("l-icon");
+    if (this.strokeIcon) {
+      $svg.classList.add("l-stroke-icon");
+    }
     if (!this.useLink) {
       $svg.setAttribute("viewBox", this.viewBox);
     }
@@ -92,7 +96,7 @@ export default class BaseIcon extends BaseComponent<ColorState> {
     }
     return {
       template: $svg as any,
-      style: css,
+      styleSheets: [style],
     };
   }
 

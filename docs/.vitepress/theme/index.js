@@ -23,6 +23,7 @@ export default {
   async enhanceApp() {
     if (!import.meta.env.SSR) {
       const module = await import("../../../src/components");
+      // console.log(module);
       for (const key in module) {
         const component = module[key];
         if (component.baseName) {
@@ -30,6 +31,10 @@ export default {
             add(component.baseName);
           }
           module.regist(component);
+        } else {
+          if (key === "DialogBox" || key === "Dialog" || key === "ModalBox" || key === "Message") {
+            window[key] = component;
+          }
         }
       }
       const CodePreview = await import("../../../src/app_components/code_preview");

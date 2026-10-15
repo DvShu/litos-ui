@@ -5,7 +5,7 @@
 ## 引用
 
 ```js
-import { DialogContainer, regist, Button, CloseIcon } from "litos-ui";
+import { DialogContainer, regist, Button, CloseIcon, Dialog, DialogBox } from "litos-ui";
 import "litos-ui/styles/dialog.css";
 
 regist([DialogContainer, Button, CloseIcon]);
@@ -17,15 +17,6 @@ regist([DialogContainer, Button, CloseIcon]);
   import { $one, on, off, $, iterate } from 'ph-utils/browser';
   import { onMounted, nextTick, onUnmounted } from 'vue';
 
-  let Dialog, DialogBox;
-  if (!import.meta.env.SSR) {
-    const [dialogMod, dialogBoxMod] = await Promise.all([
-      import('../../src/components/dialog'),
-      import('../../src/components/dialog/dialog_box'),
-    ]);
-    Dialog = dialogMod.default;
-    DialogBox = dialogBoxMod.default;
-  }
 
   let dialogs = {};
   let $btns;
@@ -57,7 +48,7 @@ regist([DialogContainer, Button, CloseIcon]);
 
   onMounted(() => {
     nextTick(() => {
-      if (!import.meta.env.SSR) {
+      if (!import.meta.env.SSR && Dialog) {
         dialogs['dialog'] = new Dialog({ el: '#dialog', onAction: (action, done) => {
           console.log(action);
           done();
@@ -90,7 +81,7 @@ regist([DialogContainer, Button, CloseIcon]);
           on($btn, 'click', showBoxDialog);
         });
       }
-    })
+    });
   });
 
   onUnmounted(() => {
@@ -396,6 +387,31 @@ regist([DialogContainer]);
 | 事件名         | detail               | 说明                                                          |
 | -------------- | -------------------- | ------------------------------------------------------------- |
 | `dialogAction` | `{ action: string }` | 按钮点击时触发，`action` 值为 `"ok"`、`"cancel"` 或 `"close"` |
+
+#### CSS 变量
+
+可在 `l-dialog-container` 元素或其祖先元素上设置以下 CSS 变量，以自定义对话框容器样式。
+
+| 变量名 | 默认值 | 说明 |
+| --- | --- | --- |
+| `--l-dialog-main-padding` | `0` | 对话框整体内边距 |
+| `--l-dialog-header-padding` | `10px` | 标题栏内边距，非移动端风格下生效 |
+| `--l-dialog-container-padding` | `15px 10px` | 内容区内边距，非移动端风格下生效 |
+| `--l-dialog-footer-padding` | `10px` | 底部操作区内边距，非移动端风格下生效 |
+| `--l-dialog-line-color` | `rgba(0, 0, 0, 0.06)` | 标题栏、底部操作区及移动端底部按钮之间的分隔线颜色；移动端标题栏分隔线为透明 |
+| `--l-dialog-close-right` | `close="1"` 时为 `5px`，`close="2"` 时为 `0` | 关闭按钮距容器右侧的偏移 |
+| `--l-dialog-close-top` | `close="1"` 时为 `6px`，`close="2"` 时为 `0` | 关闭按钮距容器顶部的偏移 |
+
+```html
+<l-dialog-container
+  header="自定义样式"
+  style="--l-dialog-header-padding: 16px; --l-dialog-container-padding: 20px; --l-dialog-footer-padding: 16px; --l-dialog-close-top: 12px;"
+>
+  <div>对话框内容</div>
+</l-dialog-container>
+```
+
+> 移动端风格（`mobile`）下，标题栏、内容区、底部操作区的内边距分别固定为 `20px 10px 5px`、`5px 15px 20px`、`0`，会覆盖对应 padding 变量的效果。`--l-dialog-main-padding` 仍然生效。
 
 ---
 
