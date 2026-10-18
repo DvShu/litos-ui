@@ -44,7 +44,8 @@
     "docs:preview": "vitepress preview docs",
     "create": "node scripts/index.js create",
     "dts:build": "tsc -p tsconfig.build.json",
-    "lib:build": "npm run build && npm run dts:build"
+    "lib:build": "npm run build && npm run dts:build",
+    "api": "node scripts/api.ts"
   },
   "dependencies": {
     "alien-signals": "^3.2.1",

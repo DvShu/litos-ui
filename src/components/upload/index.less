@@ -5,7 +5,6 @@
   --l-upload-border-hover-color: var(--l-primary-color, #722ed1);
   --l-upload-background: #ffffff;
   --l-upload-dragover-background: var(--l-primary-color-light5, #f9f0ff);
-  --l-upload-text-color: rgba(0, 0, 0, 0.88);
   --l-upload-text-secondary-color: rgba(0, 0, 0, 0.45);
   --l-upload-progress-color: var(--l-primary-color, #722ed1);
   --l-upload-success-color: #52c41a;
@@ -14,52 +13,16 @@
   --l-upload-disabled-background: #fbfbfb;
   --l-upload-disabled-border-color: #e6e6e6;
   --l-upload-border-radius: var(--l-border-radius, 3px);
-  --l-upload-font-size: 14px;
   --l-upload-list-item-height: 32px;
   --l-upload-picture-size: 100px;
-  display: inline-block;
+  display: block;
   width: var(--l-upload-width);
   height: var(--l-upload-height);
   box-sizing: border-box;
-  font-size: var(--l-upload-font-size);
-  color: var(--l-upload-text-color);
-}
-
-.l-upload {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 /* 触发区域 */
 .l-upload-trigger {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  padding: 8px 15px;
-  border: 1px dashed var(--l-upload-border-color);
-  border-radius: var(--l-upload-border-radius);
-  background: var(--l-upload-background);
-  cursor: pointer;
-  transition:
-    border-color 0.3s,
-    background-color 0.3s;
-
-  &:hover {
-    border-color: var(--l-upload-border-hover-color);
-  }
-}
-
-.l-upload-trigger--disabled {
-  cursor: not-allowed;
-  border-color: var(--l-upload-disabled-border-color);
-  background: var(--l-upload-disabled-background);
-  color: var(--l-upload-disabled-color);
-
-  &:hover {
-    border-color: var(--l-upload-disabled-border-color);
-  }
 }
 
 /* 拖拽状态 */
@@ -263,7 +226,6 @@ html.dark {
     --l-upload-border-hover-color: var(--l-primary-color-light1, #9254de);
     --l-upload-background: rgba(255, 255, 255, 0.04);
     --l-upload-dragover-background: rgba(114, 46, 209, 0.1);
-    --l-upload-text-color: rgba(255, 255, 255, 0.88);
     --l-upload-text-secondary-color: rgba(255, 255, 255, 0.45);
     --l-upload-disabled-color: rgba(255, 255, 255, 0.3);
     --l-upload-disabled-background: rgba(255, 255, 255, 0.08);

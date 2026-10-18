@@ -1,11 +1,11 @@
-import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
+import { kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import { formatClass, addClass, removeClass, on, off, $one, $$ } from "ph-utils/browser";
 import animationSheet from "../styles/animation";
 import uploadSheet from "./style";
 
-type UploadFile = {
-  uid: number;
+export type UploadFile = {
+  id: number;
   name: string;
   size: number;
   status: "ready" | "uploading" | "success" | "fail";
@@ -32,7 +32,7 @@ type UploadState = {
   loading: boolean;
 };
 
-let fileUid = 0;
+let fileId = 0;
 
 export default class Upload extends BaseComponent<UploadState> {
   public static baseName = "upload";
@@ -67,13 +67,6 @@ export default class Upload extends BaseComponent<UploadState> {
 
   set disabled(value: boolean) {
     this._state.disabled = value;
-    if (this.$trigger) {
-      if (value) {
-        addClass(this.$trigger, "l-upload-trigger--disabled");
-      } else {
-        removeClass(this.$trigger, "l-upload-trigger--disabled");
-      }
-    }
   }
 
   get fileList() {
@@ -183,7 +176,6 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   render_v2() {
-    this._changedProperties.clear();
     return {
       styleSheets: [uploadSheet, animationSheet],
       template: this.render(),
@@ -208,36 +200,35 @@ export default class Upload extends BaseComponent<UploadState> {
     if (this.$trigger) {
       off(this.$trigger, "click", this._handleClick);
     }
+    this.$trigger = undefined;
+    this.$input = undefined;
   }
 
   public render() {
     const isPicture = this._state.listType === "picture";
-    const container = $$("div", {
-      class: formatClass([
-        "l-upload",
-        isPicture ? "l-upload-picture" : "",
-        this._state.drag ? "l-upload-drag" : "",
-      ]),
-      part: "default",
-    });
+    // const container = $$("div", {
+    //   class: formatClass([
+    //     "l-upload",
+    //     isPicture ? "l-upload-picture" : "",
+    //     this._state.drag ? "l-upload-drag" : "",
+    //   ]),
+    //   part: "default",
+    // });
+    const fragment = document.createDocumentFragment();
 
     // 触发区域
-    const triggerClass = formatClass([
-      "l-upload-trigger",
-      this._state.disabled ? "l-upload-trigger--disabled" : "",
-    ]);
     const trigger = $$("div", {
-      class: triggerClass,
+      class: ["l-upload-trigger"],
       part: "trigger",
     });
     trigger.innerHTML = "<slot></slot>";
-    container.appendChild(trigger);
+    fragment.appendChild(trigger);
 
     // 隐藏的 file input
-    const input = document.createElement("input");
-    input.type = "file";
-    input.className = "l-upload-input";
-    input.style.display = "none";
+    const input = $$("input", {
+      type: "file",
+      class: "l-upload-input",
+    }) as HTMLInputElement;
     if (this._state.accept) {
       input.accept = this._state.accept;
     }
@@ -247,15 +238,15 @@ export default class Upload extends BaseComponent<UploadState> {
     if (this._state.disabled) {
       input.disabled = true;
     }
-    container.appendChild(input);
+    fragment.appendChild(input);
 
     // 文件列表
-    if (this._state.showFileList) {
-      const list = this._renderFileList();
-      container.appendChild(list);
-    }
+    // if (this._state.showFileList) {
+    //   const list = this._renderFileList();
+    //   container.appendChild(list);
+    // }
 
-    return container;
+    return fragment;
   }
 
   private _resetClass() {
@@ -320,7 +311,7 @@ export default class Upload extends BaseComponent<UploadState> {
 
     // 创建 UploadFile 对象
     const uploadFiles: UploadFile[] = processedFiles.map((file) => ({
-      uid: ++fileUid,
+      id: ++fileId,
       name: file.name,
       size: file.size,
       status: "ready" as const,
@@ -368,11 +359,8 @@ export default class Upload extends BaseComponent<UploadState> {
   private _renderFileItem(file: UploadFile): HTMLElement {
     const isPicture = this._state.listType === "picture";
     const item = $$("div", {
-      class: formatClass([
-        "l-upload-list-item",
-        `l-upload-list-item--${file.status}`,
-      ]),
-      "data-uid": file.uid,
+      class: formatClass(["l-upload-list-item", `l-upload-list-item--${file.status}`]),
+      "data-id": file.id,
     });
 
     if (isPicture) {
@@ -426,7 +414,7 @@ export default class Upload extends BaseComponent<UploadState> {
       const previewBtn = $$("button", {
         class: "l-upload-list-item-action",
         type: "button",
-        innerHTML: '<l-search-icon></l-search-icon>',
+        innerHTML: "<l-search-icon></l-search-icon>",
         "aria-label": "预览",
       });
       on(previewBtn, "click", () => this.handlePreview(file));
@@ -437,7 +425,7 @@ export default class Upload extends BaseComponent<UploadState> {
     const removeBtn = $$("button", {
       class: "l-upload-list-item-action",
       type: "button",
-      innerHTML: '<l-close-icon></l-close-icon>',
+      innerHTML: "<l-close-icon></l-close-icon>",
       "aria-label": "删除",
     });
     on(removeBtn, "click", () => this.handleRemove(file));
@@ -498,7 +486,7 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   public handleRemove(file: UploadFile) {
-    const index = this._state.fileList.findIndex((f) => f.uid === file.uid);
+    const index = this._state.fileList.findIndex((f) => f.id === file.id);
     if (index > -1) {
       this._state.fileList.splice(index, 1);
       this._renderFileList();
@@ -577,7 +565,7 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   private _updateFileProgress(file: UploadFile) {
-    const item = $one(`[data-uid="${file.uid}"]`, this.root);
+    const item = $one(`[data-id="${file.id}"]`, this.root);
     if (item) {
       const progressBar = $one(".l-upload-list-item-progress-bar", item) as HTMLElement;
       if (progressBar) {
