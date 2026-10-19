@@ -5,6 +5,7 @@
   --l-upload-border-hover-color: var(--l-primary-color, #722ed1);
   --l-upload-background: #ffffff;
   --l-upload-dragover-background: var(--l-primary-color-light5, #f9f0ff);
+  --l-upload-text-color: rgba(0, 0, 0, 0.88);
   --l-upload-text-secondary-color: rgba(0, 0, 0, 0.45);
   --l-upload-progress-color: var(--l-primary-color, #722ed1);
   --l-upload-success-color: #52c41a;
@@ -13,29 +14,45 @@
   --l-upload-disabled-background: #fbfbfb;
   --l-upload-disabled-border-color: #e6e6e6;
   --l-upload-border-radius: var(--l-border-radius, 3px);
+  --l-upload-font-size: 14px;
   --l-upload-list-item-height: 32px;
   --l-upload-picture-size: 100px;
   display: block;
   width: var(--l-upload-width);
   height: var(--l-upload-height);
   box-sizing: border-box;
+  font-size: var(--l-upload-font-size);
+  color: var(--l-upload-text-color);
+}
+
+/* 容器 */
+.l-upload {
+  width: 100%;
 }
 
 /* 触发区域 */
 .l-upload-trigger {
 }
 
-/* 拖拽状态 */
-.l-upload-dragover {
-  .l-upload-trigger,
-  .l-upload {
-    border-color: var(--l-upload-border-hover-color);
-  }
+/* 拖拽上传 */
+.l-upload-drag {
+  padding: 12px 8px;
+  border: 1px dashed var(--l-upload-border-color);
+  border-radius: var(--l-upload-border-radius);
+  background-color: var(--l-upload-background);
+  transition: border-color 0.3s, background-color 0.3s;
 }
 
-.l-upload-dragover {
-  background-color: var(--l-upload-dragover-background);
+/* 拖拽状态: 该 class 添加在宿主元素上, 需通过 :host() 匹配 */
+:host(.l-upload-dragover) .l-upload-drag {
   border-color: var(--l-upload-border-hover-color);
+  background-color: var(--l-upload-dragover-background);
+}
+
+/* 禁用状态 */
+.l-upload-disabled .l-upload-trigger {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 /* 隐藏的文件输入 */
@@ -48,6 +65,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* 列表项 */
+.l-upload-list-item {
+  position: relative;
 }
 
 /* 文本列表 */
@@ -213,9 +235,12 @@
     background: rgba(0, 0, 0, 0.7);
   }
 
-  l-icon {
+  l-search-icon,
+  l-close-icon {
+    --l-icon-size: 14px;
     width: 14px;
     height: 14px;
+    display: inline-flex;
   }
 }
 
@@ -230,6 +255,7 @@ html.dark {
     --l-upload-disabled-color: rgba(255, 255, 255, 0.3);
     --l-upload-disabled-background: rgba(255, 255, 255, 0.08);
     --l-upload-disabled-border-color: rgba(255, 255, 255, 0.3);
+  --l-upload-text-color: rgba(255, 255, 255, 0.88);
   }
 
   .l-upload-list-text {
