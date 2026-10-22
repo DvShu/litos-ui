@@ -173,6 +173,21 @@ $upload.headers = { "X-Token": "Bearer token" };
 </l-code-preview>
 </ClientOnly>
 
+### 提示文字
+
+通过 `tip` 插槽在触发区下方、文件列表上方显示提示内容，常用于说明上传规则或格式要求；未提供插槽内容时不占位。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-upload action="https://tmpfiles.org/api/v1/upload" accept="image/*" list-type="picture">
+    <l-button type="primary">选择图片</l-button>
+    <span slot="tip">仅支持 jpg / png 格式图片，单张不超过 2MB</span>
+  </l-upload>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ### 监听上传事件
 
 通过监听 `success`、`error`、`exceed` 等事件反馈上传结果（示例中的提示信息使用了 `Message` 组件）。
@@ -302,6 +317,7 @@ const handleUpload = () => {
 | 名称 | 说明 |
 | --- | --- |
 | `default` | 触发上传的内容 |
+| `tip` | 提示内容，显示在触发区下方、文件列表上方（无内容时不占位） |
 
 ### Upload Methods
 

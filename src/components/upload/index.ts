@@ -37,6 +37,7 @@ export default class Upload extends BaseComponent<UploadState> {
   public static baseName = "upload";
   $input?: HTMLInputElement;
   $trigger?: HTMLElement;
+  $tip?: HTMLElement;
   /** 进行中的 XHR 请求, id => xhr */
   $xhrs = new Map<number, XMLHttpRequest>();
   /** 本地预览地址缓存, id => objectURL */
@@ -234,10 +235,24 @@ export default class Upload extends BaseComponent<UploadState> {
     if (this.$trigger) {
       on(this.$trigger, "click", this._handleClick);
     }
+    // 未分发内容时隐藏 tip 区域
+    const $tip = $one(".l-upload-tip", this.root);
+    const $tipSlot = $one("slot[name=tip]", this.root) as HTMLSlotElement;
+    if ($tip && $tipSlot) {
+      this.$tip = $tip;
+      this._updateTipEmpty($tipSlot);
+      on($tipSlot, "slotchange", () => this._updateTipEmpty($tipSlot));
+    }
     // 渲染后挂载已有文件列表
     if (this._state.showFileList && this._state.fileList.length > 0) {
       this._renderFileList();
     }
+  }
+
+  private _updateTipEmpty($tipSlot: HTMLSlotElement) {
+    if (!$tipSlot || !this.$tip) return;
+    const empty = $tipSlot.assignedNodes({ flatten: true }).length === 0;
+    this.$tip.style.display = empty ? "none" : "";
   }
 
   beforeDestroy(): void {
@@ -253,6 +268,7 @@ export default class Upload extends BaseComponent<UploadState> {
     this._revokeAllObjectUrls();
     this.$trigger = undefined;
     this.$input = undefined;
+    this.$tip = undefined;
   }
 
   public render() {
@@ -293,6 +309,14 @@ export default class Upload extends BaseComponent<UploadState> {
       input.disabled = true;
     }
     container.appendChild(input);
+
+    // 提示区域(trigger 下方, 文件列表上方)
+    const tip = $$("div", {
+      class: "l-upload-tip",
+      part: "tip",
+    });
+    tip.innerHTML = '<slot name="tip"></slot>';
+    container.appendChild(tip);
 
     // 文件列表
     const list = this._buildFileList();
