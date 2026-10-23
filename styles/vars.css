@@ -1,6 +1,6 @@
 :root {
   /* button、input 元素高度 */
-  --l-form-control-height: 32px;
+  --l-form-control-height: 40px;
   /** 禁用状态颜色 */
   --l-disabled-color: #e6e6e6;
   /* 主题(primary)颜色 - 明亮蓝系列 */
@@ -31,5 +31,20 @@
   --l-info-color-light9: #f5f5f5;
   /* 边框颜色 */
   --l-border-color: #dedede;
-  --l-border-radius: 3px;
+  --l-border-radius: 5px;
+}
+
+/* 暗黑模式 */
+:root.dark {
+  --l-disabled-color: #6c6c6c;
+  /* 表格配置 */
+  --l-table-border-color: #444444;
+  --l-table-th-bg: #2d2d2d;
+  --l-table-th-color: #e0e0e0;
+  --l-table-td-bg: #1e1e1e;
+  --l-table-td-color: #e0e0e0;
+  --l-table-row-hover-bg: #333333;
+  --l-table-empty-color: #888888;
+  --l-table-stripe-bg: #252525;
+  --l-table-sort-inactive-color: #777777;
 }

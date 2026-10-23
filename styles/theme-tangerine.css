@@ -1,0 +1,37 @@
+/* 活力橙主题 · #FF7802，先引入 vars.css */
+:root {
+  /* 主题色 */
+  --l-primary-color: #ff7802;
+  --l-primary-color-light1: #ff9335;
+  --l-primary-color-light2: #ffae67;
+  --l-primary-color-light3: #ffc99a;
+  --l-primary-color-light4: #ffe4cc;
+  --l-primary-color-light5: #fff2e6;
+  --l-primary-color-dark1: #cc6002;
+  --l-primary-color-dark2: #994801;
+  /* 状态色：保持成功、错误和警告的语义区别 */
+  --l-success-color: #489b60;
+  --l-success-color-light1: #6daf80;
+  --l-success-color-light2: #91c3a0;
+  --l-success-color-light3: #b6d7bf;
+  --l-success-color-light4: #daebdf;
+  --l-success-color-light5: #edf5ef;
+  --l-success-color-dark1: #3a7c4d;
+  --l-error-color: #dc4848;
+  --l-error-color-light3: #f1b6b6;
+  --l-error-color-light5: #fceded;
+  --l-warn-color: #d9a11b;
+  /* 兼容使用 warning 命名的组件 */
+  --l-warning-color: var(--l-warn-color);
+  --l-warning-color-light5: #fbf6e8;
+  --l-info-color: #8a8073;
+  --l-info-color-light9: #f9f9f8;
+  /* 中性色 */
+  --l-border-color: #e8dfd3;
+  --l-disabled-color: #eee9e1;
+}
+
+/* 暗黑模式下保持禁用状态的可辨识度 */
+:root.dark {
+  --l-disabled-color: #6c6c6c;
+}

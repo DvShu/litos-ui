@@ -1,0 +1,37 @@
+/* 珊瑚红主题 · #FF6448，先引入 vars.css */
+:root {
+  /* 主题色 */
+  --l-primary-color: #ff6448;
+  --l-primary-color-light1: #ff836d;
+  --l-primary-color-light2: #ffa291;
+  --l-primary-color-light3: #ffc1b6;
+  --l-primary-color-light4: #ffe0da;
+  --l-primary-color-light5: #fff0ed;
+  --l-primary-color-dark1: #cc503a;
+  --l-primary-color-dark2: #993c2b;
+  /* 状态色：保持成功、错误和警告的语义区别 */
+  --l-success-color: #409b72;
+  --l-success-color-light1: #66af8e;
+  --l-success-color-light2: #8cc3aa;
+  --l-success-color-light3: #b3d7c7;
+  --l-success-color-light4: #d9ebe3;
+  --l-success-color-light5: #ecf5f1;
+  --l-success-color-dark1: #337c5b;
+  --l-error-color: #d9364f;
+  --l-error-color-light3: #f0afb9;
+  --l-error-color-light5: #fbebed;
+  --l-warn-color: #d99420;
+  /* 兼容使用 warning 命名的组件 */
+  --l-warning-color: var(--l-warn-color);
+  --l-warning-color-light5: #fbf4e9;
+  --l-info-color: #8c7c78;
+  --l-info-color-light9: #f9f8f8;
+  /* 中性色 */
+  --l-border-color: #e8dcd8;
+  --l-disabled-color: #efe7e4;
+}
+
+/* 暗黑模式下保持禁用状态的可辨识度 */
+:root.dark {
+  --l-disabled-color: #6c6c6c;
+}

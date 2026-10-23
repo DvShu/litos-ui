@@ -79,8 +79,8 @@ import "litos-ui/styles/vars.css";
 
 ### 暗黑模式
 
-如果需要适配暗黑模式，需要手动引入 `dark.css`
+暗黑模式变量已包含在 `vars.css` 中。在根元素上添加 `dark` 类即可启用，移除该类即可恢复浅色模式。
 
 ```javascript
-import "litos-ui/styles/dark.css";
+document.documentElement.classList.add("dark");
 ```
