@@ -1,0 +1,12 @@
+# <type>[optional scope]: <description>
+# 类型：feat、fix、docs、style、refactor、perf、test、chore、ci
+# 示例：feat(theme): 添加翡翠绿预置主题
+# 标题尽量控制在 50 个字符左右，结尾不加句号
+#
+# 正文：与标题空一行，按需说明原因和影响
+#
+# 页脚：与正文空一行；有关联编号时引用，无编号时省略
+# 破坏性变更必须填写：BREAKING CHANGE: <影响及迁移方式>
+# 示例：BREAKING CHANGE: 移除 styles/dark.css，改为引入 styles/vars.css
+#
+# 以上均为编辑提示，提交前填写正式信息；不要只保留注释提交
