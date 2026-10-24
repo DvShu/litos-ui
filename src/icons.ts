@@ -8,5 +8,4 @@ export function add(tagName: string) {
     return name.charAt(0).toUpperCase() + name.slice(1);
   });
   icons.push({ name: names.join(""), tagName: `l-${tagName}` });
-
 }
