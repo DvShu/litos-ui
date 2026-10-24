@@ -6,3 +6,4 @@ scripts/version.js
 scripts/version.sh
 dist
 .mimocode
+docs/.vitepress/.temp

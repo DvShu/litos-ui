@@ -23,7 +23,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [21]
+        node-version: [24]
 
     steps:
       - name: Checkout Repository
@@ -34,8 +34,6 @@ jobs:
       - name: Setup Pnpm
         id: setup-pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -43,18 +41,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
 
-      - name: Cache Node Modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install Dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build Site
         run: pnpm docs:build
