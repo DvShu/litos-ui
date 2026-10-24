@@ -5,10 +5,13 @@
 ## 引用
 
 ```js
-import { Form, FormItem, regist, Space } from "litos-ui";
+import { Form, FormItem, regist, Space, Button, Input, Radio, RadioGroup } from "litos-ui";
 
 regist([Form, FormItem]);
 regist([Space]); // 表单按钮组的间距
+
+// 注册本页演示使用的附加组件
+regist([Button, Input, Radio, RadioGroup]);
 ```
 
 ## 演示
@@ -16,7 +19,7 @@ regist([Space]); // 表单按钮组的间距
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import { $one, on, off } from 'ph-utils/browser';
-  
+
   let $form, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
   let lang = 'zh';
   let errors = {};
@@ -108,7 +111,7 @@ regist([Space]); // 表单按钮组的间距
         $i18nForm = $one('#i18nForm');
         $langCheck = $one("#langCheck");
         $i18nForm.setSchemas([{
-          key: 'mobile', 
+          key: 'mobile',
           rules: [
             { rule: 'required', message: 'mobile_required' },
             { rule: 'mobile', message: 'mobile_invalid' },
@@ -133,7 +136,7 @@ regist([Space]); // 表单按钮组的间距
 
   onUnmounted(() => {
     if (!import.meta.env.SSR) {
-      if ($form) { 
+      if ($form) {
         off($form, 'submit', handleFormSubmit);
       }
       if ($customSubmitBtn) {
@@ -353,7 +356,7 @@ regist([Space]); // 表单按钮组的间距
   $i18nForm = $one('#i18nForm');
   $langCheck = $one("#langCheck");
   $i18nForm.setSchemas([{
-    key: 'mobile', 
+    key: 'mobile',
     rules: [
       { rule: 'required', message: 'mobile_required' },
       { rule: 'mobile', message: 'mobile_invalid' },
@@ -479,7 +482,7 @@ regist([Space]); // 表单按钮组的间距
 
 ## API
 
-### Form Attibutes
+### Form Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -487,9 +490,10 @@ regist([Space]); // 表单按钮组的间距
 | `inline` | 行内表单, 每一行放置尽量多的项 | `boolean` | `false` |
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `label-width` | 表单域标签的宽度, 可以传 `auto` | `string` | `80px` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
 | `novalidate` | 是否在提交时禁用表单验证 | `boolean` | `false` |
+
+Form 和 FormItem 当前没有提供统一 disabled 属性，禁用状态应配置在具体输入控件上。
 
 ### Form Slots
 
@@ -503,15 +507,16 @@ regist([Space]); // 表单按钮组的间距
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `submit` | 表单提交事件 | `(e: Event): void` |
+| `submit` | 表单提交事件，detail 为表单数据 | `(e: CustomEvent): void` |
+| `validate-error` | emit-error 开启时上报校验错误，detail 包含 errors 和 all | `(e: CustomEvent): void` |
 
 ### Form Methods
 
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| `validate` | 对整个表单进行校验的方法 | `() => void` |
-| `validateField` | 对部分表单字段进行校验的方法 | `(props: string | string[]) => void` |
+| `validate` | 校验全部数据，结果通过 Promise 返回 | `() => Promise<{ result: boolean; errors: Record<string, any> }>` |
+| `validateField` | 当前未接入实际字段校验规则；需要完整校验时使用 validate | `(field: string \| string[]) => Promise<void>` |
 | `clearValidate` | 移除表单项的校验结果 | `() => void` |
 | `setErrors(errors: Record<string, string>)` | 设置表单错误信息 | - |
 
@@ -527,7 +532,6 @@ regist([Space]); // 表单按钮组的间距
 | `prop` | 对应表单域 `name` | `string` | - |
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `required` | 是否必填 | `boolean` | `false` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
 | `error` | 错误提示 | `string` | `-` |
 
@@ -540,11 +544,7 @@ regist([Space]); // 表单按钮组的间距
 
 ### FormItem Events
 
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
-| --- | --- | --- |
-| `blur` | 在 Input 失去焦点时触发 | `(e: Event): void` |
-| `focus` | 在 Input 获得焦点时触发 | `(e: Event
+FormItem 当前没有单独派发 focus 或 blur 自定义事件。需要监听输入焦点时，在具体输入控件上绑定相应的原生事件。
 
 ### Form CSS Variables
 

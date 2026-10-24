@@ -1,4 +1,6 @@
 import { defineConfig } from "vitepress";
+import { zh } from "./locales/zh";
+import { en } from "./locales/en";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -27,274 +29,33 @@ export default defineConfig({
   markdown: {
     lineNumbers: true,
   },
+  locales: { root: zh, en },
   themeConfig: {
     siteTitle: false,
-    outline: {
-      level: [1, 4],
-    },
-    lastUpdated: {
-      text: "最后更新时间",
-      formatOptions: {
-        dateStyle: "full",
-        timeStyle: "medium",
-      },
-    },
     logo: "/logo.svg",
-    nav: [
-      {
-        text: "首页",
-        link: "/",
-      },
-      {
-        text: "文档",
-        link: "/usage",
-      },
-      {
-        text: "组件",
-        link: "/markdown-examples",
-      },
-    ],
-    sidebar: [
-      {
-        text: "指南",
-        collapsed: true,
-        items: [
-          {
-            text: "快速开始",
-            link: "/usage",
-          },
-          {
-            text: "样式重置",
-            link: "/reset",
-          },
-          { text: "工具样式", link: "/css_util" },
-          { text: "主题切换", link: "/theme" },
-        ],
-      },
-      {
-        text: "通用",
-        collapsed: true,
-        items: [
-          { text: "Base 基础组件", link: "/components/base" },
-          { text: "Transition 过渡动画", link: "/components/transition" },
-          { text: "Container 容器布局", link: "/components/container" },
-          {
-            text: "Icon 图标",
-            link: "/components/icon",
-          },
-          {
-            text: "Polygon 多边形",
-            link: "/components/polygon",
-          },
-
-          {
-            text: "Theme 主题切换",
-            link: "/components/theme",
-          },
-        ],
-      },
-      {
-        text: "表单",
-        collapsed: true,
-        items: [
-          {
-            text: "Button 按钮",
-            link: "/components/button",
-          },
-          {
-            text: "Input 输入框",
-            link: "/components/input",
-          },
-          {
-            text: "MdInput Material输入框",
-            link: "/components/md_input",
-          },
-          {
-            text: "Radio 单选框",
-            link: "/components/radio",
-          },
-          {
-            text: "Checkbox 复选框",
-            link: "/components/checkbox",
-          },
-          {
-            text: "SelectOri 原生下拉框",
-            link: "/components/select_ori",
-          },
-          {
-            text: "Select 选择器",
-            link: "/components/select",
-          },
-          {
-            text: "Switch 开关",
-            link: "/components/switch",
-          },
-          {
-            text: "ColorPicker 颜色选择器",
-            link: "/components/color_picker",
-          },
-          {
-            text: "Form 表单",
-            link: "/components/form",
-          },
-          {
-            text: "DatePickerOri 日期选择器",
-            link: "/components/date_picker_ori",
-          },
-          {
-            text: "DatePicker 日期选择器",
-            link: "/components/date_picker",
-          },
-          {
-            text: "InputNumber 数字输入框",
-            link: "/components/input_number",
-          },
-          {
-            text: "Upload 上传",
-            link: "/components/upload",
-          },
-        ],
-      },
-      {
-        text: "数据展示",
-        collapsed: true,
-        items: [
-          {
-            text: "List 滚动列表",
-            link: "/components/list",
-          },
-          {
-            text: "Loading 加载",
-            link: "/components/loading",
-          },
-          {
-            text: "Carousel 轮播",
-            link: "/components/carousel",
-          },
-          {
-            text: "Qrcode 二维码",
-            link: "/components/qrcode",
-          },
-          {
-            text: "Pagination 分页",
-            link: "/components/pagination",
-          },
-          {
-            text: "Tabs 标签页",
-            link: "/components/tabs",
-          },
-          {
-            text: "PageHeader 页头",
-            link: "/components/page_header",
-          },
-          {
-            text: "Tag 标签",
-            link: "/components/tag",
-          },
-          {
-            text: "Collapse 折叠面板",
-            link: "/components/collapse",
-          },
-          {
-            text: "Image 图片",
-            link: "/components/image",
-          },
-          {
-            text: "Table 表格",
-            link: "/components/table",
-          },
-          {
-            text: "Space 间距",
-            link: "/components/space",
-          },
-          {
-            text: "Calenar 日历",
-            link: "/components/calendar",
-          },
-          {
-            text: "Card 卡片",
-            link: "/components/card",
-          },
-          /* TemplateItem */
-        ],
-      },
-      {
-        text: "反馈",
-        collapsed: true,
-        items: [
-          {
-            text: "Message 消息提示",
-            link: "/components/message",
-          },
-          {
-            text: "Notification 通知提醒框",
-            link: "/components/notification",
-          },
-          {
-            text: "Popover 弹出气泡",
-            link: "/components/popover",
-          },
-          {
-            text: "Dialog 对话框",
-            link: "/components/dialog",
-          },
-          {
-            text: "Mask 浮层遮罩",
-            link: "/components/mask",
-          },
-          {
-            text: "Modal 对话框",
-            link: "/components/modal",
-          },
-        ],
-      },
-      {
-        text: "导航",
-        collapsed: true,
-        items: [
-          {
-            text: "Tabbar 标签栏",
-            link: "/components/tabbar",
-          },
-          {
-            text: "Menu 菜单",
-            link: "/components/menu",
-          },
-        ],
-      },
-      {
-        text: "业务组件",
-        collapsed: true,
-        items: [
-          {
-            text: "DescriptionPanel 简介面板",
-            link: "/components/description_panel",
-          },
-        ],
-      },
-    ],
-    socialLinks: [
-      {
-        icon: "github",
-        link: "https://github.com/DvShu/litos-ui",
-      },
-    ],
+    i18nRouting: true,
+    socialLinks: [{ icon: "github", link: "https://github.com/DvShu/litos-ui" }],
     footer: {
-      message: "Released under the MulanPSL2 License.",
+      message: "Released under the MIT License.",
       copyright: "Copyright © 2024-present Shu",
     },
+    externalLinkIcon: true,
     search: {
       provider: "local",
-    },
-    darkModeSwitchLabel: "主题",
-    lightModeSwitchTitle: "切换到浅色主题",
-    darkModeSwitchTitle: "切换到深色主题",
-    sidebarMenuLabel: "菜单",
-    returnToTopLabel: "返回顶部",
-    externalLinkIcon: true,
-    docFooter: {
-      prev: "上一页",
-      next: "下一页",
+      options: {
+        locales: {
+          root: {
+            translations: {
+              button: { buttonText: "搜索文档", buttonAriaLabel: "搜索文档" },
+              modal: {
+                noResultsText: "没有找到相关结果",
+                resetButtonTitle: "清除搜索",
+                footer: { selectText: "选择", navigateText: "切换", closeText: "关闭" },
+              },
+            },
+          },
+        },
+      },
     },
   },
   sitemap: {

@@ -1,3 +1,4 @@
+import { docText } from "./i18n";
 import { elem, on, text } from "ph-utils/browser";
 
 export default class CodePreview extends HTMLElement {
@@ -35,7 +36,7 @@ export default class CodePreview extends HTMLElement {
       '<div class="operate-container">',
       '<l-button text type="primary" id="collapse-btn">',
       '<l-caret-top-icon class="collapse-icon"></l-caret-top-icon>',
-      "<span>查看源代码</span>",
+      `<span>${docText("showSource")}</span>`,
       "</l-button></div>",
       `</div><template>${sourceStr}</template>`,
     ];
@@ -44,10 +45,7 @@ export default class CodePreview extends HTMLElement {
   }
 
   disconnectedCallback() {
-    elem("#collapse-btn", this)[0].removeEventListener(
-      "click",
-      this.handleCollapse
-    );
+    elem("#collapse-btn", this)[0].removeEventListener("click", this.handleCollapse);
   }
 
   private _initEvents() {
@@ -59,7 +57,7 @@ export default class CodePreview extends HTMLElement {
     let $source = elem("l-source-code", this)[0];
     if (!$target.classList.contains("open")) {
       $target.classList.add("open");
-      text(elem("span", $target)[0], "隐藏源代码");
+      text(elem("span", $target)[0], docText("hideSource"));
       if ($source == null) {
         const $preview = elem(".code-preview", this)[0];
         $source = document.createElement("l-source-code");
@@ -71,7 +69,7 @@ export default class CodePreview extends HTMLElement {
       }
     } else {
       $target.classList.remove("open");
-      text(elem("span", $target)[0], "查看源代码");
+      text(elem("span", $target)[0], docText("showSource"));
       $source.style.display = "none";
     }
   }

@@ -137,9 +137,9 @@ regist([
 <textarea lang="html">
   <div class="docs-image-area1">
     <div class="docs-image-area2">
-      <l-image 
-        src="/litos-ui/img1.svg" 
-        width="100px" 
+      <l-image
+        src="/litos-ui/img1.svg"
+        width="100px"
         height="100px"
         fit="fill"
         class="l-popover-reference"
@@ -148,9 +148,9 @@ regist([
       <span>fit</span>
     </div>
     <div class="docs-image-area2">
-      <l-image 
-        src="/litos-ui/img1.svg" 
-        width="100px" 
+      <l-image
+        src="/litos-ui/img1.svg"
+        width="100px"
         height="100px"
         fit="contain"
         class="l-popover-reference"
@@ -159,9 +159,9 @@ regist([
       <span>contain</span>
     </div>
     <div class="docs-image-area2">
-      <l-image 
-        src="/litos-ui/img1.svg" 
-        width="100px" 
+      <l-image
+        src="/litos-ui/img1.svg"
+        width="100px"
         height="100px"
         fit="cover"
         class="l-popover-reference"
@@ -170,9 +170,9 @@ regist([
       <span>cover</span>
     </div>
     <div class="docs-image-area2">
-      <l-image 
-        src="/litos-ui/img1.svg" 
-        width="100px" 
+      <l-image
+        src="/litos-ui/img1.svg"
+        width="100px"
         height="100px"
         fit="none"
         class="l-popover-reference"
@@ -181,9 +181,9 @@ regist([
       <span>none</span>
     </div>
     <div class="docs-image-area2">
-      <l-image 
-        src="/litos-ui/img1.svg" 
-        width="100px" 
+      <l-image
+        src="/litos-ui/img1.svg"
+        width="100px"
         height="100px"
         fit="scale-down"
         class="l-popover-reference"
@@ -195,33 +195,33 @@ regist([
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-image 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
     height="100px"
     fit="fill"
   ></l-image>
-  <l-image 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
     height="100px"
     fit="contain"
   ></l-image>
-  <l-image 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
     height="100px"
     fit="cover"
   ></l-image>
-  <l-image 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
     height="100px"
     fit="none"
   ></l-image>
-  <l-image 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
     height="100px"
     fit="scale-down"
   ></l-image>
@@ -292,9 +292,9 @@ regist([
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-image 
-    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" 
-    width="100px" 
+  <l-image
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
+    width="100px"
     preview-disabled
   ></l-image>
 </textarea>
@@ -308,9 +308,9 @@ regist([
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-image 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
     loading="lazy"
   ></l-image>
 </textarea>
@@ -326,48 +326,48 @@ regist([
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-image 
-    class="customPreview" 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    class="customPreview"
+    src="/litos-ui/img1.svg"
+    width="100px"
     data-preview-index="0"
     preview-disabled
   ></l-image>
-  <l-image 
-    class="customPreview" 
-    src="/litos-ui/img2.svg" 
-    width="100px" 
+  <l-image
+    class="customPreview"
+    src="/litos-ui/img2.svg"
+    width="100px"
     data-preview-index="1"
     preview-disabled
   ></l-image>
-  <l-image 
-    class="customPreview" 
-    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" 
-    width="100px" 
+  <l-image
+    class="customPreview"
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
+    width="100px"
     data-preview-index="2"
     preview-disabled
   ></l-image>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-image 
-    class="customPreview" 
-    src="/litos-ui/img1.svg" 
-    width="100px" 
+  <l-image
+    class="customPreview"
+    src="/litos-ui/img1.svg"
+    width="100px"
     data-preview-index="0"
     preview-disabled
   ></l-image>
-  <l-image 
-    class="customPreview" 
-    src="/litos-ui/img2.svg" 
-    width="100px" 
+  <l-image
+    class="customPreview"
+    src="/litos-ui/img2.svg"
+    width="100px"
     data-preview-index="1"
     preview-disabled
   ></l-image>
-  <l-image 
-    class="customPreview" 
-    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" 
-    width="100px" 
+  <l-image
+    class="customPreview"
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
+    width="100px"
     data-preview-index="2"
     preview-disabled
   ></l-image>
@@ -404,7 +404,7 @@ regist([
 
 ## API
 
-### Image Attibutes
+### Image Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -416,7 +416,7 @@ regist([
 | `loading` | 原生属性, 浏览器加载图像的策略 | `eager`、`lazy` | `eager` |
 | `fit` | 确定图片如何适应容器框，同原生 [object-fit](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) | `string` | - |
 | `fallback` | 图片加载失败时显示的地址 | `string` | - |
-| `custom-fallback` | 自定义图片加载失败时的内容 | `string` | - |
+| `custom-fallback` | 是否使用自定义加载失败内容 | `boolean` | `false` |
 | `placeholder` | 图片占位, 用于加载大图时的占位 | `string` | - |
 | `preview-disabled` | 禁用图片预览 | `boolean` | `false` |
 | `preview-image-list` | 预览图片地址列表, 多图预览时使用, 用 `,` 分隔 | `string` | - |
@@ -435,7 +435,7 @@ regist([
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `click` | 点击图片时触发 | `(event: Event)` |
 
 ### Image Methods
 

@@ -85,7 +85,7 @@ regist([
 
 ## API
 
-### Pagination Attibutes
+### Pagination Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -110,14 +110,14 @@ regist([
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 分页改变时触发, `detail:{current:number, pageSize:number, totalPage:nuber}` | `(event: CustomEvent)` |
+| `change` | 分页改变时触发, `detail:{current:number, pageSize:number, totalPage:number}` | `(event: CustomEvent)` |
 
 ### Pagination Methods
 
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| `setCurrent` | 设置当前页 | `(current: number): void` |
+| `setAttribute("current-page", "2")` | 通过属性设置当前页；当前没有 setCurrent 方法 | 原生 HTMLElement 方法 |
 
 ### Pagination CSS Variables
 

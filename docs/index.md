@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "LitosUI"
   text: "Web Component UI"
-  tagline: 轻量、样式可控、TypeScript、逻辑可控
+  tagline: 原生 Web Components、主题定制、TypeScript
   image:
     src: /logo.svg
   actions:
@@ -17,22 +17,22 @@ hero:
       link: https://github.com/DvShu/litos-ui
 
 features:
-  - title: 轻量
-    details: 除了依赖于小巧的 ph-utils 工具库外，没有任何其它依赖.
-    icon: 🏃
-  - title: 兼容
-    details: 同时兼容移动和PC，最低兼容为 ios 15.0.
+  - title: 原生组件
+    details: 基于原生 Web Components 构建，使用自定义元素与 Shadow DOM，可在支持相关能力的浏览器中运行。
+    icon: 🧩
+  - title: npm 安装
+    details: 通过 npm 安装 litos-ui，使用 ESM 导入所需组件，并通过 regist 注册后使用。
     icon: 📦
-  - title: 逻辑可控
-    details: 该组件库不同于其它组件库通过 npm 安装，该组件库提供脚手架通过脚手架的方式构建源码倒本地，便于修改.
-    icon: 🔥
-  - title: 样式可控
-    details: 组件提供 part 外部可以根据不同 part 修改相应的样式；组件样式基于 CSS Variables 编写；确保样式可控.
+  - title: 主题定制
+    details: 使用 CSS 变量调整配色，提供翡翠绿、珊瑚红和活力橙预置主题，并支持暗黑模式。
     icon: 🎨
-  - title: 类型安全
-    details: 组件基于 typescript 编写，提供完整的类型.
-    icon: 🌍
-  - title: 全平台兼容
-    details: 由于组件是基于 Web Component 编写的组件，所以该组件全平台兼容.
-    icon: 🌈
+  - title: 样式扩展
+    details: 通过组件提供的 CSS 变量与 part 定制样式，按组件文档选择对应的扩展入口。
+    icon: 🛠️
+  - title: TypeScript
+    details: 组件使用 TypeScript 编写，发布包包含类型声明，便于在开发时查看 API 与类型提示。
+    icon: 📝
+  - title: 浏览器环境
+    details: 依赖 Custom Elements、Shadow DOM 和可构造样式表等浏览器 API；服务端渲染项目需在客户端导入和注册组件。
+    icon: 🌐
 ---

@@ -5,9 +5,9 @@
 ## 引用
 
 ```js
-import { l-polygon, regist } from "litos-ui";
+import { Polygon, regist } from "litos-ui";
 
-regist(l-polygon);
+regist(Polygon);
 ```
 
 ## 演示
@@ -83,7 +83,7 @@ regist(l-polygon);
 
 ## API
 
-### l-polygon Attibutes
+### Polygon Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -91,7 +91,7 @@ regist(l-polygon);
 | `shape` | 传递指定的默认的形状 | `string` | `triangle-top` |
 | `background`| 背景颜色 | `string` | - |
 
-### l-polygon CSS Variables
+### Polygon CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |

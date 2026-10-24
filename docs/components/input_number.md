@@ -194,11 +194,11 @@ regist(InputNumber);
 | 名称 | 描述 | 默认值 |
 | --- | --- | --- |
 | `--l-input-number-width` | 组件宽度 | `170px` |
-| `--l-input-number-border-color` | 边框颜色 | `#d9d9d9` |
+| `--l-input-number-border-color` | 边框颜色 | `var(--l-border-color, #d9d9d9)` |
 | `--l-input-number-bg` | 背景色 | `#ffffff` |
 | `--l-input-number-btn-color` | 按钮文字颜色 | `#606266` |
 | `--l-input-number-btn-bg` | 按钮背景色 | `#f5f7fa` |
 | `--l-input-number-btn-hover-color` | 按钮悬浮文字颜色 | `var(--l-primary-color, #722ed1)` |
 | `--l-input-number-btn-hover-bg` | 按钮悬浮背景色 | `var(--l-primary-color-light5, #f3e8ff)` |
 | `--l-input-number-btn-disabled-color` | 禁用时按钮颜色 | `#c0c4cc` |
-| `--l-form-control-height` | 组件高度 | `32px` |
+| `--l-form-control-height` | 组件高度 | `40px`（引入 vars.css 后；未引入时组件回退为 32px） |

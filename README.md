@@ -1,49 +1,121 @@
 # litos-ui
 
-源自于希腊语中，表示“简洁、朴素”的形容词 "λιτός" (`litós`)；所有组件均以 `l-` 为前缀，如 `l-button`、`l-input` 等。
+**English** | [简体中文](./README.zh-CN.md)
 
-采用原生 `Web Components` 作为技术栈，可运行在现代浏览器上。跨平台、跨框架，可运行在 `React`、`Vue`、`Angular` 等框架中。
+A framework-agnostic UI component library built with native Web Components and TypeScript, featuring customizable themes and dark mode.
 
-## 安装
+The name comes from the Greek adjective “λιτός” (`litós`), meaning simple or plain. Components use the `l-` prefix, such as `l-button` and `l-input`.
+
+Built on native Web Components, litos-ui runs in modern browsers and can be used with React, Vue, Angular, or plain HTML and JavaScript.
+
+## Installation
 
 ```bash
 npm install litos-ui
 ```
 
-如果需要自动使用一些服务组件，例如: `Message`、`ModalBox` 等且需要自动引入样式时，需要安装 `litosui-unplugin-resolver`、`unplugin-auto-import` 插件。
+## Usage
+
+Import the base styles and register the components you need in your application entry point. The library ships as ESM; use ES Module `import` syntax.
+
+```js
+import "litos-ui/styles/vars.css";
+import { Button, regist } from "litos-ui";
+
+regist([Button]); // Registers <l-button></l-button>
+```
+
+Then use the custom element in your markup:
+
+```html
+<l-button type="primary">Get started</l-button>
+```
+
+## Themes and Dark Mode
+
+Import the base variables first, then optionally import **one** preset theme:
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/styles/theme-jade.css";
+```
+
+| Theme     | File                  | Primary color |
+| --------- | --------------------- | ------------- |
+| Jade      | `theme-jade.css`      | `#00AA7E`     |
+| Coral     | `theme-coral.css`     | `#FF6448`     |
+| Tangerine | `theme-tangerine.css` | `#FF7802`     |
+
+Presets define global CSS variables on `:root`. Choose one preset; importing several makes the last loaded theme override the earlier ones. Omit the preset import to use the default blue theme. You can also override individual variables in your own stylesheet.
+
+Dark mode variables are included in `vars.css`. Toggle the root element's `dark` class from client-side code:
+
+```js
+document.documentElement.classList.add("dark");
+// Restore light mode:
+document.documentElement.classList.remove("dark");
+```
+
+See the [theme guide](https://dvshu.github.io/litos-ui/en/theme) for details.
+
+## Browser and SSR Usage
+
+The components use browser APIs such as Custom Elements, Shadow DOM, and constructable stylesheets (`CSSStyleSheet` and `adoptedStyleSheets`). Use a modern browser with support for these APIs.
+
+Component modules access browser APIs when imported. In server-rendered applications, import and register them inside a client-only entry point or lifecycle hook. For example, run this code only on the client:
+
+```js
+const { Button, regist } = await import("litos-ui");
+regist([Button]);
+```
+
+Framework-specific configuration may also be needed to recognize custom elements and handle properties and custom events.
+
+## Optional Auto-imports
+
+For optional automatic imports of service APIs such as `Message` and `ModalBox`, together with their styles, install the resolver and auto-import plugin:
+
+```bash
+npm install -D litosui-unplugin-resolver unplugin-auto-import
+```
 
 ```js
 // vite.config.js
+import { defineConfig } from "vite";
 import AutoImport from "unplugin-auto-import/vite";
 import LitosuiResolver from "litosui-unplugin-resolver";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    ...,
     AutoImport({
       resolvers: [LitosuiResolver()],
       dts: "src/auto-imports.d.ts",
     }),
   ],
-  ...
 });
 ```
 
-## 使用
+## Development and Build
 
-引入相关组件并注册
+For development in this repository, use Node.js 24 LTS and pnpm 12.5.1 to match CI. These versions describe the contributor environment, not a Node.js runtime requirement for browser applications.
 
-```js
-import { Button, regist } from "litos-ui";
-
-regist([Button]); // <l-button></l-button>
+```bash
+pnpm install --frozen-lockfile
+pnpm docs:dev
+pnpm lib:build
+pnpm docs:build
 ```
 
-## 文档
+Use `pnpm docs:dev` to preview the documentation and component examples. `pnpm dev` is a separate debugging entry point; currently, `src/main.ts` does not register any components.
 
-[litos-ui 文档](https://dvshu.github.io/litos-ui/)
+Run `pnpm lint` and `pnpm fmt:check` to check the code, or `pnpm fmt` to format it. Running `npm pack` or `npm publish` automatically builds the library and type declarations first. Use `npm pack --dry-run` to inspect the package contents before publishing.
 
-## 许可证
+## Documentation
+
+[中文文档](https://dvshu.github.io/litos-ui/) | [English documentation](https://dvshu.github.io/litos-ui/en/)
+
+The English documentation structure is available; page content is currently copied from Chinese and awaits translation.
+
+## License
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)

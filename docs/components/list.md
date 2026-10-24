@@ -171,7 +171,7 @@ regist([List, LoadingIcon]);
 
 ## API
 
-### List Attibutes
+### List Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

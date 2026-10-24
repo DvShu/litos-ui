@@ -26,7 +26,7 @@ regist(ColorPicker);
 
 ## API
 
-### ColorPicker Attibutes
+### ColorPicker Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -40,4 +40,4 @@ regist(ColorPicker);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 颜色改变触发, 通过 `event.target.value` 获取值 | `(event: Event)` |
+| `change` | 颜色改变时触发，`event.detail` 为颜色字符串，也可通过组件 value 属性读取 | `(event: CustomEvent<string>)` |

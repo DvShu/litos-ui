@@ -5,13 +5,16 @@
 ## 引用
 
 ```js
-import { Modal, regist, Button, CloseIcon } from "litos-ui";
+import { Modal, regist, Button, CloseIcon, InfoIcon } from "litos-ui";
 
 regist([Modal]);
 // 当显示底部时调用
 regist(Button);
 // 当需要显示关闭按钮时
 regist(CloseIcon);
+
+// 注册本页演示使用的附加组件
+regist([InfoIcon]);
 ```
 
 ## 演示
@@ -315,7 +318,7 @@ regist(CloseIcon);
 
 ## API
 
-### Modal Attibutes
+### Modal Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

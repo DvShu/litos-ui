@@ -5,12 +5,13 @@
 ## 引用
 
 ```js
-import { createTransition } from "litos-ui";
+import { createTransition } from "litos-ui/lib/utils/transition.js";
 
 // 会自动加载页面中带有 l-transition 属性的元素并应用动画
 const trans = createTransition();
 
 trans.init();
+// 页面销毁时调用 trans.destroy() 释放监听
 ```
 
 ## 演示
@@ -127,7 +128,7 @@ trans.init();
 </textarea>
 <textarea lang="js">
   import { $one, on, off } from 'ph-utils/browser';
-  import { createTransition } from 'litos-ui';
+  import { createTransition } from 'litos-ui/lib/utils/transition.js';
   //-
   const trans = createTransition();
   // 初始化, 加载带有 l-transition 属性的元素动画

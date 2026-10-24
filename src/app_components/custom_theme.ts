@@ -1,9 +1,10 @@
+import { docText } from "./i18n";
 import { on, $one, off } from "ph-utils/browser";
 import { getTheme, toggleTheme } from "ph-utils/browser";
 
 export default class CustomTheme extends HTMLElement {
   connectedCallback() {
-    this.innerHTML = `<l-radio-group gap="15" id="customThemeRadio"><l-radio value="auto">自</l-radio><l-radio value="light">浅</l-radio><l-radio value="dark">深</l-radio></l-radio-group>`;
+    this.innerHTML = `<l-radio-group gap="15" id="customThemeRadio"><l-radio value="auto">${docText("auto")}</l-radio><l-radio value="light">${docText("light")}</l-radio><l-radio value="dark">${docText("dark")}</l-radio></l-radio-group>`;
     const $el = $one("#customThemeRadio", this) as HTMLInputElement;
     $el.value = getTheme();
     on($el, "change", this.#handle);
@@ -21,12 +22,12 @@ export default class CustomTheme extends HTMLElement {
     });
 
     transition.ready.then(() => {
-      // 圆形动画扩散开始
+      // 圆形动画扩散开始
       document.documentElement.animate(
         {
           clipPath: [`circle(0% at center)`, `circle(100% at center)`],
         },
-        // 设置时间，已经目标伪元素
+        // 设置时间，已经目标伪元素
         {
           duration: 300,
           pseudoElement: "::view-transition-new(root)",

@@ -1,3 +1,4 @@
+import { docText } from "./i18n";
 import { codeToHtml } from "shiki";
 import { random } from "ph-utils";
 import { elem, getAttr } from "ph-utils/browser";
@@ -23,9 +24,7 @@ export default class SourceCode extends HTMLElement {
         if ($textarea.value) {
           const id = `tab-${random(7)}`;
           const tabname = $textarea.name || getAttr($textarea, "lang", "ts");
-          tabStr.push(
-            `<input type="radio" name="${name}" id="${id}"${i === 0 ? " checked" : ""}>`
-          );
+          tabStr.push(`<input type="radio" name="${name}" id="${id}"${i === 0 ? " checked" : ""}>`);
           tabStr.push(`<label for="${id}">${tabname}</label>`);
           const codeHtml = await this.tagCode($textarea, i === 0);
           codeStr.push(codeHtml);
@@ -48,7 +47,9 @@ export default class SourceCode extends HTMLElement {
     ];
     const showCopy = getAttr(this, "show-copy", true);
     if (showCopy) {
-      inners.push('<button title="Copy Code" class="copy"></button>');
+      inners.push(
+        `<button title="${docText("copyCode")}" aria-label="${docText("copyCode")}" class="copy"></button>`,
+      );
     }
     inners.push(`<span class="lang">${lang}</span>${code}</div>`);
     return inners.join("");

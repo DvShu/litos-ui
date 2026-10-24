@@ -197,10 +197,10 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-collapse 
-    arrow-placement="right" 
-    header-justify="space-between" 
-    background 
+  <l-collapse
+    arrow-placement="right"
+    header-justify="space-between"
+    background
     border-radius="5px"
     gap="10px"
     grid
@@ -221,7 +221,7 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 
 ## API
 
-### Collapse Attibutes
+### Collapse Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -235,11 +235,11 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 | `header-justify` | 标题栏对齐方式, `flex-start`、`flex-end`、`space-between` | `string` | `flex-start` |
 | `accordion` | 手风琴模式 | `boolean` | `false` |
 
-### CollapseItem Attibutes
+### CollapseItem Attributes
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
+| 名称 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
 | `prop` | 面板名称 | `string` | - |
 | `header-text` | 标题栏文本 | `string` | - |
 | `expand` | 是否展开 | `boolean` | `false` |

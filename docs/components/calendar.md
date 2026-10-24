@@ -234,7 +234,7 @@ regist(Calendar);
 
 ## API
 
-### Calendar Attibutes
+### Calendar Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -245,28 +245,27 @@ regist(Calendar);
 | `month` | 月份, 例如: `4` | `number` | 当前月份 |
 | `type` | 日历类型，可选值 `select`、`range` | `string` | `select` |
 | `value` | 选中日期，当 type 为 select 时为选中日期字符串以 `&`，当 type 为 range 时为两个日期的组合字符串（逗号分隔）; 同时也是 `value` 属性 | `string` | - |
-| `locale` | 语言 | `string` | `zh-CN` |
+| `locale` | 语言，当前内置语言仅 zh-CN | `string` | `zh-CN` |
 
 ### Calendar Slots
 
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
+| - | 当前未渲染默认插槽 |
 
 ### Calendar Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-| `day-click` | 点击日期时触发 | `(detail: {isActiveMonth: boolean, day: string, dayTimestamp: number})` |
-| `day-hover` | 鼠标悬停日期时触发 | `(detail: {isActiveMonth: boolean, day: string, dayTimestamp: number})` |
+| `day-click` | 点击日期时触发，detail 包含 isActiveMonth、day、dayTimestamp、minTimestamp、maxTimestamp | `(event: CustomEvent)` |
+| `day-hover` | 鼠标悬停日期时触发，detail 结构同 day-click | `(event: CustomEvent)` |
 
 ### Calendar CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
-| --- | --- | --- 
-| `--calendar-header-height` | 周信息栏高度 | `auto` |
+| --- | --- | --- |
+| `--l-calendar-header-height` | 周信息栏高度 | `32px` |
 | `--l-calendar-off-text-color` | 当日期不是当前年月时的文字颜色 | `#a8abb2` |

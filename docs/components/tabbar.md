@@ -9,9 +9,21 @@
 ## 引用
 
 ```js
-import { Tabbar, TabbarItem, regist } from "litos-ui";
+import {
+  Tabbar,
+  TabbarItem,
+  regist,
+  ReductionIcon,
+  RefreshLeftIcon,
+  RefreshRightIcon,
+  SearchIcon,
+  SortIcon,
+} from "litos-ui";
 
 regist([Tabbar, TabbarItem]);
+
+// 注册本页演示使用的附加组件
+regist([ReductionIcon, RefreshLeftIcon, RefreshRightIcon, SearchIcon, SortIcon]);
 ```
 
 ## 演示
@@ -123,7 +135,7 @@ regist([Tabbar, TabbarItem]);
 
 ## API
 
-### Tabbar Attibutes
+### Tabbar Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -145,7 +157,7 @@ regist([Tabbar, TabbarItem]);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 选项卡切换时触发, `e.detail.name` 获取选中值 | `(e: Event)` |
+| `change` | 选项卡切换时触发, `e.detail.name` 获取选中值 | `(e: CustomEvent<{ name: string }>)` |
 
 ### TabbarItem
 
@@ -161,10 +173,10 @@ regist([Tabbar, TabbarItem]);
 <!-- prettier-ignore -->
 | 变量名                           | 说明                     | 默认值                           |
 | -------------------------------- | ------------------------ | -------------------------------- |
-| `--l-tabbar-hover-color`        | 选项卡的鼠标悬浮时的颜色 | `var(--l-primary-color-light1)` |
-| `--l-tabbar-active-color`       | 选项卡的选中时的颜色     | `var(--l-primary-color)`        |
+| `--l-tabbar-hover-color`        | 选项卡的鼠标悬浮时的颜色 | `var(--l-primary-color-light1, #9254de)` |
+| `--l-tabbar-active-color`       | 选项卡的选中时的颜色     | `var(--l-primary-color, #722ed1)` |
 | `--l-tabbar-item-gap`           | 选项卡之间的间距         | `0`                              |
 | `--l-tabbar-height`             | 选项卡的高度             | `38px`[`nav`时默认为: `50px`]    |
-| `--l-tabbar-line-color`         | 下划线的颜色             | `var(--l-primary-color)`        |
+| `--l-tabbar-line-color`         | 下划线的颜色             | `var(--l-primary-color, #722ed1)` |
 | `--l-tabbar-card-border-color`  | 卡片选项卡的边框颜色     | `#f5f7fa`                        |
 | `--l-tabbar-card-border-radius` | 卡片选项卡的边框圆角     | `5px`                            |

@@ -71,17 +71,18 @@ regist([RadioGroup, Radio]);
 </textarea>
 </l-code-preview>
 </ClientOnly>
- 
+
 ## API
 
-### Radio Attibutes
+### Radio Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `name` | 原生 `name` 属性  | `string` | - |
 | `disabled` | 是否禁用 | `boolean` | `false` |
-| `type` | 单选框组样式 | `button` - 按钮风格 | `default` |
+| `button` | 是否使用按钮风格 | `boolean` | `false` |
+| `value` | 选项值 | `string` | - |
 | `checked` | 是否选中 | `boolean` | `false` |
 | `label` | 标签文本 | `string` | - |
 
@@ -97,18 +98,21 @@ regist([RadioGroup, Radio]);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 选中项变化时触发 | `(value: boolean | string)` |
+| `change` | 单个选项变化时 detail 包含 value、name、checked；组的 change 事件 detail.value 为选中值 | `(event: CustomEvent)` |
 
-### Radio Methods
+### RadioGroup Attributes
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `setItems` | 设置选项组 | `(items: {label:string,value:string;part?:string}[]): void` |
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `value` | 选中的选项值 | `string` | - |
+| `gap` | 选项间距 | `string` | - |
+
+组内选项通过 `l-radio` 子元素提供，当前没有 `setItems()` 方法。
 
 ### Radio CSS Variables
 
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l-radio-size` | 单选框尺寸 | `16px` |
+| `--l-check-size` | 单选框尺寸 | `14px` |

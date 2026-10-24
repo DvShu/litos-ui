@@ -3,10 +3,13 @@
 ## 引用
 
 ```js
-import { Input, regist, CloseFilledIcon } from "litos-ui";
+import { Input, regist, CloseFilledIcon, ReductionIcon, SearchIcon } from "litos-ui";
 
 regist(Input);
 regist(CloseFilledIcon); // 需要使用 clearable 功能时
+
+// 注册本页演示使用的附加组件
+regist([ReductionIcon, SearchIcon]);
 ```
 
 ## 演示
@@ -66,17 +69,7 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 
 ### 限制输入
 
-通过传递 `allow-input` 来限制输入的值。`integer` 只能输入正整数, `number` 只能输入正数；以 - 开头表明允许输入负数; 以 `.2` 结尾表明小数点后精度; 例如: `-number.4` 表明允许输入数字，且小数点后保留 `4` 位小数。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-input placeholder="只能输入正整数" allow-input="integer"></l-input>
-  <l-input placeholder="只能输入整数" allow-input="-integer"></l-input>
-  <l-input placeholder="输入数字,保留2位小数" allow-input="-number.2"></l-input>
-</textarea>
-</l-code-preview>
-</ClientOnly>
+当前版本未接入 `allow-input` 和 `autofocus` 属性。限制输入请使用下面的 `setParser()` 示例；需要聚焦时，在组件挂载后调用 `focus()`。
 
 ### 输入解析
 
@@ -157,17 +150,18 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 <!-- prettier-ignore -->
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
+| `value` | 输入值，可通过实例 value 属性读写 | `string` | - |
+| `disabled` | 是否禁用 | `boolean` | `false` |
+| `name` | 表单字段名 | `string` | - |
 | `type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
 | `placeholder` | 占位文本 | `string` | - |
-| `allow-input` | 允许输入的值; `number`、`integer`,前面包含 `-` 表明允许负数, 以 `.2` 结尾表明小数点后精度 | `string` | - |
 | `block` | 宽度是否铺满父元素 | `boolean` | `false` |
 | `width` | 宽度 | `string` | - |
-| `autofocus` | 原生属性，自动获取焦点 | `boolean` | `false` |
 | `clearable` | 是否显示清除按钮 | `boolean` | `false` |
-| `inputmode` | 输入模式, [inputmode](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Reference/Global_attributes/inputmode) | `string` | `text` |
+| `inputmode` | 原生输入模式，未设置时由浏览器决定 | `string` | 未设置 |
 | `maxlength` | 最大输入长度 | `number` | - |
 | `minlength` | 最小输入长度 | `number` | - |
-| `error` | 是否显示错误状态 | `boolean` | `false` |
+| `error` | 错误状态标记；存在该属性即显示错误状态，恢复时移除属性 | `string` | 未设置 |
 
 ### Input Methods
 
@@ -182,7 +176,6 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
 | `prefix` | 前缀图标 |
 | `suffix` | 后缀图标 |
 
@@ -191,4 +184,4 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 <!-- prettier-ignore -->
 | 名称 | 描述 | 默认值 |
 | --- | --- | --- |
-| `--l-btn-text-color` | 按钮的文字颜色 | `rgba(0, 0, 0, 0.65)` |
+| `--l-input-width` | 输入框宽度 | `170px` |

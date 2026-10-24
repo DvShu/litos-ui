@@ -82,8 +82,8 @@ const popover = new Popover();
           trigger: 'focus',
         });
         popover4 = new Popover({ reference: '#none-arrow', arrow: false, offset: 5 });
-        popover5 = new Popover({ 
-          reference: '#custom', 
+        popover5 = new Popover({
+          reference: '#custom',
           contentRender () {
             const fragment = document.createDocumentFragment();
             const $p1 = document.createElement('p');
@@ -466,7 +466,7 @@ new Popover({
 
 ## API
 
-### Popover Constructor Attibutes
+### Popover Constructor Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

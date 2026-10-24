@@ -119,10 +119,10 @@ import "litos-ui/styles/message.css";
   import { Message } from 'litos-ui';
   //-
   // 打开消息
-  const id = Message.show({ 
-    message: '这是一条手动关闭的提示信息', 
+  const id = Message.show({
+    message: '这是一条手动关闭的提示信息',
     type: 'info',
-    duration: 0 
+    duration: 0
   });
   // 关闭消息
   Message.close(id);
@@ -138,10 +138,10 @@ import "litos-ui/styles/message.css";
 <!-- prettier-ignore -->
 | 名称 | 参数 | 说明 | 返回类型 |
 | --- | --- | --- | --- |
-| `info`、`show` | `MessageOption` | 显示普通提示信息, 参数为配置项, 返回消息 `id` | `string` |
-| `success` | `MessageOption` | 显示成功提示信息 | `string` |
-| `warn` | `MessageOption` | 显示警告提示信息 | `string` |
-| `error` | `MessageOption` | 显示错误提示信息 | `string` |
+| `info`、`show` | `string` 或 `MessageOption` | 显示普通提示信息, 参数为配置项, 返回消息 `id` | `string` |
+| `success` | `string` 或 `MessageOption` | 显示成功提示信息 | `string` |
+| `warn` | `string` 或 `MessageOption` | 显示警告提示信息 | `string` |
+| `error` | `string` 或 `MessageOption` | 显示错误提示信息 | `string` |
 | `close` | `id: string` | 手动关闭消息 | - |
 
 ### MessageOption

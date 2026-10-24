@@ -5,9 +5,12 @@
 ## 引用
 
 ```js
-import { Switch, regist } from "litos-ui";
+import { Switch, regist, MoonIcon, SunIcon } from "litos-ui";
 
 regist(Switch);
+
+// 注册本页演示使用的附加组件
+regist([MoonIcon, SunIcon]);
 ```
 
 ## 演示
@@ -102,7 +105,7 @@ regist(Switch);
 
 ## API
 
-### Switch Attibutes
+### Switch Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -140,5 +143,5 @@ regist(Switch);
 <!-- prettier-ignore -->
 | 变量名 | 说明 | 默认值 |
 | --- | --- | --- |
-| `--l-switch-height` | 开关按钮高度 | `20px` |
-| `--l-switch-width` | 开关按钮宽度 | `var(--l-switch-height) * 2` |
+| `--l-switch-height` | 开关按钮高度 | `22px` |
+| `--l-switch-width` | 开关按钮宽度 | `40px` |

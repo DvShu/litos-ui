@@ -5,10 +5,13 @@
 ## 引用
 
 ```js
-import { regist, PageHeader, Button, ArrowLeftIcon } from "litos-ui";
+import { regist, PageHeader, Button, ArrowLeftIcon, MoreIcon } from "litos-ui";
 
 regist(PageHeader);
 regist([Button, ArrowLeftIcon]); // 如果需要显示返回按钮
+
+// 注册本页演示使用的附加组件
+regist([MoreIcon]);
 ```
 
 ## 演示
@@ -65,7 +68,7 @@ regist([Button, ArrowLeftIcon]); // 如果需要显示返回按钮
 
 ## API
 
-### PageHeader Attibutes
+### PageHeader Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

@@ -12,12 +12,15 @@
 ## 引用
 
 ```js
-import { Upload, regist } from "litos-ui";
+import { Upload, regist, Button } from "litos-ui";
 
 regist(Upload);
 // 文件列表中的"预览/删除"按钮使用了图标组件, 需要时一起注册
 import { SearchIcon, CloseIcon } from "litos-ui";
 regist([SearchIcon, CloseIcon]);
+
+// 注册本页演示使用的附加组件
+regist([Button]);
 ```
 
 ## 基础使用

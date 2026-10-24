@@ -50,7 +50,7 @@ regist([Carousel, CarouselItem]);
 
 ## API
 
-### Carousel Attibutes
+### Carousel Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -59,4 +59,3 @@ regist([Carousel, CarouselItem]);
 | `current-index` | 激活的幻灯片的索引，从 `0` 开始 | `number` | `0` |
 | `loop` | 是否开启循环显示 | `on`\|`off` | `on` |
 | `autoplay` | 是否自动切换 | `boolean` | `false` |
-

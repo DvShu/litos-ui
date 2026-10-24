@@ -9,13 +9,18 @@
 如果没有使用 `litosui-unplugin-resolver` 自动引入, 则需要手动引入
 
 ```js
-import { Tabs as LTabs } from "litos-io";
+import { Tabs as LTabs, Tabbar, TabbarItem, regist, Button, Form, FormItem, Input } from "litos-ui";
+
+regist([Tabbar, TabbarItem]);
 import "litos-ui/styles/tabs.css";
 
 // 该函数会初始化所有 .l-tabs 标签页
 const tabs = LTabs.init();
 
 tabs.destroy(); // 页面关闭时, 释放
+
+// 注册本页演示使用的附加组件
+regist([Button, Form, FormItem, Input]);
 ```
 
 ## 演示

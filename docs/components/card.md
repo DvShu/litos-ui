@@ -5,9 +5,12 @@
 ## 引用
 
 ```js
-import { Card, regist } from "litos-ui";
+import { Card, regist, Button } from "litos-ui";
 
 regist(Card);
+
+// 注册本页演示使用的附加组件
+regist([Button]);
 ```
 
 ## 典型卡片

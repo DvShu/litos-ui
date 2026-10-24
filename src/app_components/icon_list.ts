@@ -1,14 +1,11 @@
+import { docText } from "./i18n";
 import { icons } from "../icons";
 import { $one, on, off, shouldEventNext } from "ph-utils/browser";
 import { copy } from "ph-utils/browser";
 import Message from "../components/message";
 
 export default class IconList extends HTMLElement {
-  private handleItemClick: (
-    e: Event,
-    currTarget?: HTMLElement,
-    flag?: string
-  ) => void;
+  private handleItemClick: (e: Event, currTarget?: HTMLElement, flag?: string) => void;
   public constructor() {
     super();
     this.handleItemClick = this._handleItemClick.bind(this);
@@ -18,7 +15,7 @@ export default class IconList extends HTMLElement {
     const items = [];
     for (const icon of icons) {
       items.push(
-        `<div class="icon-item" data-name="${icon.tagName}"><${icon.tagName} class="icon ${icon.name === "Loading" ? "l-rotate-anim" : ""}"></${icon.tagName}><span class="name">${icon.name}</span></div>`
+        `<div class="icon-item" data-name="${icon.tagName}"><${icon.tagName} class="icon ${icon.name === "Loading" ? "l-rotate-anim" : ""}"></${icon.tagName}><span class="name">${icon.name}</span></div>`,
       );
     }
     this.innerHTML = `<div class="icon-list">${items.join("")}</div>`;
@@ -37,7 +34,7 @@ export default class IconList extends HTMLElement {
     const [flag, tagName] = shouldEventNext(e, "data-name");
     if (flag) {
       copy(`<${tagName}></${tagName}>`).then();
-      Message.success("复制成功");
+      Message.success(docText("copied"));
     }
   }
 }

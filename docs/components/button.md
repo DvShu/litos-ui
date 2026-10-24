@@ -3,18 +3,21 @@
 ## 引用
 
 ```js
-import { Button, regist, LoadingIcon } from "litos-ui";
+import { Button, regist, LoadingIcon, SearchIcon } from "litos-ui";
 
 regist(Button);
 // 如果需要使用加载状态
 regist(LoadingIcon);
+
+// 注册本页演示使用的附加组件
+regist([SearchIcon]);
 ```
 
 ## 基础使用
 
 ### 按钮类型
 
-使用 `type` 控制按钮类型, 提供两种类型: `normal`, `normal-v2`, `primary`；通过设置 `box-shadow` 按钮 `hover` 时阴影效果；
+使用 `type` 控制按钮类型, 提供三种类型: `normal`, `normal-v2`, `primary`；通过设置 `box-shadow` 按钮 `hover` 时阴影效果；
 
 <ClientOnly>
 <l-code-preview>
@@ -96,7 +99,7 @@ regist(LoadingIcon);
 
 ### 按钮形状
 
-使用 `shape` 控制按钮形状, 提供两种类型: `default`, `round`、`circle`。
+使用 `shape` 控制按钮形状, 提供三种类型: `default`, `round`、`circle`。
 
 <ClientOnly>
 <l-code-preview>
@@ -192,15 +195,19 @@ regist(LoadingIcon);
 <!-- prettier-ignore -->
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `type` | 按钮类型, `normal`, `primary` | `string` | `normal` |
+| `type` | 按钮类型，normal、normal-v2、primary | `string` | `normal` |
 | `disabled` | 按钮禁用状态 | `boolean` | `false` |
 | `loading` | 按钮加载状态 | `boolean` | `false` |
 | `block` | 按钮是否为块级元素[适合其父宽度(宽度100%)] | `boolean` | `false` |
 | `shape` | 按钮形状, `default`, `round`按钮为圆角[弧形按钮] , `circle`按钮为圆形 | `string` | `default` |
 | `html-type` | 原生的 `type` 属性; `button`、`submit`、`reset` | `string` | `button` |
-| `loading-text` | 加载状态时显示的文字 | `string`  | - |
+| `loading-text` | 加载状态时显示的文字 | `string` | `加载中……` |
 | `color` | 自定义按钮颜色 | `string` | - |
-| `box-shadow` | 按钮阴影 | `boolean` | - |
+| `text` | 文本按钮 | `boolean` | `false` |
+| `ghost` | 幽灵按钮 | `boolean` | `false` |
+| `size` | small、default、large | `string` | `default` |
+| `height` | 自定义高度 | `string` | - |
+| `box-shadow` | 按钮阴影 | `boolean` | `false` |
 
 ### Button Slots
 
@@ -211,19 +218,22 @@ regist(LoadingIcon);
 
 ### 样式变量
 
+下表列出组件样式中的基础变量值；normal、primary、text 等状态会覆盖其中部分变量。全局 vars.css 提供的高度与圆角优先于组件回退值。
+
 <!-- prettier-ignore -->
-| 名称                             | 描述                     | 默认值                       |
-| -------------------------------- | ------------------------ | ---------------------------- |
-| `--l-btn-text-color`            | 按钮的文字颜色           | `rgba(0, 0, 0, 0.65)`        |
-| `--l-btn-background`            | 按钮的背景颜色           | `	#fff`                       |
-| `--l-btn-border-color`          | 按钮的边框颜色           | `#d9d9d9`                    |
-| `--l-form-control-height`          | 按钮的高度               | `32px`                       |
-| `--l-btn-hover-text-color`      | 鼠标悬浮时按钮的文字颜色 | `#79b3f7`                    |
-| `--l-btn-hover-border-color`    | 鼠标悬浮时按钮的边框颜色 | `var(--l-btn-hover-color)`  |
-| `--l-btn-hover-background`      | 鼠标悬浮时按钮的背景颜色 | `var(--l-btn-background)`   |
-| `--l-btn-active-text-color`     | 点击时按钮的颜色         | `#197df1`                    |
-| `--l-btn-active-background`     | 点击时按钮的背景颜色     | `var(--l-btn-background)`   |
-| `--l-btn-active-border-color`   | 点击时按钮的边框颜色     | `var(--l-btn-active-color)` |
-| `--l-btn-disabled-color`        | 禁用时按钮的文字颜色     | `#c9c9c9`                    |
-| `--l-btn-disabled-background`   | 禁用时按钮的背景颜色     | `#fbfbfb`                    |
-| `--l-btn-disabled-border-color` | 禁用时按钮的边框颜色     | `#e6e6e6`                    |
+| 名称 | 默认值 |
+| --- | --- |
+| `--l-btn-text-color` | `#fff`，普通按钮状态由具体样式覆盖 |
+| `--l-btn-background` | `var(--l-btn-border-color)` |
+| `--l-btn-border-color` | `var(--l-primary-color, #722ed1)` |
+| `--l-btn-hover-text-color` | `var(--l-btn-text-color)` |
+| `--l-btn-hover-border-color` | `var(--l-primary-color-light1, #9254de)` |
+| `--l-btn-hover-background` | `var(--l-btn-hover-border-color)` |
+| `--l-btn-active-text-color` | `var(--l-btn-text-color)` |
+| `--l-btn-active-border-color` | `var(--l-primary-color-dark1, #531dab)` |
+| `--l-btn-active-background` | `var(--l-btn-active-border-color)` |
+| `--l-btn-disabled-color` | `#c9c9c9` |
+| `--l-btn-disabled-background` | `#fbfbfb` |
+| `--l-btn-disabled-border-color` | `#e6e6e6` |
+| `--l-form-control-height` | `40px`（vars.css；组件回退为 32px） |
+| `--l-border-radius` | `5px`（vars.css；组件回退为 3px） |

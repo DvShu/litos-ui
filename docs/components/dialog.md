@@ -5,10 +5,13 @@
 ## 引用
 
 ```js
-import { DialogContainer, regist, Button, CloseIcon, Dialog, DialogBox } from "litos-ui";
+import { DialogContainer, regist, Button, CloseIcon, Dialog, DialogBox, InfoIcon } from "litos-ui";
 import "litos-ui/styles/dialog.css";
 
 regist([DialogContainer, Button, CloseIcon]);
+
+// 注册本页演示使用的附加组件
+regist([InfoIcon]);
 ```
 
 ## 演示
@@ -128,12 +131,12 @@ regist([DialogContainer, Button, CloseIcon]);
   </dialog>
 </textarea>
 <textarea lang="js">
-  const dialog = new Dialog({ 
-    el: '#dialog', 
+  const dialog = new Dialog({
+    el: '#dialog',
     onAction: (action, done) => {
       console.log(action);
       done();
-    } 
+    }
   });
   dialog.open(); // 打开弹窗
   // 在页面结束时 onUnmounted 中调用 dialog.destroy() 方法销毁弹窗
@@ -202,12 +205,12 @@ regist([DialogContainer, Button, CloseIcon]);
   </dialog>
 </textarea>
 <textarea lang="js">
-  const dialog = new Dialog({ 
-    el: '#dialog', 
+  const dialog = new Dialog({
+    el: '#dialog',
     onAction: (action, done) => {
       console.log(action);
       done();
-    } 
+    }
   });
   dialog.open(); // 打开弹窗
   // 在页面结束时 onUnmounted 中调用 dialog.destroy() 方法销毁弹窗
@@ -239,8 +242,8 @@ regist([DialogContainer, Button, CloseIcon]);
   </dialog>
 </textarea>
 <textarea lang="js">
-  const dialog = new Dialog({ 
-    el: '#dialog', 
+  const dialog = new Dialog({
+    el: '#dialog',
     onAction: (action, done) => {
       if (action === 'ok') {
         const $container = document.querySelector('#dialog l-dialog-container');
@@ -255,7 +258,7 @@ regist([DialogContainer, Button, CloseIcon]);
       } else {
         done();
       }
-    } 
+    }
   });
   dialog.open();
   // 在页面结束时调用 dialog.destroy() 销毁弹窗
@@ -307,22 +310,22 @@ regist([DialogContainer, Button, CloseIcon]);
 
 #### 构造函数
 
-```ts
+```text
 new Dialog(option?: DialogInitialParams)
 ```
 
 #### DialogInitialParams
 
-| 属性          | 类型                                            | 默认值  | 说明                                                                                |
-| ------------- | ----------------------------------------------- | ------- | ----------------------------------------------------------------------------------- |
-| el            | `HTMLDialogElement \| string`                   | -       | **必填**，dialog 节点或 CSS 选择器                                                  |
-| onAction      | `(action: string, done: () => void) => boolean` | -       | 按钮点击回调，`action` 为 `"ok"` 或 `"cancel"` 或 `"close"`，调用 `done()` 关闭弹窗 |
-| verticalAlign | `"top" \| "bottom" \| "middle"`                 | `"top"` | 对话框垂直方向位置                                                                  |
-| translate     | `string`                                        | -       | CSS translate 值，例如 `"0,0,0"` 表示 `translate3d(0,0,0)`                          |
-| width         | `string`                                        | -       | 对话框宽度                                                                          |
-| escClose      | `boolean`                                       | `true`  | 是否在点击 Esc 时关闭弹窗                                                           |
-| maskClosable  | `boolean`                                       | `true`  | 是否可以通过点击遮罩关闭对话框                                                      |
-| close         | `number`                                        | `1`     | 是否显示右上角关闭按钮，`1` - 显示在框内，`2` - 显示在框角，`0` - 不显示            |
+| 属性          | 类型                                         | 默认值  | 说明                                                                                |
+| ------------- | -------------------------------------------- | ------- | ----------------------------------------------------------------------------------- |
+| el            | `HTMLDialogElement \| string`                | -       | **必填**，dialog 节点或 CSS 选择器                                                  |
+| onAction      | `(action: string, done: () => void) => void` | -       | 按钮点击回调，`action` 为 `"ok"` 或 `"cancel"` 或 `"close"`，调用 `done()` 关闭弹窗 |
+| verticalAlign | `"top" \| "bottom" \| "middle"`              | `"top"` | 对话框垂直方向位置                                                                  |
+| translate     | `string`                                     | -       | CSS translate 值，例如 `"0,0,0"` 表示 `translate3d(0,0,0)`                          |
+| width         | `string`                                     | -       | 对话框宽度                                                                          |
+| escClose      | `boolean`                                    | `true`  | 是否在点击 Esc 时关闭弹窗                                                           |
+| maskClosable  | `boolean`                                    | `true`  | 是否可以通过点击遮罩关闭对话框                                                      |
+| close         | `number`                                     | `1`     | 是否显示右上角关闭按钮，`1` - 显示在框内，`2` - 显示在框角，`0` - 不显示            |
 
 #### 实例方法
 
@@ -392,15 +395,15 @@ regist([DialogContainer]);
 
 可在 `l-dialog-container` 元素或其祖先元素上设置以下 CSS 变量，以自定义对话框容器样式。
 
-| 变量名 | 默认值 | 说明 |
-| --- | --- | --- |
-| `--l-dialog-main-padding` | `0` | 对话框整体内边距 |
-| `--l-dialog-header-padding` | `10px` | 标题栏内边距，非移动端风格下生效 |
-| `--l-dialog-container-padding` | `15px 10px` | 内容区内边距，非移动端风格下生效 |
-| `--l-dialog-footer-padding` | `10px` | 底部操作区内边距，非移动端风格下生效 |
-| `--l-dialog-line-color` | `rgba(0, 0, 0, 0.06)` | 标题栏、底部操作区及移动端底部按钮之间的分隔线颜色；移动端标题栏分隔线为透明 |
-| `--l-dialog-close-right` | `close="1"` 时为 `5px`，`close="2"` 时为 `0` | 关闭按钮距容器右侧的偏移 |
-| `--l-dialog-close-top` | `close="1"` 时为 `6px`，`close="2"` 时为 `0` | 关闭按钮距容器顶部的偏移 |
+| 变量名                         | 默认值                                       | 说明                                                                         |
+| ------------------------------ | -------------------------------------------- | ---------------------------------------------------------------------------- |
+| `--l-dialog-main-padding`      | `0`                                          | 对话框整体内边距                                                             |
+| `--l-dialog-header-padding`    | `10px`                                       | 标题栏内边距，非移动端风格下生效                                             |
+| `--l-dialog-container-padding` | `15px 10px`                                  | 内容区内边距，非移动端风格下生效                                             |
+| `--l-dialog-footer-padding`    | `10px`                                       | 底部操作区内边距，非移动端风格下生效                                         |
+| `--l-dialog-line-color`        | `rgba(0, 0, 0, 0.06)`                        | 标题栏、底部操作区及移动端底部按钮之间的分隔线颜色；移动端标题栏分隔线为透明 |
+| `--l-dialog-close-right`       | `close="1"` 时为 `5px`，`close="2"` 时为 `0` | 关闭按钮距容器右侧的偏移                                                     |
+| `--l-dialog-close-top`         | `close="1"` 时为 `6px`，`close="2"` 时为 `0` | 关闭按钮距容器顶部的偏移                                                     |
 
 ```html
 <l-dialog-container
@@ -427,7 +430,7 @@ import { DialogBox } from "litos-ui";
 
 #### DialogBox.alert
 
-```ts
+```text
 DialogBox.alert(content: string, title?: string, option?: AlertOptions): Promise<boolean>
 ```
 
@@ -435,7 +438,7 @@ DialogBox.alert(content: string, title?: string, option?: AlertOptions): Promise
 
 #### DialogBox.confirm
 
-```ts
+```text
 DialogBox.confirm(content: string, title?: string, option?: AlertOptions): Promise<boolean>
 ```
 
@@ -443,7 +446,7 @@ DialogBox.confirm(content: string, title?: string, option?: AlertOptions): Promi
 
 #### DialogBox.prompt
 
-```ts
+```text
 DialogBox.prompt(label: string, title?: string, option?: PromptOptions): Promise<string | false>
 ```
 

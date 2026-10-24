@@ -11,11 +11,14 @@
 ## 引用
 
 ```js
-import { Notification, regist } from "litos-ui";
+import { Notification, regist, Button } from "litos-ui";
 import "litos-ui/styles/notification.css";
 
 // 组件式使用需要注册组件
 regist(Notification);
+
+// 注册本页演示使用的附加组件
+regist([Button]);
 ```
 
 > 命令式调用(如 `Notification.info(...)`)会自动注册组件与依赖的图标, 无需手动调用 `regist`。

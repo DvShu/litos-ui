@@ -5,9 +5,12 @@
 ## 引用
 
 ```js
-import { Menu, regist } from "litos-ui";
+import { Menu, regist, Button } from "litos-ui";
 
 regist(Menu);
+
+// 注册本页演示使用的附加组件
+regist([Button]);
 ```
 
 ## 演示
@@ -182,7 +185,7 @@ regist(Menu);
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-menu id="menu-accordion" accordion> 
+  <l-menu id="menu-accordion" accordion>
   </l-menu>
 </textarea>
 </l-code-preview>
@@ -305,12 +308,12 @@ regist(Menu);
 | `--l-menu-item-padding-x` | 菜单项水平内边距 | `10px` |
 | `--l-menu-item-indent` | 子菜单缩进距离 | `15px` |
 | `--l-menu-item-radius` | 菜单项圆角 | `0` |
-| `--l-menu-item-hover-background` | 菜单项悬浮背景色 | `#f9f0ff` |
-| `--l-menu-item-active-color` | 菜单项选中文字颜色 | `#722ed1` |
-| `--l-menu-item-active-background` | 菜单项选中背景色 | `#f9f0ff` |
-| `--l-menu-border-color` | 菜单边框颜色 | `#dedede` |
-| `--l-menu-border-width` | 菜单边框宽度 | `1px` |
-| `--l-menu-arrow-color` | 子菜单箭头颜色 | `#8c8c8c` |
-| `--l-menu-collapsed-width` | 压缩后菜单宽度 | `56px` |
-| `--l-menu-icon-size` | 图标大小 | `14px` |
-| `--l-menu-collapsed-icon-size` | 压缩后图标大小 | `20px` |
+| `--l-menu-item-hover-background` | 菜单项悬浮背景色 | `var(--l-primary-color-light5, #f9f0ff)` |
+| `--l-menu-item-active-color` | 菜单项选中文字颜色 | `var(--l-primary-color, #722ed1)` |
+| `--l-menu-item-active-background` | 菜单项选中背景色 | `var(--l-primary-color-light5, #f9f0ff)` |
+| `--l-menu-border-color` | 菜单边框颜色 | `transparent` |
+| `--l-menu-border-width` | 菜单边框宽度 | `0px` |
+| `--l-menu-arrow-color` | 子菜单箭头颜色 | `var(--l-info-color, #8c8c8c)` |
+| `--l-menu-collapsed-width` | 压缩后菜单宽度 | `40px` |
+| `--l-menu-icon-size` | 图标大小 | `1.8rem` |
+| `--l-menu-collapsed-icon-size` | 压缩后图标大小 | `1.8rem` |

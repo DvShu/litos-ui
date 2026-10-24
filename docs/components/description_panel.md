@@ -47,7 +47,7 @@ regist([DescriptionPanel, Button, ArrowDownIcon]);
 
 ## API
 
-### DescriptionPanel Attibutes
+### DescriptionPanel Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

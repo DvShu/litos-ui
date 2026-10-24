@@ -5,7 +5,9 @@
 ## 引用
 
 ```js
-import { Mask } from "litos-ui";
+import { Mask, Button, regist } from "litos-ui";
+
+regist([Mask, Button]);
 ```
 
 ## 演示
@@ -68,37 +70,33 @@ import { Mask } from "litos-ui";
 
 ## API
 
-### BaseOverlay Attibutes
+### Mask Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `open` | 是否显示遮罩，可通过实例 open 属性切换 | `boolean` | `false` |
+| `z-index` | 遮罩层级，内容层在此基础上加一 | `number` | `100` |
+| `mask-closable` | 点击遮罩是否关闭 | `boolean` | `true` |
+| `lock-scroll` | 打开时是否锁定 body 滚动 | `boolean` | `true` |
 
-### BaseOverlay Slots
+### Mask Slots
+
+默认插槽提供遮罩面板内容。
+
+### Mask Events
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
-
-### BaseOverlay Events
-
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| 事件名 | 说明 | 数据 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
+| `close` | 开始关闭时触发 | 无 detail 数据 |
+| `closed` | 关闭动画完成时触发 | 无 detail 数据 |
+| `action` | 点击带 data-action 的面板操作时触发 | event.detail 为操作字符串 |
 
-### BaseOverlay Methods
+### 继承扩展
 
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `x` | x | `(x: number): string` |
+可覆盖 `contentRender()` 返回字符串、HTMLElement 或 DocumentFragment，使用 `afterOpened()`、`afterClosed()` 处理打开和关闭后的逻辑，或通过 `onAction(action)` 接管操作。外部控制显示使用 `element.open = true` 或设置 open 属性。
 
-### BaseOverlay CSS Variables
+### CSS Variables 与 Parts
 
-<!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-| `--l` | x | `#fff` |
+`--l-mask-zindex` 默认 `100`。组件提供 `mask`、`panel` 两个 part，可通过 `::part()` 定制遮罩及内容层。

@@ -23,7 +23,7 @@ regist(MdInput);
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-md-input></l-md-input>
+  <l-md-input label="姓名" outline></l-md-input>
 </textarea>
 </div>
 </l-code-preview>
@@ -31,37 +31,31 @@ regist(MdInput);
 
 ## API
 
-### MdInput Attibutes
+### MdInput 初始化属性
+
+除 disabled 外，下列属性主要在连接组件时读取。当前实现未提供所有属性的动态重绘能力；不要将初始化配置等同于完整的受控表单行为。
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| x | x | x | x |
+| `label` | 输入框浮动标签 | `string` | - |
+| `outline` | 是否显示四周边框 | `boolean` | `false` |
+| `html-type` | 原生输入类型，可选 text、number、password、tel | `string` | `text` |
+| `inputmode` | 原生输入模式 | `string` | - |
+| `name` | 表单字段名 | `string` | - |
 
-### MdInput Slots
+当前实现尚未完整同步初始 value 与原生输入框，也未将 disabled 状态传递到内部 input，不应作为这些行为已经可用的示例。此处仅说明现有实现，组件功能完善需另行处理。
+
+### 事件与方法
+
+输入时可通过组件的 `value` 属性读取当前值。当前未单独派发自定义 change 事件；不要把原生 input 事件的数据描述为 `event.detail.value`。
+
+`setValue(value)` 可更新组件值和已挂载的内部输入框。默认插槽未参与渲染。
+
+### CSS Variables
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
-| --- | --- |
-| `default` | 内容 |
-
-### MdInput Events
-
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| 名称 | 说明 | 默认值 |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-
-### MdInput Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| `x` | x | `(x: number): string` |
-
-### MdInput CSS Variables
-
-<!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-| `--l` | x | `#fff` |
+| `--l-input-width` | 输入框宽度 | `180px` |
+| `--l-form-control-height` | 输入框高度 | `40px`（引入 vars.css 后；组件回退为 32px） |

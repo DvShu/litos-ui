@@ -5,9 +5,12 @@
 ## 引用
 
 ```js
-import { regist, Space } from "litos-ui";
+import { regist, Space, Button } from "litos-ui";
 
 regist(Space);
+
+// 注册本页演示使用的附加组件
+regist([Button]);
 ```
 
 ## 演示
@@ -54,7 +57,7 @@ regist(Space);
 
 ## API
 
-### Space Attibutes
+### Space Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -63,7 +66,7 @@ regist(Space);
 | `justify` | 水平方向位置 | `string` | `flex-start` |
 | `direction` | 布局方向 | `string` | `row` |
 | `wrap` | 是否换行 | `boolean` | `false` |
-| `align` | 垂直方向位置 | `string` | `flex-start` |
+| `align` | 垂直方向位置 | `string` | `center` |
 | `gap` | 间距, 如果是 `,` 分隔的值则为水平、垂直方向间距; 例如: `10,15` | `string` | `10px` |
 
 ### Space CSS Variables

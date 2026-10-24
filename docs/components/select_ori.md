@@ -30,7 +30,7 @@ regist(SelectOri);
 
 ## API
 
-### SelectOri Attibutes
+### SelectOri Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -51,7 +51,7 @@ regist(SelectOri);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `chnage` | 选中项改变时触发 | `(event: Event)` |
+| `change` | 选中项改变时触发，`event.detail` 为选中的字符串值 | `(event: CustomEvent<string>)` |
 
 ### SelectOri Methods
 

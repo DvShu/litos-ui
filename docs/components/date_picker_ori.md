@@ -1,13 +1,13 @@
-# DatePicker
+# DatePickerOri 原生日期选择器
 
 基于原生 `input` 封装的输入或选择日期的控件。
 
 ## 引用
 
 ```js
-import { DatePicker, regist } from "litos-ui";
+import { DatePickerOri, regist } from "litos-ui";
 
-regist(DatePicker);
+regist(DatePickerOri);
 ```
 
 ## 演示
@@ -46,7 +46,7 @@ regist(DatePicker);
 <l-code-preview>
 <textarea lang="html">
   <l-date-picker-ori value="2025-04-02"></l-date-picker-ori>
-  <l-date-picker-ori type="datetime-local" value="2025-05-02 17:00"></l-date-picker-ori>
+  <l-date-picker-ori type="datetime-local" value="2025-05-02T17:00"></l-date-picker-ori>
   <l-date-picker-ori type="time" value="17:00"></l-date-picker-ori>
   <l-date-picker-ori type="month"></l-date-picker-ori>
   <l-date-picker-ori type="week"></l-date-picker-ori>
@@ -54,7 +54,7 @@ regist(DatePicker);
 <div class="source">
 <textarea lang="html">
   <l-date-picker-ori value="2025-04-02"></l-date-picker-ori>
-  <l-date-picker-ori type="datetime-local" value="2025-05-02 17:00"></l-date-picker-ori>
+  <l-date-picker-ori type="datetime-local" value="2025-05-02T17:00"></l-date-picker-ori>
   <l-date-picker-ori type="time" value="17:00"></l-date-picker-ori>
   <l-date-picker-ori type="month"></l-date-picker-ori>
   <l-date-picker-ori type="week"></l-date-picker-ori>
@@ -62,7 +62,7 @@ regist(DatePicker);
 <textarea lang="js">
   import { on, $ } from 'ph-utils/browser';
   //-
-  const $pickers = $('l-date-picker');
+  const $pickers = $('l-date-picker-ori');
   on($pickers, 'change', (e) => {
     // { value: string, dateStr: string[], dates: Date[] }
     const detail = e.detail;
@@ -100,7 +100,7 @@ regist(DatePicker);
 
 ## API
 
-### DatePicker Attibutes
+### DatePickerOri Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -113,18 +113,13 @@ regist(DatePicker);
 | `allow-empty` | 是否允许空值, 设置为 `false` 时如果为空会赋值初始值 | `boolean` | `true` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `width` | 宽度 | `string` | `-` |
-| `emit-timeout` | 触发 `change` 事件时延时, 在范围选择时有效；为了性能考虑, 立即改变一个日期后，会延迟 `300ms` 通知, 以响应其它选择器, `0` - 立即触发 | `number` | `number` | `300` |
+| `delay` | 触发 `change` 事件时延时, 在范围选择时有效；为了性能考虑, 立即改变一个日期后，会延迟 `300ms` 通知, 以响应其它选择器, `0` - 立即触发 | `number` | `300` |
 
-### DatePicker Events
+### DatePickerOri Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `change` | 日期改变时触发, 通过 `event.detail` 可以获取到当前值 | `(event: CustomEvent)` |
 
-### DatePicker CSS Variables
-
-<!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
-| --- | --- | --- |
-| `--l` | x | `#fff` |
+初始 `datetime-local` 值使用原生输入框要求的格式，例如 `2025-05-02T17:00`。

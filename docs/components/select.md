@@ -231,7 +231,7 @@ regist([CloseFilledIcon]);
 
 ## API
 
-### Select Attibutes
+### Select Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -241,12 +241,10 @@ regist([CloseFilledIcon]);
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `label-field` | 选项 `label` 的字段名 | `string` | `label` |
 | `value-field` | 选项 `value` 的字段名 | `string` | `value` |
-| `options` | 配置选项内容 | `SelectOption[]` | - |
 | `multiple` | 是否多选 | `boolean` | `false` |
 | `collapse-tags` | 多选时是否将选中值按文字的形式展示 | `boolean` | `false` |
 | `clearable` | 是否可清空 | `boolean` | `false` |
 | `filterable` | 是否启用过滤 | `boolean` | `false` |
-| `filter` | 自定义的过滤函数 | `(match: string, option: SelectOption) => boolean` | - |
 | `remote` | 是否启用远程搜索 | `boolean` | `false` |
 | `loading` | 是否为加载状态, 通常为远程搜索时使用 | `boolean` | `false` |
 | `width` | 宽度 | `string` | `100%` |
@@ -263,7 +261,10 @@ regist([CloseFilledIcon]);
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `search` | 搜索时触发, `e.detail.value` 为搜索内容 | `(e: CustomEvent)` |
+| `search` | 搜索时触发，e.detail.value 为搜索内容 | `(e: CustomEvent)` |
+| `change` | 选择变化时触发，detail 包含 value 和 labels | `(e: CustomEvent)` |
+
+选项数据通过 `setOptions()` 设置，自定义过滤函数通过 `setFilter()` 设置，不能把对象数组或函数直接作为 HTML 属性传入。
 
 ### Select Methods
 
@@ -278,7 +279,7 @@ regist([CloseFilledIcon]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 选项的值 | `string、number` | - |
+| `value` | 选项的值 | `string` 或 `number` | - |
 | `label` | 选项的标签 | `string` | - |
 
 ### Select CSS Variables

@@ -1,6 +1,6 @@
 # 快速开始
 
-`UI` 库依赖一个清理级的工具库 [ph-utils](https://gitee.com/towardly/ph/wikis/Home?sort_id=4035190)
+组件库使用工具库 [ph-utils](https://gitee.com/towardly/ph/wikis/Home?sort_id=4035190)
 
 ## 使用
 
@@ -13,57 +13,68 @@ npm install litos-ui
 ### 引入
 
 ```js
-import { Button, regist, ... } from "litos-ui";
+import "litos-ui/styles/vars.css";
+import { Button, regist } from "litos-ui";
 
 // 注册为 Web Components, 注册后, 可以通过 `<l-button></l-button>` 使用
 regist(Button);
 ```
 
-> 推荐在入口文件引入并注册
->
-> 所有的组件有一个前缀 `l-`, 例如 `Button` 组件的标签为 `<l-button></l-button>`; 可以通过一下两种方式修改:
->
-> 1. 通过 `config` 方法配置前缀; 通过这种方法更改所有的组件的前缀
-> 2. 通过 `regist` 时, 传入第二个参数, 为组件配置自定义的标签名; 通过这种方法更改单个组件的标签名
+推荐在客户端入口文件中引入样式并注册组件，再在页面中使用：
 
-```js
-import { Button, regist, config } from "litos-ui";
-
-// 1. 通过 config 方法配置全局前缀
-config({ prefix: "lt" }); // 组件的使用变为: <lt-button></lt-button>
-
-// 2. 通过 regist 手动指定名称
-regist(Button, "lu-button"); // 组件的使用变为: <lu-button></lu-button>
+```html
+<l-button type="primary">按钮</l-button>
 ```
 
-如果需要使用 `Message`，但是不想手动引入 `css`，可以通过 `vite-autoimport` 自动引入
+### 注册组件
 
-安装 `unplugin-auto-import unplugin-vue-components litosui-unplugin-resolver`
+`regist()` 支持传入一个组件或组件数组。组件统一使用 `l-` 前缀，标签名由 `l-` 和组件的 `baseName` 组成，例如 `Button` 对应 `l-button`。
+
+当前暂不支持自定义组件前缀或标签名，请使用默认的 `l-` 标签体系。组件库不提供 `config()` 全局前缀配置 API。
+
+```js
+import { Button, Input, regist } from "litos-ui";
+
+regist([Button, Input]);
+```
+
+重复注册已有标签名时，`regist()` 会跳过该名称。
+
+### 服务组件与可选自动导入
+
+服务组件需要对应的全局样式。例如手动使用 Message：
+
+```js
+import "litos-ui/styles/message.css";
+import { Message } from "litos-ui";
+
+Message.success("操作成功");
+```
+
+如需自动导入服务 API 与对应样式，可以按需使用自动导入插件：
 
 ```shell
-npm install unplugin-auto-import unplugin-vue-components litosui-unplugin-resolver
+npm install -D unplugin-auto-import litosui-unplugin-resolver
 ```
 
-在 `vite.config.ts` 中配置
+在 Vite 配置中添加插件，保留项目已有配置：
 
 ```js
+import { defineConfig } from "vite";
 import AutoImport from "unplugin-auto-import/vite";
-import Components from "unplugin-vue-components/vite";
-import LitosUiResolver from "litosui-unplugin-resolver";
+import LitosuiResolver from "litosui-unplugin-resolver";
 
 export default defineConfig({
-  ...
   plugins: [
     AutoImport({
-      resolvers: [LitosUiResolver()],
-      dts: "src/auto-imports.d.ts"
+      resolvers: [LitosuiResolver()],
+      dts: "src/auto-imports.d.ts",
     }),
-    Components({
-      resolvers: [LitosUiResolver()]
-    })
-  ]
-})
+  ],
+});
 ```
+
+Web Components 的注册仍通过 `regist()` 完成。
 
 ### 全局变量
 

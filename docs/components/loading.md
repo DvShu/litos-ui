@@ -114,9 +114,9 @@ import "litos-ui/styles/loading.css";
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <div 
-    style="height:150px;" 
-    l-loading="loading2" 
+  <div
+    style="height:150px;"
+    l-loading="loading2"
     l-loading-text="loading……"
     l-loading-background="rgba(255, 255, 255, .9)"
   >
@@ -125,9 +125,9 @@ import "litos-ui/styles/loading.css";
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <div 
-    style="height:150px;" 
-    l-loading="loading" 
+  <div
+    style="height:150px;"
+    l-loading="loading"
     l-loading-text="loading……"
     l-loading-background="rgba(255, 255, 255, .9)"
   >
@@ -168,9 +168,9 @@ import "litos-ui/styles/loading.css";
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <div 
-    style="height:150px;border:1px solid #dedede;padding:5px;" 
-    l-loading="loading4" 
+  <div
+    style="height:150px;border:1px solid #dedede;padding:5px;"
+    l-loading="loading4"
     l-loading-shape="bar"
   >
     <l-button id="startBarLoading" data-loading="loading4">开始</l-button>
@@ -179,9 +179,9 @@ import "litos-ui/styles/loading.css";
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <div 
-    style="height:150px;border:1px solid #dedede;padding:5px;" 
-    l-loading="loading4" 
+  <div
+    style="height:150px;border:1px solid #dedede;padding:5px;"
+    l-loading="loading4"
     l-loading-shape="bar"
   >
     <l-button id="startBarLoading" data-loading="loading4">开始</l-button>
@@ -215,8 +215,8 @@ import "litos-ui/styles/loading.css";
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <div 
-    style="height:150px;border:1px solid #dedede;padding:5px;border-radius:5px" 
+  <div
+    style="height:150px;border:1px solid #dedede;padding:5px;border-radius:5px"
     l-loading="loading5"
     l-loading-shape="border"
   >
@@ -225,9 +225,9 @@ import "litos-ui/styles/loading.css";
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <div 
-    style="height:150px;border:1px solid #dedede;padding:5px;border-radius:5px" 
-    l-loading="loading5" 
+  <div
+    style="height:150px;border:1px solid #dedede;padding:5px;border-radius:5px"
+    l-loading="loading5"
     l-loading-mask="1"
     l-loading-shape="border"
   >

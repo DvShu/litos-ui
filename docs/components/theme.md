@@ -102,7 +102,7 @@ initTheme().then();
   const $radio = document.querySelector('#customThemeRadio');
   //-
   $radio.addEventListener('change', (e) => {
-    const newTheme = (e.target as any).value;
+    const newTheme = e.target.value;
     const transition = document.startViewTransition(() => {
       // 应用主题
       applyTheme(newTheme, true, false).then();
@@ -113,7 +113,7 @@ initTheme().then();
         如果在 click 事件中想根据鼠标位置来设置圆形扩散效果
         // 获取鼠标的坐标
         const { clientX, clientY } = e;
-        a: (clientX, clientY)        
+        a: (clientX, clientY)
                               b: (innerWidth, innerHeight)
         a -> b 的距离就是最大半径
         //-
@@ -193,12 +193,12 @@ initColorTheme().then();
 
 ## API
 
-### Theme Attibutes
+### Theme Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `type` | 主题切换按钮风格 | `button` \| `select` \| "`switch` \| `radio` | `button` |
+| `type` | 主题切换按钮风格 | `button` \| `select` \| `switch` \| `radio` | `button` |
 | `label` | 当 `type="radio"` 时是使用文字还是图标 | `text` \| `icon` | `text` |
 
 ### Events

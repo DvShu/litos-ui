@@ -5,9 +5,12 @@
 ## 引用
 
 ```js
-import { Checkbox, regist } from "litos-ui";
+import { Checkbox, regist, CheckboxGroup } from "litos-ui";
 
 regist([Checkbox]);
+
+// 注册本页演示使用的附加组件
+regist([CheckboxGroup]);
 ```
 
 ## 演示
@@ -199,7 +202,7 @@ regist([Checkbox]);
 
 ## API
 
-### Checkbox Attibutes
+### Checkbox Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -247,7 +250,7 @@ regist([Checkbox]);
 | --- | --- | --- |
 | `--l-check-size` | 复选框尺寸 | `14px` |
 | `--l-check-border-radius` | 复选框圆角 | `3px` |
-| `--l-primary-color` | 选中状态颜色 | `#722ed1` |
+| `--l-primary-color` | 选中状态颜色 | `#007bff`（引入 vars.css 后） |
 | `--l-disabled-color` | 禁用状态颜色 | `#e6e6e6` |
-| `--l-form-control-height` | 按钮样式高度 | `32px` |
+| `--l-form-control-height` | 按钮样式高度 | `40px`（引入 vars.css 后；未引入时组件回退为 32px） |
 | `--l-check-gap` | 复选框组间距 | `0px` |

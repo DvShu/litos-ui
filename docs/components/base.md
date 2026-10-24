@@ -1,18 +1,35 @@
-### Base 基础组件
+# Base 基础组件
 
-框架的所有组件都是基于这个组件进行扩展的，所以这个组件是框架的基础组件，也是框架的核心组件。基础组件标记了组件是否渲染完成(生命周期函数 `connectedCallback` 是否已经调用函数)。
+组件通过继承 `BaseComponent` 复用 Shadow DOM、生命周期、属性监听、批量 DOM 更新和事件发送能力。
 
 ## 引用
 
 ```js
-import { BaseComponent } from "litos-ui";
+import { BaseComponent, regist } from "litos-ui";
 ```
 
-## 演示
+## 基础用法
 
-### 基础用法
+为自定义组件定义 `baseName`，使用默认 `l-` 标签体系注册。下面采用当前的 version 2 渲染方式。
 
-只需要继承这个类，然后实现 `render` 函数即可。
+<script setup>
+import { onMounted } from 'vue';
+
+onMounted(async () => {
+  const { BaseComponent, regist } = await import('../../src/components');
+  class HelloWorld extends BaseComponent {
+    static baseName = 'hello-world';
+    constructor() {
+      super();
+      this.version = 2;
+    }
+    render_v2() {
+      return { template: '<span>Hello World</span>' };
+    }
+  }
+  regist(HelloWorld);
+});
+</script>
 
 <ClientOnly>
 <l-code-preview>
@@ -21,90 +38,44 @@ import { BaseComponent } from "litos-ui";
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { BaseComponent, regist } from 'litos-ui';
-  //-
-  class HelloWorld extends BaseComponent {
-    public render() {
-      return "<span>Hello World</span>";
-    }
-  }
-  //-
-  regist(HelloWorld, 'app-hello-world');
+import { BaseComponent, regist } from 'litos-ui';
+
+class HelloWorld extends BaseComponent {
+static baseName = 'hello-world';
+constructor() {
+super();
+this.version = 2;
+}
+render_v2() {
+return { template: '<span>Hello World</span>' };
+}
+}
+
+regist(HelloWorld);
 </textarea>
 <textarea lang="html">
-  <app-hello-world></app-hello-world>
+<l-hello-world></l-hello-world>
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-## API
+## 属性与方法
 
-### 属性
+- `root`：开启 Shadow DOM 时为 ShadowRoot，否则为当前元素。
+- `rendered`：基类完成渲染后为 true，断开连接后为 false。
+- `constructor(shadow = true, init = {})`：配置是否使用 Shadow DOM 及 ShadowRootInit 选项。
+- `render_v2()`：version 2 的渲染入口，返回 template、style、styleSheets 中需要的字段；template 支持字符串、HTMLElement 或 DocumentFragment。
+- `afterInit()`：初次 DOM 创建后执行，在此获取内部节点、绑定事件。
+- `attributeChanged(name, oldValue, newValue)`：处理 observedAttributes 中属性的变化。
+- `updateDOM(changedProps)`：更新变化的属性对应的 DOM。修改状态不会自动重新执行 render_v2，必须实现更新逻辑。
+- `beforeDestroy()`：解绑事件并释放资源，组件断开连接时由基类调用。
+- `emit(name, options)`：发送 CustomEvent，默认 bubbles 和 composed 均为 true，数据通过 options.detail 提供。
 
-1. `root`
+## 生命周期与注意事项
 
-如果是 `Shadow` 模式则为 `ShadowRoot` 否则为 `HTMLElement` 代表当前组件节点。
+基类在 connectedCallback 中创建 DOM，设置 rendered，然后调用 afterInit；断开连接时取消待执行更新、调用 beforeDestroy 并清空内部 DOM。若覆盖这两个原生生命周期，需要调用对应的 super 方法。
 
-2. `rendered`
+优先使用 afterInit 和 beforeDestroy；initEvents、removeEvents 已弃用。基类的 version 默认为 1，旧组件可以实现 render；新组件应在构造函数中设置 version = 2 并实现 render_v2。
 
-组件是否渲染完成，是否已经渲染到了 `DOM` 节点上。(是否调用 ``connectedCallback` 函数)
-
-### 可实现函数
-
-1. `constructor(shadow = true)`
-
-构造函数可以传入一个参数 `shadow`，默认为 `true`，表示是否使用 `shadow` 模式渲染组件，如果为 `false` 则使用普通模式渲染组件。
-
-```js
-constructor() {
-  super(false); // 不是有 Shadow 模式， 使用普通模式渲染
-}
-```
-
-2. `connectedCallback()`
-
-当组件被插入到 DOM 中时，会触发 `connectedCallback` 函数，此时组件已经渲染完成，可以访问 DOM 节点。可以在这里加载样式、初始化属性、事件处理等。
-
-```js
-import { initAttr } from 'litos-ui';
-
-connectedCallback() {
-  // 将 html 节点上的属性绑定到js上，这样就可以通过 this.x 来访问了
-  // 例如: <x-a text="d"></x-a> ，在 x-a 组件内，调用 initAttr(this) 后，就可以通过 this.text 访问属性了。
-  // 注意如果节点上是 a-text ，则 js 上就是 aText
-  initAttr(this);
-  // 加载样式文本
-  this.createStyle(':host:{color:red;}');
-  // 引用样式文件url
-  this.createLink("/static/css/a.css");
-  super.connectedCallback(); // 一定要调用该函数
-  // 初始化事件
-}
-```
-
-> 1. 一定要调用 `super.connectedCallback()` 函数，否则渲染状态不准确
-> 2. 事件处理一定要在 `super.connectedCallback()` 之后
-
-3. `disconnectedCallback()`
-
-当组件从 DOM 中移除时，会触发 `disconnectedCallback` 函数，此时组件已经从 DOM 中移除，可以做一些清理工作。例如取消事件监听、取消定时器等。
-
-```js
-disconnectedCallback() {
-  super.disconnectedCallback();
-  // 取消事件监听
-}
-```
-
-4. `render(): void | string | HTMLElement | HTMLElement[]`
-
-渲染函数，返回一个字符串、一个 HTML 元素、一个 HTML 元素数组或者 `undefined`。如果返回 `undefined`，则需要自己手动渲染节点内容。
-
-```js
-render() {
-  // 返回节点字符串，自动渲染到 DOM 节点上
-  return `<span>hello world</span>`;
-  // 也可以不返回任何内容手动调用 this.root.innerHTML = '<span>hello world</span>' 来渲染
-}
-```
+组件模块依赖浏览器 API。服务端渲染项目应在客户端加载和注册，文档演示也必须放在 ClientOnly 内。

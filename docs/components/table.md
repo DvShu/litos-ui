@@ -215,16 +215,16 @@ regist(Table);
         type: 'primary',
         'data-id': `${rowData.id}`
       }
-      children.push($$('l-button', { 
-        ...attrs, 
-        'data-action': 'edit', 
-        textContent: '编辑' 
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'edit',
+        textContent: '编辑'
       }));
       //-
-      children.push($$('l-button', { 
-        ...attrs, 
-        'data-action': 'delete', 
-        textContent: '删除' 
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'delete',
+        textContent: '删除'
       }));
       return children;
     }
@@ -325,16 +325,16 @@ regist(Table);
         type: 'primary',
         'data-id': `${rowData.id}`
       }
-      children.push($$('l-button', { 
-        ...attrs, 
-        'data-action': 'edit', 
-        textContent: '编辑' 
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'edit',
+        textContent: '编辑'
       }));
       //-
-      children.push($$('l-button', { 
-        ...attrs, 
-        'data-action': 'delete', 
-        textContent: '删除' 
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'delete',
+        textContent: '删除'
       }));
       return children;
     }
@@ -364,7 +364,7 @@ regist(Table);
 
 ## API
 
-### Table Attibutes
+### Table Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -411,7 +411,7 @@ regist(Table);
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
 | `setColumns` | 设置列 | `(columns: Column[]) => void` |
-| `setData` | 设置数据 | `(data: any[], sortInfo?: {key: string; order: "asc" \| "desc"}}) => void` |
+| `setData` | 设置数据 | `(data: any[], sortInfo?: {key: string; order: "asc" \| "desc"}) => void` |
 
 ### Table CSS Variables
 

@@ -7,10 +7,13 @@
 ### 引入
 
 ```js
-import { ArrowDownIcon, regist, ... } from "litos-ui";
+import { ArrowDownIcon, regist, BaseIcon, CaretBottomIcon, FontIcon } from "litos-ui";
 
 regist(ArrowDownIcon);
 // ...
+
+// 注册本页演示使用的附加组件
+regist([BaseIcon, CaretBottomIcon, FontIcon]);
 ```
 
 ### 使用

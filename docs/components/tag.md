@@ -5,10 +5,13 @@
 ## 引用
 
 ```js
-import { regist, Tag, CloseIcon } from "litos-ui";
+import { regist, Tag, CloseIcon, Button } from "litos-ui";
 
 regist(Tag);
 regist(CloseIcon); // 需要 closable 引入
+
+// 注册本页演示使用的附加组件
+regist([Button]);
 ```
 
 ## 演示
@@ -152,7 +155,7 @@ regist(CloseIcon); // 需要 closable 引入
 
 ## API
 
-### Tag Attibutes
+### Tag Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
