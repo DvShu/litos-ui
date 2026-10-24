@@ -89,16 +89,14 @@ function renderModal(
 
 function alert(content: string, title?: string, option?: AlertOptions): Promise<boolean> {
   regist([Button, Modal, CloseIcon]);
-  return new Promise((resolve) => {
-    const opts = {
-      showCancel: false,
-      close: 0,
-      maskClosable: false,
-      icon: undefined,
-      ...option,
-    };
-    return renderModal(title || "提示", content, opts, "alert");
-  });
+  const opts = {
+    showCancel: false,
+    close: 0,
+    maskClosable: false,
+    icon: undefined,
+    ...option,
+  };
+  return renderModal(title || "提示", content, opts, "alert").then((value) => value === true);
 }
 
 function confirm(content: string, title?: string, option?: AlertOptions) {
