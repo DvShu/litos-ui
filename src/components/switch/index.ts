@@ -37,9 +37,7 @@ export default class Switch extends FormInner {
     }
     const $children = ['<div class="l-switch-action" part="action"></div>'];
     if (this.checkedText || this.uncheckedText) {
-      const text = this.value
-        ? this.checkedText || ""
-        : this.uncheckedText || "";
+      const text = this.value ? this.checkedText || "" : this.uncheckedText || "";
       $children.push(`<span class="l-switch-text">${text}</span>`);
     }
     return $children.join("");
@@ -60,9 +58,7 @@ export default class Switch extends FormInner {
     }
     const $text = $one(".l-switch-text", this.root);
     if ($text) {
-      $text.textContent = this.value
-        ? this.checkedText || ""
-        : this.uncheckedText || "";
+      $text.textContent = this.value ? this.checkedText || "" : this.uncheckedText || "";
     }
     this.#renderAction();
   }

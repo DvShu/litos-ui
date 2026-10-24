@@ -1,8 +1,8 @@
-import BaseComponent from "../base"
+import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
-import css from "./index.less?inline"
-import { isNumeric } from 'ph-utils';
+import css from "./index.less?inline";
+import { isNumeric } from "ph-utils";
 
 export default class Space extends BaseComponent {
   public static baseName = "space";
@@ -13,25 +13,27 @@ export default class Space extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ['inline', 'align', 'justify', 'gap', 'direction', 'wrap']
+    return ["inline", "align", "justify", "gap", "direction", "wrap"];
   }
 
-  attributeChangedCallback(name: string,oldValue: string,newValue: string) {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(newValue,this[name as "id"] as any,name) as any;
-    if (name === 'inline') {
-      const inlineValue = parseAttrValue(newValue, false, 'inline');
+    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
+    if (name === "inline") {
+      const inlineValue = parseAttrValue(newValue, false, "inline");
       if (inlineValue) {
-        this.style.setProperty('--l-space-display', 'inline-flex');
+        this.style.setProperty("--l-space-display", "inline-flex");
       } else {
-        this.style.removeProperty('--l-space-display');
+        this.style.removeProperty("--l-space-display");
       }
-    } else if (name === 'gap') {
+    } else if (name === "gap") {
       if (parsedValue) {
-        const gapValue = parsedValue.split(",").map((value: string) => isNumeric(value) ? `${value}px` : value);
-        this.style.setProperty('--l-space-gap', gapValue.join(" "));
+        const gapValue = parsedValue
+          .split(",")
+          .map((value: string) => (isNumeric(value) ? `${value}px` : value));
+        this.style.setProperty("--l-space-gap", gapValue.join(" "));
       } else {
-        this.style.removeProperty('--l-space-gap');
+        this.style.removeProperty("--l-space-gap");
       }
     } else {
       const cssVarName = `--l-space-${name}`;
@@ -44,6 +46,6 @@ export default class Space extends BaseComponent {
   }
 
   render() {
-    return "<slot></slot>"
+    return "<slot></slot>";
   }
 }

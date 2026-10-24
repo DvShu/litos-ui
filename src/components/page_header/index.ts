@@ -40,11 +40,7 @@ export default class PageHeader extends BaseComponent {
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name
-    ) as any;
+    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
     }
@@ -113,11 +109,7 @@ export default class PageHeader extends BaseComponent {
   }
 
   #onTap = (e: Event) => {
-    const [isAction, action, target] = shouldEventNext(
-      e,
-      "l-action",
-      this.root
-    );
+    const [isAction, action, target] = shouldEventNext(e, "l-action", this.root);
     if (isAction) {
       const dataset = target.dataset;
       this.emit("action", { detail: { action, ...dataset } });

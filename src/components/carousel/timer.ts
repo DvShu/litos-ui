@@ -3,10 +3,7 @@ export type AutoPlayTimerT = {
   stop: () => void;
 };
 
-export default function autoPlayTimer(
-  callback: () => void,
-  duration = 3000
-): AutoPlayTimerT {
+export default function autoPlayTimer(callback: () => void, duration = 3000): AutoPlayTimerT {
   let lastTime = 0;
   let running = false;
   let rafId: number | null = null;

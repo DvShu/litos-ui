@@ -26,11 +26,7 @@ export default class TabbarItem extends BaseComponent {
     super.connectedCallback();
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (name === "icon" || name === "only-icon") {
       const value = parseAttrValue(newValue, false, "icon");
       this[name as "icon"] = value;

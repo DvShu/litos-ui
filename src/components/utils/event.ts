@@ -9,11 +9,7 @@ let events: Map<string, EventValue> | undefined;
  * @param cb - 当事件触发时调用的回调函数，接收两个参数：属性名和属性值。
  * 该函数用于将回调函数添加到指定表单ID的事件监听器集合中。
  */
-export function add(
-  channel: string,
-  event: string,
-  cb: (...param: any) => void
-) {
+export function add(channel: string, event: string, cb: (...param: any) => void) {
   if (events == null) {
     events = new Map();
   }
@@ -34,11 +30,7 @@ export function add(
  * 该函数会从事件存储中移除指定的回调函数，如果某个事件类型下没有更多的回调函数，则删除该事件类型；
  * 如果表单下没有更多的事件类型，则删除该表单；如果事件存储为空，则重置事件存储。
  */
-export function remove(
-  channel: string,
-  event: string,
-  cb: (...params: any) => void
-) {
+export function remove(channel: string, event: string, cb: (...params: any) => void) {
   events?.get(channel)?.get(event)?.delete(cb);
   if (events?.get(channel)?.get(event)?.size == 0) {
     events.get(channel)?.delete(event);

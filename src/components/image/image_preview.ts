@@ -35,12 +35,8 @@ export default class ImagePreview extends Mask {
       children.push(this._generateBtnString("next", "arrow-right"));
     }
     children.push('<div class="l-image-preview-footer">');
-    children.push(
-      `<div class="l-image-preview-progress">${this._getProgress()}</div>`,
-    );
-    children.push(
-      '<div data-action="operations" class="l-image-preview-operations">',
-    );
+    children.push(`<div class="l-image-preview-progress">${this._getProgress()}</div>`);
+    children.push('<div data-action="operations" class="l-image-preview-operations">');
     children.push(this._generateBtnString("zoom-in", "zoom-in"));
     children.push(this._generateBtnString("zoom-out", "zoom-out"));
     children.push(this._generateBtnString("reduction", "reduction"));
@@ -79,10 +75,7 @@ export default class ImagePreview extends Mask {
   }
 
   private _updateProgress() {
-    const $progress = $one(
-      ".l-image-preview-progress",
-      this.root,
-    ) as HTMLDivElement;
+    const $progress = $one(".l-image-preview-progress", this.root) as HTMLDivElement;
     if ($progress) {
       $progress.innerHTML = this._getProgress();
     }

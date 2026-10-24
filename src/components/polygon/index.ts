@@ -27,10 +27,7 @@ export default class Polygon extends BaseComponent {
     super.connectedCallback();
   }
   render() {
-    const classStr = formatClass([
-      "l-polygon",
-      this.shape ? `l-polygon-${this.shape}` : "",
-    ]);
+    const classStr = formatClass(["l-polygon", this.shape ? `l-polygon-${this.shape}` : ""]);
     const styleStr = formatStyle([
       this.background ? `--l-polygen-background: ${this.background}` : "",
     ]);

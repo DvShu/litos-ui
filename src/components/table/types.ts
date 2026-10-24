@@ -30,7 +30,7 @@ export interface Column {
   /** 单元格内容渲染函数 */
   render?: (
     rowData: any,
-    rowIndex: number
+    rowIndex: number,
   ) => HTMLElement | DocumentFragment | HTMLElement[] | string;
 }
 

@@ -34,6 +34,6 @@ export default class ThemeColor extends BaseComponent<ThemeColorState> {
     const color = (e as CustomEvent).detail;
     this._state.color = color;
     await applyColorTheme(color);
-    this.emit('change', { detail: color });
+    this.emit("change", { detail: color });
   };
 }

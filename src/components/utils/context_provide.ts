@@ -1,24 +1,23 @@
 import BaseComponent from "../base";
-import { on, off } from 'ph-utils/browser'
+import { on, off } from "ph-utils/browser";
 
 export default class ContextProvide<T, V> extends BaseComponent<V> {
-
   public context!: Signal<T>;
   public contextEventName: string;
 
   constructor() {
     super();
-    this.contextEventName = 'context-request';
+    this.contextEventName = "context-request";
   }
 
   connectedCallback(): void {
     super.connectedCallback();
-    on(this, this.contextEventName, this.contextProvideHandler)
+    on(this, this.contextEventName, this.contextProvideHandler);
   }
 
   disconnectedCallback(): void {
     super.disconnectedCallback();
-    off(this, this.contextEventName, this.contextProvideHandler)
+    off(this, this.contextEventName, this.contextProvideHandler);
   }
 
   private contextProvideHandler(e: CustomEvent) {

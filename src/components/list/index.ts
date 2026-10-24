@@ -20,11 +20,7 @@ export default class List extends BaseComponent {
     return ["finish", "infinite"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (name === "finish") {
       const finish = parseAttrValue(newValue, false, name);
       if (this.finish !== finish) {
@@ -75,13 +71,9 @@ export default class List extends BaseComponent {
     if (this.infinite) {
       content.push(`<div class="l-list-loadmore">`);
       if (!this.finish) {
-        content.push(
-          `<l-loading-icon class="l-list-icon l-rotate-anim"></l-loading-icon>`
-        );
+        content.push(`<l-loading-icon class="l-list-icon l-rotate-anim"></l-loading-icon>`);
       }
-      content.push(
-        `<span class="l-list-loadmore-text">${this._loadingText()}</span></div>`
-      );
+      content.push(`<span class="l-list-loadmore-text">${this._loadingText()}</span></div>`);
     }
     return content.join("");
   }

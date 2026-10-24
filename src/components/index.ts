@@ -108,8 +108,4 @@ export { default as Calendar } from "./calendar";
 export { default as Upload } from "./upload";
 
 export { default as Notification } from "./notification";
-export type {
-  NotificationOptions,
-  NotificationType,
-  NotificationPlacement,
-} from "./notification";
+export type { NotificationOptions, NotificationType, NotificationPlacement } from "./notification";

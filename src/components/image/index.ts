@@ -107,16 +107,10 @@ export default class ImageHTML extends BaseComponent {
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name
-    ) as any;
+    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
     if (parsedValue !== this[name as "id"]) {
       if (name === "previewImageList") {
-        this.setPreviewImageList(
-          parsedValue ? parsedValue.split(",") : undefined
-        );
+        this.setPreviewImageList(parsedValue ? parsedValue.split(",") : undefined);
       } else {
         this[name as "id"] = parsedValue;
       }

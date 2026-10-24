@@ -2,14 +2,7 @@ import BaseComponent from "../base";
 import { kebabToCamel, parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import {
-  $one,
-  on,
-  shouldEventNext,
-  hasClass,
-  addClass,
-  removeClass,
-} from "ph-utils/browser";
+import { $one, on, shouldEventNext, hasClass, addClass, removeClass } from "ph-utils/browser";
 
 export default class DescriptionPanel extends BaseComponent {
   public static baseName = "description-panel";
@@ -29,10 +22,7 @@ export default class DescriptionPanel extends BaseComponent {
       switch (name) {
         case "collapseHeight":
           if (this.collapseHeight !== 100) {
-            this.style.setProperty(
-              "--l-desc-panel-min-height",
-              `${this.collapseHeight}px`
-            );
+            this.style.setProperty("--l-desc-panel-min-height", `${this.collapseHeight}px`);
           } else {
             this.style.removeProperty("--l-desc-panel-min-height");
           }
@@ -73,14 +63,10 @@ export default class DescriptionPanel extends BaseComponent {
       let offsetHeight = 0;
       if ($operator) {
         const operatorHeight = $operator.getBoundingClientRect().height;
-        const paddingTop =
-          getComputedStyle($operator).getPropertyValue("padding-top");
+        const paddingTop = getComputedStyle($operator).getPropertyValue("padding-top");
         offsetHeight = operatorHeight - parseInt(paddingTop);
       }
-      this.style.setProperty(
-        "--l-desc-panel-max-height",
-        `${contentHeight + offsetHeight}px`
-      );
+      this.style.setProperty("--l-desc-panel-max-height", `${contentHeight + offsetHeight}px`);
     }
     if ($operator) {
       on($operator, "click", this.#onCollapse);
@@ -91,7 +77,7 @@ export default class DescriptionPanel extends BaseComponent {
     const [next, _action, target] = shouldEventNext(
       e,
       "data-action",
-      e.currentTarget as HTMLElement
+      e.currentTarget as HTMLElement,
     );
     if (next) {
       const $text = $one("span", target);

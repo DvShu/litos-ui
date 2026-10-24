@@ -40,13 +40,7 @@ export default class Mask extends BaseComponent {
   static customAttributes: string[] = [];
 
   static get observedAttributes() {
-    return [
-      "open",
-      "z-index",
-      "mask-closable",
-      "lock-scroll",
-      ...this.customAttributes,
-    ];
+    return ["open", "z-index", "mask-closable", "lock-scroll", ...this.customAttributes];
   }
 
   connectedCallback(): void {
@@ -56,11 +50,7 @@ export default class Mask extends BaseComponent {
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     name = kebabToCamel(name);
-    const parsedValue = parseAttrValue(
-      newValue,
-      this[name as "id"] as any,
-      name
-    ) as any;
+    const parsedValue = parseAttrValue(newValue, this[name as "id"] as any, name) as any;
     if (parsedValue !== this[name as "id"]) {
       this[name as "id"] = parsedValue;
       switch (name) {
@@ -157,11 +147,7 @@ export default class Mask extends BaseComponent {
   }
 
   #onPanelClick = (e: Event) => {
-    const [isNext, action] = shouldEventNext(
-      e,
-      "data-action",
-      e.currentTarget as HTMLElement
-    );
+    const [isNext, action] = shouldEventNext(e, "data-action", e.currentTarget as HTMLElement);
     if (!isNext) {
       if (this.maskClosable) {
         // 点击遮罩关闭
@@ -178,7 +164,7 @@ export default class Mask extends BaseComponent {
 
   public afterClosed() {}
 
-  public onAction(action: string) {
+  public onAction(_action: string) {
     return false;
   }
 }

@@ -47,11 +47,7 @@ export default class Tabbar extends BaseComponent {
     return ["name", "type", "justify-content", "gap"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string,
-    newValue: string,
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
     if (name === "name") {
       const value = parseAttrValue(newValue, undefined);
       this.name = value;

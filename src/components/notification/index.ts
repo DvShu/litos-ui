@@ -541,12 +541,7 @@ export default class Notification extends BaseComponent<NotificationState> {
    * @param value 属性值
    * @param asText 是否按照纯文本渲染, 否则按照 HTML 渲染
    */
-  private _syncSection(
-    $wrap?: HTMLElement,
-    $text?: HTMLElement,
-    value = "",
-    asText = false,
-  ): void {
+  private _syncSection($wrap?: HTMLElement, $text?: HTMLElement, value = "", asText = false): void {
     if (!$wrap || !$text) return;
     if (asText) {
       $text.textContent = value;

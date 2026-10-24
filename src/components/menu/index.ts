@@ -1,5 +1,4 @@
 import { $$, on, $one, off, $, iterate } from "ph-utils/browser";
-import { snakeCaseStyle } from "ph-utils";
 import BaseComponent from "../base";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import css from "./index.less?inline";

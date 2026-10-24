@@ -1,16 +1,7 @@
 import BaseComponent from "../base";
 //@ts-ignore
 import css from "./index.less?inline";
-import {
-  getAttr,
-  $$,
-  $one,
-  iterate,
-  $,
-  on,
-  off,
-  shouldEventNext,
-} from "ph-utils/browser";
+import { getAttr, $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/browser";
 import { debounce } from "ph-utils/browser";
 import { parseAttrValue } from "../utils";
 import AutoPlayTimer from "./timer";
@@ -39,11 +30,7 @@ export default class Carousel extends BaseComponent {
     return ["arrows", "loop", "current-index", "autoplay"];
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string,
-    newValue: string
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string, newValue: string): void {
     switch (name) {
       case "arrows":
         const newArrows = parseAttrValue(newValue, "hover");
@@ -81,10 +68,7 @@ export default class Carousel extends BaseComponent {
 
   connectedCallback(): void {
     this.loadStyleText(css);
-    this.style.setProperty(
-      "--carousel-width",
-      `${Math.floor(this.clientWidth)}px`
-    );
+    this.style.setProperty("--carousel-width", `${Math.floor(this.clientWidth)}px`);
     // 手动设置高度
     const height = getAttr(this, "height");
     if (height) {
@@ -187,16 +171,13 @@ export default class Carousel extends BaseComponent {
           "aria-label": `第 ${i + 1} 页`,
           "data-page": `${i}`,
           id: `bullet-${i}`,
-        })
+        }),
       );
     }
     return fragment;
   }
 
-  renderNavigationButton(
-    dir: "prev" | "next" = "prev",
-    fragment: DocumentFragment
-  ) {
+  renderNavigationButton(dir: "prev" | "next" = "prev", fragment: DocumentFragment) {
     let $nav = $one(`.nav-${dir}`, this.root) as HTMLButtonElement;
     if ($nav == null) {
       const ldir = dir === "prev" ? "left" : "right";
@@ -245,9 +226,7 @@ export default class Carousel extends BaseComponent {
     // 计算容器宽度
     if (this.#container) {
       if (this.allIndex > 0) {
-        const containerWidth = Math.floor(
-          this.clientWidth * (this.allIndex + 3)
-        );
+        const containerWidth = Math.floor(this.clientWidth * (this.allIndex + 3));
         this.#container.style.minWidth = `${containerWidth}px`;
       } else {
         this.#container.style.minWidth = "900%";
@@ -338,7 +317,7 @@ export default class Carousel extends BaseComponent {
       const oldTransform = this.#container.style.transform;
       const anim = this.#container.animate(
         [{ transform: oldTransform }, { transform: `translateX(${offset}px)` }],
-        { duration: 300 }
+        { duration: 300 },
       );
       anim.addEventListener(
         "finish",
@@ -352,7 +331,7 @@ export default class Carousel extends BaseComponent {
           this.#container.style.transform = `translateX(${o}px)`;
           this.#tranlateX = o;
         },
-        { once: true }
+        { once: true },
       );
     }
     if (this.loop && this.allIndex > 0 && newIndex === this.allIndex + 2) {
@@ -400,12 +379,12 @@ export default class Carousel extends BaseComponent {
     if (show) {
       anims.push(
         { opacity: 0, transform: `translate3d(${offset}px, -50%, 0)` },
-        { opacity: 1, transform: `translate3d(0px, -50%, 0)` }
+        { opacity: 1, transform: `translate3d(0px, -50%, 0)` },
       );
     } else {
       anims.push(
         { opacity: 1, transform: `translate3d(0px, -50%, 0)` },
-        { opacity: 0, transform: `translate3d(${offset}px, -50%, 0)` }
+        { opacity: 0, transform: `translate3d(${offset}px, -50%, 0)` },
       );
     }
     const anim = elem.animate(anims, {
@@ -418,7 +397,7 @@ export default class Carousel extends BaseComponent {
         () => {
           elem.style.display = "none";
         },
-        { once: true }
+        { once: true },
       );
     }
   }
@@ -434,7 +413,7 @@ export default class Carousel extends BaseComponent {
       () => {
         $container.style.transition = "";
       },
-      { once: true }
+      { once: true },
     );
   };
 

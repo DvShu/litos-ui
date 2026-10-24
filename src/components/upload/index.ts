@@ -735,7 +735,9 @@ export default class Upload extends BaseComponent<UploadState> {
    * @param file 要中止的文件, 不传则中止所有上传中的文件
    */
   public abort(file?: UploadFile) {
-    const targetFiles = file ? [file] : this._state.fileList.filter((f) => f.status === "uploading");
+    const targetFiles = file
+      ? [file]
+      : this._state.fileList.filter((f) => f.status === "uploading");
     const abortedFiles: UploadFile[] = [];
     for (const f of targetFiles) {
       const xhr = this.$xhrs.get(f.id);

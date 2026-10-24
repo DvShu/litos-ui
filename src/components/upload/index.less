@@ -48,7 +48,9 @@
   border: 1px dashed var(--l-upload-border-color);
   border-radius: var(--l-upload-border-radius);
   background-color: var(--l-upload-background);
-  transition: border-color 0.3s, background-color 0.3s;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
 }
 
 /* 拖拽状态: 该 class 添加在宿主元素上, 需通过 :host() 匹配 */
@@ -263,7 +265,7 @@ html.dark {
     --l-upload-disabled-color: rgba(255, 255, 255, 0.3);
     --l-upload-disabled-background: rgba(255, 255, 255, 0.08);
     --l-upload-disabled-border-color: rgba(255, 255, 255, 0.3);
-  --l-upload-text-color: rgba(255, 255, 255, 0.88);
+    --l-upload-text-color: rgba(255, 255, 255, 0.88);
   }
 
   .l-upload-list-text {
