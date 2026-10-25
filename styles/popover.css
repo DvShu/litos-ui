@@ -51,7 +51,7 @@
 .l-popover--popconfirm .l-popconfirm-icon-wrapper {
   margin-right: 10px;
   display: inline-flex;
-  color: var(--l-warn-color, #f90);
+  color: var(--l-warning-color, #f90);
 }
 
 .l-popover--popconfirm .l-popconfirm-footer {

@@ -1,6 +1,6 @@
 import Dialog from "./index";
 import { regist } from "../utils/index";
-import { $$, $one } from "ph-utils/browser";
+import { $$, $one } from "utilane/browser";
 import DialogContainer from "./dialog_container";
 import Button from "../button/index";
 import CloseIcon from "../icon/close";

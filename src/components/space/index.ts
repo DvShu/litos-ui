@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { isNumeric } from "ph-utils";
+import { isNumeric } from "utilane";
 
 export default class Space extends BaseComponent {
   public static baseName = "space";

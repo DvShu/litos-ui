@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { kebabToCamel, parseAttrValue, unitNumberStr, useId, regist } from "../utils";
-import { $one, $$, on, off } from "ph-utils/browser";
+import { $one, $$, on, off } from "utilane/browser";
 import notificationSheet from "./style";
 import InfoIcon from "../icon/info";
 import SuccessIcon from "../icon/success";

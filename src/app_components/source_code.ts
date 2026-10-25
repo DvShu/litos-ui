@@ -1,7 +1,7 @@
 import { docText } from "./i18n";
 import { codeToHtml } from "shiki";
-import { random } from "ph-utils";
-import { elem, getAttr } from "ph-utils/browser";
+import { random } from "utilane";
+import { elem, getAttr } from "utilane/browser";
 
 export default class SourceCode extends HTMLElement {
   async connectedCallback() {

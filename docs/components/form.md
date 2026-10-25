@@ -18,7 +18,7 @@ regist([Button, Input, Radio, RadioGroup]);
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import { $one, on, off } from 'ph-utils/browser';
+  import { $one, on, off } from 'utilane/browser';
 
   let $form, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
   let lang = 'zh';
@@ -158,7 +158,7 @@ regist([Button, Input, Radio, RadioGroup]);
 
 ### 基础用法
 
-基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [ph-utils/validator](https://gitee.com/towardly/ph/wikis/utils/validator)
+基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [utilane/validator](https://github.com/DvShu/utilane#readme)
 
 <ClientOnly>
 <l-code-preview>
@@ -227,7 +227,7 @@ regist([Button, Input, Radio, RadioGroup]);
   </l-form>
 </textarea>
 <textarea lang="ts">
-  import { $one } from 'ph-utils/browser';
+  import { $one } from 'utilane/browser';
   //-
   // 自定义验证
   const $customValidForm = $one('#customValidForm');
@@ -295,7 +295,7 @@ regist([Button, Input, Radio, RadioGroup]);
   </div>
 </textarea>
 <textarea lang="ts">
-  import { $one, on } from 'ph-utils/browser';
+  import { $one, on } from 'utilane/browser';
   //-
   let $i18nForm, $langCheck;
   let lang = 'zh';

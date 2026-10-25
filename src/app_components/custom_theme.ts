@@ -1,6 +1,6 @@
 import { docText } from "./i18n";
-import { on, $one, off } from "ph-utils/browser";
-import { getTheme, toggleTheme } from "ph-utils/browser";
+import { on, $one, off } from "utilane/browser";
+import { getTheme, toggleTheme } from "utilane/browser";
 
 export default class CustomTheme extends HTMLElement {
   connectedCallback() {

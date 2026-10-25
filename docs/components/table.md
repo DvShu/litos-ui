@@ -16,7 +16,7 @@ regist(Table);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick  }  from 'vue';
-  import { $, iterate, $$, on, off } from 'ph-utils/browser'
+  import { $, iterate, $$, on, off } from 'utilane/browser'
 
   let $tables;
 
@@ -172,7 +172,7 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'ph-utils/browser';
+  import { on, $$ } from 'utilane/browser';
   //-
   const $table = $('.data-table');
   //-
@@ -297,7 +297,7 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'ph-utils/browser';
+  import { on, $$ } from 'utilane/browser';
   //-
   const $table = $('.data-table');
   //-

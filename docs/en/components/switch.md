@@ -17,7 +17,7 @@ regist([MoonIcon, SunIcon]);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'ph-utils/browser';
+  import { $one, on, off } from 'utilane/browser';
 
   let $customSwitch;
 

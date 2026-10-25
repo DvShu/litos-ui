@@ -1,4 +1,4 @@
-import { isBlank, isNumeric } from "ph-utils";
+import { isBlank, isNumeric } from "utilane";
 import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
 import {
@@ -11,7 +11,7 @@ import {
   addClass,
   shouldEventNext,
   $$,
-} from "ph-utils/browser";
+} from "utilane/browser";
 //@ts-ignore
 import css from "./index.less?inline";
 

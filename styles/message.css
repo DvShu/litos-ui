@@ -32,7 +32,7 @@
 }
 .l-message.l-message-warn {
   background: #fff9e6;
-  color: var(--l-warn-color, #f90);
+  color: var(--l-warning-color, #f90);
   border-color: #ffe7a3;
 }
 .l-message-container {

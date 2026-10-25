@@ -1,4 +1,4 @@
-import { $one, on, off, hasClass, addClass, removeClass, getAttr } from "ph-utils/browser";
+import { $one, on, off, hasClass, addClass, removeClass, getAttr } from "utilane/browser";
 
 type DialogProps = {
   /** 对话框在垂直方向位置 */

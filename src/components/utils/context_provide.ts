@@ -1,5 +1,5 @@
 import BaseComponent from "../base";
-import { on, off } from "ph-utils/browser";
+import { on, off } from "utilane/browser";
 
 export default class ContextProvide<T, V> extends BaseComponent<V> {
   public context!: Signal<T>;

@@ -18,7 +18,7 @@ regist([Button]);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { transition } from 'ph-utils/browser';
+  import { transition } from 'utilane/browser';
 
   let $addBtn;
   let $tagContainer;
@@ -104,7 +104,7 @@ regist([Button]);
 
 ### 过渡效果
 
-如果想给标签添加显示或移除时的过渡效果，通过 `ph-utils/transition` 实现, 具体使用参考 [transition](/en/components/transition)。
+如果想给标签添加显示或移除时的过渡效果，通过 `utilane/transition` 实现, 具体使用参考 [transition](/en/components/transition)。
 
 <ClientOnly>
 <l-code-preview>
@@ -120,7 +120,7 @@ regist([Button]);
   <div id="tag-container"></div>
 </textarea>
 <textarea lang="js">
-  import { transition } from 'ph-utils/browser';
+  import { transition } from 'utilane/browser';
   //-
   function handleAddTag() {
     if ($tagContainer) {

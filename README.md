@@ -112,7 +112,7 @@ Run `pnpm lint` and `pnpm fmt:check` to check the code, or `pnpm fmt` to format 
 
 ## Documentation
 
-[中文文档](https://dvshu.github.io/litos-ui/) | [English documentation](https://dvshu.github.io/litos-ui/en/)
+[Documentation](https://dvshu.github.io/litos-ui/en/)
 
 The English documentation structure is available; page content is currently copied from Chinese and awaits translation.
 

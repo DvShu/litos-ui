@@ -4,7 +4,7 @@ import BaseComponent from "../base";
 import css from "./index.less?inline";
 import maskSheet from "../styles/mask";
 
-import { $$, $one, on, off, transition, shouldEventNext } from "ph-utils/browser";
+import { $$, $one, on, off, transition, shouldEventNext } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils/index";
 
 type ModalState = {

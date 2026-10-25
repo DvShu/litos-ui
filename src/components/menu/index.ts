@@ -1,4 +1,4 @@
-import { $$, on, $one, off, $, iterate } from "ph-utils/browser";
+import { $$, on, $one, off, $, iterate } from "utilane/browser";
 import BaseComponent from "../base";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import css from "./index.less?inline";

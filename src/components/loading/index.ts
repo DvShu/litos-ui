@@ -1,4 +1,4 @@
-import { $one, hasClass, addClass, $$, $, iterate } from "ph-utils/browser";
+import { $one, hasClass, addClass, $$, $, iterate } from "utilane/browser";
 
 type LoadingInstanceParams = {
   /** 是否全屏显示, 默认: true */

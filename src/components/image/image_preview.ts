@@ -1,7 +1,7 @@
 import Mask from "../mask";
 //@ts-ignore
 import css from "./image_preview.less?inline";
-import { $$, $one, on, off } from "ph-utils/browser";
+import { $$, $one, on, off } from "utilane/browser";
 
 export default class ImagePreview extends Mask {
   public static baseName = "image-preview";

@@ -1,4 +1,4 @@
-import { getAttr } from "ph-utils/browser";
+import { getAttr } from "utilane/browser";
 
 export default class BaseComponent<T = Record<string, any>> extends HTMLElement {
   static baseName = "base-component";

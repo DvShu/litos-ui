@@ -1,7 +1,7 @@
 import { kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
 import cardCss from "./index.less?inline";
-import { $$ } from "ph-utils/browser";
+import { $$ } from "utilane/browser";
 
 type CardState = {
   /** 标题 */

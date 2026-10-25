@@ -20,12 +20,10 @@
   --l-error-color: #dc4848;
   --l-error-color-light3: #f1b6b6;
   --l-error-color-light5: #fceded;
-  --l-warn-color: #d9a11b;
-  /* 兼容使用 warning 命名的组件 */
-  --l-warning-color: var(--l-warn-color);
+  --l-warning-color: #d9a11b;
   --l-warning-color-light5: #fbf6e8;
-  --l-info-color: #8a8073;
-  --l-info-color-light9: #f9f9f8;
+  --l-text-color: #8a8073;
+  --l-text-secondary-color: #f9f9f8;
   /* 中性色 */
   --l-border-color: #e8dfd3;
   --l-disabled-color: #eee9e1;

@@ -12,7 +12,7 @@ regist(InputNumber);
 
 <script setup>
   import { onMounted, nextTick } from 'vue';
-  import { $one } from 'ph-utils/browser';
+  import { $one } from 'utilane/browser';
 
   onMounted(() => {
     nextTick(() => {
@@ -142,7 +142,7 @@ regist(InputNumber);
   <l-input-number id="num-change" value="0" name="count"></l-input-number>
 </textarea>
 <textarea lang="ts">
-  import { $one } from 'ph-utils/browser';
+  import { $one } from 'utilane/browser';
   //-
   const $num = $one('#num-change');
   $num.addEventListener('change', function(e) {

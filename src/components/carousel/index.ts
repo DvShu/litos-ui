@@ -1,8 +1,8 @@
 import BaseComponent from "../base";
 //@ts-ignore
 import css from "./index.less?inline";
-import { getAttr, $$, $one, iterate, $, on, off, shouldEventNext } from "ph-utils/browser";
-import { debounce } from "ph-utils/browser";
+import { getAttr, $$, $one, iterate, $, on, off, shouldEventNext } from "utilane/browser";
+import { debounce } from "utilane/browser";
 import { parseAttrValue } from "../utils";
 import AutoPlayTimer from "./timer";
 import type { AutoPlayTimerT } from "./timer";

@@ -2,9 +2,9 @@ import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { isBlank } from "ph-utils";
-import { adjust } from "ph-utils";
-import { $$, shouldEventNext, on, off, $one } from "ph-utils/browser";
+import { isBlank } from "utilane";
+import { adjust } from "utilane";
+import { $$, shouldEventNext, on, off, $one } from "utilane/browser";
 
 export default class Tag extends BaseComponent {
   public static baseName = "tag";

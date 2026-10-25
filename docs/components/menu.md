@@ -17,7 +17,7 @@ regist([Button]);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off, $$, $ } from 'ph-utils/browser';
+  import { $one, on, off, $$, $ } from 'utilane/browser';
 
   const menuItems = [
     {
@@ -313,7 +313,7 @@ regist([Button]);
 | `--l-menu-item-active-background` | 菜单项选中背景色 | `var(--l-primary-color-light5, #f9f0ff)` |
 | `--l-menu-border-color` | 菜单边框颜色 | `transparent` |
 | `--l-menu-border-width` | 菜单边框宽度 | `0px` |
-| `--l-menu-arrow-color` | 子菜单箭头颜色 | `var(--l-info-color, #8c8c8c)` |
+| `--l-menu-arrow-color` | 子菜单箭头颜色 | `var(--l-text-color, #8c8c8c)` |
 | `--l-menu-collapsed-width` | 压缩后菜单宽度 | `40px` |
 | `--l-menu-icon-size` | 图标大小 | `1.8rem` |
 | `--l-menu-collapsed-icon-size` | 压缩后图标大小 | `1.8rem` |

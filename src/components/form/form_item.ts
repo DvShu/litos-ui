@@ -1,9 +1,9 @@
-import { $one, addClass, removeClass, $$ } from "ph-utils/browser";
+import { $one, addClass, removeClass, $$ } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, stopSignal, unitNumberStr } from "../utils";
-import type { RuleType } from "ph-utils";
+import type { RuleType } from "utilane";
 //@ts-ignore
 import css from "./form_item.less?inline";
-import type { SchemaType } from "ph-utils";
+import type { SchemaType } from "utilane";
 import ContextProvide from "../utils/context_provide";
 import { effect, signal } from "alien-signals";
 import type { FormItemSignal } from "./types";

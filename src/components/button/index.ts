@@ -1,7 +1,7 @@
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
-import { formatClass, addClass, removeClass, formatStyle, on, off, $one } from "ph-utils/browser";
-import { adjust } from "ph-utils";
+import { formatClass, addClass, removeClass, formatStyle, on, off, $one } from "utilane/browser";
+import { adjust } from "utilane";
 import animationSheet from "../styles/animation";
 import buttonSheet from "./style";
 

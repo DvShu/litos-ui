@@ -1,6 +1,6 @@
-import { $one, on } from "ph-utils/browser";
+import { $one, on } from "utilane/browser";
 import BaseComponent from "../base";
-import { getColorTheme, applyColorTheme } from "ph-utils/browser";
+import { getColorTheme, applyColorTheme } from "utilane/browser";
 
 type ThemeColorState = {
   color: string;

@@ -1,5 +1,5 @@
 import { docText } from "./i18n";
-import { elem, on, text } from "ph-utils/browser";
+import { elem, on, text } from "utilane/browser";
 
 export default class CodePreview extends HTMLElement {
   private handleCollapse: (e: Event) => void;

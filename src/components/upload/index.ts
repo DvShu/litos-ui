@@ -1,6 +1,6 @@
 import { kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
-import { formatClass, addClass, removeClass, on, off, $one, $$ } from "ph-utils/browser";
+import { formatClass, addClass, removeClass, on, off, $one, $$ } from "utilane/browser";
 import animationSheet from "../styles/animation";
 import uploadSheet from "./style";
 
@@ -79,6 +79,15 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   set fileList(files: UploadFile[]) {
+    if (this._state.listType === "picture") {
+      files = files.slice(-1);
+      for (const file of this._state.fileList) {
+        if (!files.includes(file)) {
+          this.abort(file);
+          this._revokeObjectUrl(file);
+        }
+      }
+    }
     this._state.fileList = files;
     if (this.rendered) {
       this._renderFileList();
@@ -119,7 +128,7 @@ export default class Upload extends BaseComponent<UploadState> {
   set multiple(value: boolean) {
     this._state.multiple = value;
     if (this.$input) {
-      if (value) {
+      if (value && this._state.listType !== "picture") {
         this.$input.multiple = true;
       } else {
         this.$input.removeAttribute("multiple");
@@ -185,8 +194,8 @@ export default class Upload extends BaseComponent<UploadState> {
           this.$input.removeAttribute("accept");
         }
       }
-      if (changedProps.has("multiple")) {
-        if (this._state.multiple) {
+      if (changedProps.has("multiple") || changedProps.has("list-type")) {
+        if (this._state.multiple && this._state.listType !== "picture") {
           this.$input.multiple = true;
         } else {
           this.$input.removeAttribute("multiple");
@@ -198,6 +207,9 @@ export default class Upload extends BaseComponent<UploadState> {
       }
     }
     if (changedProps.has("list-type")) {
+      if (this._state.listType === "picture") {
+        this.fileList = this._state.fileList;
+      }
       this._resetClass();
       this._renderFileList();
     }
@@ -244,9 +256,7 @@ export default class Upload extends BaseComponent<UploadState> {
       on($tipSlot, "slotchange", () => this._updateTipEmpty($tipSlot));
     }
     // 渲染后挂载已有文件列表
-    if (this._state.showFileList && this._state.fileList.length > 0) {
-      this._renderFileList();
-    }
+    this._renderFileList();
   }
 
   private _updateTipEmpty($tipSlot: HTMLSlotElement) {
@@ -272,27 +282,15 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   public render() {
-    const isPicture = this._state.listType === "picture";
     const fragment = document.createDocumentFragment();
-
-    // 容器
-    const container = $$("div", {
-      class: formatClass([
-        "l-upload",
-        isPicture ? "l-upload-picture" : "",
-        this._state.drag ? "l-upload-drag" : "",
-        this._state.disabled ? "l-upload-disabled" : "",
-      ]),
-      part: "default",
-    });
 
     // 触发区域
     const trigger = $$("div", {
-      class: ["l-upload-trigger"],
+      class: ["l-upload-trigger", "l-upload-trigger--" + this._state.listType],
       part: "trigger",
+      innerHTML: "<slot></slot>",
     });
-    trigger.innerHTML = "<slot></slot>";
-    container.appendChild(trigger);
+    fragment.appendChild(trigger);
 
     // 隐藏的 file input
     const input = $$("input", {
@@ -302,42 +300,55 @@ export default class Upload extends BaseComponent<UploadState> {
     if (this._state.accept) {
       input.accept = this._state.accept;
     }
-    if (this._state.multiple) {
+    if (this._state.multiple && this._state.listType !== "picture") {
       input.multiple = true;
     }
     if (this._state.disabled) {
       input.disabled = true;
     }
-    container.appendChild(input);
+    fragment.appendChild(input);
 
     // 提示区域(trigger 下方, 文件列表上方)
     const tip = $$("div", {
       class: "l-upload-tip",
       part: "tip",
+      innerHTML: '<slot name="tip"></slot>',
     });
-    tip.innerHTML = '<slot name="tip"></slot>';
-    container.appendChild(tip);
+    fragment.appendChild(tip);
 
     // 文件列表
     const list = this._buildFileList();
     if (list) {
-      container.appendChild(list);
+      fragment.appendChild(list);
     }
-
-    fragment.appendChild(container);
     return fragment;
   }
 
   private _resetClass() {
-    const container = this.root.firstElementChild;
-    if (container) {
-      container.className = formatClass([
-        "l-upload",
-        this._state.listType === "picture" ? "l-upload-picture" : "",
-        this._state.drag ? "l-upload-drag" : "",
-        this._state.disabled ? "l-upload-disabled" : "",
+    if (this.$trigger) {
+      this.$trigger.className = formatClass([
+        "l-upload-trigger",
+        `l-upload-trigger--${this._state.listType}`,
       ]);
     }
+  }
+
+  private _renderTriggerPreview() {
+    if (!this.$trigger) return;
+    const file = this._state.listType === "picture" ? this._state.fileList[0] : undefined;
+    const slot = $one("slot", this.$trigger);
+    let image = $one(".l-upload-trigger-image", this.$trigger) as HTMLImageElement | null;
+    if (slot) slot.hidden = !!file;
+    if (!file) {
+      image?.remove();
+      return;
+    }
+    if (!image) {
+      image = $$("img", { class: "l-upload-trigger-image", part: "image" }) as HTMLImageElement;
+      this.$trigger.appendChild(image);
+    }
+    image.src = this._getFilePreviewUrl(file);
+    image.alt = file.name;
   }
 
   private _handleClick = () => {
@@ -355,11 +366,13 @@ export default class Upload extends BaseComponent<UploadState> {
   };
 
   private _handleFiles(files: FileList | File[]) {
+    if (this._state.disabled) return;
     const fileArray = Array.from(files);
-    let processedFiles = fileArray;
+    const isPicture = this._state.listType === "picture";
+    let processedFiles = isPicture ? fileArray.slice(0, 1) : fileArray;
 
     // 检查文件数量限制
-    if (this._state.maxCount > 0) {
+    if (!isPicture && this._state.maxCount > 0) {
       const currentCount = this._state.fileList.length;
       const remaining = this._state.maxCount - currentCount;
       if (remaining <= 0) {
@@ -400,12 +413,16 @@ export default class Upload extends BaseComponent<UploadState> {
       raw: file,
     }));
 
-    // 如果是单文件模式，清空之前的文件
-    if (!this._state.multiple) {
-      this._state.fileList = [];
+    // 图片模式替换当前图片，普通文件模式始终追加。
+    if (isPicture) {
+      for (const file of this._state.fileList) {
+        this.abort(file);
+        this._revokeObjectUrl(file);
+      }
+      this._state.fileList = uploadFiles;
+    } else {
+      this._state.fileList = [...this._state.fileList, ...uploadFiles];
     }
-
-    this._state.fileList = [...this._state.fileList, ...uploadFiles];
     this._renderFileList();
     this.emit("change", { detail: { fileList: this._state.fileList, addedFiles: uploadFiles } });
 
@@ -416,13 +433,9 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   private _buildFileList(): HTMLElement | null {
-    if (!this._state.showFileList) return null;
-    const isPicture = this._state.listType === "picture";
+    if (!this._state.showFileList || this._state.listType === "picture") return null;
     const list = $$("div", {
-      class: formatClass([
-        "l-upload-list",
-        isPicture ? "l-upload-list-picture" : "l-upload-list-text",
-      ]),
+      class: "l-upload-list l-upload-list-text",
       part: "list",
     });
     for (const file of this._state.fileList) {
@@ -432,6 +445,7 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   private _renderFileList(): void {
+    this._renderTriggerPreview();
     // 移除旧的文件列表
     const oldList = $one(".l-upload-list", this.root);
     if (oldList) {
@@ -496,11 +510,6 @@ export default class Upload extends BaseComponent<UploadState> {
       item.appendChild(progress);
     }
 
-    // 操作按钮
-    const actions = $$("div", {
-      class: "l-upload-list-item-actions",
-    });
-
     // 预览按钮
     if (file.status === "success" && isPicture) {
       const previewBtn = $$("button", {
@@ -510,20 +519,18 @@ export default class Upload extends BaseComponent<UploadState> {
         "aria-label": "预览",
       });
       on(previewBtn, "click", () => this.handlePreview(file));
-      actions.appendChild(previewBtn);
+      item.appendChild(previewBtn);
     }
 
     // 删除按钮
-    const removeBtn = $$("button", {
-      class: "l-upload-list-item-action",
-      type: "button",
+    const removeBtn = $$("l-close-icon", {
+      role: "button",
       innerHTML: "<l-close-icon></l-close-icon>",
-      "aria-label": "删除",
+      class: "l-upload--close",
+      "aria-label": "Delete",
     });
     on(removeBtn, "click", () => this.handleRemove(file));
-    actions.appendChild(removeBtn);
-
-    item.appendChild(actions);
+    item.appendChild(removeBtn);
 
     return item;
   }

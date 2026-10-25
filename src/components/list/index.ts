@@ -1,6 +1,6 @@
 import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
-import { $one } from "ph-utils/browser";
+import { $one } from "utilane/browser";
 //@ts-ignore
 import css from "./index.less?inline";
 import animationSheet from "../styles/animation";

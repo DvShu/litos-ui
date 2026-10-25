@@ -1,4 +1,4 @@
-import { formatClass, formatStyle } from "ph-utils/browser";
+import { formatClass, formatStyle } from "utilane/browser";
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
 //@ts-ignore

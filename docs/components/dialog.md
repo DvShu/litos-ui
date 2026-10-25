@@ -17,7 +17,7 @@ regist([InfoIcon]);
 ## 演示
 
 <script setup>
-  import { $one, on, off, $, iterate } from 'ph-utils/browser';
+  import { $one, on, off, $, iterate } from 'utilane/browser';
   import { onMounted, nextTick, onUnmounted } from 'vue';
 
 

@@ -112,7 +112,7 @@ pnpm docs:build
 
 ## 文档
 
-[中文文档](https://dvshu.github.io/litos-ui/) | [英文文档](https://dvshu.github.io/litos-ui/en/)
+[中文文档](https://dvshu.github.io/litos-ui/)
 
 英文文档结构已建立，页面正文暂时保留中文，待后续翻译。
 

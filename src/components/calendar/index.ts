@@ -1,11 +1,11 @@
 import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $one, off, on, shouldEventNext, hasClass } from "ph-utils/browser";
+import { $one, off, on, shouldEventNext, hasClass } from "utilane/browser";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
-import { get } from "ph-utils/browser";
-import { format, startOf, endOf, timestamp } from "ph-utils";
+import { get } from "utilane/browser";
+import { format, startOf, endOf, timestamp } from "utilane";
 import BaseComponent from "../base";
 
 type CalendarState = {

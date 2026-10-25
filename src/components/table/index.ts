@@ -3,8 +3,8 @@ import { parseAttrValue, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import type { Column, SortOption } from "./types";
-import { $$, $one, formatStyle, iterate, on, off, shouldEventNext } from "ph-utils/browser";
-import { random } from "ph-utils";
+import { $$, $one, formatStyle, iterate, on, off, shouldEventNext } from "utilane/browser";
+import { random } from "utilane";
 
 type ChangeFixedParams = {
   fixedColumn?: boolean;

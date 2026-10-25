@@ -16,7 +16,7 @@ regist([ReductionIcon, SearchIcon]);
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'ph-utils/browser';
+  import { $one, on, off } from 'utilane/browser';
 
   let $input;
 
@@ -85,7 +85,7 @@ regist([ReductionIcon, SearchIcon]);
   <l-input id="input" placeholder="请输入正整数"></l-input>
 </textarea>
 <textarea lang="ts">
-  import { $one, on, off } from 'ph-utils/browser';
+  import { $one, on, off } from 'utilane/browser';
   //-
   function numericParse(value) {
     let val = parseInt(value, 10)

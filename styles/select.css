@@ -30,7 +30,7 @@
   --l-select-option-hover-background: transparent;
   justify-content: center;
   cursor: default;
-  color: var(--l-info-color, #999);
+  color: var(--l-text-color, #999);
 }
 .l-select-option--selected {
   color: var(--l-primary-color-light1, #9254de);

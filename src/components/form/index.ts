@@ -1,7 +1,7 @@
-import { formatClass, $one, on, off } from "ph-utils/browser";
+import { formatClass, $one, on, off } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
-import { Validator } from "ph-utils";
-import type { SchemaType } from "ph-utils";
+import { Validator } from "utilane";
+import type { SchemaType } from "utilane";
 //@ts-ignore
 import css from "./index.less?inline";
 import { signal } from "alien-signals";

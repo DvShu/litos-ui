@@ -1,4 +1,4 @@
-import { $one, $$, on, off, addClass, removeClass } from "ph-utils/browser";
+import { $one, $$, on, off, addClass, removeClass } from "utilane/browser";
 import { parseAttrValue, unitNumberStr } from "../utils";
 import FormInner from "../form/form_inner";
 import inputNumberSheet from "./style";

@@ -1,9 +1,9 @@
-import { $$, addClass, removeClass, $one, on, off } from "ph-utils/browser";
+import { $$, addClass, removeClass, $one, on, off } from "utilane/browser";
 import FormInner from "../form/form_inner";
 import { initAttr } from "../utils";
 // @ts-ignore
 import css from "./index.less?inline";
-import { isBlank, random } from "ph-utils";
+import { isBlank, random } from "utilane";
 
 export default class MdInput extends FormInner {
   public static baseName = "md-input";

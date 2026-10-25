@@ -38,7 +38,7 @@ regist([
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, $, on, off, $$, iterate } from 'ph-utils/browser';
+  import { $one, $, on, off, $$, iterate } from 'utilane/browser';
   import { Popover } from '../../src/components/utils/popover';
 
   let $preview;
@@ -275,7 +275,7 @@ regist([
   <l-image class="morePreview" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px" preview-index="2"></l-image>
 </textarea>
 <textarea lang="js">
-  import { $, iterate } from 'ph-utils/browser';
+  import { $, iterate } from 'utilane/browser';
   const $morePreview = $('.morePreview');
   iterate($morePreview, (item) => {
     item.setPreviewImageList(imgs);
@@ -373,7 +373,7 @@ regist([
   ></l-image>
 </textarea>
 <textarea lang="js">
-  import { $, iterate } from 'ph-utils/browser';
+  import { $, iterate } from 'utilane/browser';
   let $preview;
   const $customPreview = $('.customPreview');
   iterate($customPreview, (item) => {

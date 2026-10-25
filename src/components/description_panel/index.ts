@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { kebabToCamel, parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $one, on, shouldEventNext, hasClass, addClass, removeClass } from "ph-utils/browser";
+import { $one, on, shouldEventNext, hasClass, addClass, removeClass } from "utilane/browser";
 
 export default class DescriptionPanel extends BaseComponent {
   public static baseName = "description-panel";

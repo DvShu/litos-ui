@@ -1,8 +1,8 @@
 // @ts-ignore
 import css from "./index.less?inline";
 import FormInner from "../form/form_inner";
-import { $$, $, on, off, iterate } from "ph-utils/browser";
-import { parse } from "ph-utils";
+import { $$, $, on, off, iterate } from "utilane/browser";
+import { parse } from "utilane";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 
 type DateInputType = "date" | "datetime-local" | "time" | "month" | "week";

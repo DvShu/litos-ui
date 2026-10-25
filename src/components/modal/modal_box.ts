@@ -3,7 +3,7 @@ import Button from "../button/index";
 import CloseIcon from "../icon/close";
 import InfoIcon from "../icon/info";
 import { regist } from "../utils/index";
-import { $$, on, $one } from "ph-utils/browser";
+import { $$, on, $one } from "utilane/browser";
 import FormItem from "../form/form_item";
 import Input from "../input";
 

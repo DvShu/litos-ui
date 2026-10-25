@@ -17,7 +17,7 @@ trans.init();
 ## 演示
 
 <script setup lang="ts">
-  import { $one, on, off, transition, $, iterate } from 'ph-utils/browser';
+  import { $one, on, off, transition, $, iterate } from 'utilane/browser';
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { createTransition } from '../../../src/components/utils/transition';
 
@@ -127,7 +127,7 @@ trans.init();
   }
 </textarea>
 <textarea lang="js">
-  import { $one, on, off } from 'ph-utils/browser';
+  import { $one, on, off } from 'utilane/browser';
   import { createTransition } from 'litos-ui/lib/utils/transition.js';
   //-
   const trans = createTransition();
@@ -155,7 +155,7 @@ trans.init();
 
 ### 手动动画
 
-如果想要手动控制动画，可以通过直接引用 `ph-utils/browser transition` 然后调用 `transition` 方法即可。
+如果想要手动控制动画，可以通过直接引用 `utilane/browser transition` 然后调用 `transition` 方法即可。
 
 <ClientOnly>
 <l-code-preview>

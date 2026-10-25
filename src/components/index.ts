@@ -43,6 +43,10 @@ export { default as SelectIcon } from "./icon/select";
 export { default as CalendarIcon } from "./icon/calendar";
 export { default as RefreshIcon } from "./icon/refresh";
 export { default as CopyIcon } from "./icon/copy";
+export { default as PlusIcon } from "./icon/plus";
+export { default as MinusIcon } from "./icon/minus";
+export { default as EyeOutlineIcon } from "./icon/eye_outline";
+export { default as DeleteIcon } from "./icon/delete";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";

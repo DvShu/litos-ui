@@ -1,6 +1,6 @@
 # 快速开始
 
-组件库使用工具库 [ph-utils](https://gitee.com/towardly/ph/wikis/Home?sort_id=4035190)
+组件库使用工具库 [utilane](https://github.com/DvShu/utilane#readme)
 
 ## 使用
 

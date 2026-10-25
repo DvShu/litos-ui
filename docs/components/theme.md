@@ -33,13 +33,13 @@ regist([Radio, RadioGroup]);
 
 ## 演示
 
-> 1. 主题切换是通过 [ph-utils](https://www.npmjs.com/package/ph-utils) 工具库的 `theme` 工具类控制
+> 1. 主题切换是通过 [utilane](https://www.npmjs.com/package/utilane) 工具库的 `theme` 工具类控制
 > 2. 为了每次切换主题后，重新加载能够生效，需要在应用开始的时候, 执行 `initTheme()` 方法
 
 ::: code-group
 
 ```js [main.ts]
-import { initTheme } from "ph-utils/browser";
+import { initTheme } from "utilane/browser";
 
 initTheme().then();
 ```
@@ -66,7 +66,7 @@ initTheme().then();
 
 ```javascript
 // main.js
-import { initTheme } from "ph-utils/browser";
+import { initTheme } from "utilane/browser";
 
 // await initTheme();
 initTheme().then();
@@ -74,7 +74,7 @@ initTheme().then();
 
 ### 自定义风格
 
-框架内置的主题切换其实就是一个排版的样式，核心的主题切换的逻辑是调用的 `ph-utils` 库的 `theme` 模块相关函数来实现的。
+框架内置的主题切换其实就是一个排版的样式，核心的主题切换的逻辑是调用的 `utilane` 库的 `theme` 模块相关函数来实现的。
 
 通常调用的模块有: `getTheme()`、`applyTheme()`
 
@@ -97,7 +97,7 @@ initTheme().then();
   </l-radio-group>
 </textarea>
 <textarea lang="js">
-  import { applyTheme } from "ph-utils/browser";
+  import { applyTheme } from "utilane/browser";
   //-
   const $radio = document.querySelector('#customThemeRadio');
   //-
@@ -186,7 +186,7 @@ initTheme().then();
 
 ```javascript
 // main.js
-import { initColorTheme } from "ph-utils/browser";
+import { initColorTheme } from "utilane/browser";
 
 initColorTheme().then();
 ```

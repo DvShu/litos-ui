@@ -2,7 +2,7 @@ import BaseComponent from "../base";
 import { parseAttrValue, tagAttr, kebabToCamel } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { on, off, shouldEventNext, $one, clsx } from "ph-utils/browser";
+import { on, off, shouldEventNext, $one, clsx } from "utilane/browser";
 
 type PaginationProps = {
   /** 数据总数 */

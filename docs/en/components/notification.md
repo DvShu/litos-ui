@@ -56,7 +56,7 @@ regist([Button]);
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import { elem, iterate, on } from 'ph-utils/browser';
+  import { elem, iterate, on } from 'utilane/browser';
 
   let $btns;
   let lastId = '';
@@ -121,7 +121,7 @@ regist([Button]);
 </textarea>
 <textarea lang="js">
   import { Notification } from 'litos-ui';
-  import { elem, on } from 'ph-utils/browser';
+  import { elem, on } from 'utilane/browser';
   //-
   on(elem('l-button')[0], 'click', () => {
     Notification.show({

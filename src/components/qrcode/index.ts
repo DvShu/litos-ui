@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 import css from "./index.less?inline";
 import { QRCodeRender, renderToCanvas } from "qrcode-generator-es";
-import { $one } from "ph-utils/browser";
+import { $one } from "utilane/browser";
 
 type QrcodeState = {
   /** 二维码内容 */

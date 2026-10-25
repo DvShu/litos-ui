@@ -12,7 +12,7 @@
 ## 引用
 
 ```js
-import { Upload, regist, Button } from "litos-ui";
+import { Upload, regist, Button, PlusIcon } from "litos-ui";
 
 regist(Upload);
 // 文件列表中的"预览/删除"按钮使用了图标组件, 需要时一起注册
@@ -20,7 +20,7 @@ import { SearchIcon, CloseIcon } from "litos-ui";
 regist([SearchIcon, CloseIcon]);
 
 // 注册本页演示使用的附加组件
-regist([Button]);
+regist([Button, PlusIcon]);
 ```
 
 ## 基础使用
@@ -41,23 +41,25 @@ regist([Button]);
 
 ### 图片上传
 
-通过设置 `list-type="picture"` 显示图片预览列表，`accept="image/*"` 限制只能上传图片。
+设置 `list-type="picture"` 使用默认 90 × 90 的图片选择容器，`accept="image/*"` 限制选择图片。该模式始终单选，不显示文件列表；选择后在 trigger 容器内预览图片，再次点击图片选择新文件即可替换。取消选择或文件超出大小限制时保留原图；替换时中止旧图的上传并释放本地预览地址。
+
+下面的演示只进行本地预览；需要自动上传时，设置 `action` 并移除 `auto-upload="false"`。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-upload action="https://tmpfiles.org/api/v1/upload" accept="image/*" list-type="picture">
-    <l-button type="primary">选择图片</l-button>
+  <l-upload accept="image/*" list-type="picture" auto-upload="false">
+    <l-plus-icon></l-plus-icon>
   </l-upload>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 图片列表的缩略图优先使用本地文件预览；上传成功后服务端返回的地址保存在 `file.url` 上（对于 tmpfiles.org 是预览页地址，需自行转换为 `/dl/` 直链后再展示）。
+> trigger 中的图片优先使用本地文件预览；上传成功后服务端返回的地址保存在 `file.url` 上（对于 tmpfiles.org 是预览页地址，需自行转换为 `/dl/` 直链后再展示）。
 
 ### 多文件上传
 
-设置 `multiple` 属性支持多文件上传。
+设置 `multiple` 属性允许在文件选择框中一次选择多个文件。在普通文件模式下，无论是否设置 `multiple`，再次选择文件都会追加到已有列表，保留已上传和待上传的文件；如需限制累计数量，使用 `max-count`。
 
 <ClientOnly>
 <l-code-preview>
@@ -184,7 +186,7 @@ $upload.headers = { "X-Token": "Bearer token" };
 <l-code-preview>
 <textarea lang="html">
   <l-upload action="https://tmpfiles.org/api/v1/upload" accept="image/*" list-type="picture">
-    <l-button type="primary">选择图片</l-button>
+    <l-plus-icon></l-plus-icon>
     <span slot="tip">仅支持 jpg / png 格式图片，单张不超过 2MB</span>
   </l-upload>
 </textarea>
@@ -197,7 +199,7 @@ $upload.headers = { "X-Token": "Bearer token" };
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import { elem, iterate, on, off } from 'ph-utils/browser';
+  import { elem, iterate, on, off } from 'utilane/browser';
 
   let $uploads;
 
@@ -301,15 +303,15 @@ const handleUpload = () => {
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `accept` | 接受的文件类型 | `string` | - |
-| `multiple` | 是否支持多文件上传 | `boolean` | `false` |
+| `multiple` | 普通文件模式允许一次多选并累计追加；picture 模式始终单选替换 | `boolean` | `false` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `drag` | 是否支持拖拽上传 | `boolean` | `false` |
-| `list-type` | 列表类型，`text`（文本列表）、`picture`（图片列表） | `string` | `text` |
+| `list-type` | 展示模式：`text`（文件列表）、`picture`（trigger 内单图预览，重新选择替换） | `string` | `text` |
 | `max-size` | 最大文件大小，单位 KB，超出不会加入列表 | `number` | `0`（不限制） |
-| `max-count` | 最大文件数量 | `number` | `0`（不限制） |
+| `max-count` | 普通文件模式的累计最大数量；picture 模式固定保留一张且允许替换 | `number` | `0`（不限制） |
 | `auto-upload` | 是否自动上传，`false` 时通过 `upload()` 手动触发 | `boolean` | `true` |
 | `action` | 上传地址，以 `multipart/form-data`（字段名 `file`）方式提交 | `string` | - |
-| `show-file-list` | 是否显示文件列表 | `boolean` | `true` |
+| `show-file-list` | 普通文件模式是否显示列表；picture 模式始终隐藏列表，不影响图片预览 | `boolean` | `true` |
 | `headers` | 上传请求头，需为合法 JSON 字符串，或通过实例属性赋值对象 | `object` | `{}` |
 | `data` | 上传时附带的额外参数，需为合法 JSON 字符串，或通过实例属性赋值对象 | `object` | `{}` |
 | `with-credentials` | 是否携带 cookie | `boolean` | `false` |
@@ -379,4 +381,4 @@ const handleUpload = () => {
 | `--l-upload-disabled-border-color` | 禁用状态边框颜色 | `#e6e6e6` |
 | `--l-upload-border-radius` | 圆角大小 | `var(--l-border-radius, 3px)` |
 | `--l-upload-font-size` | 字体大小 | `14px` |
-| `--l-upload-picture-size` | 图片列表项大小 | `100px` |
+| `--l-upload-picture-size` | 图片选择容器的宽高 | `90px` |
