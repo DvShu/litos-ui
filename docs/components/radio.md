@@ -79,7 +79,7 @@ regist([RadioGroup, Radio]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `name` | 原生 `name` 属性  | `string` | - |
+| `name` | 原生 `name` 属性 | `string` | - |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `button` | 是否使用按钮风格 | `boolean` | `false` |
 | `value` | 选项值 | `string` | - |

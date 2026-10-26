@@ -117,8 +117,9 @@ import "litos-ui/styles/container.css";
 
 ### 样式变量
 
-| 名称                | 描述       | 默认值                         |
-| ------------------- | ---------- | ------------------------------ |
-| `--l-header-height` | header高度 | `50px`                         |
-| `--l-aside-width`   | 侧边栏宽度 | `240px`                        |
-| `--l-footer-height` | 底栏高度   | `var(--l-header-height, 50px)` |
+<!-- prettier-ignore -->
+| 名称 | 描述 | 默认值 |
+| --- | --- | --- |
+| `--l-header-height` | header高度 | `50px` |
+| `--l-aside-width` | 侧边栏宽度 | `240px` |
+| `--l-footer-height` | 底栏高度 | `var(--l-header-height, 50px)` |

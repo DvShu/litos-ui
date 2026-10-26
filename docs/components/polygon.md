@@ -89,7 +89,7 @@ regist(Polygon);
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `shape` | 传递指定的默认的形状 | `string` | `triangle-top` |
-| `background`| 背景颜色 | `string` | - |
+| `background` | 背景颜色 | `string` | - |
 
 ### Polygon CSS Variables
 

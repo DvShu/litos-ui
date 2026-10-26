@@ -58,6 +58,6 @@ regist(Qrcode);
 | `text` | 二维码内容 | `string` | — |
 | `fill` | 二维码颜色 | `string` | `#000000` |
 | `size` | 二维码大小 | `string` | `120` |
-| `level`| 二维码容错率, `L`、`M`、`Q`、`H` | `string` | `M` |
+| `level` | 二维码容错率, `L`、`M`、`Q`、`H` | `string` | `M` |
 
 `icon` 属性可指定二维码中间图标的图片地址，默认为不显示图标。

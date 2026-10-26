@@ -171,12 +171,12 @@ regist([ReductionIcon, RefreshLeftIcon, RefreshRightIcon, SearchIcon, SortIcon])
 ### Tabbar CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名                           | 说明                     | 默认值                           |
-| -------------------------------- | ------------------------ | -------------------------------- |
-| `--l-tabbar-hover-color`        | 选项卡的鼠标悬浮时的颜色 | `var(--l-primary-color-light1, #9254de)` |
-| `--l-tabbar-active-color`       | 选项卡的选中时的颜色     | `var(--l-primary-color, #722ed1)` |
-| `--l-tabbar-item-gap`           | 选项卡之间的间距         | `0`                              |
-| `--l-tabbar-height`             | 选项卡的高度             | `38px`[`nav`时默认为: `50px`]    |
-| `--l-tabbar-line-color`         | 下划线的颜色             | `var(--l-primary-color, #722ed1)` |
-| `--l-tabbar-card-border-color`  | 卡片选项卡的边框颜色     | `#f5f7fa`                        |
-| `--l-tabbar-card-border-radius` | 卡片选项卡的边框圆角     | `5px`                            |
+| 变量名 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--l-tabbar-hover-color` | 选项卡的鼠标悬浮时的颜色 | `var(--l-primary-color-light1, #9254de)` |
+| `--l-tabbar-active-color` | 选项卡的选中时的颜色 | `var(--l-primary-color, #722ed1)` |
+| `--l-tabbar-item-gap` | 选项卡之间的间距 | `0` |
+| `--l-tabbar-height` | 选项卡的高度 | `38px`[`nav`时默认为: `50px`] |
+| `--l-tabbar-line-color` | 下划线的颜色 | `var(--l-primary-color, #722ed1)` |
+| `--l-tabbar-card-border-color` | 卡片选项卡的边框颜色 | `#f5f7fa` |
+| `--l-tabbar-card-border-radius` | 卡片选项卡的边框圆角 | `5px` |

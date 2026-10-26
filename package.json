@@ -50,6 +50,7 @@
     "dts:build": "tsc -p tsconfig.build.json",
     "lib:build": "npm run build && npm run dts:build",
     "api": "node scripts/api.ts",
+    "upload:server": "node scripts/upload-server.mjs",
     "prepack": "npm run lib:build",
     "lint": "oxlint --deny-warnings src scripts types vite.config.ts docs/.vitepress",
     "lint:fix": "oxlint --fix --deny-warnings src scripts types vite.config.ts docs/.vitepress",

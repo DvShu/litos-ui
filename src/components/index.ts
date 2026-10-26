@@ -47,6 +47,7 @@ export { default as PlusIcon } from "./icon/plus";
 export { default as MinusIcon } from "./icon/minus";
 export { default as EyeOutlineIcon } from "./icon/eye_outline";
 export { default as DeleteIcon } from "./icon/delete";
+export { default as PictureIcon } from "./icon/picture";
 
 export { default as Form } from "./form";
 export { default as FormItem } from "./form/form_item";
@@ -110,6 +111,15 @@ export { default as Card } from "./card";
 export { default as Calendar } from "./calendar";
 
 export { default as Upload } from "./upload";
+export { defaultUploadResponseParser } from "./upload";
+export type {
+  UploadFile,
+  UploadResponseContext,
+  UploadResponseParser,
+  UploadRequestOptions,
+  UploadRequestResult,
+  UploadRequestHandler,
+} from "./upload";
 
 export { default as Notification } from "./notification";
 export type { NotificationOptions, NotificationType, NotificationPlacement } from "./notification";

@@ -40,11 +40,12 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/styles/theme-jade.css";
 ```
 
-| Theme     | File                  | Primary color |
-| --------- | --------------------- | ------------- |
-| Jade      | `theme-jade.css`      | `#00AA7E`     |
-| Coral     | `theme-coral.css`     | `#FF6448`     |
-| Tangerine | `theme-tangerine.css` | `#FF7802`     |
+<!-- prettier-ignore -->
+| Theme | File | Primary color |
+| --- | --- | --- |
+| Jade | `theme-jade.css` | `#00AA7E` |
+| Coral | `theme-coral.css` | `#FF6448` |
+| Tangerine | `theme-tangerine.css` | `#FF7802` |
 
 Presets define global CSS variables on `:root`. Choose one preset; importing several makes the last loaded theme override the earlier ones. Omit the preset import to use the default blue theme. You can also override individual variables in your own stylesheet.
 
@@ -109,6 +110,29 @@ pnpm docs:build
 Use `pnpm docs:dev` to preview the documentation and component examples. `pnpm dev` is a separate debugging entry point; currently, `src/main.ts` does not register any components.
 
 Run `pnpm lint` and `pnpm fmt:check` to check the code, or `pnpm fmt` to format it. Running `npm pack` or `npm publish` automatically builds the library and type declarations first. Use `npm pack --dry-run` to inspect the package contents before publishing.
+
+### Markdown Table Formatting
+
+Use compact Markdown tables in README files and both documentation languages: one space around each cell, with no padding for source-column alignment. Use `| --- | --- |` for separator rows and preserve alignment markers such as `:---`, `---:`, and `:---:`. Keep cell content, escaped pipes, and code examples unchanged.
+
+Place `<!-- prettier-ignore -->` immediately above each table header, with no blank line between them. This local directive keeps Oxfmt from padding the table while the rest of the Markdown file remains formatted. Do not add directives inside code examples or exclude whole Markdown files.
+
+```text
+<!-- prettier-ignore -->
+| Attribute | Default |
+| --- | --- |
+| `disabled` | `false` |
+```
+
+Format only the files you changed, then check them; replace these README paths with the corresponding Chinese and English component documentation paths when needed:
+
+```bash
+pnpm exec oxfmt README.md README.zh-CN.md
+pnpm exec oxfmt --check README.md README.zh-CN.md
+pnpm fmt:check
+```
+
+Confirm that formatting does not add table padding. A formatting check does not independently enforce compact tables inside ignored blocks, so review their source and rendered output. Follow the [repository guidelines](./AGENTS.md) and [translation guide](./TRANSLATION_GUIDE.md). These rules apply to new and edited tables; migration of existing tables and editor settings remains tracked in the task list.
 
 ## Documentation
 

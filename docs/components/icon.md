@@ -100,7 +100,7 @@ regist(MyIcon, "my-icon");
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `view-box` | svg view box  | `string` | `0 0 1024 1024` |
+| `view-box` | svg view box | `string` | `0 0 1024 1024` |
 
 ### 样式变量
 

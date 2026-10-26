@@ -220,7 +220,7 @@ regist([CheckboxGroup]);
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 多选值,每一项 `encodeURIComponent` 后拼接 `&`  | `string` | `-` |
+| `value` | 多选值,每一项 `encodeURIComponent` 后拼接 `&` | `string` | `-` |
 
 ### Checkbox Slots
 

@@ -316,27 +316,29 @@ new Dialog(option?: DialogInitialParams)
 
 #### DialogInitialParams
 
-| 属性          | 类型                                         | 默认值  | 说明                                                                                |
-| ------------- | -------------------------------------------- | ------- | ----------------------------------------------------------------------------------- |
-| el            | `HTMLDialogElement \| string`                | -       | **必填**，dialog 节点或 CSS 选择器                                                  |
-| onAction      | `(action: string, done: () => void) => void` | -       | 按钮点击回调，`action` 为 `"ok"` 或 `"cancel"` 或 `"close"`，调用 `done()` 关闭弹窗 |
-| verticalAlign | `"top" \| "bottom" \| "middle"`              | `"top"` | 对话框垂直方向位置                                                                  |
-| translate     | `string`                                     | -       | CSS translate 值，例如 `"0,0,0"` 表示 `translate3d(0,0,0)`                          |
-| width         | `string`                                     | -       | 对话框宽度                                                                          |
-| escClose      | `boolean`                                    | `true`  | 是否在点击 Esc 时关闭弹窗                                                           |
-| maskClosable  | `boolean`                                    | `true`  | 是否可以通过点击遮罩关闭对话框                                                      |
-| close         | `number`                                     | `1`     | 是否显示右上角关闭按钮，`1` - 显示在框内，`2` - 显示在框角，`0` - 不显示            |
+<!-- prettier-ignore -->
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| el | `HTMLDialogElement \| string` | - | **必填**，dialog 节点或 CSS 选择器 |
+| onAction | `(action: string, done: () => void) => void` | - | 按钮点击回调，`action` 为 `"ok"` 或 `"cancel"` 或 `"close"`，调用 `done()` 关闭弹窗 |
+| verticalAlign | `"top" \| "bottom" \| "middle"` | `"top"` | 对话框垂直方向位置 |
+| translate | `string` | - | CSS translate 值，例如 `"0,0,0"` 表示 `translate3d(0,0,0)` |
+| width | `string` | - | 对话框宽度 |
+| escClose | `boolean` | `true` | 是否在点击 Esc 时关闭弹窗 |
+| maskClosable | `boolean` | `true` | 是否可以通过点击遮罩关闭对话框 |
+| close | `number` | `1` | 是否显示右上角关闭按钮，`1` - 显示在框内，`2` - 显示在框角，`0` - 不显示 |
 
 #### 实例方法
 
-| 方法                         | 说明                                               |
-| ---------------------------- | -------------------------------------------------- |
-| `open()`                     | 打开对话框                                         |
-| `close()`                    | 关闭对话框                                         |
-| `destroy()`                  | 销毁对话框，移除所有事件监听。在页面卸载时必须调用 |
-| `setProp(key, value)`        | 设置单个属性                                       |
-| `setProps(props)`            | 批量设置属性                                       |
-| `setConfirmLoading(loading)` | 设置确定按钮 loading 状态                          |
+<!-- prettier-ignore -->
+| 方法 | 说明 |
+| --- | --- |
+| `open()` | 打开对话框 |
+| `close()` | 关闭对话框 |
+| `destroy()` | 销毁对话框，移除所有事件监听。在页面卸载时必须调用 |
+| `setProp(key, value)` | 设置单个属性 |
+| `setProps(props)` | 批量设置属性 |
+| `setConfirmLoading(loading)` | 设置确定按钮 loading 状态 |
 
 #### 属性继承
 
@@ -363,47 +365,51 @@ regist([DialogContainer]);
 
 #### HTML 属性
 
-| 属性            | 类型      | 默认值   | 说明                                                        |
-| --------------- | --------- | -------- | ----------------------------------------------------------- |
-| header          | `string`  | -        | 标题文本                                                    |
-| show-header     | `boolean` | `true`   | 是否显示标题栏                                              |
-| show-footer     | `boolean` | `true`   | 是否显示底部                                                |
-| show-cancel     | `boolean` | `true`   | 是否显示取消按钮                                            |
-| cancel-text     | `string`  | `"取消"` | 取消按钮文本                                                |
-| show-ok         | `boolean` | `true`   | 是否显示确定按钮                                            |
-| ok-text         | `string`  | `"确定"` | 确定按钮文本                                                |
-| close           | `number`  | `1`      | 关闭按钮样式，`1` - 框内，`2` - 框角，`0` - 不显示          |
-| container-class | `string`  | -        | 内容区自定义类名                                            |
-| mobile          | `boolean` | `false`  | 是否使用移动端风格，标题居中，底部按钮平铺排列              |
-| confirm-loading | `boolean` | `false`  | 确定按钮 loading 状态，为 `true` 时点击确定不会重复触发回调 |
+<!-- prettier-ignore -->
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| header | `string` | - | 标题文本 |
+| show-header | `boolean` | `true` | 是否显示标题栏 |
+| show-footer | `boolean` | `true` | 是否显示底部 |
+| show-cancel | `boolean` | `true` | 是否显示取消按钮 |
+| cancel-text | `string` | `"取消"` | 取消按钮文本 |
+| show-ok | `boolean` | `true` | 是否显示确定按钮 |
+| ok-text | `string` | `"确定"` | 确定按钮文本 |
+| close | `number` | `1` | 关闭按钮样式，`1` - 框内，`2` - 框角，`0` - 不显示 |
+| container-class | `string` | - | 内容区自定义类名 |
+| mobile | `boolean` | `false` | 是否使用移动端风格，标题居中，底部按钮平铺排列 |
+| confirm-loading | `boolean` | `false` | 确定按钮 loading 状态，为 `true` 时点击确定不会重复触发回调 |
 
 #### 插槽
 
-| 插槽名   | 说明                                    |
-| -------- | --------------------------------------- |
-| 默认插槽 | 对话框主体内容                          |
-| `header` | 自定义头部内容，替代 `header` 属性      |
+<!-- prettier-ignore -->
+| 插槽名 | 说明 |
+| --- | --- |
+| 默认插槽 | 对话框主体内容 |
+| `header` | 自定义头部内容，替代 `header` 属性 |
 | `footer` | 自定义底部内容，替代默认的取消/确定按钮 |
 
 #### 自定义事件
 
-| 事件名         | detail               | 说明                                                          |
-| -------------- | -------------------- | ------------------------------------------------------------- |
+<!-- prettier-ignore -->
+| 事件名 | detail | 说明 |
+| --- | --- | --- |
 | `dialogAction` | `{ action: string }` | 按钮点击时触发，`action` 值为 `"ok"`、`"cancel"` 或 `"close"` |
 
 #### CSS 变量
 
 可在 `l-dialog-container` 元素或其祖先元素上设置以下 CSS 变量，以自定义对话框容器样式。
 
-| 变量名                         | 默认值                                       | 说明                                                                         |
-| ------------------------------ | -------------------------------------------- | ---------------------------------------------------------------------------- |
-| `--l-dialog-main-padding`      | `0`                                          | 对话框整体内边距                                                             |
-| `--l-dialog-header-padding`    | `10px`                                       | 标题栏内边距，非移动端风格下生效                                             |
-| `--l-dialog-container-padding` | `15px 10px`                                  | 内容区内边距，非移动端风格下生效                                             |
-| `--l-dialog-footer-padding`    | `10px`                                       | 底部操作区内边距，非移动端风格下生效                                         |
-| `--l-dialog-line-color`        | `rgba(0, 0, 0, 0.06)`                        | 标题栏、底部操作区及移动端底部按钮之间的分隔线颜色；移动端标题栏分隔线为透明 |
-| `--l-dialog-close-right`       | `close="1"` 时为 `5px`，`close="2"` 时为 `0` | 关闭按钮距容器右侧的偏移                                                     |
-| `--l-dialog-close-top`         | `close="1"` 时为 `6px`，`close="2"` 时为 `0` | 关闭按钮距容器顶部的偏移                                                     |
+<!-- prettier-ignore -->
+| 变量名 | 默认值 | 说明 |
+| --- | --- | --- |
+| `--l-dialog-main-padding` | `0` | 对话框整体内边距 |
+| `--l-dialog-header-padding` | `10px` | 标题栏内边距，非移动端风格下生效 |
+| `--l-dialog-container-padding` | `15px 10px` | 内容区内边距，非移动端风格下生效 |
+| `--l-dialog-footer-padding` | `10px` | 底部操作区内边距，非移动端风格下生效 |
+| `--l-dialog-line-color` | `rgba(0, 0, 0, 0.06)` | 标题栏、底部操作区及移动端底部按钮之间的分隔线颜色；移动端标题栏分隔线为透明 |
+| `--l-dialog-close-right` | `close="1"` 时为 `5px`，`close="2"` 时为 `0` | 关闭按钮距容器右侧的偏移 |
+| `--l-dialog-close-top` | `close="1"` 时为 `6px`，`close="2"` 时为 `0` | 关闭按钮距容器顶部的偏移 |
 
 ```html
 <l-dialog-container
@@ -454,17 +460,19 @@ DialogBox.prompt(label: string, title?: string, option?: PromptOptions): Promise
 
 #### AlertOptions
 
-| 属性         | 类型                | 默认值                                               | 说明                                               |
-| ------------ | ------------------- | ---------------------------------------------------- | -------------------------------------------------- |
-| showCancel   | `boolean`           | `alert` 默认 `false`，`confirm`/`prompt` 默认 `true` | 是否显示取消按钮                                   |
-| close        | `number`            | `0`                                                  | 关闭按钮位置，`0` - 不显示，`1` - 框内，`2` - 框角 |
-| maskClosable | `boolean`           | `alert` 默认 `false`，`confirm`/`prompt` 默认 `true` | 点击蒙层是否允许关闭                               |
-| icon         | `() => HTMLElement` | -                                                    | 自定义图标                                         |
+<!-- prettier-ignore -->
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| showCancel | `boolean` | `alert` 默认 `false`，`confirm`/`prompt` 默认 `true` | 是否显示取消按钮 |
+| close | `number` | `0` | 关闭按钮位置，`0` - 不显示，`1` - 框内，`2` - 框角 |
+| maskClosable | `boolean` | `alert` 默认 `false`，`confirm`/`prompt` 默认 `true` | 点击蒙层是否允许关闭 |
+| icon | `() => HTMLElement` | - | 自定义图标 |
 
 #### PromptOptions
 
 继承 `AlertOptions`，额外属性：
 
-| 属性        | 类型     | 默认值 | 说明         |
-| ----------- | -------- | ------ | ------------ |
-| placeholder | `string` | `""`   | 输入框占位符 |
+<!-- prettier-ignore -->
+| 属性 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| placeholder | `string` | `""` | 输入框占位符 |

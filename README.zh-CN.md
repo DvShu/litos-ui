@@ -40,10 +40,11 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/styles/theme-jade.css";
 ```
 
-| 主题   | 文件                  | 主色      |
-| ------ | --------------------- | --------- |
-| 翡翠绿 | `theme-jade.css`      | `#00AA7E` |
-| 珊瑚红 | `theme-coral.css`     | `#FF6448` |
+<!-- prettier-ignore -->
+| 主题 | 文件 | 主色 |
+| --- | --- | --- |
+| 翡翠绿 | `theme-jade.css` | `#00AA7E` |
+| 珊瑚红 | `theme-coral.css` | `#FF6448` |
 | 活力橙 | `theme-tangerine.css` | `#FF7802` |
 
 预置主题通过 `:root` 定义全局 CSS 变量。一次选择一套，同时引入多套时，后加载的主题会覆盖先加载的主题。不引入预置主题时，使用默认蓝色主题，也可以在自己的样式文件中覆盖单个变量。
@@ -109,6 +110,29 @@ pnpm docs:build
 使用 `pnpm docs:dev` 预览文档和组件示例。`pnpm dev` 是独立的调试入口，当前 `src/main.ts` 尚未注册组件。
 
 可使用 `pnpm lint`、`pnpm fmt:check` 检查代码，使用 `pnpm fmt` 格式化。执行 `npm pack` 或 `npm publish` 前会自动构建组件库和类型声明；发布前可通过 `npm pack --dry-run` 检查文件清单。
+
+### Markdown 表格格式
+
+README 和中英文文档的 Markdown 表格采用紧凑写法：单元格两侧各保留一个空格，不为源码列对齐添加填充空格。分隔行使用 `| --- | --- |`，保留 `:---`、`---:`、`:---:` 等对齐标记，不改变单元格内容、转义竖线和代码示例。
+
+每个表头前紧贴一行 `<!-- prettier-ignore -->`，两者之间不留空行。该局部指令防止 Oxfmt 为表格补齐空格，其余 Markdown 仍正常格式化；不在代码示例内添加指令，也不忽略整份 Markdown。
+
+```text
+<!-- prettier-ignore -->
+| 属性 | 默认值 |
+| --- | --- |
+| `disabled` | `false` |
+```
+
+优先只格式化本次修改的文件，再执行检查；维护组件文档时，将以下 README 路径替换为对应的中英文组件文档路径：
+
+```bash
+pnpm exec oxfmt README.md README.zh-CN.md
+pnpm exec oxfmt --check README.md README.zh-CN.md
+pnpm fmt:check
+```
+
+确认格式化后没有回填表格空格。格式检查不会独立约束被忽略表格内部的紧凑写法，因此还需核对源码和渲染结果。具体遵循[仓库协作规范](./AGENTS.md)与[翻译指南](./TRANSLATION_GUIDE.md)。此约定适用于新增和编辑的表格，历史表格迁移及编辑器配置仍按待完成清单单独跟踪。
 
 ## 文档
 

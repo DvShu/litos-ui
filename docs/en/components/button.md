@@ -212,8 +212,8 @@ regist([SearchIcon]);
 ### Button Slots
 
 <!-- prettier-ignore -->
-| 名称      | 说明     |
-| --------- | -------- |
+| 名称 | 说明 |
+| --- | --- |
 | `default` | 按钮内容 |
 
 ### 样式变量
