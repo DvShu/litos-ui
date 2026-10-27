@@ -16,13 +16,11 @@ npm install litos-ui
 
 ## 使用
 
-在应用入口引入基础样式，注册需要的组件。组件库提供 ESM 产物，使用 ES Module `import` 引入。
+在客户端入口引入基础变量和需要的组件子路径，自动注册组件及内建依赖。组件库提供 ESM 产物，使用 ES Module `import` 引入。
 
 ```js
 import "litos-ui/styles/vars.css";
-import { Button, regist } from "litos-ui";
-
-regist([Button]); // <l-button></l-button>
+import "litos-ui/button";
 ```
 
 然后在页面中使用自定义元素：
@@ -143,3 +141,13 @@ pnpm fmt:check
 ## 许可证
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+## 按需导入
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/button";
+import "litos-ui/input-number";
+```
+
+在客户端入口加载后即可使用，自动注册内建依赖（包括 Button 的 loading 图标）。原有总入口加手动 regist() 用法继续支持。服务子路径（如默认导入 litos-ui/message）会准备对应全局样式，仍需显式调用 API。完整入口、类型及 SSR 限制见[按需导入指南](https://dvshu.github.io/litos-ui/on_demand)。

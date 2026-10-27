@@ -1,3 +1,4 @@
+import type { SignalStop } from "./signal_types";
 import { isBlank, isNumeric } from "utilane";
 
 let seed = -1; // 用于构建多个id，避免重复

@@ -1,7 +1,7 @@
-.l-loading:not(.l-loading-fullscreen) {
+:where(.l-loading):not(.l-loading-fullscreen) {
   position: relative;
 }
-.l-loading-mask {
+:where(.l-loading-mask) {
   position: absolute;
   top: 0;
   right: 0;
@@ -14,7 +14,7 @@
   opacity: 0;
 }
 
-.l-loading-spinner {
+:where(.l-loading-spinner) {
   --l-loading-color: var(--l-primary-color, #722ed1);
   text-align: center;
   position: absolute;
@@ -23,20 +23,20 @@
   transition: opacity 0.3s;
   display: block;
 }
-.l-loading-spinner.l-loading--circle {
+:where(.l-loading-spinner).l-loading--circle {
   top: 50%;
   left: 50%;
   transform: translate3d(-50%, -50%, 0);
 }
 
-.l-loading-spinner .circle {
+:where(.l-loading-spinner .circle) {
   display: inline;
   width: 40px;
   height: 40px;
   animation: loading-rotate 1.5s linear infinite;
 }
 
-.l-loading-spinner .path {
+:where(.l-loading-spinner .path) {
   stroke: var(--l-loading-color);
   stroke-width: 2px;
   stroke-linecap: round;
@@ -45,12 +45,12 @@
   stroke-dashoffset: 0px;
 }
 
-.l-loading-spinner .l-loading-text {
+:where(.l-loading-spinner .l-loading-text) {
   color: var(--l-loading-color);
   margin: 0;
   font-size: 14px;
 }
-.l-loading.l-loading-lock {
+:where(.l-loading).l-loading-lock {
   overflow: hidden;
 }
 
@@ -58,15 +58,15 @@
 .l-loading-fullscreen {
   --l-loading-zindex: 50;
 }
-.l-loading-fullscreen > .l-loading-mask {
+.l-loading-fullscreen > :where(.l-loading-mask) {
   position: fixed;
 }
-.l-loading-fullscreen > .l-loading-spinner {
+.l-loading-fullscreen > :where(.l-loading-spinner) {
   position: fixed;
 }
 
 /* 边框风格 */
-.l-loading-spinner.l-loading--border {
+:where(.l-loading-spinner).l-loading--border {
   top: 0;
   left: 0;
   right: 0;
@@ -78,7 +78,7 @@
 }
 
 /* 进度条样式 */
-.l-loading--bar.l-loading-spinner {
+.l-loading--bar:where(.l-loading-spinner) {
   top: 0;
   left: 0;
   width: 100%;
@@ -88,7 +88,7 @@
   background-color: transparent;
   justify-content: flex-start;
 }
-.l-loading--bar > .l-loading-progress {
+:where(.l-loading--bar > .l-loading-progress) {
   width: 100%;
   height: 100%;
   max-width: 0;
@@ -100,11 +100,11 @@
     opacity 0.2s linear;
   background-color: var(--l-primary-color, #722ed1);
 }
-.l-loading-bar--start .l-loading-progress {
+.l-loading-bar--start :where(.l-loading-progress) {
   max-width: 90%;
 }
 
-.l-loading-bar--finish .l-loading-progress {
+.l-loading-bar--finish :where(.l-loading-progress) {
   transition:
     max-width 0.2s linear,
     background-color 0.2s linear,
@@ -113,7 +113,7 @@
   opacity: 0;
 }
 
-.l-loading-bar--error .l-loading-spinner {
+.l-loading-bar--error :where(.l-loading-spinner) {
   transition:
     max-width 0.2s linear,
     background-color 0.2s linear,

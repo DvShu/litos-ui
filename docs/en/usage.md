@@ -95,3 +95,13 @@ import "litos-ui/styles/vars.css";
 ```javascript
 document.documentElement.classList.add("dark");
 ```
+
+## On-demand Imports
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/button";
+import "litos-ui/input-number";
+```
+
+These client-only element entries register their built-in dependencies, including Button's loading icon. Root imports with manual regist() remain supported. Service subpaths, such as Message from "litos-ui/message", prepare their global styles and require explicit API calls. See the [complete entry list and SSR guidance](/en/on_demand).

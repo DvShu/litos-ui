@@ -1,7 +1,7 @@
+import { createStyleSheet } from "../../utils/style";
 // @ts-ignore
 import cssText from "./index.css?inline";
 
-const sheet = new CSSStyleSheet();
-sheet.replaceSync(cssText);
+const sheet = /* @__PURE__ */ createStyleSheet(cssText);
 
 export default sheet;

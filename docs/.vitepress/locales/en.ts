@@ -25,6 +25,7 @@ export const en: LocaleConfig<DefaultTheme.Config>[string] = {
             text: "Getting Started",
             link: "/en/usage",
           },
+          { text: "On-demand Imports", link: "/en/on_demand" },
           {
             text: "Style Reset",
             link: "/en/reset",

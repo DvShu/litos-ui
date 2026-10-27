@@ -68,6 +68,15 @@ regist([Mask, Button]);
 
 通过继承 `Mask` 类，然后实现自定义功能逻辑，为自定义的类设置一个 `static baseName = "x";` 将 `x` 替换为自定义的组件名称，就能在模板中使用 `<l-x>` 标签了。
 
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/mask";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+
 ## API
 
 ### Mask Attributes

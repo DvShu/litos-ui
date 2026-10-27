@@ -17,12 +17,36 @@ class ElementStub {
     this.tag = tag;
     Object.assign(this, attrs);
   }
+  get firstChild() {
+    return this.children[0] ?? null;
+  }
+  getAttribute(name) {
+    return this[name] ?? null;
+  }
+  removeAttribute(name) {
+    delete this[name];
+  }
   appendChild(child) {
+    if (child.parent) child.remove();
     child.parent = this;
+    child.parentElement = this;
     this.children.push(child);
   }
+  setAttribute(name, value) {
+    this[name] = value;
+  }
+  insertBefore(child, reference) {
+    if (child === reference) return;
+    if (child.parent) child.remove();
+    child.parent = this;
+    child.parentElement = this;
+    const index = reference == null ? this.children.length : this.children.indexOf(reference);
+    this.children.splice(index, 0, child);
+  }
   remove() {
-    this.parent.children = this.parent.children.filter((child) => child !== this);
+    if (this.parent) this.parent.children = this.parent.children.filter((child) => child !== this);
+    this.parent = undefined;
+    this.parentElement = undefined;
   }
   querySelector(selector) {
     const id = /^\[data-id="(.*?)"\]$/.exec(selector);
@@ -42,6 +66,7 @@ class ElementStub {
 const revokedUrls = [];
 let objectId = 0;
 const requestCalls = [];
+const requestTimers = new Map();
 class EventTargetStub {
   listeners = new Map();
   addEventListener(type, handler) {
@@ -105,11 +130,31 @@ runInNewContext(
   {
     exports,
     BaseComponent: BaseStub,
-    off() {},
-    on() {},
+    off(node, event) {
+      if (node?.handlers) delete node.handlers[event];
+    },
+    on(node, event, handler) {
+      (node.handlers ??= {})[event] = handler;
+    },
     AbortController,
     WeakRef,
-    document: { baseURI: "https://docs.example.com/components/upload" },
+    document: {
+      baseURI: "https://docs.example.com/components/upload",
+      body: new ElementStub("body"),
+      createElement(tag) {
+        const node = new ElementStub(tag);
+        node.setImages = (urls) => {
+          node.urls = urls;
+        };
+        node.setCurrentIndex = (index) => {
+          node.index = index;
+        };
+        node.afterClosed = () => {
+          node.cleaned = true;
+        };
+        return node;
+      },
+    },
     removeClass() {},
     $one: (selector, root) => root.querySelector(selector),
     $$: (tag, attrs) => new ElementStub(tag, attrs),
@@ -119,6 +164,15 @@ runInNewContext(
     XMLHttpRequest: XHRStub,
     DOMException,
     FormData,
+    File,
+    setTimeout(callback, ms) {
+      const id = Symbol();
+      requestTimers.set(id, { callback, ms });
+      return id;
+    },
+    clearTimeout(id) {
+      requestTimers.delete(id);
+    },
     URL: class extends URL {
       static createObjectURL() {
         return `blob:test-${++objectId}`;
@@ -603,7 +657,7 @@ test("text list switches from indeterminate animation to real custom progress", 
   };
   select(upload, file("file.txt"));
   const bar = upload.root.querySelector(".l-upload-list-item-progress-bar");
-  assert.ok(bar.class.includes("l-upload-progress--indeterminate"));
+  assert.ok(bar.className.includes("l-upload-progress--indeterminate"));
   report(25);
   assert.equal(bar.style.width, "25%");
   assert.equal(bar.className, "l-upload-list-item-progress-bar");
@@ -710,4 +764,933 @@ test("string ids support upload, safe progress lookup and cancellation without m
   upload.beforeDestroy();
   assert.equal(upload._requests.size, 0);
   assert.ok(options.every((value) => value.signal.aborted));
+});
+
+function createWall() {
+  const upload = createUpload();
+  upload._state.listType = "picture-card";
+  upload._renderFileList = Upload.prototype._renderFileList;
+  const items = new ElementStub("div");
+  const trigger = new ElementStub("div");
+  items.appendChild(trigger);
+  upload.root.appendChild(items);
+  upload.$trigger = trigger;
+  upload.rendered = true;
+  return upload;
+}
+
+test("picture-card precedes trigger, keeps multiple images and restores trigger after removal", () => {
+  const upload = createWall();
+  upload._state.maxCount = 2;
+  upload.fileList = [
+    { id: "a", status: "success", url: "/a.png" },
+    { id: "b", status: "fail" },
+  ];
+  assert.equal(upload.fileList.length, 2);
+  assert.equal(upload.$trigger.style.display, "none");
+  assert.equal(upload.$trigger.parentElement.children[0].part, "list");
+  assert.equal(upload.$trigger.parentElement.children[1], upload.$trigger);
+  const success = upload.root.querySelector(".l-upload-card");
+  assert.equal(success.querySelector("img").src, "https://docs.example.com/a.png");
+  const buttons = success.querySelector(".l-upload-card-actions").children;
+  assert.equal(buttons[0].disabled, false);
+  assert.equal(buttons[0].children[0].tag, "l-eye-outline-icon");
+  assert.equal(buttons[1].children[0].tag, "l-delete-icon");
+  const failed = upload.$trigger.parentElement.children[0].children[1];
+  assert.equal(failed.querySelector(".l-upload-card-actions").children.length, 1);
+  assert.equal(failed.querySelector("img"), null);
+  failed.querySelector("button").handlers.click({ stopPropagation() {} });
+  assert.equal(upload.fileList.length, 1);
+  assert.equal(upload.$trigger.style.display, "");
+  upload._state.maxCount = 1;
+  upload.updateDOM(new Set(["max-count"]));
+  assert.equal(upload.$trigger.style.display, "none");
+});
+
+test("picture-card progress has no actions during upload and finishes into preview actions", async () => {
+  const upload = createWall();
+  let complete, options;
+  upload.customRequest = (value) => {
+    options = value;
+    return new Promise((resolve) => {
+      complete = resolve;
+    });
+  };
+  select(upload, file("a.png"));
+  let card = upload.root.querySelector(".l-upload-card");
+  assert.equal(card.querySelector(".l-upload-card-actions"), null);
+  assert.ok(card.querySelector(".l-upload-progress--indeterminate"));
+  options.onProgress(48);
+  assert.equal(card.querySelector("span").textContent, "48%");
+  assert.equal(card.querySelector(".l-upload-trigger-progress").style.width, "48%");
+  complete({ response: { url: "/done.png" } });
+  await flush();
+  card = upload.root.querySelector(".l-upload-card");
+  assert.equal(card.querySelector("img").src, "https://docs.example.com/done.png");
+  assert.equal(card.querySelector(".l-upload-trigger-status"), null);
+  assert.equal(card.querySelector(".l-upload-card-actions").children.length, 2);
+  assert.equal(upload._requests.size, 0);
+});
+
+test("picture-card uses ImagePreview, cleans it on removal and disables actions", () => {
+  const upload = createWall();
+  upload.fileList = [
+    { id: "a", status: "success", url: "/a.png" },
+    { id: "b", status: "success", url: "/b.png" },
+  ];
+  let card = upload.root.querySelector(".l-upload-card");
+  card.querySelector("button").handlers.click({ stopPropagation() {} });
+  const preview = upload._preview;
+  assert.equal(preview.tag, "l-image-preview");
+  assert.equal(preview.urls.length, 2);
+  assert.equal(preview.open, true);
+  assert.equal(preview.index, 0);
+  upload.handleRemove(upload.fileList[0]);
+  assert.equal(upload._preview, undefined);
+  assert.equal(preview.open, false);
+  assert.equal(preview.cleaned, true);
+  upload._state.disabled = true;
+  upload.updateDOM(new Set(["disabled"]));
+  card = upload.root.querySelector(".l-upload-card");
+  assert.equal(card.querySelector("button").disabled, true);
+  card.querySelector(".l-upload-card-actions").children[1].handlers.click({ stopPropagation() {} });
+  assert.equal(upload.fileList.length, 1);
+  upload.beforeDestroy();
+});
+
+test("removing a stale ready snapshot aborts current XHR and emits the current file", async () => {
+  const upload = createPictureUpload();
+  upload._state.autoUpload = false;
+  select(upload, file("stale.png"));
+  const snapshot = { ...upload.fileList[0] };
+  upload.upload();
+  const request = latestRequest();
+  upload.fileList = upload.fileList.map((entry) => ({ ...entry, name: "current.png" }));
+  const current = upload.fileList[0];
+  const preview = upload._getFilePreviewUrl(current);
+  upload.handleRemove(snapshot);
+  assert.equal(request.aborted, true);
+  assert.equal(request.listeners.size, 0);
+  assert.equal(request.upload.listeners.size, 0);
+  assert.equal(upload._requests.size, 0);
+  assert.equal(upload.fileList.length, 0);
+  assert.equal(upload.$objectUrls.size, 0);
+  assert.ok(revokedUrls.includes(preview));
+  const removed = upload.events.find((event) => event.type === "remove");
+  assert.equal(removed.detail.file, current);
+  assert.equal(removed.detail.file.name, "current.png");
+  const count = upload.events.length;
+  request.respond(200, '{"url":"/late.png"}');
+  await flush();
+  assert.equal(upload.events.length, count);
+});
+
+for (const phase of ["upload", "parse"]) {
+  for (const rejects of [false, true]) {
+    test(`stale snapshot removal cancels ${phase} and ignores late ${rejects ? "rejection" : "resolution"}`, async () => {
+      const upload = createWall();
+      const raw = file("current.png");
+      upload.fileList = [{ id: "external", status: "ready", raw }];
+      const snapshot = { ...upload.fileList[0] };
+      let complete, signal;
+      const pending = new Promise((resolve, reject) => {
+        complete = rejects ? reject : resolve;
+      });
+      upload.customRequest = (options) => {
+        signal = options.signal;
+        return phase === "upload" ? pending : { response: {} };
+      };
+      if (phase === "parse") upload.parseResponse = () => pending;
+      upload.upload();
+      upload.fileList = upload.fileList.map((entry) => ({ ...entry }));
+      const current = upload.fileList[0];
+      upload.handleRemove(snapshot);
+      assert.equal(signal.aborted, true);
+      assert.equal(upload._requests.size, 0);
+      assert.equal(upload.fileList.length, 0);
+      assert.equal(upload.events.find((event) => event.type === "remove").detail.file, current);
+      const count = upload.events.length;
+      complete(
+        rejects
+          ? new Error("late")
+          : phase === "parse"
+            ? "/late.png"
+            : { response: { url: "/late.png" } },
+      );
+      await flush();
+      assert.equal(upload.events.length, count);
+    });
+  }
+}
+
+for (const listType of ["text", "picture-card"]) {
+  test(`${listType}: invalid sizes do not consume remaining slots and exceed lists only valid overflow`, () => {
+    const upload = createUpload();
+    upload._state.listType = listType;
+    upload._state.maxCount = 2;
+    upload._state.maxSize = 1;
+    select(upload, file("existing.png"));
+    upload.events.length = 0;
+    const tooLarge = file("oversized.png", 2048);
+    const valid = file("valid.png", 1024);
+    const overflow = file("overflow.png", 10);
+    const alsoTooLarge = file("also-oversized.png", 2048);
+    select(upload, tooLarge, valid, overflow, alsoTooLarge);
+    assert.deepEqual(names(upload), ["existing.png", "valid.png"]);
+    assert.deepEqual(
+      Array.from(upload.events.find((event) => event.type === "error").detail.files),
+      [tooLarge, alsoTooLarge],
+    );
+    assert.deepEqual(
+      Array.from(upload.events.find((event) => event.type === "exceed").detail.files),
+      [overflow],
+    );
+    assert.deepEqual(
+      Array.from(
+        upload.events.find((event) => event.type === "change").detail.addedFiles,
+        (entry) => entry.raw,
+      ),
+      [valid],
+    );
+  });
+
+  test(`${listType}: a valid file after an oversized file is accepted without a false exceed event`, () => {
+    const upload = createUpload();
+    upload._state.listType = listType;
+    upload._state.maxCount = 1;
+    upload._state.maxSize = 1;
+    select(upload, file("oversized.png", 2048), file("valid.png"));
+    assert.deepEqual(names(upload), ["valid.png"]);
+    assert.equal(upload.events.filter((event) => event.type === "exceed").length, 0);
+    upload.events.length = 0;
+    select(upload, file("only-invalid.png", 2048));
+    assert.deepEqual(
+      upload.events.map((event) => event.type),
+      ["error"],
+    );
+    assert.deepEqual(names(upload), ["valid.png"]);
+  });
+}
+
+// Attribute writes trigger the existing Upload attribute/updateDOM path, as the browser and base do.
+function attachAttributeLifecycle(upload) {
+  const attributes = new Map();
+  const change = (name, value) => {
+    const old = attributes.get(name) ?? null;
+    if (value === null) attributes.delete(name);
+    else attributes.set(name, value);
+    if (old === value) return;
+    upload.attributeChanged(name, old, value);
+    if (upload.rendered) upload.updateDOM(new Set([name]));
+  };
+  upload.setAttribute = (name, value) => change(name, String(value));
+  upload.removeAttribute = (name) => change(name, null);
+  upload.hasAttribute = (name) => attributes.has(name);
+  upload.getAttribute = (name) => attributes.get(name) ?? null;
+}
+
+test("disabled property reflects attributes and synchronizes input, trigger and card actions", () => {
+  const upload = createWall();
+  attachAttributeLifecycle(upload);
+  let picks = 0;
+  upload.$input = {
+    disabled: false,
+    click() {
+      picks++;
+    },
+  };
+  upload.fileList = [{ id: "existing", status: "success", url: "/image.png" }];
+  upload.disabled = true;
+  assert.equal(upload.disabled, true);
+  assert.equal(upload.getAttribute("disabled"), "");
+  assert.equal(upload.$input.disabled, true);
+  assert.equal(upload.$trigger.tabIndex, -1);
+  assert.equal(upload.$trigger["aria-disabled"], "true");
+  assert.equal(upload.root.querySelector("button").disabled, true);
+  upload._handleClick();
+  upload._handleTriggerKeydown({ target: upload.$trigger, key: "Enter", preventDefault() {} });
+  upload._onDrop({ preventDefault() {}, dataTransfer: { files: [file("blocked.png")] } });
+  assert.equal(picks, 0);
+  assert.equal(upload.fileList.length, 1);
+  upload.disabled = false;
+  assert.equal(upload.hasAttribute("disabled"), false);
+  assert.equal(upload.$input.disabled, false);
+  assert.equal(upload.$trigger.tabIndex, 0);
+  assert.equal(upload.$trigger["aria-disabled"], "false");
+  assert.equal(upload.root.querySelector("button").disabled, false);
+  upload._handleTriggerKeydown({ target: upload.$trigger, key: " ", preventDefault() {} });
+  assert.equal(picks, 1);
+  upload._onDrop({ preventDefault() {}, dataTransfer: { files: [file("accepted.png")] } });
+  assert.equal(upload.fileList.length, 2);
+});
+
+test("disabled property normalizes an existing false attribute and supports assignment before mount", () => {
+  const upload = createUpload();
+  attachAttributeLifecycle(upload);
+  upload.setAttribute("disabled", "false");
+  assert.equal(upload.disabled, false);
+  upload.disabled = true;
+  assert.equal(upload.getAttribute("disabled"), "");
+  assert.equal(upload.disabled, true);
+  upload.disabled = false;
+  assert.equal(upload.hasAttribute("disabled"), false);
+  upload.disabled = false;
+  assert.equal(upload.disabled, false);
+  upload.setAttribute("disabled", "");
+  assert.equal(upload.disabled, true);
+  upload.removeAttribute("disabled");
+  assert.equal(upload.disabled, false);
+});
+
+test("fileList progress and immutable snapshots keep the success gallery open", () => {
+  const upload = createWall();
+  upload.fileList = [
+    { id: "a", status: "success", url: "/a.png" },
+    { id: "b", status: "uploading", percentage: 0, url: "/b.png" },
+    { id: "c", status: "ready", url: "/c.png" },
+    { id: "d", status: "fail", url: "/d.png" },
+  ];
+  upload.handlePreview(upload.fileList[0]);
+  const preview = upload._preview;
+  assert.deepEqual(Array.from(preview.urls), ["https://docs.example.com/a.png"]);
+  upload.fileList = upload.fileList.map((entry) => ({
+    ...entry,
+    ...(entry.id === "b" ? { percentage: 50 } : {}),
+  }));
+  assert.equal(upload._preview, preview);
+  assert.equal(preview.open, true);
+  upload.fileList = [...upload.fileList, { id: "new", status: "success", url: "/new.png" }];
+  assert.equal(upload._preview, preview);
+  assert.equal(preview.urls.length, 1); // 本次预览集合保持为打开时的成功图片。
+  upload.handleRemove(upload.fileList.find((entry) => entry.id === "c"));
+  assert.equal(upload._preview, preview);
+  upload.beforeDestroy();
+  assert.equal(upload._preview, undefined);
+  assert.equal(upload._previewFiles.length, 0);
+});
+
+for (const change of ["ready", "uploading", "fail", "url", "remove"]) {
+  test(`external ${change} invalidates the open gallery`, () => {
+    const upload = createWall();
+    upload.fileList = [{ id: "a", status: "success", url: "/a.png" }];
+    upload.handlePreview(upload.fileList[0]);
+    const preview = upload._preview;
+    upload.fileList =
+      change === "remove"
+        ? []
+        : [
+            {
+              ...upload.fileList[0],
+              ...(change === "url" ? { url: "/changed.png" } : { status: change }),
+            },
+          ];
+    assert.equal(upload._preview, undefined);
+    assert.equal(upload._previewFiles.length, 0);
+    assert.equal(preview.open, false);
+    assert.equal(preview.cleaned, true);
+  });
+}
+
+test("preview checks the current file status instead of a stale success snapshot", () => {
+  const upload = createWall();
+  upload.fileList = [{ id: "a", status: "success", url: "/a.png" }];
+  const snapshot = { ...upload.fileList[0] };
+  for (const status of ["ready", "uploading", "fail"]) {
+    upload.fileList = [{ ...snapshot, status }];
+    upload.handlePreview(snapshot);
+    assert.equal(upload._preview, undefined);
+  }
+  assert.equal(upload.events.filter((event) => event.type === "preview").length, 0);
+  upload.fileList = [{ ...snapshot }];
+  upload.handlePreview({ ...snapshot, status: "ready" });
+  assert.ok(upload._preview);
+  assert.equal(upload.events.at(-1).detail.file, upload.fileList[0]);
+  upload.clearFiles();
+  assert.equal(upload._preview, undefined);
+});
+
+test("local success preview survives snapshots but closes when its raw file changes", () => {
+  const upload = createWall();
+  upload.fileList = [{ id: "local", status: "success", raw: file("a.png") }];
+  upload.handlePreview(upload.fileList[0]);
+  const preview = upload._preview;
+  upload.fileList = [{ ...upload.fileList[0], percentage: 100 }];
+  assert.equal(upload._preview, preview);
+  const localUrl = preview.urls[0];
+  upload.fileList = [{ ...upload.fileList[0], url: "javascript:invalid()" }];
+  assert.equal(upload._preview, preview);
+  assert.equal(upload.$objectUrls.get("local"), localUrl);
+  assert.equal(revokedUrls.includes(localUrl), false);
+  upload.fileList = [{ ...upload.fileList[0], raw: file("b.png") }];
+  assert.equal(upload._preview, undefined);
+  assert.equal(preview.cleaned, true);
+});
+
+test("retrying a success image closes its preview before the upload continues", () => {
+  const upload = createWall();
+  upload.fileList = [{ id: "retry", status: "success", raw: file("a.png") }];
+  upload.handlePreview(upload.fileList[0]);
+  const preview = upload._preview;
+  upload.customRequest = () => new Promise(() => {});
+  upload.upload(upload.fileList);
+  assert.equal(upload.fileList[0].status, "uploading");
+  assert.equal(upload._preview, undefined);
+  assert.equal(preview.open, false);
+  upload.beforeDestroy();
+});
+
+for (const mode of ["text", "picture-card"]) {
+  test(`${mode}: external progress patches preserve list, item and progress nodes`, () => {
+    const upload = createWall();
+    upload._state.listType = mode;
+    upload.fileList = [
+      { id: "active", status: "uploading", percentage: 0, url: "/active.png" },
+      { id: "done", status: "success", url: "/done.png" },
+    ];
+    const list = upload._listElement;
+    const active = upload._fileNodes.get("active").element;
+    const done = upload._fileNodes.get("done").element;
+    const selector =
+      mode === "text" ? ".l-upload-list-item-progress-bar" : ".l-upload-trigger-progress";
+    const bar = active.querySelector(selector);
+    const text = active.querySelector(".l-upload-progress-text");
+    const image = active.querySelector("img");
+    const actions = done.querySelector(".l-upload-card-actions");
+    const button = done.querySelector("button") ?? done.querySelector(".l-upload--close");
+    upload.fileList = upload.fileList.map((entry) =>
+      entry.id === "active" ? { ...entry, percentage: 50 } : { ...entry },
+    );
+    assert.equal(upload._listElement, list);
+    assert.equal(upload._fileNodes.get("active").element, active);
+    assert.equal(upload._fileNodes.get("done").element, done);
+    assert.equal(active.querySelector(selector), bar);
+    assert.equal(bar.style.width, "50%");
+    assert.equal(active.querySelector("img"), image);
+    assert.equal(done.querySelector(".l-upload-card-actions"), actions);
+    assert.equal(done.querySelector("button") ?? done.querySelector(".l-upload--close"), button);
+    if (text) {
+      assert.equal(active.querySelector(".l-upload-progress-text"), text);
+      assert.equal(text.textContent, "50%");
+    }
+    // 即使调用方修改了原对象，独立渲染快照仍能识别新值。
+    upload.fileList[0].percentage = 75;
+    const sameList = upload.fileList;
+    upload.fileList = sameList;
+    assert.equal(active.querySelector(selector), bar);
+    assert.equal(bar.style.width, "75%");
+    upload.beforeDestroy();
+    assert.equal(upload._fileNodes.size, 0);
+    assert.equal(upload._listElement, undefined);
+  });
+
+  test(`${mode}: add, reorder and remove reuse nodes with distinct number and string ids`, () => {
+    const upload = createWall();
+    upload._state.listType = mode;
+    upload.fileList = [
+      { id: 1, status: "success", url: "/one.png" },
+      { id: "1", status: "success", url: "/string.png" },
+    ];
+    const first = upload._fileNodes.get(1).element;
+    const second = upload._fileNodes.get("1").element;
+    upload.fileList = [upload.fileList[1], { id: "new", status: "ready" }, upload.fileList[0]];
+    const third = upload._fileNodes.get("new").element;
+    assert.deepEqual(upload._listElement.children, [second, third, first]);
+    upload.fileList = upload.fileList.filter((entry) => entry.id !== "1");
+    assert.equal(upload._fileNodes.has("1"), false);
+    assert.deepEqual(upload._listElement.children, [third, first]);
+    assert.equal(second.parentElement, undefined);
+    upload.beforeDestroy();
+  });
+}
+
+for (const mode of ["picture", "picture-card"]) {
+  test(`${mode}: internal progress and parse phase reuse image, status, text and bar`, async () => {
+    const upload = mode === "picture" ? createPictureUpload() : createWall();
+    let options, complete, parse;
+    upload.customRequest = (value) => {
+      options = value;
+      return new Promise((resolve) => {
+        complete = resolve;
+      });
+    };
+    upload.parseResponse = () =>
+      new Promise((resolve) => {
+        parse = resolve;
+      });
+    select(upload, file("image.png"));
+    const item =
+      mode === "picture" ? upload.$trigger : upload._fileNodes.get(upload.fileList[0].id).element;
+    const image = item.querySelector("img");
+    const status = item.querySelector(".l-upload-trigger-status");
+    const text = item.querySelector(".l-upload-progress-text");
+    const bar = item.querySelector(".l-upload-trigger-progress");
+    options.onProgress(20);
+    options.onProgress(55);
+    assert.equal(item.querySelector("img"), image);
+    assert.equal(item.querySelector(".l-upload-trigger-status"), status);
+    assert.equal(item.querySelector(".l-upload-progress-text"), text);
+    assert.equal(item.querySelector(".l-upload-trigger-progress"), bar);
+    assert.equal(text.textContent, "55%");
+    assert.equal(bar.style.width, "55%");
+    complete({ response: {} });
+    await flush();
+    assert.equal(item.querySelector(".l-upload-trigger-status"), status);
+    assert.equal(text.textContent, "处理中");
+    assert.ok(bar.className.includes("indeterminate"));
+    parse("/server.png");
+    await flush();
+    assert.equal(item.querySelector("img"), image);
+    assert.equal(image.src, "https://docs.example.com/server.png");
+    assert.equal(item.querySelector(".l-upload-trigger-status"), null);
+    upload.beforeDestroy();
+  });
+}
+
+test("text metadata updates preserve the file node and its delete control", () => {
+  const upload = createWall();
+  upload._state.listType = "text";
+  upload.fileList = [
+    { id: "text", name: "old.txt", size: 1024, status: "uploading", percentage: 0 },
+  ];
+  const item = upload._fileNodes.get("text").element;
+  const name = item.querySelector(".l-upload-list-item-name");
+  const size = item.querySelector(".l-upload-list-item-size");
+  const remove = item.querySelector(".l-upload--close");
+  upload.fileList = [{ ...upload.fileList[0], name: "new.txt", size: 2048, status: "success" }];
+  assert.equal(upload._fileNodes.get("text").element, item);
+  assert.equal(item.querySelector(".l-upload-list-item-name"), name);
+  assert.equal(name.textContent, "new.txt");
+  assert.equal(item.querySelector(".l-upload-list-item-size"), size);
+  assert.equal(size.textContent, "2 KB");
+  assert.equal(item.querySelector(".l-upload--close"), remove);
+  assert.equal(item.querySelector(".l-upload-list-item-progress"), null);
+  upload.fileList = [{ id: "text", status: "success", size: 0 }];
+  assert.equal(item.querySelector(".l-upload-list-item-name"), null);
+  assert.equal(item.querySelector(".l-upload-list-item-size"), null);
+  remove.handlers.click();
+  assert.equal(upload.fileList.length, 0);
+  assert.equal(upload.events.find((event) => event.type === "remove").detail.file.size, 0);
+});
+
+test("reused card controls use the current file and survive metadata and failure changes", () => {
+  const upload = createWall();
+  upload.fileList = [{ id: "card", name: "old", status: "success", url: "/old.png" }];
+  const item = upload._fileNodes.get("card").element;
+  const preview = item.querySelector(".l-upload-card-preview");
+  const remove = item.querySelector(".l-upload-card-delete");
+  const image = item.querySelector("img");
+  upload.fileList = [{ ...upload.fileList[0], name: "new", url: "/new.png" }];
+  assert.equal(item.querySelector("img"), image);
+  assert.equal(image.src, "https://docs.example.com/new.png");
+  assert.equal(item.querySelector(".l-upload-card-preview"), preview);
+  preview.handlers.click({ stopPropagation() {} });
+  assert.equal(upload.events.at(-1).detail.file.name, "new");
+  upload.fileList = [{ ...upload.fileList[0], status: "fail" }];
+  assert.equal(upload._fileNodes.get("card").element, item);
+  assert.equal(item.querySelector(".l-upload-card-preview"), null);
+  assert.equal(item.querySelector(".l-upload-card-delete"), remove);
+  assert.equal(item.querySelector("img"), null);
+  assert.ok(item.querySelector(".l-upload-card-error"));
+  remove.handlers.click({ stopPropagation() {} });
+  assert.equal(upload.events.find((event) => event.type === "remove").detail.file.status, "fail");
+});
+
+test("hiding the list and switching modes reset only the incompatible node cache", () => {
+  const upload = createWall();
+  upload.fileList = [{ id: "a", status: "success", url: "/a.png" }];
+  const card = upload._fileNodes.get("a").element;
+  upload.showFileList = false;
+  assert.equal(upload._fileNodes.size, 0);
+  assert.equal(upload._listElement, undefined);
+  upload.showFileList = true;
+  assert.notEqual(upload._fileNodes.get("a").element, card);
+  upload._state.listType = "text";
+  upload.updateDOM(new Set(["list-type"]));
+  assert.equal(upload._listMode, "text");
+  assert.ok(upload._fileNodes.get("a").element.class.includes("l-upload-list-item"));
+  upload._state.listType = "picture";
+  upload.updateDOM(new Set(["list-type"]));
+  assert.equal(upload._fileNodes.size, 0);
+  upload.beforeDestroy();
+});
+
+for (const mode of ["picture", "picture-card"]) {
+  test(`${mode}: raw replacement on an existing object refreshes its preview URL`, () => {
+    const upload = mode === "picture" ? createPictureUpload() : createWall();
+    upload.fileList = [{ id: "local", status: "ready", raw: file("first.png") }];
+    const item = mode === "picture" ? upload.$trigger : upload._fileNodes.get("local").element;
+    const image = item.querySelector("img");
+    const oldUrl = image.src;
+    upload.fileList[0].raw = file("second.png");
+    const sameList = upload.fileList;
+    upload.fileList = sameList;
+    assert.equal(item.querySelector("img"), image);
+    assert.notEqual(image.src, oldUrl);
+    assert.ok(revokedUrls.includes(oldUrl));
+    upload.beforeDestroy();
+  });
+}
+
+test("afterInit discards cached template nodes and binds the mounted list", () => {
+  const upload = createWall();
+  upload.fileList = [{ id: "a", status: "success", url: "/a.png" }];
+  const previous = upload._fileNodes.get("a").element;
+  upload.afterInit();
+  const current = upload._fileNodes.get("a").element;
+  assert.notEqual(current, previous);
+  assert.equal(current.parentElement, upload._listElement);
+  assert.equal(upload.root.querySelector(".l-upload-card"), current);
+  upload.beforeDestroy();
+  assert.equal(upload._fileNodes.size, 0);
+});
+
+test("text delete is a native button and disabled state prevents its handler from removing files", () => {
+  const upload = createWall();
+  upload._state.listType = "text";
+  attachAttributeLifecycle(upload);
+  upload.fileList = [{ id: "a", status: "success", name: "a.txt" }];
+  const item = upload._fileNodes.get("a").element;
+  const button = item.querySelector(".l-upload--close");
+  assert.equal(button.tag, "button");
+  assert.equal(button.type, "button");
+  assert.equal(button["aria-label"], "Delete");
+  assert.equal(button.disabled, false);
+  upload.disabled = true;
+  assert.equal(item.querySelector(".l-upload--close"), button);
+  assert.equal(button.disabled, true);
+  button.handlers.click({ stopPropagation() {} });
+  assert.equal(upload.fileList.length, 1);
+  upload.disabled = false;
+  assert.equal(button.disabled, false);
+  button.handlers.click({ stopPropagation() {} });
+  assert.equal(upload.fileList.length, 0);
+});
+
+for (const [property, attribute, invalid] of [
+  ["maxCount", "max-count", [-1, 0.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1, "2", null]],
+  ["maxSize", "max-size", [-1, NaN, Infinity, "2", null]],
+  ["timeout", "timeout", [-1, 0.5, NaN, Infinity, 2147483648, "2", null]],
+]) {
+  test(`${property} validates property values and resets malformed numeric attributes`, () => {
+    const upload = createUpload();
+    attachAttributeLifecycle(upload);
+    for (const value of invalid)
+      assert.throws(
+        () => {
+          upload[property] = value;
+        },
+        { name: "TypeError" },
+      );
+    upload[property] = property === "maxSize" ? 0.5 : 12;
+    assert.equal(upload[property], property === "maxSize" ? 0.5 : 12);
+    for (const value of [
+      "-1",
+      "NaN",
+      "Infinity",
+      "abc",
+      ...(property === "maxSize" ? [] : ["0.5"]),
+    ]) {
+      upload.attributeChanged(attribute, null, value);
+      assert.equal(upload[property], 0);
+    }
+    upload.attributeChanged(attribute, null, "24");
+    assert.equal(upload[property], 24);
+    upload.attributeChanged(attribute, "24", null);
+    assert.equal(upload[property], 0);
+  });
+}
+
+test("headers and data require plain records and validate each value", () => {
+  const upload = createUpload();
+  for (const invalid of [
+    [],
+    "text",
+    12,
+    new Date(),
+    new Map(),
+    Object.create({ inherited: true }),
+  ]) {
+    assert.throws(
+      () => {
+        upload.headers = invalid;
+      },
+      { name: "TypeError" },
+    );
+    assert.throws(
+      () => {
+        upload.data = invalid;
+      },
+      { name: "TypeError" },
+    );
+  }
+  for (const value of [1, true, null, undefined, [], {}]) {
+    assert.throws(
+      () => {
+        upload.headers = { token: value };
+      },
+      { name: "TypeError" },
+    );
+  }
+  for (const value of [null, undefined, NaN, Infinity, [], {}, () => {}]) {
+    assert.throws(
+      () => {
+        upload.data = { field: value };
+      },
+      { name: "TypeError" },
+    );
+  }
+  upload.headers = { Authorization: "test" };
+  upload.data = { purpose: "test", count: 2, enabled: false };
+  assert.equal(upload.headers.Authorization, "test");
+  assert.equal(upload.data.count, 2);
+  upload.headers = null;
+  upload.data = undefined;
+  assert.equal(Object.keys(upload.headers).length, 0);
+  assert.equal(Object.keys(upload.data).length, 0);
+  for (const attribute of ["headers", "data"]) {
+    for (const invalid of ["[1,2]", '"text"', "{", '{"bad":{}}']) {
+      upload.attributeChanged(attribute, null, invalid);
+      assert.equal(Object.keys(upload[attribute]).length, 0);
+    }
+  }
+});
+
+test("validated additional primitive fields are serialized into multipart form data", () => {
+  const upload = createPictureUpload();
+  upload.data = { description: "sample", amount: 2, enabled: false };
+  select(upload, file("form.png"));
+  const body = latestRequest().body;
+  assert.equal(body.get("description"), "sample");
+  assert.equal(body.get("amount"), "2");
+  assert.equal(body.get("enabled"), "false");
+  upload.beforeDestroy();
+});
+
+test("external file validation rejects empty ids, invalid raw files and non-string URLs", () => {
+  const upload = createUpload();
+  for (const invalid of [
+    { id: "" },
+    { id: "  " },
+    { raw: {} },
+    { raw: new Blob(["blob"]) },
+    { url: 1 },
+    { url: {} },
+  ]) {
+    assert.throws(
+      () => {
+        upload.fileList = [{ id: "a", status: "ready", ...invalid }];
+      },
+      { name: "TypeError" },
+    );
+  }
+  upload.fileList = [{ id: "valid", status: "ready", raw: file("valid.txt"), size: -1 }];
+  assert.equal(upload.fileList[0].size, -1);
+});
+
+const typedFile = (name, type, size = 10) => new File([new Uint8Array(size)], name, { type });
+for (const input of ["select", "drop"]) {
+  test(`${input} validates extension, MIME and wildcard types before size and count`, () => {
+    const upload = createUpload();
+    upload._state.accept = ".PNG, application/pdf, audio/*";
+    upload._state.maxSize = 1;
+    upload._state.maxCount = 2;
+    const rejectedType = typedFile("invalid.txt", "text/plain");
+    const oversized = typedFile("large.png", "image/png", 2048);
+    const extension = typedFile("upper.PnG", "");
+    const mime = typedFile("document", "application/pdf");
+    const wildcard = typedFile("song.bin", "audio/mpeg");
+    const files = [rejectedType, oversized, extension, mime, wildcard];
+    if (input === "select") select(upload, ...files);
+    else upload._onDrop({ preventDefault() {}, dataTransfer: { files } });
+    assert.deepEqual(names(upload), ["upper.PnG", "document"]);
+    const errors = upload.events.filter((event) => event.type === "error");
+    assert.equal(errors.length, 2);
+    assert.deepEqual(Array.from(errors[0].detail.files), [rejectedType]);
+    assert.deepEqual(Array.from(errors[1].detail.files), [oversized]);
+    assert.deepEqual(
+      Array.from(upload.events.find((event) => event.type === "exceed").detail.files),
+      [wildcard],
+    );
+  });
+}
+
+test("blank MIME does not satisfy a MIME-only rule and invalid accept rules do not reject everything", () => {
+  const upload = createUpload();
+  upload._state.accept = "image/*";
+  select(upload, typedFile("missing-type.png", ""));
+  assert.equal(upload.fileList.length, 0);
+  upload._state.accept = "not-a-rule, */*, image";
+  select(upload, file("allowed.txt"));
+  assert.deepEqual(names(upload), ["allowed.txt"]);
+});
+
+function fireRequestTimer(id) {
+  const timer = requestTimers.get(id);
+  assert.ok(timer);
+  requestTimers.delete(id);
+  timer.callback();
+}
+
+for (const mode of ["xhr", "custom"]) {
+  test(`${mode} timeout cancels the request and ignores its eventual completion`, async () => {
+    const upload = createPictureUpload();
+    attachAttributeLifecycle(upload);
+    upload.timeout = 80;
+    let options, complete;
+    if (mode === "custom")
+      upload.customRequest = (value) => {
+        options = value;
+        return new Promise((resolve) => {
+          complete = resolve;
+        });
+      };
+    const before = new Set(requestTimers.keys());
+    select(upload, file("timeout.png"));
+    const timerId = [...requestTimers.keys()].find((id) => !before.has(id));
+    assert.ok(timerId);
+    assert.equal(requestTimers.get(timerId).ms, 80);
+    if (mode === "xhr") assert.equal(latestRequest().timeout, 80);
+    fireRequestTimer(timerId);
+    await flush();
+    assert.equal(upload.fileList[0].status, "fail");
+    assert.equal(upload._requests.size, 0);
+    if (mode === "xhr") assert.equal(latestRequest().aborted, true);
+    else assert.equal(options.signal.aborted, true);
+    const error = upload.events.find((event) => event.type === "error");
+    assert.equal(error.detail.phase, "upload");
+    assert.match(error.detail.message, /超时/);
+    const eventCount = upload.events.length;
+    if (mode === "custom") complete({ response: { url: "/late.png" } });
+    else latestRequest().respond(200, '{"url":"/late.png"}');
+    await flush();
+    assert.equal(upload.events.length, eventCount);
+    assert.equal(requestTimers.has(timerId), false);
+    upload.beforeDestroy();
+  });
+}
+
+for (const finish of ["success", "failure", "abort", "remove", "clear", "destroy"]) {
+  test(`request timeout timer is cleared after ${finish}`, async () => {
+    const upload = createPictureUpload();
+    attachAttributeLifecycle(upload);
+    upload.timeout = 100;
+    const before = new Set(requestTimers.keys());
+    select(upload, file("cleanup.png"));
+    const id = [...requestTimers.keys()].find((key) => !before.has(key));
+    assert.ok(id);
+    if (finish === "success") latestRequest().respond(200, '{"url":"/done.png"}');
+    if (finish === "failure") latestRequest().reject();
+    if (finish === "abort") upload.abort();
+    if (finish === "remove") upload.handleRemove(upload.fileList[0]);
+    if (finish === "clear") upload.clearFiles();
+    if (finish === "destroy") upload.beforeDestroy();
+    await flush();
+    assert.equal(requestTimers.has(id), false);
+    upload.beforeDestroy();
+  });
+}
+
+test("request timeout stops before asynchronous response parsing begins", async () => {
+  const upload = createPictureUpload();
+  attachAttributeLifecycle(upload);
+  upload.timeout = 50;
+  let parse;
+  upload.parseResponse = () =>
+    new Promise((resolve) => {
+      parse = resolve;
+    });
+  const before = new Set(requestTimers.keys());
+  select(upload, file("parse.png"));
+  const id = [...requestTimers.keys()].find((key) => !before.has(key));
+  const staleTimer = requestTimers.get(id).callback;
+  latestRequest().respond(200, "{}");
+  await flush();
+  assert.equal(requestTimers.has(id), false);
+  staleTimer();
+  assert.equal(upload.fileList[0].status, "uploading");
+  assert.equal(upload.events.filter((event) => event.type === "error").length, 0);
+  parse("/parsed.png");
+  await flush();
+  assert.equal(upload.fileList[0].status, "success");
+  upload.beforeDestroy();
+});
+
+test("zero timeout leaves requests unlimited and schedules no timeout task", () => {
+  const upload = createPictureUpload();
+  assert.equal(upload.timeout, 0);
+  const count = requestTimers.size;
+  select(upload, file("unlimited.png"));
+  assert.equal(latestRequest().timeout, 0);
+  assert.equal(requestTimers.size, count);
+  upload.beforeDestroy();
+});
+
+test("request headers reject malformed names and line breaks and records are copied on assignment", () => {
+  const upload = createUpload();
+  for (const headers of [
+    { "bad name": "value" },
+    { "": "value" },
+    { token: "line\r\nInjected: true" },
+    { token: "nul\0byte" },
+  ]) {
+    assert.throws(
+      () => {
+        upload.headers = headers;
+      },
+      { name: "TypeError" },
+    );
+  }
+  const originalHeaders = { "X-Token": "initial" };
+  const originalData = { count: 1 };
+  upload.headers = originalHeaders;
+  upload.data = originalData;
+  originalHeaders["X-Token"] = "changed";
+  originalData.count = 99;
+  assert.equal(upload.headers["X-Token"], "initial");
+  assert.equal(upload.data.count, 1);
+  const nullPrototype = Object.create(null);
+  nullPrototype.allowed = "value";
+  upload.headers = nullPrototype;
+  assert.equal(upload.headers.allowed, "value");
+});
+
+for (const result of ["resolve", "reject", "throw", "sync"]) {
+  test(`custom ${result} completion releases its request timeout timer`, async () => {
+    const upload = createPictureUpload();
+    attachAttributeLifecycle(upload);
+    upload.timeout = 100;
+    upload.customRequest = () => {
+      if (result === "throw") throw new Error("custom failure");
+      if (result === "reject") return Promise.reject(new Error("custom failure"));
+      const response = { response: { url: "/custom.png" } };
+      return result === "sync" ? response : Promise.resolve(response);
+    };
+    const before = requestTimers.size;
+    select(upload, file("custom.png"));
+    await flush();
+    assert.equal(requestTimers.size, before);
+    assert.equal(upload._requests.size, 0);
+    assert.equal(
+      upload.fileList[0].status,
+      ["resolve", "sync"].includes(result) ? "success" : "fail",
+    );
+    upload.beforeDestroy();
+  });
+}
+
+test("native XHR timeout clears the shared timeout before its stale callback can report again", async () => {
+  const upload = createPictureUpload();
+  attachAttributeLifecycle(upload);
+  upload.timeout = 100;
+  const before = new Set(requestTimers.keys());
+  select(upload, file("native-timeout.png"));
+  const id = [...requestTimers.keys()].find((key) => !before.has(key));
+  const callback = requestTimers.get(id).callback;
+  latestRequest().fire("timeout");
+  await flush();
+  assert.equal(requestTimers.has(id), false);
+  assert.equal(upload.events.filter((event) => event.type === "error").length, 1);
+  callback();
+  assert.equal(upload.events.filter((event) => event.type === "error").length, 1);
+  upload.beforeDestroy();
 });

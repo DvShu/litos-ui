@@ -95,3 +95,13 @@ import "litos-ui/styles/vars.css";
 ```javascript
 document.documentElement.classList.add("dark");
 ```
+
+## 按需导入
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/button";
+import "litos-ui/input-number";
+```
+
+在客户端入口加载后即可使用，自动注册内建依赖（包括 Button 的 loading 图标）。原有总入口加手动 regist() 用法继续支持。服务子路径（如默认导入 litos-ui/message）会准备对应全局样式，仍需显式调用 API。完整入口、类型及 SSR 限制见[按需导入指南](/on_demand)。

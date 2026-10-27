@@ -1,6 +1,6 @@
+import { createStyleSheet } from "../utils/style";
 // @ts-ignore
 import inputNumberCss from "./index.less?inline";
 
-const inputNumberSheet = new CSSStyleSheet();
-inputNumberSheet.replaceSync(inputNumberCss);
+const inputNumberSheet = /* @__PURE__ */ createStyleSheet(inputNumberCss);
 export default inputNumberSheet;

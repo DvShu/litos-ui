@@ -1,3 +1,4 @@
+import type { Signal } from "../utils/signal_types";
 import { formatClass, $one, on, off } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import { Validator } from "utilane";

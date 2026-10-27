@@ -1,5 +1,5 @@
 @media screen and (min-width: 768px) {
-  .l-scrollbar {
+  :where(.l-scrollbar) {
     /* 滑块背景色 */
     --l-scrollbar-bg: #d9d9d9;
     /* 滑块尺寸, 水平滚动条时为高度，垂直时为宽度 */
@@ -9,15 +9,15 @@
     overflow: auto;
     scroll-behavior: smooth;
   }
-  .l-scrollbar::-webkit-scrollbar-thumb {
+  :where(.l-scrollbar)::-webkit-scrollbar-thumb {
     background: var(--l-scrollbar-bg);
     border-radius: calc(var(--l-scrollbar-size) / 2);
   }
-  .l-scrollbar::-webkit-scrollbar {
+  :where(.l-scrollbar)::-webkit-scrollbar {
     width: var(--l-scrollbar-size);
     height: var(--l-scrollbar-size);
   }
-  .l-scrollbar::-webkit-scrollbar-thumb:hover {
+  :where(.l-scrollbar)::-webkit-scrollbar-thumb:hover {
     background: var(--l-scrollbar-hover);
   }
 }

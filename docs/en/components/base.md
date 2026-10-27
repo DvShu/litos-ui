@@ -79,3 +79,12 @@ regist(HelloWorld);
 优先使用 afterInit 和 beforeDestroy；initEvents、removeEvents 已弃用。基类的 version 默认为 1，旧组件可以实现 render；新组件应在构造函数中设置 version = 2 并实现 render_v2。
 
 组件模块依赖浏览器 API。服务端渲染项目应在客户端加载和注册，文档演示也必须放在 ClientOnly 内。
+
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import BaseComponent from "litos-ui/base";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.

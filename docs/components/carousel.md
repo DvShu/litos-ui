@@ -48,6 +48,15 @@ regist([Carousel, CarouselItem]);
 </l-code-preview>
 </ClientOnly>
 
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/carousel";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+
 ## API
 
 ### Carousel Attributes

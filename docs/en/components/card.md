@@ -101,6 +101,15 @@ regist([Button]);
 </l-code-preview>
 </ClientOnly>
 
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/card";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
 ## API
 
 ### Card Attributes
@@ -142,9 +151,29 @@ l-card::part(header) {
 
 ### 样式变量
 
+组件在使用变量的位置通过 `var()` 提供浅色回退值，无需预先定义全部变量。下表列出这些回退值；边框颜色会优先使用已有的 `--l-border-color`。
+
+暗黑配色由全局主题变量提供。引入 `litos-ui/styles/vars.css`，并在 `html` 上添加 `dark` 类后，`:root.dark` 中的 Card 变量会通过继承作用于组件：
+
+```js
+import "litos-ui/styles/vars.css";
+
+document.documentElement.classList.add("dark");
+```
+
 <!-- prettier-ignore -->
 | 名称 | 描述 | 默认值 |
 | --- | --- | --- |
 | `--l-card-bg` | 卡片背景颜色 | `#ffffff` |
 | `--l-card-text-color` | 卡片文字颜色 | `#333` |
 | `--l-card-border-color` | 卡片边框颜色 | `var(--l-border-color, #e8e8e8)` |
+
+也可以在祖先容器或单个 `l-card` 上设置变量，局部配置在暗黑模式下仍然生效。例如，为卡片添加 `custom-card` 类后设置：
+
+```css
+l-card.custom-card {
+  --l-card-bg: #f0f9ff;
+  --l-card-text-color: #164e63;
+  --l-card-border-color: #bae6fd;
+}
+```

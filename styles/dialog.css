@@ -1,4 +1,4 @@
-.l-dialog {
+:where(.l-dialog) {
   --l-dialog-translate: translate3d(0, 80px, 0);
   --l-dialog-width: 30%;
   transform: scale3d(0, 0, 0);
@@ -13,14 +13,14 @@
   max-width: 100%;
   background-color: transparent;
 }
-.l-dialog-close-outside {
+:where(.l-dialog-close-outside) {
   --l-dialog-translate: translate3d(5px, 90px, 0);
 }
 .l-dialog--vertical-middle {
   --l-dialog-translate: translate3d(0, 0, 0);
   margin: auto;
 }
-.l-dialog-close-outside.l-dialog--vertical-middle {
+:where(.l-dialog-close-outside).l-dialog--vertical-middle {
   --l-dialog-translate: translate3d(5px, 0, 0);
 }
 .l-dialog--vertical-bottom {
@@ -29,10 +29,10 @@
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
-.l-dialog-close-outside.l-dialog--vertical-bottom {
+:where(.l-dialog-close-outside).l-dialog--vertical-bottom {
   --l-dialog-translate: translate3d(5px, -100%, 0);
 }
-.l-dialog::backdrop {
+:where(.l-dialog)::backdrop {
   background-color: rgba(0, 0, 0, 0.7);
   opacity: 0;
   transition: opacity 0.3s;
@@ -49,7 +49,7 @@
 }
 
 @media screen and (max-width: 768px) {
-  .l-dialog {
+  :where(.l-dialog) {
     width: 80%;
     max-width: 300px;
   }

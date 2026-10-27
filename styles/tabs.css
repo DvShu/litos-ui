@@ -1,4 +1,4 @@
-.l-tabs-main {
+:where(.l-tabs-main) {
   margin-top: 15px;
 }
 
@@ -6,7 +6,7 @@
   display: none;
 }
 
-.l-tabs-card .l-tabs-main {
+.l-tabs-card :where(.l-tabs-main) {
   margin-top: 0;
   border: 1px solid #f5f7fa;
   border-top-width: 0;

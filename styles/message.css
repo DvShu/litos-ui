@@ -1,4 +1,4 @@
-.l-message {
+:where(.l-message) {
   position: fixed;
   left: 50%;
   top: 20px;
@@ -17,25 +17,25 @@
   border: 1px solid #d4eeff;
   z-index: 500;
 }
-.l-message .l-message-icon {
+:where(.l-message .l-message-icon) {
   margin-right: 5px;
 }
-.l-message.l-message-success {
+:where(.l-message).l-message-success {
   background: #edfff3;
   color: var(--l-success-color, #52c41a);
   border-color: #bbf2cf;
 }
-.l-message.l-message-error {
+:where(.l-message).l-message-error {
   background: #ffefe6;
   color: var(--l-error-color, #f5222d);
   border-color: #ffcfb8;
 }
-.l-message.l-message-warn {
+:where(.l-message).l-message-warn {
   background: #fff9e6;
   color: var(--l-warning-color, #f90);
   border-color: #ffe7a3;
 }
-.l-message-container {
+:where(.l-message-container) {
   display: flex;
   align-items: center;
 }
@@ -47,7 +47,7 @@
 }
 
 @media screen and (max-width: 768px) {
-  .l-message {
+  :where(.l-message) {
     width: 90%;
   }
 }

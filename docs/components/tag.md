@@ -153,6 +153,15 @@ regist([Button]);
 > 这里使用的是内置的过渡名称，需要手动引入 `litos-ui/styles/transition.css` 文件
 > 也可以通过传递 `css` 属性实现过渡, 例如: `transition(target, [["opacity", "0", "0.3s"]], "enter")`
 
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/tag";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+
 ## API
 
 ### Tag Attributes

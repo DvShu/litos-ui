@@ -25,6 +25,7 @@ export const zh: LocaleConfig<DefaultTheme.Config>[string] = {
             text: "快速开始",
             link: "/usage",
           },
+          { text: "按需导入", link: "/on_demand" },
           {
             text: "样式重置",
             link: "/reset",

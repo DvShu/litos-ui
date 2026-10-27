@@ -1,5 +1,7 @@
 import { kebabToCamel, parseAttrValue } from "../utils";
 import BaseComponent from "../base";
+import type ImagePreview from "../image/image_preview";
+
 import { formatClass, addClass, removeClass, on, off, $one, $$ } from "utilane/browser";
 import animationSheet from "../styles/animation";
 import uploadSheet from "./style";
@@ -54,6 +56,7 @@ export const defaultUploadResponseParser: UploadResponseParser = (response) => {
 function defaultUploadRequest(
   options: UploadRequestOptions,
   withCredentials: boolean,
+  timeout: number,
 ): Promise<UploadRequestResult> {
   return new Promise((resolve, reject) => {
     const abortError = () => new DOMException("上传已中止", "AbortError");
@@ -116,6 +119,7 @@ function defaultUploadRequest(
     try {
       xhr.open("POST", options.action);
       xhr.withCredentials = withCredentials;
+      xhr.timeout = timeout;
       Object.keys(options.headers).forEach((key) =>
         xhr.setRequestHeader(key, options.headers[key]),
       );
@@ -135,6 +139,20 @@ type UploadRequest = {
   response: unknown;
   responseText: string;
   status: number;
+  timer?: ReturnType<typeof setTimeout>;
+};
+
+type UploadRenderSnapshot = Pick<
+  UploadFile,
+  "name" | "size" | "status" | "percentage" | "raw" | "url"
+> & {
+  disabled: boolean;
+  phase?: UploadRequest["phase"];
+};
+
+type UploadFileNode = {
+  element: HTMLElement;
+  snapshot: UploadRenderSnapshot;
 };
 
 type UploadState = {
@@ -142,15 +160,16 @@ type UploadState = {
   multiple: boolean;
   disabled: boolean;
   drag: boolean;
-  listType: "text" | "picture";
+  listType: "text" | "picture" | "picture-card";
   maxSize: number;
   maxCount: number;
+  timeout: number;
   autoUpload: boolean;
   action: string;
   showFileList: boolean;
   fileList: UploadFile[];
   headers: Record<string, string>;
-  data: Record<string, any>;
+  data: Record<string, string | number | boolean>;
   withCredentials: boolean;
 };
 
@@ -169,6 +188,12 @@ export default class Upload extends BaseComponent<UploadState> {
   private _customRequest?: UploadRequestHandler;
   private _requests = new Map<UploadFile["id"], UploadRequest>();
   private _destroyed = false;
+  private _fileNodes = new Map<UploadFile["id"], UploadFileNode>();
+  private _listElement?: HTMLElement;
+  private _triggerFile?: Pick<UploadFile, "id" | "raw">;
+  private _listMode?: UploadState["listType"];
+  private _preview?: ImagePreview;
+  private _previewFiles: Array<Pick<UploadFile, "id" | "raw"> & { url: string }> = [];
 
   get parseResponse(): UploadResponseParser {
     return this._parseResponse ?? defaultUploadResponseParser;
@@ -203,6 +228,7 @@ export default class Upload extends BaseComponent<UploadState> {
       listType: "text",
       maxSize: 0,
       maxCount: 0,
+      timeout: 0,
       autoUpload: true,
       action: "",
       showFileList: true,
@@ -218,7 +244,11 @@ export default class Upload extends BaseComponent<UploadState> {
   }
 
   set disabled(value: boolean) {
-    this._state.disabled = value;
+    if (value) {
+      this.setAttribute("disabled", "");
+    } else {
+      this.removeAttribute("disabled");
+    }
   }
 
   get fileList() {
@@ -231,8 +261,10 @@ export default class Upload extends BaseComponent<UploadState> {
     for (const file of files) {
       if (
         !file ||
-        (typeof file.id !== "string" && !Number.isSafeInteger(file.id)) ||
+        (typeof file.id === "string" ? !file.id.trim() : !Number.isSafeInteger(file.id)) ||
         ids.has(file.id) ||
+        (file.raw !== undefined && !(file.raw instanceof File)) ||
+        (file.url !== undefined && typeof file.url !== "string") ||
         (file.name !== undefined && typeof file.name !== "string") ||
         (file.size !== undefined && !Number.isFinite(file.size)) ||
         !["ready", "uploading", "success", "fail"].includes(file.status) ||
@@ -243,11 +275,20 @@ export default class Upload extends BaseComponent<UploadState> {
           "fileList 文件需包含唯一数字或字符串 id、有效 name/size/status/percentage",
         );
       }
+      if (typeof file.id === "string") {
+        try {
+          encodeURIComponent(file.id);
+        } catch {
+          throw new TypeError("fileList id 必须是有效 Unicode 字符串");
+        }
+      }
       ids.add(file.id);
     }
     files = this._state.listType === "picture" ? files.slice(-1) : files.slice();
+    this._syncPreview(files);
+    const nextFiles = new Map(files.map((file) => [file.id, file]));
     for (const previous of this._state.fileList) {
-      const next = files.find((file) => file.id === previous.id);
+      const next = nextFiles.get(previous.id);
       const request = this._requests.get(previous.id);
       const sameRaw = next && next.raw === previous.raw;
       if (request && (!sameRaw || next.status !== "uploading")) {
@@ -256,26 +297,99 @@ export default class Upload extends BaseComponent<UploadState> {
         // 允许外部通过不可变 fileList 快照更新同一上传任务。
         request.file = next;
       }
-      if (!sameRaw || (next?.status === "success" && next.url)) this._revokeObjectUrl(previous);
+      let usesRemoteUrl = false;
+      if (next?.status === "success") {
+        try {
+          usesRemoteUrl = !!this._safePreviewUrl(next.url);
+        } catch {
+          // 无效远程地址仍使用本地预览，保留其 object URL。
+        }
+      }
+      if (!sameRaw || usesRemoteUrl) this._revokeObjectUrl(previous);
     }
     this._state.fileList = files;
     if (this.rendered) this._renderFileList();
   }
 
-  get headers() {
+  get headers(): Record<string, string> {
     return this._state.headers;
   }
 
-  set headers(value: Record<string, string>) {
-    this._state.headers = value || {};
+  set headers(value: Record<string, string> | null | undefined) {
+    this._state.headers = this._validateRecord(value, "headers") as Record<string, string>;
   }
 
-  get data() {
+  get data(): Record<string, string | number | boolean> {
     return this._state.data;
   }
 
-  set data(value: Record<string, any>) {
-    this._state.data = value || {};
+  set data(value: Record<string, string | number | boolean> | null | undefined) {
+    this._state.data = this._validateRecord(value, "data");
+  }
+
+  private _validateRecord(
+    value: unknown,
+    name: "headers" | "data",
+  ): Record<string, string | number | boolean> {
+    if (value == null) return {};
+    const prototype = typeof value === "object" ? Object.getPrototypeOf(value) : undefined;
+    if (
+      Object.prototype.toString.call(value) !== "[object Object]" ||
+      (prototype !== null && Object.getPrototypeOf(prototype) !== null)
+    ) {
+      throw new TypeError(`${name} 必须是普通对象`);
+    }
+    const entries = Object.entries(value as object);
+    for (const [key, item] of entries) {
+      if (name === "headers") {
+        if (
+          typeof item !== "string" ||
+          !/^[!#$%&'*+.^_`|~0-9a-z-]+$/i.test(key) ||
+          /[\0\r\n]/.test(item)
+        )
+          throw new TypeError("headers 必须包含有效请求头名称及字符串值");
+      } else if (
+        !["string", "number", "boolean"].includes(typeof item) ||
+        (typeof item === "number" && !Number.isFinite(item))
+      ) {
+        throw new TypeError("data 的值仅支持字符串、有限数字或布尔值");
+      }
+    }
+    return Object.fromEntries(entries);
+  }
+
+  private _validLimit(value: unknown, name: "max-size" | "max-count" | "timeout"): value is number {
+    return (
+      typeof value === "number" &&
+      Number.isFinite(value) &&
+      value >= 0 &&
+      (name === "max-size" || Number.isSafeInteger(value)) &&
+      (name !== "timeout" || value <= 2147483647)
+    );
+  }
+
+  private _setLimit(name: "max-size" | "max-count" | "timeout", value: number) {
+    if (!this._validLimit(value, name)) throw new TypeError(`${name} 必须为有效的非负数值`);
+    this.setAttribute(name, String(value));
+  }
+
+  get maxSize() {
+    return this._state.maxSize;
+  }
+  set maxSize(value: number) {
+    this._setLimit("max-size", value);
+  }
+  get maxCount() {
+    return this._state.maxCount;
+  }
+  set maxCount(value: number) {
+    this._setLimit("max-count", value);
+  }
+  get timeout() {
+    return this._state.timeout;
+  }
+  set timeout(value: number) {
+    this._setLimit("timeout", value);
   }
 
   get showFileList() {
@@ -313,6 +427,7 @@ export default class Upload extends BaseComponent<UploadState> {
       "list-type",
       "max-size",
       "max-count",
+      "timeout",
       "auto-upload",
       "action",
       "show-file-list",
@@ -326,8 +441,11 @@ export default class Upload extends BaseComponent<UploadState> {
     switch (name) {
       case "accept":
       case "action":
+        this._state[kebabToCamel(name) as "action"] = newValue ?? "";
+        break;
       case "list-type":
-        this._state[kebabToCamel(name) as "listType"] = newValue as "text";
+        this._state.listType =
+          newValue === "picture" || newValue === "picture-card" ? newValue : "text";
         break;
       case "multiple":
       case "disabled":
@@ -343,12 +461,19 @@ export default class Upload extends BaseComponent<UploadState> {
         break;
       case "max-size":
       case "max-count":
-        this._state[kebabToCamel(name) as "maxSize"] = parseAttrValue(newValue, 0);
+      case "timeout": {
+        const value = newValue == null ? 0 : Number(newValue);
+        this._state[kebabToCamel(name) as "maxSize"] = this._validLimit(value, name) ? value : 0;
         break;
+      }
+
       case "headers":
       case "data":
         try {
-          this._state[kebabToCamel(name) as "headers"] = JSON.parse(newValue) || {};
+          this._state[name] = this._validateRecord(
+            newValue == null ? undefined : JSON.parse(newValue),
+            name,
+          ) as Record<string, string>;
         } catch {
           // 属性值必须是合法 JSON 字符串, 例如: headers='{"Authorization": "Bearer token"}'
           this._state[kebabToCamel(name) as "headers"] = {} as never;
@@ -382,14 +507,17 @@ export default class Upload extends BaseComponent<UploadState> {
       if (this._state.listType === "picture") {
         this.fileList = this._state.fileList;
       }
+      this._closePreview();
       this._resetClass();
       this._renderFileList();
     }
-    if (changedProps.has("show-file-list")) {
+    if (changedProps.has("disabled")) this._renderFileList();
+    if (changedProps.has("show-file-list") || changedProps.has("max-count")) {
       this._renderFileList();
     }
     if (changedProps.has("drag")) {
       this._setDragListeners(this._state.drag);
+      this._resetClass();
     }
   }
 
@@ -412,6 +540,11 @@ export default class Upload extends BaseComponent<UploadState> {
 
   afterInit(): void {
     this._destroyed = false;
+    // 基类会序列化首次模板，挂载后重新关联真实节点。
+    this._fileNodes.clear();
+    this._listElement = undefined;
+    this._listMode = undefined;
+    this._triggerFile = undefined;
     this.$input = $one(".l-upload-input", this.root) as HTMLInputElement;
     this.$trigger = $one(".l-upload-trigger", this.root) as HTMLElement;
     if (this.$input) {
@@ -419,6 +552,7 @@ export default class Upload extends BaseComponent<UploadState> {
     }
     if (this.$trigger) {
       on(this.$trigger, "click", this._handleClick);
+      on(this.$trigger, "keydown", this._handleTriggerKeydown);
     }
     // 未分发内容时隐藏 tip 区域
     const $tip = $one(".l-upload-tip", this.root);
@@ -444,11 +578,13 @@ export default class Upload extends BaseComponent<UploadState> {
 
   beforeDestroy(): void {
     this._destroyed = true;
+    this._closePreview();
     if (this.$input) {
       off(this.$input, "change", this._handleInputChange);
     }
     if (this.$trigger) {
       off(this.$trigger, "click", this._handleClick);
+      off(this.$trigger, "keydown", this._handleTriggerKeydown);
     }
     const tipSlot = $one("slot[name=tip]", this.root);
     if (tipSlot) off(tipSlot, "slotchange", this._handleTipSlotChange);
@@ -456,6 +592,10 @@ export default class Upload extends BaseComponent<UploadState> {
     this.abort();
     for (const id of this._requests.keys()) this._disposeRequest(id);
     this._revokeAllObjectUrls();
+    this._fileNodes.clear();
+    this._listElement = undefined;
+    this._listMode = undefined;
+    this._triggerFile = undefined;
     this.$trigger = undefined;
     this.$input = undefined;
     this.$tip = undefined;
@@ -470,7 +610,9 @@ export default class Upload extends BaseComponent<UploadState> {
       part: "trigger",
       innerHTML: "<slot></slot>",
     });
-    fragment.appendChild(trigger);
+    const items = $$("div", { class: "l-upload-items" });
+    items.appendChild(trigger);
+    fragment.appendChild(items);
 
     // 隐藏的 file input
     const input = $$("input", {
@@ -499,16 +641,33 @@ export default class Upload extends BaseComponent<UploadState> {
     // 文件列表
     const list = this._buildFileList();
     if (list) {
-      fragment.appendChild(list);
+      if (this._state.listType === "picture-card") items.insertBefore(list, trigger);
+      else fragment.appendChild(list);
     }
     return fragment;
   }
 
   private _resetClass() {
     if (this.$trigger) {
+      const card = this._state.listType === "picture-card";
+      if (this.$trigger.parentElement) {
+        this.$trigger.parentElement.className = card
+          ? "l-upload-items l-upload-items--picture-card"
+          : "l-upload-items";
+      }
+      this.$trigger.style.display =
+        card && this._state.maxCount > 0 && this._state.fileList.length >= this._state.maxCount
+          ? "none"
+          : "";
+      this.$trigger.setAttribute("role", "button");
+      this.$trigger.tabIndex = this._state.disabled ? -1 : 0;
+      this.$trigger.setAttribute("aria-label", "选择文件");
+      this.$trigger.setAttribute("aria-disabled", String(this._state.disabled));
       this.$trigger.className = formatClass([
         "l-upload-trigger",
         `l-upload-trigger--${this._state.listType}`,
+        this._state.drag ? "l-upload-trigger--drag" : "",
+        this._state.disabled ? "l-upload-trigger--disabled" : "",
         this._state.listType === "picture" && this._state.fileList[0]?.status === "fail"
           ? "l-upload-trigger--fail"
           : "",
@@ -516,60 +675,104 @@ export default class Upload extends BaseComponent<UploadState> {
     }
   }
 
+  private _updateImage(image: HTMLImageElement, file: UploadFile) {
+    const url = this._getFilePreviewUrl(file);
+    if (image.getAttribute("src") !== url) {
+      if (url) image.src = url;
+      else image.removeAttribute("src");
+    }
+    if (image.alt !== (file.name ?? "")) image.alt = file.name ?? "";
+  }
+
   private _renderTriggerPreview() {
     if (!this.$trigger) return;
     this._resetClass();
     const file = this._state.listType === "picture" ? this._state.fileList[0] : undefined;
+    if (file && this._triggerFile?.id === file.id && this._triggerFile.raw !== file.raw)
+      this._revokeObjectUrl(file);
+    this._triggerFile = file ? { id: file.id, raw: file.raw } : undefined;
     const slot = $one("slot", this.$trigger);
     let image = $one(".l-upload-trigger-image", this.$trigger) as HTMLImageElement | null;
-    $one(".l-upload-trigger-status", this.$trigger)?.remove();
+    const status = $one(".l-upload-trigger-status", this.$trigger);
     if (slot) slot.hidden = !!file;
     if (!file) {
       image?.remove();
+      status?.remove();
       return;
     }
     if (file.status === "fail") {
       image?.remove();
-      const status = $$("div", {
-        class: "l-upload-trigger-status",
-        role: "status",
-        "aria-live": "polite",
-        "aria-label": "上传失败",
-      });
-      status.appendChild($$("l-picture-icon", { "aria-hidden": "true" }));
-      this.$trigger.appendChild(status);
+      if (!status || !$one("l-picture-icon", status)) {
+        status?.remove();
+        const failure = $$("div", {
+          class: "l-upload-trigger-status",
+          role: "status",
+          "aria-live": "polite",
+          "aria-label": "上传失败",
+        });
+        failure.appendChild($$("l-picture-icon", { "aria-hidden": "true" }));
+        this.$trigger.appendChild(failure);
+      }
       return;
     }
     if (!image) {
       image = $$("img", { class: "l-upload-trigger-image", part: "image" }) as HTMLImageElement;
       this.$trigger.appendChild(image);
     }
-    image.src = this._getFilePreviewUrl(file);
-    image.alt = file.name ?? "";
-    if (file.status === "uploading") {
-      const status = $$("div", {
+    this._updateImage(image, file);
+    this._appendPictureProgress(this.$trigger, file);
+  }
+
+  private _appendPictureProgress(container: HTMLElement, file: UploadFile) {
+    let status = $one(".l-upload-trigger-status", container);
+    if (file.status !== "uploading") {
+      status?.remove();
+      return;
+    }
+    if (status && !$one(".l-upload-progress-text", status)) {
+      status.remove();
+      status = null;
+    }
+    if (!status) {
+      status = $$("div", {
         class: "l-upload-trigger-status",
         role: "status",
         "aria-live": "polite",
       });
-      const parsing = this._requests.get(file.id)?.phase === "parse";
-      status.appendChild(
-        $$("span", {
-          textContent: parsing
-            ? "处理中"
-            : file.percentage === undefined
-              ? "上传中"
-              : `${file.percentage}%`,
-        }),
-      );
-      const bar = this._createProgressBar(file, "l-upload-trigger-progress");
-      status.appendChild(bar);
-      this.$trigger.appendChild(status);
+      status.appendChild($$("span", { class: "l-upload-progress-text" }));
+      status.appendChild(this._createProgressBar(file, "l-upload-trigger-progress"));
+      container.appendChild(status);
     }
+    const text = $one(".l-upload-progress-text", status)!;
+    const label =
+      this._requests.get(file.id)?.phase === "parse"
+        ? "处理中"
+        : file.percentage === undefined
+          ? "上传中"
+          : `${file.percentage}%`;
+    if (text.textContent !== label) text.textContent = label;
+    this._updateProgressBar(
+      $one(".l-upload-trigger-progress", status) as HTMLElement,
+      file,
+      "l-upload-trigger-progress",
+    );
   }
+
+  private _handleTriggerKeydown = (event: Event) => {
+    if (event.target !== this.$trigger || !["Enter", " "].includes((event as KeyboardEvent).key))
+      return;
+    event.preventDefault();
+    this._handleClick();
+  };
 
   private _handleClick = () => {
     if (this._state.disabled || !this.$input) return;
+    if (
+      this._state.listType === "picture-card" &&
+      this._state.maxCount > 0 &&
+      this._state.fileList.length >= this._state.maxCount
+    )
+      return;
     this.$input.click();
   };
 
@@ -582,24 +785,37 @@ export default class Upload extends BaseComponent<UploadState> {
     input.value = "";
   };
 
+  private _acceptsFile(file: File): boolean {
+    const rules = this._state.accept
+      .split(",")
+      .map((rule) => rule.trim().toLowerCase())
+      .filter(
+        (rule) =>
+          /^\.[^\s,/.]+(?:\.[^\s,/.]+)*$/.test(rule) ||
+          /^[a-z0-9!#$&^_.+-]+\/(?:[a-z0-9!#$&^_.+-]+|\*)$/.test(rule),
+      );
+    if (!rules.length) return true;
+    const name = file.name.toLowerCase();
+    const mime = file.type.toLowerCase();
+    return rules.some((rule) =>
+      rule.startsWith(".")
+        ? name.endsWith(rule)
+        : rule.endsWith("/*")
+          ? mime.startsWith(rule.slice(0, -1))
+          : mime === rule,
+    );
+  }
+
   private _handleFiles(files: FileList | File[]) {
     if (this._state.disabled) return;
     const fileArray = Array.from(files);
     const isPicture = this._state.listType === "picture";
     let processedFiles = isPicture ? fileArray.slice(0, 1) : fileArray;
 
-    // 检查文件数量限制
-    if (!isPicture && this._state.maxCount > 0) {
-      const currentCount = this._state.fileList.length;
-      const remaining = this._state.maxCount - currentCount;
-      if (remaining <= 0) {
-        this.emit("exceed", { detail: { files: processedFiles } });
-        return;
-      }
-      if (processedFiles.length > remaining) {
-        processedFiles = processedFiles.slice(0, remaining);
-        this.emit("exceed", { detail: { files: fileArray.slice(remaining) } });
-      }
+    const invalidTypes = processedFiles.filter((file) => !this._acceptsFile(file));
+    if (invalidTypes.length) {
+      processedFiles = processedFiles.filter((file) => this._acceptsFile(file));
+      this.emit("error", { detail: { files: invalidTypes, message: "文件类型不符合要求" } });
     }
 
     // 检查文件大小限制
@@ -620,6 +836,21 @@ export default class Upload extends BaseComponent<UploadState> {
     }
 
     if (processedFiles.length === 0) return;
+
+    // 检查文件数量限制
+    if (!isPicture && this._state.maxCount > 0) {
+      const currentCount = this._state.fileList.length;
+      const remaining = this._state.maxCount - currentCount;
+      if (remaining <= 0) {
+        this.emit("exceed", { detail: { files: processedFiles } });
+        return;
+      }
+      if (processedFiles.length > remaining) {
+        const overflowFiles = processedFiles.slice(remaining);
+        processedFiles = processedFiles.slice(0, remaining);
+        this.emit("exceed", { detail: { files: overflowFiles } });
+      }
+    }
 
     // 创建 UploadFile 对象
     const uploadFiles: UploadFile[] = processedFiles.map((file) => ({
@@ -652,7 +883,10 @@ export default class Upload extends BaseComponent<UploadState> {
   private _buildFileList(): HTMLElement | null {
     if (!this._state.showFileList || this._state.listType === "picture") return null;
     const list = $$("div", {
-      class: "l-upload-list l-upload-list-text",
+      class:
+        this._state.listType === "picture-card"
+          ? "l-upload-list l-upload-list-picture-card"
+          : "l-upload-list l-upload-list-text",
       part: "list",
     });
     for (const file of this._state.fileList) {
@@ -661,97 +895,281 @@ export default class Upload extends BaseComponent<UploadState> {
     return list;
   }
 
+  private _renderSnapshot(file: UploadFile): UploadRenderSnapshot {
+    // 仅复制展示字段，避免调用方原地修改对象后丢失上一次渲染值。
+    return {
+      name: file.name,
+      size: file.size,
+      status: file.status,
+      percentage: file.percentage,
+      raw: file.raw,
+      url: file.url,
+      disabled: this._state.disabled,
+      phase: this._requests.get(file.id)?.phase,
+    };
+  }
+
   private _renderFileList(): void {
     this._renderTriggerPreview();
-    // 移除旧的文件列表
-    const oldList = $one(".l-upload-list", this.root);
-    if (oldList) {
-      oldList.remove();
+    if (!this._state.showFileList || this._state.listType === "picture") {
+      $one(".l-upload-list", this.root)?.remove();
+      this._fileNodes.clear();
+      this._listElement = undefined;
+      this._listMode = undefined;
+      return;
     }
-    if (!this._state.showFileList) return;
+    if (!this._listElement || this._listMode !== this._state.listType) {
+      $one(".l-upload-list", this.root)?.remove();
+      this._fileNodes.clear();
+      this._listElement = $$("div", {
+        class:
+          this._state.listType === "picture-card"
+            ? "l-upload-list l-upload-list-picture-card"
+            : "l-upload-list l-upload-list-text",
+        part: "list",
+      });
+      this._listMode = this._state.listType;
+      if (this._state.listType === "picture-card" && this.$trigger?.parentElement) {
+        this.$trigger.parentElement.insertBefore(this._listElement, this.$trigger);
+      } else
+        (($one(".l-upload", this.root) as HTMLElement) || this.root).appendChild(this._listElement);
+    }
+    const list = this._listElement;
+    const ids = new Set(this._state.fileList.map((file) => file.id));
+    for (const [id, node] of this._fileNodes) {
+      if (!ids.has(id)) {
+        node.element.remove();
+        this._fileNodes.delete(id);
+      }
+    }
+    this._state.fileList.forEach((file, index) => {
+      let node = this._fileNodes.get(file.id);
+      if (!node) {
+        node = { element: this._renderFileItem(file), snapshot: this._renderSnapshot(file) };
+        this._fileNodes.set(file.id, node);
+      } else this._patchFileNode(file, node);
+      const reference = list.children[index];
+      if (reference !== node.element) list.insertBefore(node.element, reference ?? null);
+    });
+  }
 
-    const list = this._buildFileList();
-    if (!list) return;
-    const container = ($one(".l-upload", this.root) as HTMLElement) || this.root;
-    container.appendChild(list);
+  private _patchFileNode(file: UploadFile, node: UploadFileNode) {
+    const previous = node.snapshot;
+    const next = this._renderSnapshot(file);
+    if (previous.raw !== next.raw) this._revokeObjectUrl(file);
+    const stateChanged = previous.status !== next.status;
+    const imageChanged =
+      stateChanged ||
+      previous.url !== next.url ||
+      previous.raw !== next.raw ||
+      previous.name !== next.name;
+    const progressChanged =
+      stateChanged || previous.percentage !== next.percentage || previous.phase !== next.phase;
+    if (this._state.listType === "picture-card") {
+      if (imageChanged) this._updateCardImage(node.element, file);
+      if (stateChanged || previous.disabled !== next.disabled)
+        this._updateCardActions(node.element, file);
+      if (progressChanged) this._appendPictureProgress(node.element, file);
+    } else {
+      if (stateChanged)
+        node.element.className = `l-upload-list-item l-upload-list-item--${file.status}`;
+      if (previous.name !== next.name || previous.size !== next.size)
+        this._updateFileInfo(node.element, file);
+      if (progressChanged) this._updateTextProgress(node.element, file);
+      if (previous.disabled !== next.disabled)
+        ($one(".l-upload--close", node.element) as HTMLButtonElement).disabled = next.disabled;
+    }
+    node.snapshot = next;
+  }
+
+  private _updateFileInfo(item: HTMLElement, file: UploadFile) {
+    const info = $one(".l-upload-list-item-info", item)!;
+    let name = $one(".l-upload-list-item-name", info);
+    if (!file.name) name?.remove();
+    else {
+      if (!name) {
+        name = $$("span", { class: "l-upload-list-item-name" });
+        info.insertBefore(name, info.firstChild);
+      }
+      if (name.textContent !== file.name) name.textContent = file.name;
+    }
+    let size = $one(".l-upload-list-item-size", info);
+    if (file.size === undefined || file.size <= 0) size?.remove();
+    else {
+      if (!size) {
+        size = $$("span", { class: "l-upload-list-item-size" });
+        info.appendChild(size);
+      }
+      const label = this._formatFileSize(file.size);
+      if (size.textContent !== label) size.textContent = label;
+    }
+  }
+
+  private _updateTextProgress(item: HTMLElement, file: UploadFile) {
+    let progress = $one(".l-upload-list-item-progress", item);
+    if (file.status !== "uploading") {
+      progress?.remove();
+      return;
+    }
+    if (!progress) {
+      progress = $$("div", { class: "l-upload-list-item-progress" });
+      progress.appendChild(this._createProgressBar(file, "l-upload-list-item-progress-bar"));
+      item.appendChild(progress);
+    }
+    this._updateProgressBar(
+      $one(".l-upload-list-item-progress-bar", progress) as HTMLElement,
+      file,
+      "l-upload-list-item-progress-bar",
+    );
   }
 
   private _renderFileItem(file: UploadFile): HTMLElement {
-    const isPicture = this._state.listType === "picture";
+    if (this._state.listType === "picture-card") return this._renderPictureCard(file);
     const item = $$("div", {
-      class: formatClass(["l-upload-list-item", `l-upload-list-item--${file.status}`]),
+      class: `l-upload-list-item l-upload-list-item--${file.status}`,
       "data-id": `${typeof file.id}:${encodeURIComponent(String(file.id))}`,
     });
-
-    if (isPicture) {
-      // 图片预览
-      const imgContainer = $$("div", {
-        class: "l-upload-list-item-thumbnail",
-      });
-      const img = document.createElement("img");
-      const url = this._getFilePreviewUrl(file);
-      if (url) {
-        img.src = url;
-      }
-      img.alt = file.name ?? "";
-      imgContainer.appendChild(img);
-      item.appendChild(imgContainer);
-    }
-
-    // 文件信息
-    const info = $$("div", {
-      class: "l-upload-list-item-info",
-    });
-    if (file.name) {
-      const name = $$("span", {
-        class: "l-upload-list-item-name",
-        textContent: file.name,
-      });
-      info.appendChild(name);
-    }
-    if (file.size !== undefined && file.size > 0) {
-      const size = $$("span", {
-        class: "l-upload-list-item-size",
-        textContent: this._formatFileSize(file.size),
-      });
-      info.appendChild(size);
-    }
-    item.appendChild(info);
-
-    // 进度条
-    if (file.status === "uploading") {
-      const progress = $$("div", {
-        class: "l-upload-list-item-progress",
-      });
-      const progressBar = this._createProgressBar(file, "l-upload-list-item-progress-bar");
-      progress.appendChild(progressBar);
-      item.appendChild(progress);
-    }
-
-    // 预览按钮
-    if (file.status === "success" && isPicture) {
-      const previewBtn = $$("button", {
-        class: "l-upload-list-item-action",
-        type: "button",
-        innerHTML: "<l-search-icon></l-search-icon>",
-        "aria-label": "预览",
-      });
-      on(previewBtn, "click", () => this.handlePreview(file));
-      item.appendChild(previewBtn);
-    }
-
-    // 删除按钮
-    const removeBtn = $$("l-close-icon", {
-      role: "button",
+    item.appendChild($$("div", { class: "l-upload-list-item-info" }));
+    this._updateFileInfo(item, file);
+    this._updateTextProgress(item, file);
+    const id = file.id;
+    const removeBtn = $$("button", {
+      type: "button",
       innerHTML: "<l-close-icon></l-close-icon>",
       class: "l-upload--close",
       "aria-label": "Delete",
     });
-    on(removeBtn, "click", () => this.handleRemove(file));
+    (removeBtn as HTMLButtonElement).disabled = this._state.disabled;
+    on(removeBtn, "click", (event: Event) => {
+      event?.stopPropagation();
+      if (this._state.disabled) return;
+      const current = this._state.fileList.find((entry) => entry.id === id);
+      if (current) this.handleRemove(current);
+    });
     item.appendChild(removeBtn);
-
     return item;
   }
+
+  private _updateCardImage(item: HTMLElement, file: UploadFile) {
+    let image = $one(".l-upload-trigger-image", item) as HTMLImageElement | null;
+    let placeholder = $one(".l-upload-card-placeholder", item);
+    const url = file.status === "fail" ? "" : this._getFilePreviewUrl(file);
+    if (url) {
+      placeholder?.remove();
+      if (!image) {
+        image = $$("img", { class: "l-upload-trigger-image", part: "image" }) as HTMLImageElement;
+        item.insertBefore(image, item.firstChild);
+      }
+      this._updateImage(image, file);
+    } else {
+      image?.remove();
+      if (!placeholder) {
+        placeholder = $$("l-picture-icon", { class: "l-upload-card-placeholder" });
+        item.insertBefore(placeholder, item.firstChild);
+      }
+      placeholder.className =
+        file.status === "fail"
+          ? "l-upload-card-placeholder l-upload-card-error"
+          : "l-upload-card-placeholder";
+      if (file.status === "fail") {
+        placeholder.setAttribute("aria-label", "上传失败");
+        placeholder.removeAttribute("aria-hidden");
+      } else {
+        placeholder.setAttribute("aria-hidden", "true");
+        placeholder.removeAttribute("aria-label");
+      }
+    }
+    item.className = file.status === "fail" ? "l-upload-card l-upload-card--fail" : "l-upload-card";
+  }
+
+  private _createCardAction(id: UploadFile["id"], action: "preview" | "delete") {
+    const button = $$("button", {
+      type: "button",
+      class: `l-upload-card-action l-upload-card-${action}`,
+      "aria-label": action === "preview" ? "预览图片" : "删除图片",
+    });
+    button.appendChild(
+      $$(action === "preview" ? "l-eye-outline-icon" : "l-delete-icon", { "aria-hidden": "true" }),
+    );
+    on(button, "click", (event: Event) => {
+      event.stopPropagation();
+      const current = this._state.fileList.find((entry) => entry.id === id);
+      if (!this._state.disabled && current) {
+        if (action === "preview") this.handlePreview(current);
+        else this.handleRemove(current);
+      }
+    });
+    return button as HTMLButtonElement;
+  }
+
+  private _updateCardActions(item: HTMLElement, file: UploadFile) {
+    let actions = $one(".l-upload-card-actions", item);
+    if (file.status === "uploading") {
+      actions?.remove();
+      return;
+    }
+    if (!actions) {
+      actions = $$("div", { class: "l-upload-card-actions", part: "actions" });
+      item.appendChild(actions);
+    }
+    let preview = $one(".l-upload-card-preview", actions) as HTMLButtonElement | null;
+    if (file.status === "success") {
+      if (!preview) {
+        preview = this._createCardAction(file.id, "preview");
+        actions.insertBefore(preview, actions.firstChild);
+      }
+      preview.disabled = this._state.disabled;
+    } else preview?.remove();
+    let remove = $one(".l-upload-card-delete", actions) as HTMLButtonElement | null;
+    if (!remove) {
+      remove = this._createCardAction(file.id, "delete");
+      actions.appendChild(remove);
+    }
+    remove.disabled = this._state.disabled;
+  }
+
+  private _renderPictureCard(file: UploadFile): HTMLElement {
+    const item = $$("div", {
+      class: "l-upload-card",
+      "data-id": `${typeof file.id}:${encodeURIComponent(String(file.id))}`,
+      part: "card",
+    });
+    this._updateCardImage(item, file);
+    this._appendPictureProgress(item, file);
+    this._updateCardActions(item, file);
+    return item;
+  }
+
+  private _syncPreview(files: UploadFile[]) {
+    if (!this._preview) return;
+    const nextFiles = new Map(files.map((file) => [file.id, file]));
+    const valid = this._previewFiles.every((previous) => {
+      const next = nextFiles.get(previous.id);
+      if (next?.status !== "success") return false;
+      let remoteUrl: string | undefined;
+      try {
+        remoteUrl = this._safePreviewUrl(next.url);
+      } catch {
+        // 与缩略图一致：无效远程地址允许回退到组件创建的本地预览。
+      }
+      if (remoteUrl) return remoteUrl === previous.url;
+      return (
+        !!next.raw && next.raw === previous.raw && this.$objectUrls.get(next.id) === previous.url
+      );
+    });
+    if (!valid) this._closePreview();
+  }
+
+  private _closePreview = () => {
+    const preview = this._preview;
+    this._previewFiles = [];
+    if (!preview) return;
+    this._preview = undefined;
+    off(preview, "closed", this._closePreview);
+    preview.open = false;
+    preview.afterClosed();
+    preview.remove();
+  };
 
   private _getFilePreviewUrl(file: UploadFile): string {
     let remoteUrl: string | undefined;
@@ -793,7 +1211,7 @@ export default class Upload extends BaseComponent<UploadState> {
     if (bytes === 0) return "0 B";
     const k = 1024;
     const sizes = ["B", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    const i = Math.max(0, Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(k))));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   }
 
@@ -843,20 +1261,40 @@ export default class Upload extends BaseComponent<UploadState> {
 
   // 公共方法
   public handlePreview(file: UploadFile) {
-    this.emit("preview", { detail: { file } });
+    const current = this._state.fileList.find((entry) => entry.id === file.id);
+    if (!current || current.status !== "success" || this._state.disabled) return;
+    if (this._state.listType === "picture-card") {
+      const images = this._state.fileList
+        .filter((entry) => entry.status === "success")
+        .map((entry) => ({ id: entry.id, raw: entry.raw, url: this._getFilePreviewUrl(entry) }))
+        .filter((entry) => !!entry.url);
+      const index = images.findIndex((entry) => entry.id === current.id);
+      if (index >= 0) {
+        this._closePreview();
+        const preview = document.createElement("l-image-preview") as ImagePreview;
+        preview.setImages(images.map((entry) => entry.url));
+        preview.setCurrentIndex(index);
+        preview.open = true;
+        this._preview = preview;
+        this._previewFiles = images;
+        on(preview, "closed", this._closePreview);
+        document.body.appendChild(preview);
+      }
+    }
+    this.emit("preview", { detail: { file: current } });
   }
 
   public handleRemove(file: UploadFile) {
     const index = this._state.fileList.findIndex((f) => f.id === file.id);
     if (index > -1) {
-      // 上传中则先中止
-      if (file.status === "uploading") {
-        this.abort(file);
-      }
+      const current = this._state.fileList[index];
+      this._syncPreview(this._state.fileList.filter((entry) => entry.id !== current.id));
+      // 按当前文件 ID 取消上传或解析，不依赖调用方快照中的状态。
+      this._disposeRequest(current.id);
       this._state.fileList.splice(index, 1);
-      this._revokeObjectUrl(file);
+      this._revokeObjectUrl(current);
       this._renderFileList();
-      this.emit("remove", { detail: { file, fileList: this._state.fileList } });
+      this.emit("remove", { detail: { file: current, fileList: this._state.fileList } });
       this.emit("change", { detail: { fileList: this._state.fileList } });
     }
   }
@@ -891,9 +1329,29 @@ export default class Upload extends BaseComponent<UploadState> {
     return request;
   }
 
+  private _clearRequestTimeout(request: UploadRequest) {
+    if (request.timer !== undefined) clearTimeout(request.timer);
+    request.timer = undefined;
+  }
+
+  private _startRequestTimeout(id: UploadFile["id"], token: symbol) {
+    const request = this._currentRequest(id, token);
+    if (!request || !this._state.timeout) return;
+    const owner = new WeakRef(this);
+    const timer = setTimeout(() => {
+      const component = owner.deref();
+      const current = component?._currentRequest(id, token);
+      if (current?.phase === "upload" && current.timer === timer) {
+        component!._failUpload(id, token, "upload", new Error("上传超时"));
+      }
+    }, this._state.timeout);
+    request.timer = timer;
+  }
+
   private _disposeRequest(id: UploadFile["id"]) {
     const request = this._requests.get(id);
     this._requests.delete(id);
+    if (request) this._clearRequestTimeout(request);
     request?.controller.abort();
     return !!request;
   }
@@ -910,6 +1368,7 @@ export default class Upload extends BaseComponent<UploadState> {
     this._disposeRequest(id);
     if (this._destroyed || !this._state.fileList.includes(file)) return;
     file.status = "fail";
+    this._syncPreview(this._state.fileList);
     this._renderFileList();
     this.emit("error", {
       detail: {
@@ -983,6 +1442,7 @@ export default class Upload extends BaseComponent<UploadState> {
   private _receiveUploadResult(id: UploadFile["id"], token: symbol, result: UploadRequestResult) {
     const request = this._currentRequest(id, token);
     if (!request) return;
+    this._clearRequestTimeout(request);
     try {
       if (!result || typeof result !== "object" || !Object.hasOwn(result, "response")) {
         throw new TypeError("customRequest 必须返回包含 response 的对象");
@@ -1046,23 +1506,30 @@ export default class Upload extends BaseComponent<UploadState> {
       status: 0,
     });
     file.status = "uploading";
+    this._syncPreview(this._state.fileList);
     file.percentage = undefined;
     this._renderFileList();
     try {
       const body = new FormData();
       body.append("file", file.raw, file.name ?? file.raw.name);
-      Object.keys(this._state.data).forEach((key) => body.append(key, this._state.data[key]));
+      const data = this._validateRecord(this._state.data, "data");
+      const headers = this._validateRecord(this._state.headers, "headers") as Record<
+        string,
+        string
+      >;
+      Object.keys(data).forEach((key) => body.append(key, String(data[key])));
       const options: UploadRequestOptions = Object.freeze({
         file: Object.freeze({ id: file.id, name: file.name, size: file.size, raw: file.raw }),
         action: this._state.action,
         body,
-        headers: Object.freeze({ ...this._state.headers }),
+        headers: Object.freeze(headers),
         signal: controller.signal,
         onProgress: Upload._progressReporter(new WeakRef(this), file.id, token),
       });
+      this._startRequestTimeout(file.id, token);
       const result = this._customRequest
         ? this._customRequest(options)
-        : defaultUploadRequest(options, this._state.withCredentials);
+        : defaultUploadRequest(options, this._state.withCredentials, this._state.timeout);
       if (
         result &&
         typeof result === "object" &&
@@ -1089,32 +1556,43 @@ export default class Upload extends BaseComponent<UploadState> {
     return file.percentage === undefined || this._requests.get(file.id)?.phase === "parse";
   }
 
-  private _createProgressBar(file: UploadFile, className: string) {
+  private _updateProgressBar(bar: HTMLElement, file: UploadFile, className: string) {
     const indeterminate = this._isIndeterminate(file);
-    const bar = $$("div", {
-      class: formatClass([className, indeterminate ? "l-upload-progress--indeterminate" : ""]),
-    });
-    bar.style.width = indeterminate ? "35%" : `${Math.max(0, Math.min(100, file.percentage!))}%`;
+    const classes = formatClass([
+      className,
+      indeterminate ? "l-upload-progress--indeterminate" : "",
+    ]);
+    if (bar.className !== classes) bar.className = classes;
+    const width = indeterminate ? "35%" : `${Math.max(0, Math.min(100, file.percentage!))}%`;
+    if (bar.style.width !== width) bar.style.width = width;
+  }
+
+  private _createProgressBar(file: UploadFile, className: string) {
+    const bar = $$("div");
+    this._updateProgressBar(bar, file, className);
     return bar;
   }
 
   private _updateFileProgress(file: UploadFile) {
     if (this._state.listType === "picture") {
-      this._renderTriggerPreview();
+      if (this.$trigger) this._appendPictureProgress(this.$trigger, file);
+      return;
+    }
+    const cached = this._fileNodes.get(file.id);
+    if (cached) {
+      this._patchFileNode(file, cached);
       return;
     }
     const key = `${typeof file.id}:${encodeURIComponent(String(file.id))}`;
-    const item = $one(`[data-id="${key}"]`, this.root);
+    const item = $one(`[data-id="${key}"]`, this.root) as HTMLElement | null;
     if (item) {
-      const progressBar = $one(".l-upload-list-item-progress-bar", item) as HTMLElement;
-      if (progressBar) {
-        progressBar.className = "l-upload-list-item-progress-bar";
-        progressBar.style.width = `${file.percentage || 0}%`;
-      }
+      if (this._state.listType === "picture-card") this._appendPictureProgress(item, file);
+      else this._updateTextProgress(item, file);
     }
   }
 
   public clearFiles() {
+    this._closePreview();
     this.abort();
     for (const file of this._state.fileList) {
       this._revokeObjectUrl(file);

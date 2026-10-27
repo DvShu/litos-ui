@@ -464,6 +464,15 @@ new Popover({
 
 > 如果是固定且少量的元素，则可以不用 `createPopoverObserver`，转而自己手动执行 `popover.addReference` 和 `popover.removeReference` 方法
 
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import { Popover } from "litos-ui/popover";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
 ## API
 
 ### Popover Constructor Attributes

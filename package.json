@@ -29,6 +29,11 @@
     "types"
   ],
   "type": "module",
+  "sideEffects": [
+    "./src/components/entries/*.ts",
+    "./lib/entries/*.js",
+    "**/*.css"
+  ],
   "main": "./lib/index.js",
   "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -39,6 +44,366 @@
     ".": {
       "types": "./lib/index.d.ts",
       "import": "./lib/index.js"
+    },
+    "./base": {
+      "types": "./lib/entries/base.d.ts",
+      "import": "./lib/entries/base.js"
+    },
+    "./message": {
+      "types": "./lib/entries/message.d.ts",
+      "import": "./lib/entries/message.js"
+    },
+    "./dialog": {
+      "types": "./lib/entries/dialog.d.ts",
+      "import": "./lib/entries/dialog.js"
+    },
+    "./dialog-container": {
+      "types": "./lib/entries/dialog-container.d.ts",
+      "import": "./lib/entries/dialog-container.js"
+    },
+    "./dialog-box": {
+      "types": "./lib/entries/dialog-box.d.ts",
+      "import": "./lib/entries/dialog-box.js"
+    },
+    "./loading": {
+      "types": "./lib/entries/loading.d.ts",
+      "import": "./lib/entries/loading.js"
+    },
+    "./tabs": {
+      "types": "./lib/entries/tabs.d.ts",
+      "import": "./lib/entries/tabs.js"
+    },
+    "./modal": {
+      "types": "./lib/entries/modal.d.ts",
+      "import": "./lib/entries/modal.js"
+    },
+    "./modal-box": {
+      "types": "./lib/entries/modal-box.d.ts",
+      "import": "./lib/entries/modal-box.js"
+    },
+    "./icon/base": {
+      "types": "./lib/entries/icon-base.d.ts",
+      "import": "./lib/entries/icon-base.js"
+    },
+    "./icon/arrow-down": {
+      "types": "./lib/entries/icon-arrow-down.d.ts",
+      "import": "./lib/entries/icon-arrow-down.js"
+    },
+    "./icon/arrow-left": {
+      "types": "./lib/entries/icon-arrow-left.d.ts",
+      "import": "./lib/entries/icon-arrow-left.js"
+    },
+    "./icon/arrow-right": {
+      "types": "./lib/entries/icon-arrow-right.d.ts",
+      "import": "./lib/entries/icon-arrow-right.js"
+    },
+    "./icon/arrow-up": {
+      "types": "./lib/entries/icon-arrow-up.d.ts",
+      "import": "./lib/entries/icon-arrow-up.js"
+    },
+    "./icon/caret-top": {
+      "types": "./lib/entries/icon-caret-top.d.ts",
+      "import": "./lib/entries/icon-caret-top.js"
+    },
+    "./icon/caret-bottom": {
+      "types": "./lib/entries/icon-caret-bottom.d.ts",
+      "import": "./lib/entries/icon-caret-bottom.js"
+    },
+    "./icon/font-icon": {
+      "types": "./lib/entries/icon-font-icon.d.ts",
+      "import": "./lib/entries/icon-font-icon.js"
+    },
+    "./icon/loading": {
+      "types": "./lib/entries/icon-loading.d.ts",
+      "import": "./lib/entries/icon-loading.js"
+    },
+    "./icon/search": {
+      "types": "./lib/entries/icon-search.d.ts",
+      "import": "./lib/entries/icon-search.js"
+    },
+    "./icon/sun": {
+      "types": "./lib/entries/icon-sun.d.ts",
+      "import": "./lib/entries/icon-sun.js"
+    },
+    "./icon/moon": {
+      "types": "./lib/entries/icon-moon.d.ts",
+      "import": "./lib/entries/icon-moon.js"
+    },
+    "./icon/reduction": {
+      "types": "./lib/entries/icon-reduction.d.ts",
+      "import": "./lib/entries/icon-reduction.js"
+    },
+    "./icon/refresh-left": {
+      "types": "./lib/entries/icon-refresh-left.d.ts",
+      "import": "./lib/entries/icon-refresh-left.js"
+    },
+    "./icon/refresh-right": {
+      "types": "./lib/entries/icon-refresh-right.d.ts",
+      "import": "./lib/entries/icon-refresh-right.js"
+    },
+    "./icon/sort": {
+      "types": "./lib/entries/icon-sort.d.ts",
+      "import": "./lib/entries/icon-sort.js"
+    },
+    "./icon/theme-default": {
+      "types": "./lib/entries/icon-theme-default.d.ts",
+      "import": "./lib/entries/icon-theme-default.js"
+    },
+    "./icon/close": {
+      "types": "./lib/entries/icon-close.d.ts",
+      "import": "./lib/entries/icon-close.js"
+    },
+    "./icon/info": {
+      "types": "./lib/entries/icon-info.d.ts",
+      "import": "./lib/entries/icon-info.js"
+    },
+    "./icon/success": {
+      "types": "./lib/entries/icon-success.d.ts",
+      "import": "./lib/entries/icon-success.js"
+    },
+    "./icon/warn": {
+      "types": "./lib/entries/icon-warn.d.ts",
+      "import": "./lib/entries/icon-warn.js"
+    },
+    "./icon/close-filled": {
+      "types": "./lib/entries/icon-close-filled.d.ts",
+      "import": "./lib/entries/icon-close-filled.js"
+    },
+    "./icon/more": {
+      "types": "./lib/entries/icon-more.d.ts",
+      "import": "./lib/entries/icon-more.js"
+    },
+    "./icon/d-arrow-left": {
+      "types": "./lib/entries/icon-d-arrow-left.d.ts",
+      "import": "./lib/entries/icon-d-arrow-left.js"
+    },
+    "./icon/d-arrow-right": {
+      "types": "./lib/entries/icon-d-arrow-right.d.ts",
+      "import": "./lib/entries/icon-d-arrow-right.js"
+    },
+    "./icon/zoom-in": {
+      "types": "./lib/entries/icon-zoom-in.d.ts",
+      "import": "./lib/entries/icon-zoom-in.js"
+    },
+    "./icon/zoom-out": {
+      "types": "./lib/entries/icon-zoom-out.d.ts",
+      "import": "./lib/entries/icon-zoom-out.js"
+    },
+    "./icon/select": {
+      "types": "./lib/entries/icon-select.d.ts",
+      "import": "./lib/entries/icon-select.js"
+    },
+    "./icon/calendar": {
+      "types": "./lib/entries/icon-calendar.d.ts",
+      "import": "./lib/entries/icon-calendar.js"
+    },
+    "./icon/refresh": {
+      "types": "./lib/entries/icon-refresh.d.ts",
+      "import": "./lib/entries/icon-refresh.js"
+    },
+    "./icon/copy": {
+      "types": "./lib/entries/icon-copy.d.ts",
+      "import": "./lib/entries/icon-copy.js"
+    },
+    "./icon/plus": {
+      "types": "./lib/entries/icon-plus.d.ts",
+      "import": "./lib/entries/icon-plus.js"
+    },
+    "./icon/minus": {
+      "types": "./lib/entries/icon-minus.d.ts",
+      "import": "./lib/entries/icon-minus.js"
+    },
+    "./icon/eye-outline": {
+      "types": "./lib/entries/icon-eye-outline.d.ts",
+      "import": "./lib/entries/icon-eye-outline.js"
+    },
+    "./icon/delete": {
+      "types": "./lib/entries/icon-delete.d.ts",
+      "import": "./lib/entries/icon-delete.js"
+    },
+    "./icon/picture": {
+      "types": "./lib/entries/icon-picture.d.ts",
+      "import": "./lib/entries/icon-picture.js"
+    },
+    "./form": {
+      "types": "./lib/entries/form.d.ts",
+      "import": "./lib/entries/form.js"
+    },
+    "./form-item": {
+      "types": "./lib/entries/form-item.d.ts",
+      "import": "./lib/entries/form-item.js"
+    },
+    "./radio-group": {
+      "types": "./lib/entries/radio-group.d.ts",
+      "import": "./lib/entries/radio-group.js"
+    },
+    "./radio": {
+      "types": "./lib/entries/radio.d.ts",
+      "import": "./lib/entries/radio.js"
+    },
+    "./checkbox": {
+      "types": "./lib/entries/checkbox.d.ts",
+      "import": "./lib/entries/checkbox.js"
+    },
+    "./checkbox-group": {
+      "types": "./lib/entries/checkbox-group.d.ts",
+      "import": "./lib/entries/checkbox-group.js"
+    },
+    "./button": {
+      "types": "./lib/entries/button.d.ts",
+      "import": "./lib/entries/button.js"
+    },
+    "./input": {
+      "types": "./lib/entries/input.d.ts",
+      "import": "./lib/entries/input.js"
+    },
+    "./input-number": {
+      "types": "./lib/entries/input-number.d.ts",
+      "import": "./lib/entries/input-number.js"
+    },
+    "./select-ori": {
+      "types": "./lib/entries/select-ori.d.ts",
+      "import": "./lib/entries/select-ori.js"
+    },
+    "./switch": {
+      "types": "./lib/entries/switch.d.ts",
+      "import": "./lib/entries/switch.js"
+    },
+    "./md-input": {
+      "types": "./lib/entries/md-input.d.ts",
+      "import": "./lib/entries/md-input.js"
+    },
+    "./select": {
+      "types": "./lib/entries/select.d.ts",
+      "import": "./lib/entries/select.js"
+    },
+    "./date-picker": {
+      "types": "./lib/entries/date-picker.d.ts",
+      "import": "./lib/entries/date-picker.js"
+    },
+    "./date-picker-ori": {
+      "types": "./lib/entries/date-picker-ori.d.ts",
+      "import": "./lib/entries/date-picker-ori.js"
+    },
+    "./color-picker": {
+      "types": "./lib/entries/color-picker.d.ts",
+      "import": "./lib/entries/color-picker.js"
+    },
+    "./list": {
+      "types": "./lib/entries/list.d.ts",
+      "import": "./lib/entries/list.js"
+    },
+    "./polygon": {
+      "types": "./lib/entries/polygon.d.ts",
+      "import": "./lib/entries/polygon.js"
+    },
+    "./tabbar": {
+      "types": "./lib/entries/tabbar.d.ts",
+      "import": "./lib/entries/tabbar.js"
+    },
+    "./tabbar-item": {
+      "types": "./lib/entries/tabbar-item.d.ts",
+      "import": "./lib/entries/tabbar-item.js"
+    },
+    "./theme": {
+      "types": "./lib/entries/theme.d.ts",
+      "import": "./lib/entries/theme.js"
+    },
+    "./theme-color": {
+      "types": "./lib/entries/theme-color.d.ts",
+      "import": "./lib/entries/theme-color.js"
+    },
+    "./menu": {
+      "types": "./lib/entries/menu.d.ts",
+      "import": "./lib/entries/menu.js"
+    },
+    "./carousel": {
+      "types": "./lib/entries/carousel.d.ts",
+      "import": "./lib/entries/carousel.js"
+    },
+    "./carousel-item": {
+      "types": "./lib/entries/carousel-item.d.ts",
+      "import": "./lib/entries/carousel-item.js"
+    },
+    "./qrcode": {
+      "types": "./lib/entries/qrcode.d.ts",
+      "import": "./lib/entries/qrcode.js"
+    },
+    "./description-panel": {
+      "types": "./lib/entries/description-panel.d.ts",
+      "import": "./lib/entries/description-panel.js"
+    },
+    "./pagination": {
+      "types": "./lib/entries/pagination.d.ts",
+      "import": "./lib/entries/pagination.js"
+    },
+    "./mask": {
+      "types": "./lib/entries/mask.d.ts",
+      "import": "./lib/entries/mask.js"
+    },
+    "./page-header": {
+      "types": "./lib/entries/page-header.d.ts",
+      "import": "./lib/entries/page-header.js"
+    },
+    "./tag": {
+      "types": "./lib/entries/tag.d.ts",
+      "import": "./lib/entries/tag.js"
+    },
+    "./collapse": {
+      "types": "./lib/entries/collapse.d.ts",
+      "import": "./lib/entries/collapse.js"
+    },
+    "./collapse-item": {
+      "types": "./lib/entries/collapse-item.d.ts",
+      "import": "./lib/entries/collapse-item.js"
+    },
+    "./image": {
+      "types": "./lib/entries/image.d.ts",
+      "import": "./lib/entries/image.js"
+    },
+    "./image-preview": {
+      "types": "./lib/entries/image-preview.d.ts",
+      "import": "./lib/entries/image-preview.js"
+    },
+    "./table": {
+      "types": "./lib/entries/table.d.ts",
+      "import": "./lib/entries/table.js"
+    },
+    "./space": {
+      "types": "./lib/entries/space.d.ts",
+      "import": "./lib/entries/space.js"
+    },
+    "./card": {
+      "types": "./lib/entries/card.d.ts",
+      "import": "./lib/entries/card.js"
+    },
+    "./calendar": {
+      "types": "./lib/entries/calendar.d.ts",
+      "import": "./lib/entries/calendar.js"
+    },
+    "./upload": {
+      "types": "./lib/entries/upload.d.ts",
+      "import": "./lib/entries/upload.js"
+    },
+    "./notification": {
+      "types": "./lib/entries/notification.d.ts",
+      "import": "./lib/entries/notification.js"
+    },
+    "./popover": {
+      "types": "./lib/entries/popover.d.ts",
+      "import": "./lib/entries/popover.js"
+    },
+    "./popconfirm": {
+      "types": "./lib/entries/popconfirm.d.ts",
+      "import": "./lib/entries/popconfirm.js"
+    },
+    "./transition": {
+      "types": "./lib/entries/transition.d.ts",
+      "import": "./lib/entries/transition.js"
+    },
+    "./utils": {
+      "types": "./lib/entries/utils.d.ts",
+      "import": "./lib/entries/utils.js"
     }
   },
   "scripts": {

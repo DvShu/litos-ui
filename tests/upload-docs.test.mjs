@@ -20,14 +20,21 @@ function pageHarness(path, ready = Promise.resolve()) {
     .match(/<script setup>([\s\S]*?)<\/script>/)[1]
     .replace(/^\s*import .*;\r?$/gm, "")
     .replaceAll("import.meta.env.SSR", "false");
-  let mount, unmount, current;
+  let mount, unmount, current, listNode;
   const observers = [],
     intervals = new Map(),
+    timeouts = new Map(),
+    visibilityObservers = [],
     fetchCalls = [];
   const api = {
     markdown,
     observers,
     intervals,
+    timeouts,
+    visibilityObservers,
+    setListNode(node) {
+      listNode = node;
+    },
     fetchCalls,
     result: {
       ok: true,
@@ -53,7 +60,30 @@ function pageHarness(path, ready = Promise.resolve()) {
     },
     nextTick: () => Promise.resolve(),
     customElements: { whenDefined: () => ready },
-    document: { body: {}, getElementById: () => current },
+    document: {
+      body: {},
+      getElementById: (id) => (id === "upload-custom-request" ? current : listNode),
+    },
+    IntersectionObserver: class {
+      constructor(callback) {
+        this.callback = callback;
+        visibilityObservers.push(this);
+      }
+      observe() {
+        this.active = true;
+      }
+      disconnect() {
+        this.active = false;
+      }
+    },
+    setTimeout(callback, ms) {
+      const id = Symbol();
+      timeouts.set(id, { callback, ms });
+      return id;
+    },
+    clearTimeout(id) {
+      timeouts.delete(id);
+    },
     MutationObserver: class {
       constructor(callback) {
         this.callback = callback;
@@ -90,6 +120,71 @@ function pageHarness(path, ready = Promise.resolve()) {
 }
 
 for (const path of ["docs/components/upload.md", "docs/en/components/upload.md"]) {
+  test(`${path}: external list follows the 2/3/5 second timeline after entering view`, async () => {
+    const page = pageHarness(path);
+    const node = { fileList: [] };
+    page.setListNode(node);
+    await page.mount();
+    assert.equal(page.timeouts.size, 0);
+    const visible = page.visibilityObservers[0];
+    visible.callback([{ isIntersecting: true }]);
+    assert.deepEqual(
+      Array.from(node.fileList, (file) => [file.id, file.status, file.percentage]),
+      [
+        ["first", "uploading", 0],
+        ["second", "ready", undefined],
+      ],
+    );
+    assert.equal(
+      node.fileList[0].url,
+      "http://127.0.0.1:3001/files/3b315d19-d97b-47a9-96bf-724a9aa9da11.jpeg",
+    );
+    assert.equal(
+      node.fileList[1].url,
+      "http://127.0.0.1:3001/files/5a710bd6-c7e5-4b7b-8e99-5a37ccf92efd",
+    );
+    const timers = [...page.timeouts.values()].sort((a, b) => a.ms - b.ms);
+    assert.deepEqual(
+      timers.map((timer) => timer.ms),
+      [2000, 3000, 5000],
+    );
+    timers[0].callback();
+    assert.equal(node.fileList[0].percentage, 50);
+    timers[1].callback();
+    assert.equal(node.fileList[0].status, "success");
+    assert.equal(node.fileList[0].percentage, 100);
+    assert.equal(node.fileList[1].status, "uploading");
+    timers[2].callback();
+    assert.equal(node.fileList[1].status, "fail");
+    assert.equal(page.fetchCalls.length, 0);
+    page.unmount();
+    assert.equal(page.timeouts.size, 0);
+    visible.callback([{ isIntersecting: true }]);
+    assert.equal(page.timeouts.size, 0);
+  });
+
+  test(`${path}: rebuilding external list cancels timers and removal prevents restarting`, async () => {
+    const page = pageHarness(path);
+    const first = { fileList: [] };
+    page.setListNode(first);
+    await page.mount();
+    page.visibilityObservers[0].callback([{ isIntersecting: true }]);
+    assert.equal(page.timeouts.size, 3);
+    const second = { fileList: [] };
+    page.setListNode(second);
+    page.change();
+    assert.equal(page.timeouts.size, 0);
+    const observer = page.visibilityObservers[1];
+    observer.callback([{ isIntersecting: true }]);
+    assert.equal(page.timeouts.size, 3);
+    page.setListNode(undefined);
+    page.change();
+    assert.equal(page.timeouts.size, 0);
+    observer.callback([{ isIntersecting: true }]);
+    assert.equal(page.timeouts.size, 0);
+    page.unmount();
+  });
+
   test(`${path}: binds a late preview and rebinds after it is rebuilt`, async () => {
     const page = pageHarness(path);
     await page.mount();
@@ -143,9 +238,12 @@ for (const path of ["docs/components/upload.md", "docs/en/components/upload.md"]
         .map((line) => (line.startsWith("  ") ? line.slice(2) : line))
         .join("\n")
         .trim();
+      const english = path.startsWith("docs/en/");
       const section = page.markdown.slice(
-        page.markdown.indexOf("### 自定义上传"),
-        page.markdown.indexOf("### 外部管理 fileList"),
+        page.markdown.indexOf(english ? "### Custom Upload" : "### 自定义上传"),
+        page.markdown.indexOf(
+          english ? "### Managing fileList Externally" : "### 外部管理 fileList",
+        ),
       );
       assert.equal(
         runtime,

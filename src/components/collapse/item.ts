@@ -1,3 +1,4 @@
+import type { Signal, SignalStop } from "../utils/signal_types";
 import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel, stopSignal } from "../utils";
 //@ts-ignore

@@ -16,13 +16,11 @@ npm install litos-ui
 
 ## Usage
 
-Import the base styles and register the components you need in your application entry point. The library ships as ESM; use ES Module `import` syntax.
+Import the base variables and the component subpaths you need in your client entry point. Element subpaths automatically register their built-in dependencies. The library ships as ESM.
 
 ```js
 import "litos-ui/styles/vars.css";
-import { Button, regist } from "litos-ui";
-
-regist([Button]); // Registers <l-button></l-button>
+import "litos-ui/button";
 ```
 
 Then use the custom element in your markup:
@@ -143,3 +141,13 @@ The English documentation structure is available; page content is currently copi
 ## License
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+## On-demand Imports
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/button";
+import "litos-ui/input-number";
+```
+
+These client-only element entries register their built-in dependencies, including Button's loading icon. Root imports with manual regist() remain supported. Service subpaths, such as Message from "litos-ui/message", prepare their global styles and require explicit API calls. See the [complete entry list and SSR guidance](https://dvshu.github.io/litos-ui/en/on_demand).

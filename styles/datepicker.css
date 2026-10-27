@@ -1,9 +1,9 @@
-.l-date-picker-panel {
+:where(.l-date-picker-panel) {
   border-radius: 5px;
   width: 270px;
 }
 
-.l-date-picker--header {
+:where(.l-date-picker--header) {
   display: flex;
   padding: 0 8px;
   color: rgba(0, 0, 0, 0.88);
@@ -11,7 +11,7 @@
   height: var(--l-date-picker-header-height, 40px);
 }
 
-.l-date-picker--footer {
+:where(.l-date-picker--footer) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -19,7 +19,7 @@
   border-top: 1px solid rgba(5, 5, 5, 0.06);
 }
 
-.l-date-picker-header-btn {
+:where(.l-date-picker-header-btn) {
   outline: none;
   padding: 0;
   width: 22px;
@@ -33,23 +33,23 @@
   min-width: 0;
 }
 
-.l-date-picker-header-btn:hover {
+:where(.l-date-picker-header-btn):hover {
   --l-date-picker-button-color: var(--l-primary-color-light1, #3399ff);
 }
 
-.l-date-picker-header-btn:active {
+:where(.l-date-picker-header-btn):active {
   --l-date-picker-button-color: var(--l-primary-color, #007bff);
 }
 
-.l-date-picker-year-month {
+:where(.l-date-picker-year-month) {
   flex-grow: 1;
   width: auto;
 }
 
-.l-date-picker--body {
+:where(.l-date-picker--body) {
   padding: 4px 10px 8px 10px;
 }
 
-.l-date-picker--calendar {
+:where(.l-date-picker--calendar) {
   height: 240px;
 }

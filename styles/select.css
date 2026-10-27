@@ -1,11 +1,11 @@
-.l-popover--select {
+:where(.l-popover--select) {
   --l-select-option-hover-background: var(--l-primary-color-light4, #722ed1);
   max-height: 200px;
   overflow: auto;
   padding: 0;
   box-sizing: border-box;
 }
-.l-select-option {
+:where(.l-select-option) {
   padding: 10px;
   cursor: pointer;
   transition: background-color 0.3s;
@@ -16,14 +16,14 @@
   line-height: 1;
   font-size: 14px;
 }
-.l-select-option-content {
+:where(.l-select-option-content) {
   display: inline-block;
   max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.l-select-option:hover {
+:where(.l-select-option):hover {
   background-color: var(--l-select-option-hover-background);
 }
 .l-select-option--empty {

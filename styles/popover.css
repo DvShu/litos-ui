@@ -1,4 +1,4 @@
-.l-popover {
+:where(.l-popover) {
   --l-popover-background: #ffffff;
   --l-popover-border-color: #e4e4e4;
   --l-popover-color: #666666;
@@ -19,7 +19,7 @@
   line-height: 1;
 }
 
-.l-popover-arrow {
+:where(.l-popover-arrow) {
   position: absolute;
   background: var(--l-popover-background);
   width: var(--l-popover-arrow-size, 8px);
@@ -29,7 +29,7 @@
 }
 
 /* tooltip */
-.l-popover.l-popover--tooltip {
+:where(.l-popover).l-popover--tooltip {
   --l-popover-color: #fff;
   --l-popover-box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
   --l-popover-background: #383838;
@@ -39,22 +39,22 @@
 }
 
 /* popconfirm */
-.l-popover--popconfirm {
+:where(.l-popover--popconfirm) {
   min-width: 150px;
 }
 
-.l-popover--popconfirm .l-popconfirm-container {
+:where(.l-popover--popconfirm .l-popconfirm-container) {
   display: flex;
   align-items: center;
 }
 
-.l-popover--popconfirm .l-popconfirm-icon-wrapper {
+:where(.l-popover--popconfirm .l-popconfirm-icon-wrapper) {
   margin-right: 10px;
   display: inline-flex;
   color: var(--l-warning-color, #f90);
 }
 
-.l-popover--popconfirm .l-popconfirm-footer {
+:where(.l-popover--popconfirm .l-popconfirm-footer) {
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -62,17 +62,15 @@
   gap: 7px;
 }
 
-.l-popover--popconfirm .l-popconfirm-btn {
+:where(.l-popover--popconfirm .l-popconfirm-btn) {
   height: 24px;
 }
 
-.l-popover--popconfirm .l-popconfirm-btn::part(default) {
+:where(.l-popover--popconfirm .l-popconfirm-btn)::part(default) {
   padding: 0 6px;
   font-size: 13px;
 }
 
-.l-popover--tooltip,
-.l-popover--popconfirm,
-.l-popover--default {
+:where(.l-popover--tooltip, .l-popover--popconfirm, .l-popover--default) {
   padding: 10px;
 }

@@ -8,6 +8,6 @@
   }
 }
 /** 应用旋转动画 */
-.l-rotate-anim {
+:where(.l-rotate-anim) {
   animation: l-rotate-frame var(--l-animation-duration, 1.5s) infinite linear;
 }

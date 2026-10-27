@@ -191,6 +191,15 @@ import { initColorTheme } from "utilane/browser";
 initColorTheme().then();
 ```
 
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/theme";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
 ## API
 
 ### Theme Attributes

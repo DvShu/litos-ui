@@ -1,3 +1,4 @@
+import type { Signal } from "../utils/signal_types";
 import FormInner from "../form/form_inner";
 import { on, off, $$ } from "utilane/browser";
 //@ts-ignore

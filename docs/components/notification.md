@@ -329,6 +329,15 @@ regist([Button]);
 
 > 全局配置会持续生效, 可以设置 `placement`、`width`、`duration`、`offset`、`zIndex`、`maxCount` 等所有配置项。上面的示例为了避免影响其它示例, 只修改了通知宽度与自动关闭时间。
 
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/notification";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+
 ## API
 
 ### Notification Attributes

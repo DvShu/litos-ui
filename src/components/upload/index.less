@@ -1,28 +1,10 @@
 :host {
-  --l-upload-width: 100%;
-  --l-upload-height: auto;
-  --l-upload-border-color: #d9d9d9;
-  --l-upload-border-hover-color: var(--l-primary-color, #722ed1);
-  --l-upload-background: #ffffff;
-  --l-upload-dragover-background: var(--l-primary-color-light5, #f9f0ff);
-  --l-upload-text-color: var(--l-text-color);
-  --l-upload-text-secondary-color: var(--l-text-secondary-color);
-  --l-upload-progress-color: var(--l-primary-color, #722ed1);
-  --l-upload-success-color: var(--l-success-color);
-  --l-upload-error-color: var(--l-error-color);
-  --l-upload-disabled-color: #c9c9c9;
-  --l-upload-disabled-background: #fbfbfb;
-  --l-upload-disabled-border-color: #e6e6e6;
-  --l-upload-border-radius: var(--l-border-radius, 3px);
-  --l-upload-font-size: 14px;
-  --l-upload-list-item-height: 32px;
-  --l-upload-picture-size: 90px;
   display: block;
-  width: var(--l-upload-width);
-  height: var(--l-upload-height);
+  width: var(--l-upload-width, 100%);
+  height: var(--l-upload-height, auto);
   box-sizing: border-box;
-  font-size: var(--l-upload-font-size);
-  color: var(--l-upload-text-color);
+  font-size: var(--l-upload-font-size, 14px);
+  color: var(--l-upload-text-color, var(--l-text-color, rgba(0, 0, 0, 0.88)));
 }
 
 .l-upload-trigger--picture,
@@ -31,21 +13,21 @@
   box-sizing: border-box;
   overflow: hidden;
   cursor: pointer;
-  width: var(--l-upload-picture-size);
-  height: var(--l-upload-picture-size);
-  border-radius: var(--l-border-radius, 3px);
-  border: 1px dashed var(--l-upload-border-color, rgb(224, 224, 230));
+  width: var(--l-upload-picture-size, 90px);
+  height: var(--l-upload-picture-size, 90px);
+  border-radius: var(--l-upload-border-radius, var(--l-border-radius, 3px));
+  border: 1px dashed var(--l-upload-border-color, var(--l-border-color, #d9d9d9));
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 20px;
-  color: var(--l-upload-border-color, rgb(224, 224, 230));
+  color: var(--l-upload-border-color, var(--l-border-color, #d9d9d9));
   transition:
     color 0.3s,
     border-color 0.3s;
-  &:hover {
-    color: var(--l-upload-border-hover-color);
-    border-color: var(--l-upload-border-hover-color);
+  &:not(.l-upload-trigger--disabled):hover {
+    color: var(--l-upload-border-hover-color, var(--l-primary-color, #007bff));
+    border-color: var(--l-upload-border-hover-color, var(--l-primary-color, #007bff));
   }
 }
 
@@ -80,7 +62,7 @@
   bottom: 0;
   left: 0;
   height: 3px;
-  background: var(--l-upload-progress-color);
+  background: var(--l-upload-progress-color, var(--l-primary-color, #007bff));
   transition: width 0.3s;
 }
 
@@ -110,46 +92,43 @@
 
 .l-upload-trigger--fail,
 .l-upload-trigger--fail:hover {
-  color: var(--l-upload-error-color, #ff4d4f);
-  border-color: var(--l-upload-error-color, #ff4d4f);
+  color: var(--l-upload-error-color, var(--l-error-color, #f5222d));
+  border-color: var(--l-upload-error-color, var(--l-error-color, #f5222d));
   .l-upload-trigger-status {
     color: inherit;
-    background: var(--l-upload-background);
+    background: var(--l-upload-background, #ffffff);
   }
-}
-
-:host([disabled]) .l-upload-trigger {
-  cursor: not-allowed;
-  opacity: 0.6;
 }
 
 /* 提示区域 */
 .l-upload-tip {
   margin-top: 5px;
   font-size: 12px;
-  color: var(--l-upload-text-secondary-color);
+  color: var(--l-upload-text-secondary-color, var(--l-text-secondary-color, rgba(0, 0, 0, 0.45)));
 }
 
-/* 拖拽上传 */
-.l-upload-drag {
+/* 拖拽样式绑定实际渲染的 trigger，图片入口保留原来的尺寸和布局。 */
+.l-upload-trigger--drag.l-upload-trigger--text {
   padding: 12px 8px;
-  border: 1px dashed var(--l-upload-border-color);
-  border-radius: var(--l-upload-border-radius);
-  background-color: var(--l-upload-background);
+  border: 1px dashed var(--l-upload-border-color, var(--l-border-color, #d9d9d9));
+  border-radius: var(--l-upload-border-radius, var(--l-border-radius, 3px));
+  background-color: var(--l-upload-background, #ffffff);
   transition:
     border-color 0.3s,
     background-color 0.3s;
 }
 
-/* 拖拽状态: 该 class 添加在宿主元素上, 需通过 :host() 匹配 */
-:host(.l-upload-dragover) .l-upload-drag {
-  border-color: var(--l-upload-border-hover-color);
-  background-color: var(--l-upload-dragover-background);
+:host(.l-upload-dragover) .l-upload-trigger:not(.l-upload-trigger--disabled) {
+  border-color: var(--l-upload-border-hover-color, var(--l-primary-color, #007bff));
+  background-color: var(--l-upload-dragover-background, var(--l-primary-color-light5, #e6f2ff));
 }
 
-/* 禁用状态 */
-.l-upload-disabled .l-upload-trigger {
+.l-upload-trigger.l-upload-trigger--disabled,
+.l-upload-trigger.l-upload-trigger--disabled:hover {
   cursor: not-allowed;
+  color: var(--l-upload-disabled-color, var(--l-disabled-color, #c9c9c9));
+  background-color: var(--l-upload-disabled-background, #fbfbfb);
+  border-color: var(--l-upload-disabled-border-color, var(--l-disabled-color, #e6e6e6));
   opacity: 0.6;
 }
 
@@ -174,12 +153,14 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    min-height: var(--l-upload-list-item-height, 32px);
+    box-sizing: border-box;
     padding: 4px 7px;
-    border-radius: var(--l-upload-border-radius);
+    border-radius: var(--l-upload-border-radius, var(--l-border-radius, 3px));
     transition: background-color 0.3s;
 
     &:hover {
-      background-color: rgba(0, 0, 0, 0.04);
+      background-color: var(--l-upload-list-hover-background, rgba(0, 0, 0, 0.04));
     }
   }
 
@@ -200,66 +181,9 @@
   }
 
   .l-upload-list-item-size {
-    color: var(--l-upload-text-secondary-color);
+    color: var(--l-upload-text-secondary-color, var(--l-text-secondary-color, rgba(0, 0, 0, 0.45)));
     font-size: 12px;
     flex-shrink: 0;
-  }
-}
-
-/* 图片列表 */
-.l-upload-list-picture {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  .l-upload-list-item {
-    position: relative;
-    width: var(--l-upload-picture-size);
-    height: var(--l-upload-picture-size);
-    border: 1px solid var(--l-upload-border-color);
-    border-radius: var(--l-upload-border-radius);
-    overflow: hidden;
-    transition: border-color 0.3s;
-
-    &:hover {
-      border-color: var(--l-upload-border-hover-color);
-    }
-  }
-
-  .l-upload-list-item-thumbnail {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-  }
-
-  .l-upload-list-item-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 4px;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent);
-    color: #ffffff;
-    font-size: 12px;
-  }
-
-  .l-upload-list-item-name {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .l-upload-list-item-size {
-    display: none;
   }
 }
 
@@ -276,57 +200,153 @@
 
   .l-upload-list-item-progress-bar {
     height: 100%;
-    background: var(--l-upload-progress-color);
+    background: var(--l-upload-progress-color, var(--l-primary-color, #007bff));
     transition: width 0.3s;
   }
 }
 
 .l-upload-list-item--success {
   .l-upload-list-item-name {
-    color: var(--l-upload-success-color);
+    color: var(--l-upload-success-color, var(--l-success-color, #52c41a));
   }
 }
 
 .l-upload-list-item--fail {
   .l-upload-list-item-name {
-    color: var(--l-upload-error-color);
+    color: var(--l-upload-error-color, var(--l-error-color, #f5222d));
   }
 }
 
 .l-upload--close {
-  color: var(--l-upload-text-color);
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--l-upload-border-radius, var(--l-border-radius, 3px));
+  background: transparent;
+  color: var(--l-upload-text-color, var(--l-text-color, rgba(0, 0, 0, 0.88)));
+  font-size: inherit;
+  cursor: pointer;
   transition: color 0.3s;
-  &:hover {
-    color: var(--l-upload-border-hover-color);
+
+  &:not(:disabled):hover {
+    color: var(--l-upload-border-hover-color, var(--l-primary-color, #007bff));
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--l-primary-color, #007bff);
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--l-upload-disabled-color, var(--l-disabled-color, #c9c9c9));
+    opacity: 0.6;
   }
 }
 
-/* 深色模式 */
-html.dark {
-  :host {
-    --l-upload-border-color: rgba(255, 255, 255, 0.15);
-    --l-upload-border-hover-color: var(--l-primary-color-light1, #9254de);
-    --l-upload-background: rgba(255, 255, 255, 0.04);
-    --l-upload-dragover-background: rgba(114, 46, 209, 0.1);
-    --l-upload-text-secondary-color: rgba(255, 255, 255, 0.45);
-    --l-upload-disabled-color: rgba(255, 255, 255, 0.3);
-    --l-upload-disabled-background: rgba(255, 255, 255, 0.08);
-    --l-upload-disabled-border-color: rgba(255, 255, 255, 0.3);
-    --l-upload-text-color: rgba(255, 255, 255, 0.88);
+.l-upload-items {
+  display: contents;
+}
+
+.l-upload-items--picture-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px;
+
+  .l-upload-list-picture-card {
+    display: contents;
   }
 
-  .l-upload-list-text {
-    .l-upload-list-item:hover {
-      background-color: rgba(255, 255, 255, 0.04);
-    }
+  .l-upload-trigger {
+    flex: 0 0 auto;
+  }
+}
+
+.l-upload-card {
+  position: relative;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--l-upload-picture-size, 90px);
+  height: var(--l-upload-picture-size, 90px);
+  overflow: hidden;
+  border: 1px solid var(--l-upload-border-color, var(--l-border-color, #d9d9d9));
+  border-radius: var(--l-upload-border-radius, var(--l-border-radius, 3px));
+  color: var(--l-upload-text-secondary-color, var(--l-text-secondary-color, rgba(0, 0, 0, 0.45)));
+
+  &--fail {
+    border-color: var(--l-upload-error-color, var(--l-error-color, #f5222d));
+    color: var(--l-upload-error-color, var(--l-error-color, #f5222d));
   }
 
-  .l-upload-list-item-action {
-    background: rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.88);
+  .l-upload-card-error {
+    font-size: 24px;
+  }
+}
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.25);
-    }
+.l-upload-card-actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.l-upload-card:hover .l-upload-card-actions,
+.l-upload-card:focus-within .l-upload-card-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.l-upload-card-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--l-upload-border-radius, var(--l-border-radius, 3px));
+  background: transparent;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+
+  &:not(:disabled):hover {
+    color: var(--l-primary-color, #007bff);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--l-primary-color, #007bff);
+    outline-offset: -2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.l-upload-trigger:focus-visible {
+  outline: 2px solid var(--l-primary-color, #007bff);
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  .l-upload-card-actions {
+    opacity: 1;
+    pointer-events: auto;
   }
 }

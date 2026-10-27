@@ -1,3 +1,4 @@
+import type { Signal } from "../utils/signal_types";
 import BaseComponent from "../base";
 import { parseAttrValue, kebabToCamel, unitNumberStr } from "../utils";
 //@ts-ignore

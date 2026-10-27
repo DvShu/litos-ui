@@ -1,3 +1,4 @@
+import type { Signal, SignalStop } from "../utils/signal_types";
 import { $one, addClass, removeClass, $$ } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, stopSignal, unitNumberStr } from "../utils";
 import type { RuleType } from "utilane";

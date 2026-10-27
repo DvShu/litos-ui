@@ -329,6 +329,15 @@ regist([Button]);
 
 > 全局配置会持续生效, 可以设置 `placement`、`width`、`duration`、`offset`、`zIndex`、`maxCount` 等所有配置项。上面的示例为了避免影响其它示例, 只修改了通知宽度与自动关闭时间。
 
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/notification";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
 ## API
 
 ### Notification Attributes

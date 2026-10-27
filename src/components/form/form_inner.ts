@@ -1,3 +1,4 @@
+import type { Signal, SignalStop } from "../utils/signal_types";
 import BaseComponent from "../base";
 import { parseAttrValue, stopSignal } from "../utils";
 import { getAttr } from "utilane/browser";

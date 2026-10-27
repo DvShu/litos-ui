@@ -4,26 +4,54 @@
 
 ## 引用
 
-```js
-import { Upload, regist, CloseIcon, PlusIcon, PictureIcon } from "litos-ui";
+从总入口导入时，先注册 Upload，再按使用的模式注册所需依赖：
 
+```js
+import {
+  Upload,
+  regist,
+  CloseIcon,
+  EyeOutlineIcon,
+  DeleteIcon,
+  PictureIcon,
+  ImagePreview,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+  ReductionIcon,
+  RefreshLeftIcon,
+  RefreshRightIcon,
+} from "litos-ui";
+
+// 基础注册
 regist(Upload);
-// list-type = text or default
-regist([CloseIcon]);
-// list-type = picture or picture-card
-regist([PlusIcon, PictureIcon]);
+
+// text 模式
+regist(CloseIcon);
+
+// picture 模式
+regist(PictureIcon);
+
+// picture-card 模式
+regist([EyeOutlineIcon, DeleteIcon, PictureIcon]);
+// prettier-ignore
+regist([ImagePreview, CloseIcon, ArrowLeftIcon, ArrowRightIcon, ZoomInIcon, ZoomOutIcon, ReductionIcon, RefreshLeftIcon, RefreshRightIcon]); // ImagePreview
 ```
+
+默认文本列表使用 `CloseIcon`；`picture` 的失败状态使用 `PictureIcon`；`picture-card` 使用 `EyeOutlineIcon`、`DeleteIcon`、`PictureIcon`，打开大图预览还需要上方的 ImagePreview 及其操作图标。可按使用的模式选择注册。
 
 ## 演示
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
-  import { elem, iterate, on, off } from 'utilane/browser';
+  import { elem, iterate } from 'utilane/browser';
 
-  let $uploads;
   let $pictures;
   let $customUpload;
   let customUploadObserver;
+  let $fileListDemo;
+  let stopFileListDemo;
   let pageDisposed = false;
 
   function parseLocalUploadResponse(response) {
@@ -65,6 +93,45 @@ regist([PlusIcon, PictureIcon]);
     }
   }
 
+  function demoFileList(upload) {
+    upload.fileList = [
+      { id: "first", url: "http://127.0.0.1:3001/files/3b315d19-d97b-47a9-96bf-724a9aa9da11.jpeg", status: "uploading", percentage: 0 },
+      { id: "second", url: "http://127.0.0.1:3001/files/5a710bd6-c7e5-4b7b-8e99-5a37ccf92efd", status: "ready" },
+    ];
+    const patch = (id, changes) => {
+      upload.fileList = upload.fileList.map((file) => file.id === id ? { ...file, ...changes } : file);
+    };
+    const timers = [
+      setTimeout(() => patch("first", { percentage: 50 }), 2000),
+      setTimeout(() => {
+        patch("first", { status: "success", percentage: 100 });
+        patch("second", { status: "uploading", percentage: 0 });
+      }, 3000),
+      setTimeout(() => patch("second", { status: "fail" }), 5000),
+    ];
+    // 页面卸载或演示容器重建时调用，停止后续更新。
+    return () => timers.forEach(clearTimeout);
+  }
+
+  function syncFileListDemo() {
+    if (pageDisposed) return;
+    const next = document.getElementById("upload-external-file-list");
+    if (next === $fileListDemo) return;
+    stopFileListDemo?.();
+    stopFileListDemo = undefined;
+    $fileListDemo = next;
+    if (!next) return;
+    // 进入可视区域再开始计时，避免滚动到演示时已经结束。
+    let stopTimers;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      observer.disconnect();
+      if (!pageDisposed && $fileListDemo === next && !stopTimers) stopTimers = demoFileList(next);
+    });
+    observer.observe(next);
+    stopFileListDemo = () => { observer.disconnect(); stopTimers?.(); };
+  }
+
   function syncCustomUpload() {
     if (pageDisposed) return;
     const next = document.getElementById('upload-custom-request');
@@ -77,31 +144,6 @@ regist([PlusIcon, PictureIcon]);
     if ($customUpload) $customUpload.customRequest = demoCustomRequest;
   }
 
-  function handleSuccess(e) {
-    const { file, response } = e.detail;
-    console.info('上传响应:', response);
-    if (typeof Message !== 'undefined') {
-      Message.success(`${file.name} 上传成功`);
-    }
-  }
-
-  function handleError(e) {
-    const { file, files, message } = e.detail;
-    if (typeof Message !== 'undefined') {
-      Message.error(file ? `${file.name} 上传失败` : (message || `${files.length} 个文件不符合要求`));
-    }
-  }
-
-  function handleProgress(e) {
-    console.info(`${e.detail.file.name} 上传进度: ${e.detail.percent}%`);
-  }
-
-  function handleExceed() {
-    if (typeof Message !== 'undefined') {
-      Message.warn('上传文件数量超出限制');
-    }
-  }
-
   onMounted(async () => {
     // ClientOnly 和代码预览会异步创建、重建内部的 l-upload。
     await Promise.all([
@@ -110,22 +152,19 @@ regist([PlusIcon, PictureIcon]);
     ]);
     await nextTick();
     if (pageDisposed) return;
-    customUploadObserver = new MutationObserver(syncCustomUpload);
+    customUploadObserver = new MutationObserver(() => { syncCustomUpload(); syncFileListDemo(); });
     customUploadObserver.observe(document.body, { childList: true, subtree: true });
     syncCustomUpload();
+    syncFileListDemo();
     $pictures = elem('l-upload[data-response-parser=local]');
     iterate($pictures, ($upload) => { $upload.parseResponse = parseLocalUploadResponse; });
-    $uploads = elem('l-upload.upload-events');
-    iterate($uploads, ($upload) => {
-      on($upload, 'success', handleSuccess);
-      on($upload, 'error', handleError);
-      on($upload, 'progress', handleProgress);
-      on($upload, 'exceed', handleExceed);
-    });
   });
 
   onUnmounted(() => {
     pageDisposed = true;
+    stopFileListDemo?.();
+    stopFileListDemo = undefined;
+    $fileListDemo = undefined;
     customUploadObserver?.disconnect();
     customUploadObserver = undefined;
     if ($customUpload) {
@@ -140,20 +179,12 @@ regist([PlusIcon, PictureIcon]);
       });
       $pictures = undefined;
     }
-    if (!import.meta.env.SSR && $uploads) {
-      iterate($uploads, ($upload) => {
-        off($upload, 'success', handleSuccess);
-        off($upload, 'error', handleError);
-        off($upload, 'progress', handleProgress);
-        off($upload, 'exceed', handleExceed);
-      });
-    }
   });
 </script>
 
 ### 文件上传
 
-通过设置 `accept` 属性指定接受的文件类型，`action` 指定上传地址。通过 `slot=tip` 你可以传入自定义的提示文字
+通过 `accept` 指定接受的文件类型，`action` 指定上传地址。选择与拖入的文件会统一进行类型、大小校验，合格文件再按剩余数量加入列表。通过 `slot="tip"` 可传入提示文字。
 
 <ClientOnly>
 <l-code-preview>
@@ -175,6 +206,21 @@ regist([PlusIcon, PictureIcon]);
 <textarea lang="html">
   <l-upload accept="image/*" list-type="picture" action="http://127.0.0.1:3001/upload">
     <l-plus-icon></l-plus-icon>
+  </l-upload>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+### 照片墙
+
+设置 `list-type="picture-card"` 展示多图照片墙，`multiple` 允许一次选择多张。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-upload list-type="picture-card" accept="image/*" drag multiple max-count="4" action="http://127.0.0.1:3001/upload">
+    <l-plus-icon></l-plus-icon>
+    <span slot="tip">最多上传 4 张图片</span>
   </l-upload>
 </textarea>
 </l-code-preview>
@@ -220,7 +266,7 @@ upload.parseResponse = parseLocalUploadResponse;
 
 ### 自定义上传
 
-通过实例属性 `customRequest` 替换默认请求函数。配置自定义函数后不要求 `action`，由函数自行决定地址或接入业务 SDK。返回 `{ response, responseText?, status? }`（或其 Promise），随后仍由组件统一调用 `parseResponse`，处理成功、失败和 URL 校验。
+通过实例属性 `customRequest` 替换默认请求函数。配置自定义函数后不要求 `action`，由函数自行决定地址或接入业务 SDK。异步函数返回 `Promise<UploadRequestResult>`，结果包含 `response` 以及可选的 `responseText`、`status`；随后由组件统一调用 `parseResponse`，处理成功、失败和 URL 校验。完整字段说明见下方 API 的“customRequest 返回值”。
 
 `body` 已包含 `file` 和 `data` 表单字段，不要手动指定 multipart 的 Content-Type，浏览器会生成 boundary。SDK 可使用 `options.file.raw`；实际接入时使用 `options.onProgress(0到100)` 上报真实进度。未上报时显示循环等待动画，完成后进入解析阶段；
 
@@ -275,125 +321,46 @@ upload.customRequest = demoCustomRequest;
 
 ### 外部管理 fileList
 
-也可以不使用内置请求或 `customRequest`：设置 `auto-upload="false"`，监听 `change` 的 `addedFiles`，调用外置上传函数，再重新赋值 `fileList` 来展示上传中、成功、失败和图片地址。预置已上传文件可以不提供 `raw`。图片模式只保留最后一项，普通文件模式保留完整列表。
+设置 `auto-upload="false"`，通过 `fileList` 管理文件列表：`url` 指定图片地址，`status` 控制文件状态，`percentage` 控制上传进度。更新后重新赋值 `fileList` 即可刷新界面。
 
-下面是业务接入示例，使用同一个本地测试接口，接入业务时将 URL 替换为自己的接口；页面卸载时调用返回的清理函数：
-
-```js
-function connectExternalUpload(upload) {
-  upload.setAttribute("auto-upload", "false");
-  upload.fileList = [{ id: -1, name: "已上传.txt", size: 1024, status: "success" }];
-  const pending = new Map();
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-upload id="upload-external-file-list" list-type="picture-card" auto-upload="false" max-count="2">
+    <l-plus-icon></l-plus-icon>
+  </l-upload>
+</textarea>
+<div class="source">
+<textarea lang="html">
+<l-upload id="upload-external-file-list" list-type="picture-card" auto-upload="false" max-count="2">
+  <l-plus-icon></l-plus-icon>
+</l-upload>
+</textarea>
+<textarea lang="js">
+function demoFileList(upload) {
+  upload.fileList = [
+    { id: "first", url: "http://127.0.0.1:3001/files/3b315d19-d97b-47a9-96bf-724a9aa9da11.jpeg", status: "uploading", percentage: 0 },
+    { id: "second", url: "http://127.0.0.1:3001/files/5a710bd6-c7e5-4b7b-8e99-5a37ccf92efd", status: "ready" },
+  ];
   const patch = (id, changes) => {
-    upload.fileList = upload.fileList.map((file) =>
-      file.id === id ? { ...file, ...changes } : file,
-    );
+    upload.fileList = upload.fileList.map((file) => file.id === id ? { ...file, ...changes } : file);
   };
-
-  async function uploadExternally(file, signal) {
-    const body = new FormData();
-    body.append("file", file.raw, file.name ?? file.raw.name);
-    const response = await fetch("http://127.0.0.1:3001/upload", { method: "POST", body, signal });
-    if (!response.ok) throw new Error("上传失败");
-    const result = await response.json();
-    if (typeof result.url !== "string") throw new Error("缺少图片地址");
-    const url = new URL(result.url, document.baseURI);
-    if (!["http:", "https:"].includes(url.protocol) || url.username || url.password) {
-      throw new Error("图片地址不安全");
-    }
-    return url.href;
-  }
-
-  function onChange(event) {
-    const { fileList, addedFiles = [] } = event.detail;
-    for (const [id, controller] of pending) {
-      if (!fileList.some((file) => file.id === id)) {
-        controller.abort();
-        pending.delete(id);
-      }
-    }
-    for (const file of addedFiles) {
-      const controller = new AbortController();
-      pending.set(file.id, controller);
-      patch(file.id, { status: "uploading", percentage: undefined });
-      uploadExternally(file, controller.signal)
-        .then((url) => {
-          if (!controller.signal.aborted) patch(file.id, { status: "success", url });
-        })
-        .catch(() => {
-          if (!controller.signal.aborted) patch(file.id, { status: "fail" });
-        })
-        .finally(() => {
-          if (pending.get(file.id) === controller) pending.delete(file.id);
-        });
-    }
-  }
-  upload.addEventListener("change", onChange);
-  return () => {
-    upload.removeEventListener("change", onChange);
-    for (const controller of pending.values()) controller.abort();
-    pending.clear();
-  };
+  const timers = [
+    setTimeout(() => patch("first", { percentage: 50 }), 2000),
+    setTimeout(() => {
+      patch("first", { status: "success", percentage: 100 });
+      patch("second", { status: "uploading", percentage: 0 });
+    }, 3000),
+    setTimeout(() => patch("second", { status: "fail" }), 5000),
+  ];
+  // 页面卸载或演示容器重建时调用，停止后续更新。
+  return () => timers.forEach(clearTimeout);
 }
-```
-
-`fileList` 每一项需要唯一的数字（安全整数）或字符串 `id` 和合法 `status`；数字 `1` 与字符串 `"1"` 是不同标识。`name`、`size` 可选，未提供名称时不显示名称，大小仅在提供有限数值且大于 0 时显示，单位字节。`percentage` 为 0～100，设为 `undefined` 时显示等待动画。应重新赋值数组使界面更新；不可变对象更新也受支持。同一任务保持 `id` 和 `raw` 不变，改变文件、删除条目或把内置任务状态切换为非 uploading 会取消该任务。直接修改数组或对象不会自动刷新。
-
-完全外置模式的网络请求、业务事件和取消由外部代码负责；`fileList` 赋值本身不会触发 `success`、`error`、`progress` 或 `change`。优先使用 `customRequest` 可复用组件的取消和解析保护。组件只释放自身创建的预览地址；外部 object URL 和外部请求不能交给组件隐式清理。直接赋值 `fileList = []` 不会通知外部上传逻辑，需先取消自己的请求；调用 `clearFiles()` 会触发 change，可由上述监听器中止外部请求。
-
-### 多文件上传
-
-设置 `multiple` 属性允许在文件选择框中一次选择多个文件。在普通文件模式下，无论是否设置 `multiple`，再次选择文件都会追加到已有列表，保留已上传和待上传的文件；如需限制累计数量，使用 `max-count`。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" multiple>
-    <l-button type="primary">选择多个文件</l-button>
-  </l-upload>
+//-
+const cleanup = demoFileList(document.querySelector("#upload-external-file-list"));
+// 页面卸载时调用 cleanup()。
 </textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 拖拽上传
-
-设置 `drag` 属性支持拖拽上传。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" drag>
-    <div style="padding: 40px 16px; text-align: center;">将文件拖到此处，或点击上传</div>
-  </l-upload>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 文件大小限制
-
-通过 `max-size` 属性限制文件大小，单位为 KB，超出限制的文件不会加入文件列表。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" max-size="1024">
-    <l-button type="primary">选择文件（最大 1MB）</l-button>
-  </l-upload>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 文件数量限制
-
-通过 `max-count` 属性限制上传文件数量，再次选择超出的文件时会触发 `exceed` 事件。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" multiple max-count="3">
-    <l-button type="primary">选择文件（最多 3 个）</l-button>
-  </l-upload>
-</textarea>
+</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -411,116 +378,38 @@ function connectExternalUpload(upload) {
 </l-code-preview>
 </ClientOnly>
 
-### 手动上传
+### 请求头与附加参数
 
-设置 `auto-upload="false"` 关闭自动上传，选择文件后仅加入列表（状态为 `ready`），通过 `upload()` 方法手动触发上传。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload id="upload-manual" action="http://127.0.0.1:3001/upload" auto-upload="false">
-    <l-button type="primary">选择文件</l-button>
-  </l-upload>
-  <l-button type="primary" onclick="document.getElementById('upload-manual').upload()">开始上传</l-button>
-  <l-button onclick="document.getElementById('upload-manual').clearFiles()">清空列表</l-button>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 自定义请求头
-
-通过 `headers` 属性设置上传请求头，属性值为**合法的 JSON 字符串**（不支持单引号）。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" headers='{"X-Token": "Bearer token"}'>
-    <l-button type="primary">选择文件</l-button>
-  </l-upload>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-在 JS 中也可以直接对 `headers` 属性赋值对象：
-
-```js
-const $upload = document.querySelector("l-upload");
-$upload.headers = { "X-Token": "Bearer token" };
-```
-
-### 上传时附带参数
-
-通过 `data` 属性设置上传时附带的额外参数（表单字段），属性值同样为**合法的 JSON 字符串**；本地测试服务会在响应的 `data.fields` 中返回这些字段。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" data='{"source": "litos-ui-docs", "type": "file"}'>
-    <l-button type="primary">选择文件</l-button>
-  </l-upload>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 提示文字
-
-通过 `tip` 插槽在触发区下方、文件列表上方显示提示内容，常用于说明上传规则或格式要求；未提供插槽内容时不占位。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload action="http://127.0.0.1:3001/upload" accept="image/*" list-type="picture" data-response-parser="local">
-    <l-plus-icon></l-plus-icon>
-    <span slot="tip">仅支持 jpg / png 格式图片，单张不超过 2MB</span>
-  </l-upload>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-### 监听上传事件
-
-通过监听 `success`、`error`、`exceed` 等事件反馈上传结果（示例中的提示信息使用了 `Message` 组件）。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-upload class="upload-events" action="http://127.0.0.1:3001/upload" multiple max-count="3">
-    <l-button type="primary">选择文件（最多 3 个，超限会提示）</l-button>
-  </l-upload>
-</textarea>
-</l-code-preview>
-</ClientOnly>
-
-### Vue 中使用
-
-在 Vue 3 中，可以使用 `ref` 获取组件实例，调用组件方法（也可以通过实例设置 `headers`、`data` 等对象属性）。
+通过 `headers` 设置上传请求头，通过 `data` 添加随文件一起提交的表单字段。两者都支持 HTML 属性中的合法 JSON 字符串，或通过 JavaScript 实例属性赋值普通对象。`headers` 的名称须为有效请求头名称，值必须是不含空字符、回车和换行的字符串，`data` 的值支持字符串、有限数字和布尔值，提交时转换为字符串。JSON 内部使用双引号；不要手动设置 multipart 的 `Content-Type`，浏览器会自动生成 boundary。
 
 ```html
-<template>
-  <l-upload ref="uploadRef" action="http://127.0.0.1:3001/upload" auto-upload="false">
-    <l-button type="primary">选择文件</l-button>
-  </l-upload>
-  <l-button type="primary" @click="handleUpload">开始上传</l-button>
-</template>
+<l-upload
+  action="http://127.0.0.1:3001/upload"
+  headers='{"X-Token": "Bearer token"}'
+  data='{"source": "litos-ui-docs", "type": "file"}'
+>
+  <l-button type="primary">选择文件</l-button>
+</l-upload>
 ```
+
+也可以通过实例设置：
 
 ```js
-import { ref } from "vue";
-import { Upload, regist } from "litos-ui";
-
-regist(Upload);
-
-const uploadRef = ref(null);
-const upload = uploadRef.value;
-
-// 设置附带参数(对象赋值)
-upload.data = { userId: "123" };
-
-const handleUpload = () => {
-  // 手动触发上传
-  uploadRef.value.upload();
-};
+const upload = document.querySelector("l-upload");
+upload.headers = { "X-Token": "Bearer token" };
+upload.data = { source: "litos-ui-docs", type: "file" };
 ```
+
+本地测试服务会在响应的 `data.fields` 中返回附加字段。
+
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/upload";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
 
 ## API
 
@@ -529,19 +418,26 @@ const handleUpload = () => {
 <!-- prettier-ignore -->
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `accept` | 接受的文件类型 | `string` | - |
-| `multiple` | 普通文件模式允许一次多选并累计追加；picture 模式始终单选替换 | `boolean` | `false` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
+| `accept` | 新选择及拖入文件的类型限制，支持逗号分隔的扩展名、MIME 和通配类型，如 `.png,image/jpeg,image/*` | `string` | - |
+| `multiple` | 普通文件及照片墙模式允许一次多选并累计追加；picture 模式始终单选替换 | `boolean` | `false` |
+| `disabled` | 是否禁用选择、拖入及列表操作，支持运行期间切换 | `boolean` | `false` |
 | `drag` | 是否支持拖拽上传 | `boolean` | `false` |
-| `list-type` | 展示模式：`text`（文件列表）、`picture`（trigger 内单图预览，重新选择替换） | `string` | `text` |
-| `max-size` | 最大文件大小，单位 KB，超出不会加入列表 | `number` | `0`（不限制） |
-| `max-count` | 普通文件模式的累计最大数量；picture 模式固定保留一张且允许替换 | `number` | `0`（不限制） |
+| `list-type` | 展示模式：`text`（文件列表）、`picture`（trigger 内单图预览，重新选择替换）、`picture-card`（多图照片墙） | `string` | `text` |
+| `max-size` | 最大文件大小，单位 KB，非负有限数字；超出不会加入列表 | `number` | `0`（不限制） |
+| `max-count` | 累计最大数量，非负安全整数；照片墙达到上限隐藏入口；picture 模式固定保留一张且允许替换 | `number` | `0`（不限制） |
 | `auto-upload` | 是否自动上传，`false` 时通过 `upload()` 手动触发 | `boolean` | `true` |
 | `action` | 默认 XHR 上传地址，以 multipart/form-data（字段名 file）提交；customRequest 可省略 | `string` | - |
-| `show-file-list` | 普通文件模式是否显示列表；picture 模式始终隐藏列表，不影响图片预览 | `boolean` | `true` |
-| `headers` | 上传请求头，需为合法 JSON 字符串，或通过实例属性赋值对象 | `object` | `{}` |
-| `data` | 上传时附带的额外参数，需为合法 JSON 字符串，或通过实例属性赋值对象 | `object` | `{}` |
+| `show-file-list` | 普通文件及照片墙模式是否显示列表；picture 模式始终隐藏列表，不影响图片预览 | `boolean` | `true` |
+| `headers` | 上传请求头，HTML 属性使用 JSON 普通对象，各值为字符串；也可通过实例属性赋值 | `object` | `{}` |
+| `data` | 附加表单字段，HTML 属性使用 JSON 普通对象，各值为字符串、有限数字或布尔值；也可通过实例属性赋值 | `object` | `{}` |
 | `with-credentials` | 内置 XHR 是否携带 cookie；customRequest 自行配置 | `boolean` | `false` |
+| `timeout` | 单次上传超时，单位毫秒；非负安全整数且不超过 `2147483647`，对内置 XHR 与 customRequest 生效 | `number` | `0`（不限制） |
+
+`accept` 的扩展名规则按文件名匹配，MIME 规则按 `File.type` 匹配；无效规则忽略，未提供有效规则时不限制类型。不合格文件触发 `error` 且不占名额。前端校验用于交互反馈，服务端仍需独立验证文件类型和内容。
+
+`max-size`、`max-count`、`timeout` 的非法 HTML 数值回退为 `0`；`headers`、`data` 的非法 JSON 或对象形状回退为 `{}`。通过对应 JavaScript 实例属性赋入非法值会抛出 `TypeError`。
+
+`timeout` 只覆盖上传请求阶段，收到响应后停止计时，不包含 `parseResponse` 的执行时间。超时触发上传阶段的 `error` 并中止 `signal`；自定义上传需将该信号传给 `fetch` 或业务 SDK，才能实际停止外部请求。
 
 ### Upload Properties
 
@@ -551,8 +447,12 @@ const handleUpload = () => {
 | `parseResponse` | 响应解析函数；赋值 undefined 恢复默认函数 | `UploadResponseParser` | `defaultUploadResponseParser` |
 | `customRequest` | 自定义上传函数，接管请求后仍复用组件解析和取消机制；赋值 undefined 恢复内置 XHR | `UploadRequestHandler` | `undefined` |
 | `fileList` | 外部文件列表，重新赋值刷新界面；picture 模式保留最后一项 | `UploadFile[]` | `[]` |
-
-公开类型 `UploadFile`、`UploadResponseContext`、`UploadResponseParser`、`UploadRequestOptions`、`UploadRequestResult`、`UploadRequestHandler` 均从 `litos-ui` 导出。
+| `disabled` | 禁用状态；与 HTML disabled 属性同步 | `boolean` | `false` |
+| `maxSize` | 对应 max-size，非负有限数字，单位 KB | `number` | `0` |
+| `maxCount` | 对应 max-count，非负安全整数 | `number` | `0` |
+| `timeout` | 上传超时毫秒数，非负安全整数，最大 `2147483647` | `number` | `0` |
+| `headers` | 请求头普通对象，值必须为字符串 | `Record<string, string>` | `{}` |
+| `data` | 附加表单字段普通对象，数字必须有限，提交时转为字符串 | `Record<string, string \| number \| boolean>` | `{}` |
 
 <!-- prettier-ignore -->
 | customRequest 参数 | 说明 |
@@ -564,7 +464,32 @@ const handleUpload = () => {
 | `signal` | 上传、解析共享的取消信号；完成和取消时均中止 |
 | `onProgress` | 真实进度回调，接受有限数值并限制到 0～100；取消后调用被忽略 |
 
-返回值 `UploadRequestResult` 必须含 `response`，它是传入解析器的数据；可选 `responseText` 默认为空字符串，可选 HTTP `status` 默认为 200，非 2xx 触发上传失败。自定义请求和解析函数是可信业务代码，不支持 HTML 字符串形式的函数。
+#### customRequest 返回值
+
+异步上传函数返回 `Promise<UploadRequestResult>`。使用 `async` 时，`return { response, responseText, status }` 会自动包装为 Promise；组件等待 Promise 完成后，再调用 `parseResponse`。
+
+```text
+(options: UploadRequestOptions) => Promise<UploadRequestResult>
+
+UploadRequestResult = {
+  response: unknown;
+  responseText?: string;
+  status?: number;
+}
+```
+
+返回对象的全部字段如下：
+
+<!-- prettier-ignore -->
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+| --- | --- | --- | --- | --- |
+| `response` | `unknown` | 是 | 无 | 接口响应数据，作为 `parseResponse(response, context)` 的第一个参数；通常是解析后的 JSON 对象。必须包含这个字段，不能只返回图片地址或直接返回 fetch 的 Response 对象。 |
+| `responseText` | `string` | 否 | `""` | 接口响应原文，传给 `parseResponse` 的 `context.responseText`，并作为成功事件 `event.detail.response`。组件不会用它自动生成 `response`，也不会替你将 `response` 序列化。 |
+| `status` | `number` | 否 | `200` | HTTP 状态码，应传入请求实际返回的状态码，如 fetch 的 `result.status`。必须为 0～599 的整数；仅 200～299 进入响应解析，其余值触发上传失败。它不是 fileList 中的文件状态字符串。 |
+
+`response` 的结构取决于接口：例如 `{ url: "/files/photo.png" }`。默认解析器读取其中的 `url`、`data.url` 或 `link`；其他结构通过 `parseResponse` 自定义处理。成功事件的 `event.detail.data` 保留此响应数据。图片地址通过解析器返回，不需要在 `UploadRequestResult` 顶层另加 `url` 字段。
+
+网络错误或业务判断失败时，使用 `throw new Error("上传失败")` 或返回被拒绝的 Promise，组件会进入失败状态并触发 `error`。HTTP 错误也可以通过实际 `status` 返回；`fetch` 遇到 4xx、5xx 不会自动拒绝 Promise。上传进度通过 `options.onProgress(percent)` 单独上报，不放在返回对象中。
 
 ### Upload Slots
 
@@ -582,7 +507,7 @@ const handleUpload = () => {
 | `upload` | 上传文件，默认只有 `ready` 状态的文件才会上传 | `files?: UploadFile[]` |
 | `clearFiles` | 清空文件列表并中止上传中的请求 | - |
 | `abort` | 中止上传（取消进行中的请求，文件回到 `ready` 状态），不传参数则中止全部 | `file?: UploadFile` |
-| `handlePreview` | 预览文件，触发 `preview` 事件 | `file: UploadFile` |
+| `handlePreview` | 仅对当前 `success` 文件触发 `preview` 事件；照片墙同时打开内置 ImagePreview | `file: UploadFile` |
 | `handleRemove` | 移除文件（上传中会先中止），触发 `remove` 事件 | `file: UploadFile` |
 
 ### Upload Events
@@ -592,8 +517,8 @@ const handleUpload = () => {
 | --- | --- | --- |
 | `change` | 文件列表状态改变时触发 | `{ fileList: UploadFile[], addedFiles?: UploadFile[] }` |
 | `success` | 上传和解析成功时触发；response 为原文，data 为传给解析器的数据 | `{ file: UploadFile, response: string, data: unknown }` |
-| `error` | 上传、响应解析或 URL 校验失败 | `{ file?: UploadFile, status?: number, phase: "upload" \| "parse", message: string }` |
-| `error` | 文件大小超出 `max-size` 限制时触发（不会加入列表） | `{ files: File[], message: string }` |
+| `error` | 上传失败、上传超时、响应解析或 URL 校验失败 | `{ file?: UploadFile, status?: number, phase: "upload" \| "parse", message: string }` |
+| `error` | 文件类型不符合 accept 或大小超出 max-size 时触发（不会加入列表） | `{ files: File[], message: string }` |
 | `progress` | 内置 XHR 获得可计算进度或 customRequest 调用 onProgress 时触发 | `{ file: UploadFile, percent: number }` |
 | `remove` | 移除文件时触发 | `{ file: UploadFile, fileList: UploadFile[] }` |
 | `preview` | 预览文件时触发 | `{ file: UploadFile }` |
@@ -604,31 +529,49 @@ const handleUpload = () => {
 <!-- prettier-ignore -->
 | 属性 | 说明 | 类型 |
 | --- | --- | --- |
-| `id` | 文件唯一标识，数字为安全整数；数字和字符串分别判定唯一性 | `number \| string` |
+| `id` | 文件唯一标识，数字为安全整数，字符串不能为空或仅含空白；数字和字符串分别判定唯一性 | `number \| string` |
 | `name` | 可选文件名，未提供或为空时不显示 | `string` |
-| `size` | 可选文件大小，单位字节，仅大于 0 时显示 | `number` |
+| `size` | 可选文件大小，必须是有限数字，单位字节，仅大于 0 时显示 | `number` |
 | `status` | 文件状态，`ready`、`uploading`、`success`、`fail` | `string` |
 | `percentage` | 真实进度百分比；undefined 表示不确定进度 | `number \| undefined` |
-| `raw` | 原始 File 对象 | `File` |
-| `url` | 文件上传后的 URL（读取服务端响应的 `url` 或 `data.url`） | `string` |
+| `raw` | 可选原始文件，提供时必须是 File 实例 | `File` |
+| `url` | 可选图片地址，提供时必须为字符串；预览仅允许安全的 HTTP(S) 地址或相对路径 | `string` |
 
 ### 样式变量
+
+组件直接通过 `var()` 的回退值消费样式变量，无需预先定义全部变量，可按需覆盖。下表列出浅色模式的消费回退值。引入 `litos-ui/styles/vars.css` 后，`:root.dark` 仅覆盖暗黑模式需要调整的背景、文字、边框及悬浮配色，通过变量继承作用于组件。
 
 <!-- prettier-ignore -->
 | 名称 | 描述 | 默认值 |
 | --- | --- | --- |
-| `--l-upload-border-color` | 边框颜色 | `#d9d9d9` |
-| `--l-upload-border-hover-color` | 悬浮时边框颜色 | `var(--l-primary-color, #722ed1)` |
+| `--l-upload-width` | 组件宽度 | `100%` |
+| `--l-upload-height` | 组件高度 | `auto` |
+| `--l-upload-border-color` | 边框颜色 | `var(--l-border-color, #d9d9d9)` |
+| `--l-upload-border-hover-color` | 悬浮时边框颜色 | `var(--l-primary-color, #007bff)` |
 | `--l-upload-background` | 背景颜色 | `#ffffff` |
-| `--l-upload-dragover-background` | 拖拽时背景颜色 | `var(--l-primary-color-light5, #f9f0ff)` |
-| `--l-upload-text-color` | 文字颜色 | `rgba(0, 0, 0, 0.88)` |
-| `--l-upload-text-secondary-color` | 次要文字颜色 | `rgba(0, 0, 0, 0.45)` |
-| `--l-upload-progress-color` | 进度条颜色 | `var(--l-primary-color, #722ed1)` |
-| `--l-upload-success-color` | 成功状态颜色 | `#52c41a` |
-| `--l-upload-error-color` | 错误状态颜色 | `#ff4d4f` |
-| `--l-upload-disabled-color` | 禁用状态颜色 | `#c9c9c9` |
+| `--l-upload-dragover-background` | 拖拽时背景颜色 | `var(--l-primary-color-light5, #e6f2ff)` |
+| `--l-upload-text-color` | 文字颜色 | `var(--l-text-color, rgba(0, 0, 0, 0.88))` |
+| `--l-upload-text-secondary-color` | 次要文字颜色 | `var(--l-text-secondary-color, rgba(0, 0, 0, 0.45))` |
+| `--l-upload-progress-color` | 进度条颜色 | `var(--l-primary-color, #007bff)` |
+| `--l-upload-success-color` | 成功状态颜色 | `var(--l-success-color, #52c41a)` |
+| `--l-upload-error-color` | 错误状态颜色 | `var(--l-error-color, #f5222d)` |
+| `--l-upload-disabled-color` | 禁用状态颜色 | `var(--l-disabled-color, #c9c9c9)` |
 | `--l-upload-disabled-background` | 禁用状态背景颜色 | `#fbfbfb` |
-| `--l-upload-disabled-border-color` | 禁用状态边框颜色 | `#e6e6e6` |
+| `--l-upload-disabled-border-color` | 禁用状态边框颜色 | `var(--l-disabled-color, #e6e6e6)` |
 | `--l-upload-border-radius` | 圆角大小 | `var(--l-border-radius, 3px)` |
 | `--l-upload-font-size` | 字体大小 | `14px` |
-| `--l-upload-picture-size` | 图片选择容器的宽高 | `90px` |
+| `--l-upload-list-hover-background` | 文本列表悬浮背景，暗黑模式自动调整 | `rgba(0, 0, 0, 0.04)` |
+| `--l-upload-list-item-height` | 文本列表项的最小高度 | `32px` |
+| `--l-upload-picture-size` | 图片选择容器及照片墙图片项的统一宽高 | `90px` |
+
+### CSS Parts
+
+<!-- prettier-ignore -->
+| 名称 | 说明 |
+| --- | --- |
+| `trigger` | 上传入口 |
+| `tip` | 提示区域 |
+| `list` | 文件列表容器；照片墙使用 display: contents 参与统一换行 |
+| `card` | 照片墙图片项 |
+| `image` | picture 及照片墙图片 |
+| `actions` | 照片墙操作浮层 |

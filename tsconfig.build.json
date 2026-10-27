@@ -10,6 +10,6 @@
     "outDir": "lib",
     "rootDir": "src/components"
   },
-  "include": ["src/components/*.ts", "src/env.d.ts"],
+  "include": ["src/components/**/*.ts", "src/env.d.ts"],
   "exclude": ["node_modules", "lib"]
 }

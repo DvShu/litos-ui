@@ -1,3 +1,4 @@
+import type { Signal } from "./signal_types";
 import BaseComponent from "../base";
 import { on, off } from "utilane/browser";
 

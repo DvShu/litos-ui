@@ -153,6 +153,15 @@ regist([Button]);
 > 这里使用的是内置的过渡名称，需要手动引入 `litos-ui/styles/transition.css` 文件
 > 也可以通过传递 `css` 属性实现过渡, 例如: `transition(target, [["opacity", "0", "0.3s"]], "enter")`
 
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/tag";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
 ## API
 
 ### Tag Attributes

@@ -1,3 +1,4 @@
+import type { Signal, SignalStop } from "../utils/signal_types";
 import { effect } from "alien-signals";
 import FormInner from "../form/form_inner";
 import { parseAttrValue, stopSignal } from "../utils";

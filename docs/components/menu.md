@@ -261,6 +261,15 @@ regist([Button]);
 | `icon` | 菜单项图标，返回 HTMLElement | `(item: MenuItem) => HTMLElement` | 否 |
 | `children` | 子菜单项 | `MenuItem[]` | 否 |
 
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/menu";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+
 ## API
 
 ### Menu Attributes

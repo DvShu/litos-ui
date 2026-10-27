@@ -261,6 +261,15 @@ regist([Button]);
 | `icon` | 菜单项图标，返回 HTMLElement | `(item: MenuItem) => HTMLElement` | 否 |
 | `children` | 子菜单项 | `MenuItem[]` | 否 |
 
+## On-demand entry
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/menu";
+```
+
+Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
 ## API
 
 ### Menu Attributes
