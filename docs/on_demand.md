@@ -45,11 +45,11 @@ import type { UploadFile } from "litos-ui/upload";
 import type { Column } from "litos-ui/table";
 ```
 
-服务子路径一次性准备对应全局样式，仍需显式调用 API。空导入不会打开消息、向全局注入 API 或自动扫描页面。普通气泡使用 `litos-ui/popover`；确认框配置使用 `litos-ui/popconfirm`，额外注册 Button 和 WarnIcon。Tabs.init() 和 createTransition().init() 仍需显式调用，并在卸载时清理。
+服务子路径仍需显式调用 API。全局 CSS 的 import 暂时仅保留注释，等待后续 Vite 插件配置，不自动向 document.head 注入样式。空导入不会打开消息、向全局注入 API 或自动扫描页面。普通气泡使用 `litos-ui/popover`；确认框配置使用 `litos-ui/popconfirm`，额外注册 Button 和 WarnIcon。Tabs.init() 和 createTransition().init() 仍需显式调用，并在卸载时清理。
 
 ## 样式、主题与 SSR
 
-元素的 Shadow DOM 样式随入口加载。Message、Loading、Dialog、ModalBox、Notification、Tabs、Popover、Select、DatePicker 的子路径会准备所需全局样式；vars.css 仍需引入一次。reset、container、scrollbar 和主题配色沿用现有 styles 子路径按需引入，配色选择一套，无需引入全库样式集合。
+元素的 Shadow DOM 样式随入口加载。组件模块级 CSSStyleSheet 在实例间共享，不通过样式工厂创建。Message、Loading、Dialog、ModalBox、Notification、Tabs、Popover、Select、DatePicker 所需全局 CSS 当前不由子路径引入，使用时需自行通过现有 styles 子路径引入或后续 Vite 插件接入；vars.css 仍需引入一次。reset、container、scrollbar 和主题配色沿用现有 styles 子路径按需引入，配色选择一套，无需引入全库样式集合。
 
 ```js
 import "litos-ui/styles/theme-jade.css";

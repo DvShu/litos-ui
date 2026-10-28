@@ -1,0 +1,120 @@
+{
+  "button": [["icon/loading", "loading 状态", "internal"]],
+  "input": [["icon/close-filled", "clearable 状态", "internal"]],
+  "tag": [["icon/close", "closeable 状态", "internal"]],
+  "form": [["form-item", "标准配套", "companion"]],
+  "radio-group": [["radio", "标准配套", "companion"]],
+  "checkbox-group": [["checkbox", "标准配套", "companion"]],
+  "tabbar": [["tabbar-item", "标准配套", "companion"]],
+  "carousel": [
+    ["carousel-item", "标准配套", "companion"],
+    ["icon/arrow-left", "箭头导航", "internal"],
+    ["icon/arrow-right", "箭头导航", "internal"]
+  ],
+  "collapse": [["collapse-item", "标准配套", "companion"]],
+  "collapse-item": [["icon/arrow-right", "展开箭头", "internal"]],
+  "menu": [["icon/arrow-right", "子菜单", "internal"]],
+  "list": [["icon/loading", "infinite 且未 finish", "internal"]],
+  "color-picker": [],
+  "theme-color": [["color-picker", "内建颜色选择", "internal"]],
+  "select": [
+    ["icon/arrow-down", "基础箭头", "internal"],
+    ["icon/select", "选中标记", "internal"],
+    ["tag", "multiple", "internal"],
+    ["icon/close", "multiple 移除", "internal"],
+    ["icon/close-filled", "clearable", "internal"],
+    ["icon/loading", "loading", "internal"]
+  ],
+  "pagination": [
+    ["button", "翻页按钮", "internal"],
+    ["input", "跳页输入", "internal"],
+    ["icon/arrow-left", "翻页", "internal"],
+    ["icon/arrow-right", "翻页", "internal"],
+    ["icon/d-arrow-left", "首尾页", "internal"],
+    ["icon/d-arrow-right", "首尾页", "internal"],
+    ["icon/more", "更多页", "internal"]
+  ],
+  "date-picker": [
+    ["calendar", "弹层日历", "internal"],
+    ["button", "确认", "internal"],
+    ["icon/calendar", "输入图标", "internal"],
+    ["icon/arrow-left", "切月", "internal"],
+    ["icon/arrow-right", "切月", "internal"],
+    ["icon/d-arrow-left", "切年", "internal"],
+    ["icon/d-arrow-right", "切年", "internal"]
+  ],
+  "description-panel": [
+    ["button", "展开操作", "internal"],
+    ["icon/arrow-down", "展开箭头", "internal"]
+  ],
+  "page-header": [
+    ["button", "返回", "internal"],
+    ["icon/arrow-left", "返回", "internal"]
+  ],
+  "image-preview": [
+    ["icon/close", "关闭", "internal"],
+    ["icon/arrow-left", "导航", "internal"],
+    ["icon/arrow-right", "导航", "internal"],
+    ["icon/zoom-in", "缩放", "internal"],
+    ["icon/zoom-out", "缩放", "internal"],
+    ["icon/reduction", "还原", "internal"],
+    ["icon/refresh-left", "旋转", "internal"],
+    ["icon/refresh-right", "旋转", "internal"]
+  ],
+  "image": [["image-preview", "默认允许点击预览", "internal"]],
+  "upload": [
+    ["icon/close", "普通列表移除", "internal"],
+    ["icon/picture", "图片占位与失败", "internal"],
+    ["icon/eye-outline", "图片卡片预览动作", "internal"],
+    ["icon/delete", "图片卡片删除", "internal"],
+    ["image-preview", "内建预览", "internal"]
+  ],
+  "theme": [
+    ["button", "按钮模式", "internal"],
+    ["select-ori", "原生选择模式", "internal"],
+    ["switch", "开关模式", "internal"],
+    ["radio-group", "单选模式", "internal"],
+    ["icon/theme-default", "自动模式", "internal"],
+    ["icon/sun", "浅色", "internal"],
+    ["icon/moon", "暗黑", "internal"]
+  ],
+  "dialog-container": [
+    ["button", "确认／取消含 loading", "internal"],
+    ["icon/close", "关闭", "internal"]
+  ],
+  "modal": [
+    ["button", "确认／取消含 loading", "internal"],
+    ["icon/close", "关闭", "internal"]
+  ],
+  "dialog": [["dialog-container", "标准容器用法", "companion"]],
+  "dialog-box": [
+    ["dialog-container", "弹框", "internal"],
+    ["icon/info", "confirm", "internal"],
+    ["form-item", "prompt 调用时注册", "lazy"],
+    ["input", "prompt 调用时注册", "lazy"]
+  ],
+  "modal-box": [
+    ["modal", "弹框", "internal"],
+    ["icon/info", "confirm", "internal"],
+    ["form-item", "prompt 调用时注册", "lazy"],
+    ["input", "prompt 调用时注册", "lazy"]
+  ],
+  "message": [
+    ["icon/close-filled", "error；首次显示注册", "lazy"],
+    ["icon/success", "success；首次显示注册", "lazy"],
+    ["icon/warn", "warn；首次显示注册", "lazy"],
+    ["icon/info", "info；首次显示注册", "lazy"]
+  ],
+  "notification": [
+    ["icon/info", "info；连接或调用时也会注册", "lazy"],
+    ["icon/success", "success", "lazy"],
+    ["icon/warn", "warning", "lazy"],
+    ["icon/close-filled", "error", "lazy"],
+    ["icon/close", "关闭", "lazy"]
+  ],
+  "tabs": [["tabbar", "标准配套", "companion"]],
+  "popconfirm": [
+    ["button", "确认／取消", "internal"],
+    ["icon/warn", "警告图标", "internal"]
+  ]
+}

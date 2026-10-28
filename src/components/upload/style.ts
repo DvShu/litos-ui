@@ -1,6 +1,6 @@
-import { createStyleSheet } from "../utils/style";
 // @ts-ignore
 import uploadCss from "./index.less?inline";
 
-const uploadSheet = /* @__PURE__ */ createStyleSheet(uploadCss);
+const uploadSheet = new CSSStyleSheet();
+uploadSheet.replaceSync(uploadCss);
 export default uploadSheet;

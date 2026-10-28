@@ -150,4 +150,4 @@ import "litos-ui/button";
 import "litos-ui/input-number";
 ```
 
-These client-only element entries register their built-in dependencies, including Button's loading icon. Root imports with manual regist() remain supported. Service subpaths, such as Message from "litos-ui/message", prepare their global styles and require explicit API calls. See the [complete entry list and SSR guidance](https://dvshu.github.io/litos-ui/en/on_demand).
+These client-only element entries register their built-in dependencies, including Button's loading icon. Root imports with manual regist() remain supported. Service subpaths, such as Message from "litos-ui/message", require explicit API calls and do not install global styles. CSS imports are currently commented out for future Vite plugin configuration. See the [complete entry list and SSR guidance](https://dvshu.github.io/litos-ui/en/on_demand).

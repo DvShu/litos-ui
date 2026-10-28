@@ -1,7 +1,6 @@
 import "./dialog-container";
-import { installStyle } from "../utils/style";
-import css0 from "../../../styles/dialog.css?inline";
+// 由消费端或后续 Vite 插件引入全局样式。
+// import "../../../styles/dialog.css";
 
-installStyle("dialog", css0);
 export { default } from "../dialog";
 export * from "../dialog";

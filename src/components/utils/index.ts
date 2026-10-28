@@ -7,6 +7,8 @@ let seed = -1; // 用于构建多个id，避免重复
  * 注册 Web Components 组件
  * @param component Web Components 组件
  * @param name 组件名称, 如果不填, 则根据组件的 baseName 生成
+ * 按数组顺序注册，调用方先准备依赖，再传入依赖元素的组件。
+ * 已存在的标签保持原定义；本函数不替换构造函数、不自动解析依赖或注册基类。
  */
 export function regist(component: any | any[], name?: string) {
   const comts = Array.isArray(component) ? component : [component];

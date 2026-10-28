@@ -2,11 +2,12 @@ import "./dialog-container";
 import "./button";
 import "./icon-info";
 import "./icon-close";
-import "./form-item";
-import "./input";
-import { installStyle } from "../utils/style";
-import css0 from "../../../styles/dialog.css?inline";
+// 可选：prompt 输入区域需要；使用时另行引入 litos-ui/form-item。
+// import "./form-item";
+// 可选：prompt 输入区域需要；使用时另行引入 litos-ui/input。
+// import "./input";
+// 由消费端或后续 Vite 插件引入全局样式。
+// import "../../../styles/dialog.css";
 
-installStyle("dialog", css0);
 export { default } from "../dialog/dialog_box";
 export * from "../dialog/dialog_box";

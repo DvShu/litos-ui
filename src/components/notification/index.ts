@@ -101,8 +101,8 @@ let globalConfig: NotificationOptions = {};
 /** 注册组件依赖的图标 */
 function registIcons() {
   if (iconRegistered) return;
-  iconRegistered = true;
   regist([InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon]);
+  iconRegistered = true;
 }
 
 /**
@@ -121,8 +121,8 @@ function configNotification(option: NotificationOptions) {
  */
 function showNotification(option: string | NotificationOptions, type?: NotificationType): string {
   // 保证组件与图标已经注册, 命令式使用时无需手动调用 regist
-  regist(Notification);
   registIcons();
+  regist(Notification);
   const opts: NotificationOptions = {
     ...globalConfig,
     ...(typeof option === "string" ? { message: option } : option),

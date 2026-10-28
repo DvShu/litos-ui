@@ -2,9 +2,8 @@ import "./icon-close-filled";
 import "./icon-success";
 import "./icon-warn";
 import "./icon-info";
-import { installStyle } from "../utils/style";
-import css0 from "../../../styles/message.css?inline";
+// 由消费端或后续 Vite 插件引入全局样式。
+// import "../../../styles/message.css";
 
-installStyle("message", css0);
 export { default } from "../message";
 export * from "../message";

@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { readdirSync, readFileSync } from "node:fs";
+import { readdirSync } from "node:fs";
 import path from "path";
 
 const entries: Record<string, string> = {};
@@ -19,7 +19,6 @@ const ignoreFiles = new Set([
   "form/form_inner.ts",
   "table/types.ts",
   "utils/signal_types.ts",
-  "utils/style.ts",
 ]);
 for (const rawFilename of entryFiles) {
   const filename = rawFilename.replaceAll("\\", "/");
@@ -32,11 +31,11 @@ for (const rawFilename of entryFiles) {
   entries[path.posix.join(filepath.dir, filepath.name)] = fileAbsName;
 }
 
-const pkg = JSON.parse(readFileSync("package.json", "utf8"));
-for (const target of Object.values(pkg.exports) as Array<{ import?: string } | string>) {
-  if (typeof target !== "object" || !target.import?.startsWith("./lib/entries/")) continue;
-  const name = target.import.slice("./lib/".length, -".js".length);
-  entries[name] = `src/components/${name}.ts`;
+// 注册入口按目录扫描，新增组件无需逐项维护 package.json exports。
+for (const filename of readdirSync(`${dir}/entries`)) {
+  if (!filename.endsWith(".ts") || filename.endsWith(".d.ts")) continue;
+  const name = `entries/${filename.slice(0, -3)}`;
+  entries[name] = `${dir}/entries/${filename}`;
 }
 
 export default defineConfig({

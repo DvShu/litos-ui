@@ -11,6 +11,7 @@ import {
   rmSync,
   existsSync,
   realpathSync,
+  readdirSync,
 } from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -34,8 +35,14 @@ const args = ["pack", "--ignore-scripts", "--json", "--pack-destination", temp];
 const npmCli = path.join(path.dirname(process.execPath), "node_modules/npm/bin/npm-cli.js");
 const packed = JSON.parse(
   process.platform === "win32"
-    ? execFileSync(process.execPath, [npmCli, ...args], { encoding: "utf8" })
-    : execFileSync("npm", args, { encoding: "utf8" }),
+    ? execFileSync(process.execPath, [npmCli, ...args], {
+        encoding: "utf8",
+        env: { ...process.env, npm_config_cache: path.join(temp, "npm-cache") },
+      })
+    : execFileSync("npm", args, {
+        encoding: "utf8",
+        env: { ...process.env, npm_config_cache: path.join(temp, "npm-cache") },
+      }),
 )[0];
 const packageRoot = path.join(consumer, "node_modules/litos-ui");
 execFileSync("tar", [
@@ -53,9 +60,25 @@ for (const dep of Object.keys(pkg.dependencies)) {
     { recursive: true, dereference: true },
   );
 }
-const publicEntries = Object.entries(pkg.exports).filter(
-  ([, value]) => typeof value === "object" && value.import.startsWith("./lib/entries/"),
-);
+// Expand canonical subpaths from the actual tarball, not workspace aliases.
+const publicEntries = readdirSync(path.join(packageRoot, "lib/entries"))
+  .filter((file) => file.endsWith(".js"))
+  .map((file) => {
+    const name = file.slice(0, -3);
+    const icon = name.startsWith("icon-");
+    const key = `./${icon ? name.replace(/^icon-/, "icon/") : name}`;
+    const pattern = icon ? "./icon/*" : "./*";
+    const mapping = pkg.exports[key] ?? pkg.exports[pattern];
+    assert(mapping, `Missing exports mapping: ${key}`);
+    const wildcard = icon ? name.slice(5) : name;
+    return [
+      key,
+      {
+        import: mapping.import.replace("*", wildcard),
+        types: mapping.types.replace("*", wildcard),
+      },
+    ];
+  });
 
 test("published entries and declarations exist with exact case and no source aliases", () => {
   assert.equal(publicEntries.length, 90);
@@ -115,22 +138,45 @@ function excludes(result, names) {
 test("production consumer keeps explicit registration and excludes unrelated components", async () => {
   const only = await bundle("button", 'import "litos-ui/button";');
   assert(only.modules.some((id) => id.endsWith("/lib/entries/button.js")));
-  assert(only.modules.some((id) => id.endsWith("/lib/icon/loading.js")));
+  assert(!only.modules.some((id) => id.endsWith("/lib/icon/loading.js")));
+  const loadingButton = await bundle(
+    "button-loading",
+    'import "litos-ui/icon/loading"; import "litos-ui/button";',
+  );
+  assert(loadingButton.modules.some((id) => id.endsWith("/lib/icon/loading.js")));
+  excludes(loadingButton, ["upload", "table", "select", "notification", "qrcode"]);
   excludes(only, ["upload", "table", "select", "notification", "qrcode"]);
   assert(!only.code.includes("l-notification"));
   const two = await bundle("two", 'import "litos-ui/button"; import "litos-ui/input";');
   excludes(two, ["upload", "select", "table"]);
-  assert(two.modules.some((id) => id.endsWith("/lib/icon/close_filled.js")));
+  assert(!two.modules.some((id) => id.endsWith("/lib/icon/close_filled.js")));
+  const clearInput = await bundle(
+    "clear-input",
+    'import "litos-ui/icon/close-filled"; import "litos-ui/input";',
+  );
+  assert(clearInput.modules.some((id) => id.endsWith("/lib/icon/close_filled.js")));
+  excludes(clearInput, ["button", "upload", "table", "select"]);
   const composite = await bundle("select", 'import "litos-ui/select";');
   excludes(composite, ["button", "upload", "table"]);
   const upload = await bundle("upload", 'import "litos-ui/upload";');
   for (const dependency of ["icon-eye-outline", "icon-delete", "image-preview"]) {
     assert(
-      upload.modules.some((id) => id.endsWith(`/lib/entries/${dependency}.js`)),
+      !upload.modules.some((id) => id.endsWith(`/lib/entries/${dependency}.js`)),
+      `Unexpected optional Upload dependency: ${dependency}`,
+    );
+  }
+  const previewUpload = await bundle(
+    "upload-preview",
+    'import "litos-ui/image-preview"; import "litos-ui/icon/picture"; import "litos-ui/icon/eye-outline"; import "litos-ui/icon/delete"; import "litos-ui/upload";',
+  );
+  for (const dependency of ["icon-eye-outline", "icon-delete", "image-preview"]) {
+    assert(
+      previewUpload.modules.some((id) => id.endsWith(`/lib/entries/${dependency}.js`)),
       `Upload dependency missing: ${dependency}`,
     );
   }
   excludes(upload, ["button", "select", "table", "notification", "qrcode"]);
+  excludes(previewUpload, ["button", "select", "table", "notification", "qrcode"]);
   const service = await bundle(
     "service",
     'import ModalBox from "litos-ui/modal-box"; globalThis.api = ModalBox;',

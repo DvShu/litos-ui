@@ -1,7 +1,6 @@
 import "./button";
 import "./icon-warn";
-import { installStyle } from "../utils/style";
-import css0 from "../../../styles/popover.css?inline";
+// 由消费端或后续 Vite 插件引入全局样式。
+// import "../../../styles/popover.css";
 
-installStyle("popover", css0);
 export * from "../utils/popover";

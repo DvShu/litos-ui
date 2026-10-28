@@ -1,5 +1,5 @@
-import { createStyleSheet } from "../utils/style";
 import css from "./index.less?inline";
 
-const buttonSheet = /* @__PURE__ */ createStyleSheet(css);
+const buttonSheet = new CSSStyleSheet();
+buttonSheet.replaceSync(css);
 export default buttonSheet;

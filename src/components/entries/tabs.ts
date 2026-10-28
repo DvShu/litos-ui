@@ -1,7 +1,6 @@
 import "./tabbar";
-import { installStyle } from "../utils/style";
-import css0 from "../../../styles/tabs.css?inline";
+// 由消费端或后续 Vite 插件引入全局样式。
+// import "../../../styles/tabs.css";
 
-installStyle("tabs", css0);
 export { default } from "../tabs";
 export * from "../tabs";

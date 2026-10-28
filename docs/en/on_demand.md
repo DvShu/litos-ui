@@ -45,11 +45,11 @@ import type { UploadFile } from "litos-ui/upload";
 import type { Column } from "litos-ui/table";
 ```
 
-Service entries install their required global styles once and still require explicit API calls. Importing them does not open a message, create a global API variable, or scan the page. Use `litos-ui/popover` for plain Popover; `litos-ui/popconfirm` additionally registers Button and WarnIcon for the confirmation configuration. Tabs.init() and createTransition().init() remain explicit operations with cleanup.
+Service entries require explicit API calls. Their global CSS imports are currently commented out for future Vite plugin configuration; entries do not inject styles into document.head. Importing them does not open a message, create a global API variable, or scan the page. Use `litos-ui/popover` for plain Popover; `litos-ui/popconfirm` additionally registers Button and WarnIcon for the confirmation configuration. Tabs.init() and createTransition().init() remain explicit operations with cleanup.
 
 ## Styles, themes and SSR
 
-Element Shadow DOM styles come with the entry. Message, loading, dialog, modal-box, notification, tabs, popover, select and date-picker entries prepare their required global styles. Import vars.css once; reset, container, scrollbar and preset theme CSS remain explicit opt-ins through existing styles subpaths. Choose only one preset. No global stylesheet containing the entire library is required.
+Element Shadow DOM styles come with the entry. Components reuse module-level CSSStyleSheet instances directly. Global CSS for Message, loading, dialog, modal-box, notification, tabs, popover, select and date-picker must currently be imported explicitly through the existing styles subpaths or configured by a future Vite plugin. Import vars.css once; reset, container, scrollbar and preset theme CSS remain explicit opt-ins through existing styles subpaths. Choose only one preset. No global stylesheet containing the entire library is required.
 
 ```js
 import "litos-ui/styles/theme-jade.css";

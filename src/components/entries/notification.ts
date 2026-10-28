@@ -3,12 +3,11 @@ import "./icon-success";
 import "./icon-warn";
 import "./icon-close-filled";
 import "./icon-close";
-import { installStyle } from "../utils/style";
-import css0 from "../../../styles/notification.css?inline";
+// 由消费端或后续 Vite 插件引入全局样式。
+// import "../../../styles/notification.css";
 import Notification from "../notification";
 import { regist } from "../utils";
 
-installStyle("notification", css0);
 regist(Notification);
 export { default } from "../notification";
 export * from "../notification";

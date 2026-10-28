@@ -88,7 +88,7 @@ function renderModal(
 }
 
 function alert(content: string, title?: string, option?: AlertOptions): Promise<boolean> {
-  regist([Button, Modal, CloseIcon]);
+  regist([CloseIcon, Button, Modal]);
   const opts = {
     showCancel: false,
     close: 0,
@@ -100,7 +100,7 @@ function alert(content: string, title?: string, option?: AlertOptions): Promise<
 }
 
 function confirm(content: string, title?: string, option?: AlertOptions) {
-  regist([Button, Modal, CloseIcon, InfoIcon]);
+  regist([CloseIcon, InfoIcon, Button, Modal]);
   const opts = {
     showCancel: true,
     close: 0,
@@ -112,7 +112,7 @@ function confirm(content: string, title?: string, option?: AlertOptions) {
 }
 
 function prompt(label: string, title?: string, option?: PromptOptions) {
-  regist([Button, Modal, CloseIcon, InfoIcon, FormItem, Input]);
+  regist([CloseIcon, InfoIcon, FormItem, Input, Button, Modal]);
   const opts = {
     showCancel: true,
     close: 0,

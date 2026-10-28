@@ -85,7 +85,7 @@ function renderDialog(
 }
 
 function alert(content: string, title?: string, option?: AlertOptions): Promise<boolean> {
-  regist([Button, DialogContainer, CloseIcon]);
+  regist([CloseIcon, Button, DialogContainer]);
   const opts: Required<AlertOptions> = {
     showCancel: false,
     close: 0,
@@ -97,7 +97,7 @@ function alert(content: string, title?: string, option?: AlertOptions): Promise<
 }
 
 function confirm(content: string, title?: string, option?: AlertOptions): Promise<boolean> {
-  regist([Button, DialogContainer, CloseIcon, InfoIcon]);
+  regist([CloseIcon, InfoIcon, Button, DialogContainer]);
   const opts: Required<AlertOptions> = {
     showCancel: true,
     close: 0,
@@ -109,7 +109,7 @@ function confirm(content: string, title?: string, option?: AlertOptions): Promis
 }
 
 function prompt(label: string, title?: string, option?: PromptOptions): Promise<string | false> {
-  regist([Button, DialogContainer, CloseIcon, InfoIcon, FormItem, Input]);
+  regist([CloseIcon, InfoIcon, FormItem, Input, Button, DialogContainer]);
   const opts: Required<PromptOptions> = {
     showCancel: true,
     close: 0,

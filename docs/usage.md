@@ -104,4 +104,4 @@ import "litos-ui/button";
 import "litos-ui/input-number";
 ```
 
-在客户端入口加载后即可使用，自动注册内建依赖（包括 Button 的 loading 图标）。原有总入口加手动 regist() 用法继续支持。服务子路径（如默认导入 litos-ui/message）会准备对应全局样式，仍需显式调用 API。完整入口、类型及 SSR 限制见[按需导入指南](/on_demand)。
+在客户端入口加载后即可使用，自动注册内建依赖（包括 Button 的 loading 图标）。原有总入口加手动 regist() 用法继续支持。服务子路径（如默认导入 litos-ui/message）不自动引入全局样式（入口仅保留 CSS 引入注释，后续由 Vite 插件配置），仍需显式调用 API。完整入口、类型及 SSR 限制见[按需导入指南](/on_demand)。
