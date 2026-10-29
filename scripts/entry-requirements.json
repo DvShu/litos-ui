@@ -106,15 +106,16 @@
     ["icon/info", "info；首次显示注册", "lazy"]
   ],
   "notification": [
-    ["icon/info", "info；连接或调用时也会注册", "lazy"],
-    ["icon/success", "success", "lazy"],
-    ["icon/warn", "warning", "lazy"],
-    ["icon/close-filled", "error", "lazy"],
-    ["icon/close", "关闭", "lazy"]
+    ["icon/info", "info", "companion"],
+    ["icon/success", "success", "companion"],
+    ["icon/warn", "warning", "companion"],
+    ["icon/close-filled", "error", "companion"],
+    ["icon/close", "关闭", "companion"]
   ],
   "tabs": [["tabbar", "标准配套", "companion"]],
   "popconfirm": [
     ["button", "确认／取消", "internal"],
     ["icon/warn", "警告图标", "internal"]
-  ]
+  ],
+  "notification-box": [["notification", "使用前显式注册", "companion"]]
 }

@@ -1,0 +1,33 @@
+/* 暗黑模式 */
+:root.dark {
+  --l-disabled-color: #6c6c6c;
+  /* 表格配置 */
+  --l-table-border-color: #444444;
+  --l-table-th-bg: #2d2d2d;
+  --l-table-th-color: #e0e0e0;
+  --l-table-td-bg: #1e1e1e;
+  --l-table-td-color: #e0e0e0;
+  --l-table-row-hover-bg: #333333;
+  --l-table-empty-color: #888888;
+  --l-table-stripe-bg: #252525;
+  --l-table-sort-inactive-color: #777777;
+  /* Card：仅覆盖暗黑模式中需要变化的值，默认值由组件消费处提供。 */
+  --l-card-bg: #232324;
+  --l-card-text-color: rgba(255, 255, 255, 0.7);
+  --l-card-border-color: rgb(72, 72, 73);
+  /* Upload：仅覆盖暗黑模式中需要变化的值，默认值由组件消费处提供。 */
+  --l-upload-border-color: rgba(255, 255, 255, 0.2);
+  --l-upload-border-hover-color: var(--l-primary-color-light1, #3399ff);
+  --l-upload-background: #1e1e1e;
+  --l-upload-text-color: rgba(255, 255, 255, 0.88);
+  --l-upload-text-secondary-color: rgba(255, 255, 255, 0.45);
+  --l-upload-disabled-color: rgba(255, 255, 255, 0.3);
+  --l-upload-disabled-background: rgba(255, 255, 255, 0.04);
+  --l-upload-disabled-border-color: rgba(255, 255, 255, 0.15);
+  --l-upload-list-hover-background: rgba(255, 255, 255, 0.04);
+  --l-upload-dragover-background: color-mix(
+    in srgb,
+    var(--l-primary-color, #007bff) 15%,
+    transparent
+  );
+}

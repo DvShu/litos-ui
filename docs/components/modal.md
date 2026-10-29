@@ -5,9 +5,9 @@
 ## 引用
 
 ```js
-import { Modal, regist, Button, CloseIcon, InfoIcon } from "litos-ui";
+import { Modal, regist, Button, CloseIcon, InfoIcon, LoadingIcon, ModalBox } from "litos-ui";
 
-regist([Modal]);
+regist([CloseIcon, LoadingIcon, Button, Modal]);
 // 当显示底部时调用
 regist(Button);
 // 当需要显示关闭按钮时
@@ -92,6 +92,7 @@ regist([InfoIcon]);
       if ($modals) {
         iterate($modals, ($modal) => {
           off($modal, 'cancel', onCancel);
+          off($modal, 'ok', onOk);
         });
         $modals = undefined;
       }
@@ -135,7 +136,7 @@ regist([InfoIcon]);
 
 ### 自定义头部
 
-除了使用 `header` 属性定义头部内容外，也可以通过传递 `header-slot` 插槽自定义头部内容。通过传递 `width` 属性改变宽度
+除了使用 `header-title` 属性定义标题文本外，也可以通过传递 `header` 插槽自定义头部内容。通过传递 `width` 属性改变宽度
 
 <ClientOnly>
 <l-code-preview>
@@ -230,10 +231,10 @@ regist([InfoIcon]);
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open3" header-title="异步关闭">
+  <l-modal for="open4" header-title="Title" close="2">
     <span>对话框内容</span>
   </l-modal>
-  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+  <l-button id="open4" type="primary">打开-异步关闭</l-button>
 </textarea>
 <textarea lang="js">
   const $open4Btn = document.getElementById('open4');
@@ -288,7 +289,7 @@ regist([InfoIcon]);
 
 模拟系统的消息提示框而实现的一套模态对话框组件，用于消息提示、确认消息和提交内容。系统自带有3种消息弹窗：`alert`、`confirm`、`prompt` 但是其样式比较简陋不太美观，消息弹窗优化了样式。
 
-分别通过 `LModalBox.alert()`、`LModalBox.confirm()`、`LModalBox.prompt()` 调用
+分别通过 `ModalBox.alert()`、`ModalBox.confirm()`、`ModalBox.prompt()` 调用
 
 <ClientOnly>
 <l-code-preview>
@@ -300,15 +301,15 @@ regist([InfoIcon]);
 <div class="source">
 <textarea lang="js">
   // alert
-  LModalBox.alert('这是一段内容', '标题').then(() => {
+  ModalBox.alert('这是一段内容', '标题').then(() => {
     console.log("alert close")
   });
   // confirm
-  LModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
+  ModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
     console.log(ok);
   })
   // prompt
-  LModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
+  ModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
     console.log(text);
   });
 </textarea>
@@ -320,6 +321,7 @@ regist([InfoIcon]);
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/modal_box.css";
 import "litos-ui/modal";
 ```
 
@@ -396,11 +398,13 @@ import "litos-ui/modal";
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 参数 | 返回值 |
 | --- | --- | --- | --- |
-| `alert` | 展示消息提示框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise` |
-| `confirm` | 展示消息确认框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise<boolean>` |
-| `prompt` | 展示输入框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise<string>` |
+| `alert` | 展示消息提示框 | `message: string, title?: string, options?: ModalBoxOptions` | `Promise<boolean>` |
+| `confirm` | 展示消息确认框 | `message: string, title?: string, options?: ModalBoxOptions` | `Promise<boolean>` |
+| `prompt` | 展示输入框 | `message: string, title?: string, options?: ModalBoxOptions` | `Promise<string \| false>` |
 
 ### ModalBoxOptions
+
+以下描述方法接受的配置对象；ModalBoxOptions 是文档中的结构名称，不是包导出的独立类型。
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

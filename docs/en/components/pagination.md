@@ -1,8 +1,8 @@
-# Pagination 分页
+# Pagination
 
-当加载所有数据时将花费更多时间，使用分页组件可以快速切换数据。
+Split large datasets into pages so users can move between them without loading everything at once.
 
-## 引用
+## Import and Registration
 
 ```js
 import {
@@ -29,11 +29,11 @@ regist([
 ]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-只需要传递 `total` 或者 `page-count` 就能显示一个分页组件. 在 `change` 事件中进行分页处理
+Set `total` or `page-count` to display pagination. Handle page changes in the `change` event.
 
 <ClientOnly>
 <l-code-preview>
@@ -43,9 +43,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 对齐方式
+### Alignment
 
-通过 `align` 来设置对齐方式. 取值有: start、center、end
+Set `align` to `start`, `center`, or `end` to control alignment.
 
 <ClientOnly>
 <l-code-preview>
@@ -59,9 +59,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 单页隐藏
+### Hide on a Single Page
 
-通过 `hide-on-single-page` 来设置单页隐藏.
+Set `hide-on-single-page` to hide pagination when there is only one page.
 
 <ClientOnly>
 <l-code-preview>
@@ -71,9 +71,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 简单分页
+### Simple Pagination
 
-简单的分页，在空间有限的情况下，可以使用简单分页。
+Use simple pagination when space is limited.
 
 <ClientOnly>
 <l-code-preview>
@@ -90,47 +90,47 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/pagination";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Pagination Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `total` | 总条数 | `number` | `0` |
-| `page-count` | 总页数 | `number` | `0` |
-| `simple` | 简单分页 | `boolean` | `false` |
-| `hide-on-single-page` | 单页隐藏 | `boolean` | `false` |
-| `align` | 对齐方式 | `start`、`center`、`end` | `start` |
-| `current-page` | 当前页 | `number` | `1` |
-| `page-size` | 每页条数 | `number` | `10` |
+| `total` | Total number of records | `number` | `0` |
+| `page-count` | Total number of pages | `number` | `0` |
+| `simple` | Simple pagination | `boolean` | `false` |
+| `hide-on-single-page` | Hide when there is only one page | `boolean` | `false` |
+| `align` | Alignment | `start`, `center`, `end` | `start` |
+| `current-page` | Current page | `number` | `1` |
+| `page-size` | Records per page | `number` | `10` |
 
 ### Pagination Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
 | `-` | - |
 
 ### Pagination Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 分页改变时触发, `detail:{current:number, pageSize:number, totalPage:number}` | `(event: CustomEvent)` |
+| `change` | Fires when the page changes; detail: {current:number, pageSize:number, totalPage:number} | `(event: CustomEvent)` |
 
 ### Pagination Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
-| `setAttribute("current-page", "2")` | 通过属性设置当前页；当前没有 setCurrent 方法 | 原生 HTMLElement 方法 |
+| `setAttribute("current-page", "2")` | Set the current page through this attribute; there is no setCurrent method | Native HTMLElement method |
 
 ### Pagination CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
 | - | - | - |

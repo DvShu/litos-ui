@@ -1,8 +1,8 @@
-# Image 图片
+# Image
 
-可预览的图片，在保留所有原生 `img` 的特性下，支持懒加载，自定义占位图片、加载失败等
+An image component with preview, native image attributes, lazy loading, placeholders, and error fallbacks.
 
-## 引用
+## Import and Registration
 
 ```js
 import {
@@ -20,7 +20,7 @@ import {
 } from "litos-ui";
 
 regist([Image]);
-// 需要图片预览时, 如果禁用图片预览, 则不需要引入下面
+// Register these components when image preview is enabled.
 regist([
   ImagePreview,
   CloseIcon,
@@ -34,7 +34,7 @@ regist([
 ]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
@@ -76,12 +76,12 @@ regist([
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        // 多图预览
+        // Multiple-image preview
         $morePreview = $('.morePreview');
         $morePreview.forEach((item) => {
           item.setPreviewImageList(imgs);
         });
-        // 手动预览
+        // Manual preview
         $customPreview = $('.customPreview');
         iterate($customPreview, (item) => {
           on(item, 'click', handleCustomTap);
@@ -96,7 +96,7 @@ regist([
 
   onUnmounted(() => {
     $morePreview = undefined;
-    this.handlePreviewClosed();
+    handlePreviewClosed();
     if ($customPreview) {
       iterate($customPreview, (item) => {
         off(item, 'click', handleCustomTap);
@@ -110,9 +110,9 @@ regist([
 
 </script>
 
-### 基础用法
+### Basic Usage
 
-通过 `src` 属性来设置图片的地址, 可以通过 `width`、`height` 来设置图片的宽度、高度
+Set the image URL with `src`, and its dimensions with `width` and `height`.
 
 <ClientOnly>
 <l-code-preview>
@@ -122,15 +122,15 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 适应容器
+### Object Fit
 
-通过设置 `fit` 属性来控制图片的填充模式，可选值有：
+Set `fit` to control how the image fits its container:
 
-- fill: 被替换的内容正好填充元素的内容框。整个对象将完全填充此框。如果对象的宽高比与内容框不相匹配，那么该对象将被拉伸以适应内容框。
-- contain: 保持原有尺寸比例完整显示在内容区域内，可能会留白。
-- cover: 保持原有尺寸比例缩放图片，直到图片至少一边填满内容区域，另一边超出内容区域并被裁剪。
-- none: 不改变图像本身的尺寸、密度和方向。
-- scale-down: 将图像缩小，以使其适应元素的内容框，同时保持其原始纵横比。如果无法满足这一条件（即图像已经小于或等于元素的大小），则将使用 'none' 值进行替代。
+- fill: Stretch the image to fill the content box. Its aspect ratio may change.
+- contain: Fit the entire image inside the content box while preserving its aspect ratio; empty space may remain.
+- cover: Fill the content box while preserving the aspect ratio, cropping any overflow.
+- none: Keep the image at its intrinsic size.
+- scale-down: Use the smaller result of none and contain, preserving the aspect ratio without enlarging the image.
 
 <ClientOnly>
 <l-code-preview>
@@ -143,7 +143,7 @@ regist([
         height="100px"
         fit="fill"
         class="l-popover-reference"
-        data-title="被替换的内容正好填充元素的内容框。整个对象将完全填充此框。如果对象的宽高比与内容框不相匹配，那么该对象将被拉伸以适应内容框"
+        data-title="Stretch to fill the content box; the aspect ratio may change."
       ></l-image>
       <span>fit</span>
     </div>
@@ -154,7 +154,7 @@ regist([
         height="100px"
         fit="contain"
         class="l-popover-reference"
-        data-title="被替换的内容将被缩放，以在填充元素的内容框时保持其宽高比。整个对象在填充盒子的同时保留其长宽比"
+        data-title="Fit the entire image while preserving its aspect ratio."
       ></l-image>
       <span>contain</span>
     </div>
@@ -165,7 +165,7 @@ regist([
         height="100px"
         fit="cover"
         class="l-popover-reference"
-        data-title="被替换的内容在保持其宽高比的同时填充元素的整个内容框。如果对象的宽高比与内容框不相匹配，该对象将被剪裁以适应内容框"
+        data-title="Fill the content box while preserving the aspect ratio, cropping overflow."
       ></l-image>
       <span>cover</span>
     </div>
@@ -176,7 +176,7 @@ regist([
         height="100px"
         fit="none"
         class="l-popover-reference"
-        data-title="被替换的内容本身的尺寸、密度和方向都不改变"
+        data-title="Keep the image at its intrinsic size."
       ></l-image>
       <span>none</span>
     </div>
@@ -187,7 +187,7 @@ regist([
         height="100px"
         fit="scale-down"
         class="l-popover-reference"
-        data-title="内容的尺寸与 none 或 contain 中的一个相同，取决于它们两个之间谁得到的对象尺寸会更小一些"
+        data-title="Use the smaller image size produced by none and contain."
       ></l-image>
       <span>scale-down</span>
     </div>
@@ -230,9 +230,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 占位
+### Placeholder
 
-使用 `placeholder` 定义图片加载时显示的图片；通常用于加载大图时用来实现渐进加载，将 `placeholder` 设置为一个原图模糊后的图片
+Set `placeholder` to an image displayed while the main image loads. For progressive loading of large images, use a blurred version of the original.
 
 <ClientOnly>
 <l-code-preview>
@@ -242,9 +242,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 加载失败
+### Error Fallback
 
-通过配置 `fallback` 配置加载失败显示图像占位符; 也可以传递 `custom-fallback` 启用自定义加载失败占位符, 然后配置 `slot-fallback` 来自定义加载失败显示.
+Set `fallback` to an image URL displayed on failure. To provide custom fallback content, enable `custom-fallback` and use the `fallback` slot.
 
 <ClientOnly>
 <l-code-preview>
@@ -257,9 +257,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 多图预览
+### Multiple-image Preview
 
-通过 `setPreviewImageList(imageList?: string[])` 函数来设置多图预览, 可以通过 `preview-index` 属性来设置当前预览的图片索引
+Call `setPreviewImageList(imageList?: string[])` to supply the preview images, and set `preview-index` to choose the initial image.
 
 <ClientOnly>
 <l-code-preview>
@@ -275,7 +275,12 @@ regist([
   <l-image class="morePreview" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px" preview-index="2"></l-image>
 </textarea>
 <textarea lang="js">
-  import { $, iterate } from 'utilane/browser';
+  import { $, $$, on, off, iterate } from 'utilane/browser';
+  const imgs = [
+    '/litos-ui/img1.svg',
+    '/litos-ui/img2.svg',
+    'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+  ];
   const $morePreview = $('.morePreview');
   iterate($morePreview, (item) => {
     item.setPreviewImageList(imgs);
@@ -285,9 +290,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 禁用预览
+### Disabling Preview
 
-通过 `preview-disabled` 属性来禁用图片预览
+Set `preview-disabled` to disable image preview.
 
 <ClientOnly>
 <l-code-preview>
@@ -301,9 +306,9 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-### 懒加载
+### Lazy Loading
 
-通过使用浏览器原生支持的 `loading` 属性来开启懒加载，只需要设置 `loading="lazy"`
+Set `loading="lazy"` to use native browser lazy loading.
 
 <ClientOnly>
 <l-code-preview>
@@ -317,11 +322,11 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-> 从 `ios 15.4` 开始已经全面支持; 对于不支持 `loading="lazy"` 属性的浏览器，可以通过 [loading-attribute-polyfill](https://github.com/mfranzke/loading-attribute-polyfill) 来兼容
+> Lazy loading depends on browser support. If needed, evaluate [loading-attribute-polyfill](https://github.com/mfranzke/loading-attribute-polyfill) for your target browsers.
 
-### 手动预览
+### Manual Preview
 
-如果不想通过 `Image` 组件来预览图片，也可以手动通过使用 `ImagePreview` 来预览图片
+Use `ImagePreview` directly to preview images without relying on the `Image` component.
 
 <ClientOnly>
 <l-code-preview>
@@ -373,7 +378,12 @@ regist([
   ></l-image>
 </textarea>
 <textarea lang="js">
-  import { $, iterate } from 'utilane/browser';
+  import { $, $$, on, off, iterate } from 'utilane/browser';
+  const imgs = [
+    '/litos-ui/img1.svg',
+    '/litos-ui/img2.svg',
+    'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+  ];
   let $preview;
   const $customPreview = $('.customPreview');
   iterate($customPreview, (item) => {
@@ -409,56 +419,56 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/image";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Image Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `src` | _必填_ , 图片源地址，同原生属性一致 | `string` | — |
-| `width` | 宽度 | `string` | - |
-| `height` | 高度 | `string` | - |
-| `alt` | 原生属性 `alt` | `string` | - |
-| `loading` | 原生属性, 浏览器加载图像的策略 | `eager`、`lazy` | `eager` |
-| `fit` | 确定图片如何适应容器框，同原生 [object-fit](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) | `string` | - |
-| `fallback` | 图片加载失败时显示的地址 | `string` | - |
-| `custom-fallback` | 是否使用自定义加载失败内容 | `boolean` | `false` |
-| `placeholder` | 图片占位, 用于加载大图时的占位 | `string` | - |
-| `preview-disabled` | 禁用图片预览 | `boolean` | `false` |
-| `preview-image-list` | 预览图片地址列表, 多图预览时使用, 用 `,` 分隔 | `string` | - |
-| `preview-index` | 初始预览图像索引 | `number` | `0` |
+| `src` | Required image URL, matching the native src attribute | `string` | — |
+| `width` | Width | `string` | - |
+| `height` | Height | `string` | - |
+| `alt` | Native alt attribute | `string` | - |
+| `loading` | Native browser image loading strategy | `eager`, `lazy` | `eager` |
+| `fit` | How the image fits its container; see [object-fit](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) | `string` | - |
+| `fallback` | Image URL displayed when loading fails | `string` | - |
+| `custom-fallback` | Whether to use custom fallback content | `boolean` | `false` |
+| `placeholder` | Placeholder image displayed while the main image loads | `string` | - |
+| `preview-disabled` | Whether to disable image preview | `boolean` | `false` |
+| `preview-image-list` | Comma-separated preview image URLs | `string` | - |
+| `preview-index` | Initial preview image index | `number` | `0` |
 
 ### Image Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 内容 |
-| `fallback` | 图片加载失败时的内容 |
+| `default` | Content |
+| `fallback` | Content displayed when image loading fails |
 
 ### Image Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `click` | 点击图片时触发 | `(event: Event)` |
+| `click` | Fires when the image is clicked | `(event: Event)` |
 
 ### Image Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
-| `setPreviewImageList(imageList: string[] \| undefined)` | 设置预览图片地址列表 | `void` |
-| `setPreviewIndex(index: number)` | 设置预览图片索引 | `void` |
-| `openPreview()` | 打开预览 | `void` |
-| `closePreview()` | 关闭预览 | `void` |
+| `setPreviewImageList(imageList: string[] \| undefined)` | Sets the preview image URLs | `void` |
+| `setPreviewIndex(index: number)` | Sets the preview image index | `void` |
+| `openPreview()` | Opens the preview | `void` |
+| `closePreview()` | Closes the preview | `void` |
 
 ### Image CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
 | - | - | - |

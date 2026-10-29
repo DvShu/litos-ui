@@ -1,15 +1,15 @@
-# Message 消息提示
+# Message
 
-常用于主动操作后的反馈提示。更多用于系统级通知的被动提醒。
+Display feedback after user actions or passive system messages.
 
-## 引入
+## Imports
 
 ```js
 import { Message } from "litos-ui";
 import "litos-ui/styles/message.css";
 ```
 
-## 基础用法
+## Basic Usage
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
@@ -52,79 +52,79 @@ import "litos-ui/styles/message.css";
   })
 </script>
 
-### 显示信息
+### Showing a Message
 
-从顶部出现，`3` 秒后自动消失; 可以接收一个字符串被显示为正文内容
+Messages appear at the top and disappear automatically after `3` seconds. Pass a string to use it as the message content.
 
 <ClientOnly>
 <l-code-preview>
 <textarea>
-<l-button data-message="这是一条普通的提示信息">显示消息</l-button>
+<l-button data-message="This is an informational message">Show message</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button text>显示消息</l-button>
+  <l-button text>Show message</l-button>
 </textarea>
 <textarea lang="js">
   import { Message } from 'litos-ui';
   import { elem, on } from 'utilane/browser';
   //-
   on(elem('l-button')[0], 'click', () => {
-    Message.show({ message: '这是一条普通的提示信息' });
+    Message.show({ message: 'This is an informational message' });
   });
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-### 不同状态
+### Message Types
 
-用来显示「成功、警告、消息、错误」类的操作反馈。
+Provide success, warning, informational, and error feedback.
 
-当需要自定义更多属性时，`Message` 也可以接收一个对象为参数。 比如，设置 `type` 字段可以定义不同的状态，默认为 `info` 。 此时正文内容以 `message` 的值传入。 同时，也为 `Message` 的各种 `type` 注册了方法，可以在不传入 `type` 字段的情况下, 直接调用指定类型的函数, 例如: `Message.info('x')`。
+Pass an options object to customize more settings. Set `type` to select the message type (the default is `info`) and `message` to supply its content. Each type also has a convenience method, such as `Message.info('x')`, so you do not need to specify `type` explicitly.
 
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-button data-message="提示消息" data-type="info">提示消息</l-button>
-  <l-button data-message="成功消息" data-type="success">成功消息</l-button>
-  <l-button data-message="警告消息" data-type="warn">警告消息</l-button>
-  <l-button data-message="错误消息" data-type="error">错误消息</l-button>
+  <l-button data-message="Informational message" data-type="info">Informational message</l-button>
+  <l-button data-message="Success message" data-type="success">Success message</l-button>
+  <l-button data-message="Warning message" data-type="warn">Warning message</l-button>
+  <l-button data-message="Error message" data-type="error">Error message</l-button>
 </textarea>
 <div class="source">
 <textarea lang="js">
   import { Message } from 'litos-ui';
   //-
-  Message.info("提示消息");
-  Message.success("成功消息");
-  Message.warn("警告消息");
-  Message.error("错误消息");
+  Message.info("Informational message");
+  Message.success("Success message");
+  Message.warn("Warning message");
+  Message.error("Error message");
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-### 手动关闭
+### Closing Manually
 
-将 `duration` 属性设置为 `0`, 可以使 `Message` 不自动消失。然后显示消息的函数会返回一个消息 `id`, 通过手动调用 close 手动关闭
+Set `duration` to `0` to prevent automatic closing. The show method returns a message `id`; pass it to `Message.close()` to close the message manually.
 
 <ClientOnly>
 <l-code-preview>
 <textarea>
-  <l-button data-message="这是一条手动关闭的提示信息" data-duration="0" data-type="error">打开</l-button>
-  <l-button data-type="close">关闭</l-button>
+  <l-button data-message="This message must be closed manually" data-duration="0" data-type="error">Open</l-button>
+  <l-button data-type="close">Close</l-button>
 </textarea>
 <div class="source">
 <textarea lang="js">
   import { Message } from 'litos-ui';
   //-
-  // 打开消息
+  // Show the message
   const id = Message.show({
-    message: '这是一条手动关闭的提示信息',
+    message: 'This message must be closed manually',
     type: 'info',
     duration: 0
   });
-  // 关闭消息
+  // Close the message
   Message.close(id);
 </textarea>
 </div>
@@ -135,30 +135,31 @@ import "litos-ui/styles/message.css";
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/message.css";
 import Message from "litos-ui/message";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Methods
 
 <!-- prettier-ignore -->
-| 名称 | 参数 | 说明 | 返回类型 |
+| Name | Parameters | Description | Returns |
 | --- | --- | --- | --- |
-| `info`、`show` | `string` 或 `MessageOption` | 显示普通提示信息, 参数为配置项, 返回消息 `id` | `string` |
-| `success` | `string` 或 `MessageOption` | 显示成功提示信息 | `string` |
-| `warn` | `string` 或 `MessageOption` | 显示警告提示信息 | `string` |
-| `error` | `string` 或 `MessageOption` | 显示错误提示信息 | `string` |
-| `close` | `id: string` | 手动关闭消息 | - |
+| `info`, `show` | `string` or `MessageOption` | Shows an informational message and returns its id | `string` |
+| `success` | `string` or `MessageOption` | Shows a success message | `string` |
+| `warn` | `string` or `MessageOption` | Shows a warning message | `string` |
+| `error` | `string` or `MessageOption` | Shows an error message | `string` |
+| `close` | `id: string` | Closes a message manually | - |
 
 ### MessageOption
 
 <!-- prettier-ignore -->
-| 名称 | 类型 | 默认值 | 说明 |
+| Name | Type | Default | Description |
 | --- | --- | --- | --- |
-| `message` | `string` | - | 消息正文内容 |
-| `duration` | `number` | `3000` | 消息显示的持续时间，单位为毫秒。如果设置为 `0`，则不会自动关闭 |
-| `type` | `string` | `info` | 消息类型，可选值为 `success`、`warning`、`error`、`info` |
-| `customClass` | `string` | - | 自定义类名 |
+| `message` | `string` | - | Message content |
+| `duration` | `number` | `3000` | Display duration in milliseconds; 0 prevents automatic closing |
+| `type` | `string` | `info` | Message type: success, warn, error, or info |
+| `customClass` | `string` | - | Custom class name |

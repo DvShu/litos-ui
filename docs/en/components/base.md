@@ -1,16 +1,16 @@
-# Base 基础组件
+# Base
 
-组件通过继承 `BaseComponent` 复用 Shadow DOM、生命周期、属性监听、批量 DOM 更新和事件发送能力。
+Extend `BaseComponent` to reuse Shadow DOM support, lifecycle hooks, attribute observation, batched DOM updates, and event dispatching.
 
-## 引用
+## Import and Registration
 
 ```js
 import { BaseComponent, regist } from "litos-ui";
 ```
 
-## 基础用法
+## Basic Usage
 
-为自定义组件定义 `baseName`，使用默认 `l-` 标签体系注册。下面采用当前的 version 2 渲染方式。
+Define a `baseName` for your custom component and register it with the default `l-` tag prefix. The example below uses version 2 rendering.
 
 <script setup>
 import { onMounted } from 'vue';
@@ -60,25 +60,25 @@ regist(HelloWorld);
 </l-code-preview>
 </ClientOnly>
 
-## 属性与方法
+## Properties and Methods
 
-- `root`：开启 Shadow DOM 时为 ShadowRoot，否则为当前元素。
-- `rendered`：基类完成渲染后为 true，断开连接后为 false。
-- `constructor(shadow = true, init = {})`：配置是否使用 Shadow DOM 及 ShadowRootInit 选项。
-- `render_v2()`：version 2 的渲染入口，返回 template、style、styleSheets 中需要的字段；template 支持字符串、HTMLElement 或 DocumentFragment。
-- `afterInit()`：初次 DOM 创建后执行，在此获取内部节点、绑定事件。
-- `attributeChanged(name, oldValue, newValue)`：处理 observedAttributes 中属性的变化。
-- `updateDOM(changedProps)`：更新变化的属性对应的 DOM。修改状态不会自动重新执行 render_v2，必须实现更新逻辑。
-- `beforeDestroy()`：解绑事件并释放资源，组件断开连接时由基类调用。
-- `emit(name, options)`：发送 CustomEvent，默认 bubbles 和 composed 均为 true，数据通过 options.detail 提供。
+- `root`: The ShadowRoot when Shadow DOM is enabled; otherwise, the element itself.
+- `rendered`: `true` after the base class finishes rendering and `false` after disconnection.
+- `constructor(shadow = true, init = {})`: Configures whether to use Shadow DOM and accepts ShadowRootInit options.
+- `render_v2()`: The version 2 rendering entry point. Returns the required `template`, `style`, and `styleSheets` fields. `template` accepts a string, HTMLElement, or DocumentFragment.
+- `afterInit()`: Runs after the initial DOM is created. Access internal elements and bind events here.
+- `attributeChanged(name, oldValue, newValue)`: Handles changes to attributes listed in `observedAttributes`.
+- `updateDOM(changedProps)`: Updates the DOM for changed properties. Changing state does not automatically rerun `render_v2()`; implement the update logic explicitly.
+- `beforeDestroy()`: Unbinds events and releases resources. The base class calls it when the component disconnects.
+- `emit(name, options)`: Dispatches a CustomEvent. Both `bubbles` and `composed` default to `true`; pass event data through `options.detail`.
 
-## 生命周期与注意事项
+## Lifecycle and Usage Notes
 
-基类在 connectedCallback 中创建 DOM，设置 rendered，然后调用 afterInit；断开连接时取消待执行更新、调用 beforeDestroy 并清空内部 DOM。若覆盖这两个原生生命周期，需要调用对应的 super 方法。
+In `connectedCallback`, the base class creates the DOM, sets `rendered`, and calls `afterInit`. On disconnection, it cancels pending updates, calls `beforeDestroy`, and clears the internal DOM. If you override either native lifecycle callback, call the corresponding `super` method.
 
-优先使用 afterInit 和 beforeDestroy；initEvents、removeEvents 已弃用。基类的 version 默认为 1，旧组件可以实现 render；新组件应在构造函数中设置 version = 2 并实现 render_v2。
+Prefer `afterInit` and `beforeDestroy`; `initEvents` and `removeEvents` are deprecated. The base class defaults to `version = 1`, which allows older components to implement `render`. New components should set `version = 2` in the constructor and implement `render_v2`.
 
-组件模块依赖浏览器 API。服务端渲染项目应在客户端加载和注册，文档演示也必须放在 ClientOnly 内。
+Component modules depend on browser APIs. In server-rendered applications, load and register them on the client. Documentation demos must also be wrapped in ClientOnly.
 
 ## On-demand entry
 
@@ -87,4 +87,6 @@ import "litos-ui/styles/vars.css";
 import BaseComponent from "litos-ui/base";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+The base entry exports BaseComponent without registering an element.
+
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.

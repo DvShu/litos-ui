@@ -1,53 +1,53 @@
 # PageHeader
 
-用于页面的顶部，显示标题以及返回按钮。常用于二级、三级页面。
+A page header with a title and a back button, commonly used on nested pages.
 
-## 引用
+## Import and Registration
 
 ```js
 import { regist, PageHeader, Button, ArrowLeftIcon, MoreIcon } from "litos-ui";
 
 regist(PageHeader);
-regist([Button, ArrowLeftIcon]); // 如果需要显示返回按钮
+regist([Button, ArrowLeftIcon]); // Required for the back button.
 
-// 注册本页演示使用的附加组件
+// Register additional components used in this page’s demos.
 regist([MoreIcon]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-通过 `title-align` 属性设置标题的对齐方式。分为：`left`、`center`。默认为: `left`
+Set `align` to `left` or `center` to align the title. The default is `left`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-page-header page-title="标题" page-sub-title="副标题" show-right>
+  <l-page-header page-title="Title" page-sub-title="Subtitle" back-text="Back" show-right>
     <l-more-icon slot="right"></l-more-icon>
   </l-page-header>
   <hr/>
-  <l-page-header page-title="标题" align="center" show-right height="44px" border>
+  <l-page-header page-title="Title" align="center" back-text="Back" show-right height="44px" border>
     <l-more-icon slot="right" data-action="more"></l-more-icon>
   </l-page-header>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 监听事件
+### Events
 
-通过监听 `page-header` 的 `action` 事件, 然后给任何子节点添加 `l-action` 属性, 点击子节点会自动触发 `action` 事件。
+Add `l-action` to a child element and listen for the page header’s `action` event. Clicking that child emits the event.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-page-header page-title="标题" page-sub-title="副标题" show-right>
+  <l-page-header page-title="Title" page-sub-title="Subtitle" back-text="Back" show-right>
     <l-more-icon slot="right" l-action="more"></l-more-icon>
   </l-page-header>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-page-header id="header" page-title="标题" page-sub-title="副标题" show-right>
+  <l-page-header id="header" page-title="Title" page-sub-title="Subtitle" back-text="Back" show-right>
     <l-more-icon slot="right" l-action="more" data-param="1"></l-more-icon>
   </l-page-header>
 </textarea>
@@ -56,7 +56,7 @@ regist([MoreIcon]);
   header.addEventListener("action", (e) => {
     const detail = e.detail;
     if (detail.action === 'back') {
-      // 点击了返回按钮
+      // The back button was clicked.
     } else if (detail.action === 'more') {
       console.log(detail.param); // 1
     }
@@ -73,52 +73,54 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/page-header";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
+The built-in back-button label is Chinese. Set `back-text="Back"` to customize it, as in these examples.
 
 ## API
 
 ### PageHeader Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `show-left` | 是否显示左边区域 | `boolean` | `true` |
-| `show-right` | 是否显示右边区域 | `boolean` | `true` |
-| `height` | 高度 | `string` | - |
-| `border` | 是否显示底部边框 | `boolean` | `false` |
-| `align` | 标题对齐方式 | `left`、`center` | `left` |
-| `show-back` | 是否显示返回按钮 | `boolean` | `true` |
-| `back-text` | 返回按钮文本 | `string` | 返回 |
-| `page-title` | 标题 | `string` | - |
-| `page-sub-title` | 副标题 | `string` | - |
+| `show-left` | Whether to show the left area | `boolean` | `true` |
+| `show-right` | Whether to show the right area | `boolean` | `true` |
+| `height` | Height | `string` | - |
+| `border` | Whether to show the bottom border | `boolean` | `false` |
+| `align` | Title alignment | `left`, `center` | `left` |
+| `show-back` | Whether to show the back button | `boolean` | `true` |
+| `back-text` | Back button text | `string` | 返回 |
+| `page-title` | Title | `string` | - |
+| `page-sub-title` | Subtitle | `string` | - |
 
 ### PageHeader Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 标题内容 |
-| `left` | 左边区域内容 |
-| `right` | 右边区域内容 |
+| `default` | Title content |
+| `left` | Left area content |
+| `right` | Right area content |
 
 ### PageHeader Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-| `action` | 点击子节点时触发, 子节点需要添加 `l-action` 属性, 通过 `event.detail` 获取 `acton` 以及 `dataset` | `(event: CustomEvent)` |
+| `click` | Fires when clicked | `(event: Event)` |
+| `action` | Fires when a child with l-action is clicked; event.detail contains action and the spread dataset fields | `(event: CustomEvent)` |
 
 ### PageHeader Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
 | - | - | - |
 
 ### PageHeader CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
 | - | - | - |

@@ -1,23 +1,23 @@
-# Modal 对话框
+# Modal
 
-在保留当前页面状态的情况下，弹出一个对话框告知用户并承载相关操作，包含：标题区、内容区、操作区
+Display a dialog while preserving the current page state. It contains a header, content area, and action area.
 
-## 引用
+## Import and Registration
 
 ```js
-import { Modal, regist, Button, CloseIcon, InfoIcon } from "litos-ui";
+import { Modal, regist, Button, CloseIcon, InfoIcon, LoadingIcon, ModalBox } from "litos-ui";
 
-regist([Modal]);
-// 当显示底部时调用
+regist([CloseIcon, LoadingIcon, Button, Modal]);
+// Register Button when showing the footer.
 regist(Button);
-// 当需要显示关闭按钮时
+// Register CloseIcon when showing the close button.
 regist(CloseIcon);
 
-// 注册本页演示使用的附加组件
+// Register the additional components used in this page’s demos.
 regist([InfoIcon]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { $one, on, off, $, iterate, $$ } from 'utilane/browser';
@@ -30,15 +30,15 @@ regist([InfoIcon]);
     const $target = e.target;
     const id = $target.id;
     if (id === 'alert') {
-      ModalBox.alert('这是一段内容', '标题').then(() => {
+      ModalBox.alert('This is some content', 'Title').then(() => {
         console.log("alert close")
       })
     } else if (id === 'confirm') {
-      ModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
+      ModalBox.confirm('Save your changes?', 'Notice').then((ok) => {
         console.log(ok)
       })
     } else if (id === 'prompt') {
-      ModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
+      ModalBox.prompt('Command', 'Command key', { placeholder: 'Enter a command' }).then((text) => {
         console.log(text)
       })
     } else {
@@ -56,9 +56,9 @@ regist([InfoIcon]);
     const forAttr = $target.getAttribute('for');
     if (forAttr === 'open3') {
       $target.setAttribute('confirm-loading', 'true');
-      $target.innerHTML = "<span>正在提交内容……</span>";
+      $target.innerHTML = "<span>Submitting content...</span>";
       setTimeout(() => {
-        $target.innerHTML = "<span>对话框内容</span>";
+        $target.innerHTML = "<span>Dialog content</span>";
         $target.removeAttribute('confirm-loading');
         e.target.removeAttribute('show');
       }, 1500);
@@ -92,6 +92,7 @@ regist([InfoIcon]);
       if ($modals) {
         iterate($modals, ($modal) => {
           off($modal, 'cancel', onCancel);
+          off($modal, 'ok', onOk);
         });
         $modals = undefined;
       }
@@ -99,22 +100,24 @@ regist([InfoIcon]);
   })
 </script>
 
-### 基础用法
+### Basic Usage
 
-需要设置 `show` 属性，它接收 `Boolean`，当为 `true` 时显示 `Modal`。`header-title` 属性用于定义标题，它是可选的，默认值为空。
+Use the boolean `show` attribute to control visibility. `header-title` sets the title; it is optional and empty by default.
+
+Set `cancel-text` and `ok-text` to customize button labels. Their built-in defaults and the ModalBox service labels remain in Chinese; this page does not change component localization.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-modal for="open1" header-title="Header" vertical-align="middle">
-    <span>这是内容</span>
+    <span>This is the content</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
   <l-modal for="open1" header-title="Header">
-    <span>这是内容</span>
+    <span>This is the content</span>
   </l-modal>
   <l-button id="open1" type="primary">open</l-button>
 </textarea>
@@ -124,7 +127,7 @@ regist([InfoIcon]);
   $open1Btn.addEventListener('click', () => {
     $modal1.setAttribute('show', 'true');
   });
-  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  // Handle cancellation from the overlay, close button, or cancel button; inspect e.detail.action.
   $modal1.addEventListener('cancel', () => {
     $modal1.removeAttribute('show');
   });
@@ -133,28 +136,28 @@ regist([InfoIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 自定义头部
+### Custom Header
 
-除了使用 `header` 属性定义头部内容外，也可以通过传递 `header-slot` 插槽自定义头部内容。通过传递 `width` 属性改变宽度
+Use `header-title` for a text title or the `header` slot for custom header content. Set `width` to change the dialog width.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-modal for="open2" width="300px">
     <l-info-icon slot="header"></l-info-icon>
-    <span slot="header">提示</span>
-    <span>内容</span>
+    <span slot="header">Notice</span>
+    <span>Content</span>
   </l-modal>
-  <l-button id="open2" type="primary">打开-自定义头部</l-button>
+  <l-button id="open2" type="primary">Open custom header</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
   <l-modal for="open2" width="300px">
     <l-info-icon slot="header"></l-info-icon>
-    <span slot="header">提示</span>
-    <span>内容</span>
+    <span slot="header">Notice</span>
+    <span>Content</span>
   </l-modal>
-  <l-button id="open2" type="primary">打开-自定义头部</l-button>
+  <l-button id="open2" type="primary">Open custom header</l-button>
 </textarea>
 <textarea lang="js">
   const $open2Btn = document.getElementById('open2');
@@ -162,7 +165,7 @@ regist([InfoIcon]);
   $open2Btn.addEventListener('click', () => {
     $modal2.setAttribute('show', 'true');
   });
-  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  // Handle cancellation from the overlay, close button, or cancel button; inspect e.detail.action.
   $modal2.addEventListener('cancel', () => {
     $modal2.removeAttribute('show');
   });
@@ -171,26 +174,26 @@ regist([InfoIcon]);
 </l-code-preview>
 </ClientOnly>
 
-> 注意：实际使用 `l-info-icon` 时, 需要 `regist` 注册
+> Register the InfoIcon component with `regist` before using `l-info-icon`.
 
-### 异步关闭
+### Asynchronous Closing
 
-点击确定后异步关闭对话框，例如提交表单。
+Close the dialog asynchronously after confirmation, for example after submitting a form.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-modal for="open3" header-title="异步关闭">
-    <span>对话框内容</span>
+  <l-modal for="open3" header-title="Asynchronous closing">
+    <span>Dialog content</span>
   </l-modal>
-  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+  <l-button id="open3" type="primary">Open async dialog</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open3" header-title="异步关闭">
-    <span>对话框内容</span>
+  <l-modal for="open3" header-title="Asynchronous closing">
+    <span>Dialog content</span>
   </l-modal>
-  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+  <l-button id="open3" type="primary">Open async dialog</l-button>
 </textarea>
 <textarea lang="js">
   const $open3Btn = document.getElementById('open3');
@@ -198,15 +201,15 @@ regist([InfoIcon]);
   $open3Btn.addEventListener('click', () => {
     $modal3.setAttribute('show', 'true');
   });
-  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  // Handle cancellation from the overlay, close button, or cancel button; inspect e.detail.action.
   $modal3.addEventListener('cancel', () => {
     $modal3.removeAttribute('show');
   });
   $modal3.addEventListener('ok', () => {
     $modal3.setAttribute('confirm-loading', 'true');
-    $modal3.innerHTML = "<span>正在提交内容……</span>";
+    $modal3.innerHTML = "<span>Submitting content...</span>";
     setTimeout(() => {
-      $modal3.innerHTML = "<span>对话框内容</span>";
+      $modal3.innerHTML = "<span>Dialog content</span>";
       $modal3.removeAttribute('confirm-loading');
       $modal3.removeAttribute('show');
     }, 1500);
@@ -216,24 +219,24 @@ regist([InfoIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 关闭按钮
+### Close Button
 
-通过设置 `close` 来控制关闭按钮的显示以及位置；`0` - 不显示, `1` - 显示在框内(默认), `2` - 显示在边角
+Use `close` to control the close button: `0` hides it, `1` places it inside the dialog (the default), and `2` places it at the corner.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-modal for="open4" header-title="Title" close="2">
-    <span>对话框内容</span>
+    <span>Dialog content</span>
   </l-modal>
-  <l-button id="open4" type="primary">打开</l-button>
+  <l-button id="open4" type="primary">Open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-modal for="open3" header-title="异步关闭">
-    <span>对话框内容</span>
+  <l-modal for="open4" header-title="Title" close="2">
+    <span>Dialog content</span>
   </l-modal>
-  <l-button id="open3" type="primary">打开-异步关闭</l-button>
+  <l-button id="open4" type="primary">Open async dialog</l-button>
 </textarea>
 <textarea lang="js">
   const $open4Btn = document.getElementById('open4');
@@ -241,7 +244,7 @@ regist([InfoIcon]);
   $open4Btn.addEventListener('click', () => {
     $modal4.setAttribute('show', 'true');
   });
-  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  // Handle cancellation from the overlay, close button, or cancel button; inspect e.detail.action.
   $modal4.addEventListener('cancel', () => {
     $modal4.removeAttribute('show');
   });
@@ -250,22 +253,22 @@ regist([InfoIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 移动风格
+### Mobile Style
 
-默认情况下对话框为 `pc` 端风格，可以通过传递 `mobile` 属性将对话框变为移动风格；设置 `vertical-align="middle"` 让对话框垂直居中显示;具体表现为：文本居中，下方按钮平铺
+Dialogs use desktop styling by default. Add `mobile` for centered text and evenly arranged footer buttons. Set `vertical-align="middle"` to center the dialog vertically.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-modal for="open5" header-title="Title" mobile close="0" vertical-align="middle">
-    <span>这是内容</span>
+    <span>This is the content</span>
   </l-modal>
   <l-button id="open5" type="primary">open</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
   <l-modal for="open5" header-title="Title" mobile close="0" vertical-align="middle">
-    <span>这是内容</span>
+    <span>This is the content</span>
   </l-modal>
   <l-button id="open5" type="primary">open</l-button>
 </textarea>
@@ -275,7 +278,7 @@ regist([InfoIcon]);
   $open5Btn.addEventListener('click', () => {
     $modal5.setAttribute('show', 'true');
   });
-  // 对话框取消事件, 点击遮罩层或右上角叉或取消按钮的回调, 可以通过 e.detail.action 获取具体的回调行为
+  // Handle cancellation from the overlay, close button, or cancel button; inspect e.detail.action.
   $modal5.addEventListener('cancel', () => {
     $modal5.removeAttribute('show');
   });
@@ -284,11 +287,11 @@ regist([InfoIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 消息弹窗
+### Message Boxes
 
-模拟系统的消息提示框而实现的一套模态对话框组件，用于消息提示、确认消息和提交内容。系统自带有3种消息弹窗：`alert`、`confirm`、`prompt` 但是其样式比较简陋不太美观，消息弹窗优化了样式。
+Modal message boxes provide styled alternatives to the native browser `alert`, `confirm`, and `prompt` dialogs for alerts, confirmations, and text input.
 
-分别通过 `LModalBox.alert()`、`LModalBox.confirm()`、`LModalBox.prompt()` 调用
+Call `ModalBox.alert()`, `ModalBox.confirm()`, or `ModalBox.prompt()`.
 
 <ClientOnly>
 <l-code-preview>
@@ -300,15 +303,15 @@ regist([InfoIcon]);
 <div class="source">
 <textarea lang="js">
   // alert
-  LModalBox.alert('这是一段内容', '标题').then(() => {
+  ModalBox.alert('This is some content', 'Title').then(() => {
     console.log("alert close")
   });
   // confirm
-  LModalBox.confirm('确定要保存更改？', '提示').then((ok) => {
+  ModalBox.confirm('Save your changes?', 'Notice').then((ok) => {
     console.log(ok);
   })
   // prompt
-  LModalBox.prompt('指令', '指令密钥', { placeholder: '请输入指令' }).then((text) => {
+  ModalBox.prompt('Command', 'Command key', { placeholder: 'Enter a command' }).then((text) => {
     console.log(text);
   });
 </textarea>
@@ -320,93 +323,96 @@ regist([InfoIcon]);
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/modal_box.css";
 import "litos-ui/modal";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Modal Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `show` | 是否显示对话框 | `boolean` | `false` |
-| `destroy-on-close` | 关闭时销毁 Modal 里的子元素 | `boolean` | `false` |
-| `mask-closable` | 点击蒙层是否允许关闭 | `boolean` | `true` |
-| `mask` | 是否显示遮罩层 | `boolean` | `true` |
-| `header` | 是否显示头部 | `boolean` | `true` |
-| `header-title` | 头部标题文本 | `string` | `""` |
-| `footer` | 是否展示底部 | `boolean` | `true` |
-| `cancel-text` | 取消按钮文字 | `string` | `取消` |
-| `ok-text` | 确定按钮文字 | `string` | `确定` |
-| `close` | 关闭按钮显示位置, `0` - 不显示, `1` - 显示在框内(默认), `2` - 显示在边角 | `0` \| `1` \| `2` | `1` |
-| `mobile` | 是否为移动风格 | `boolean` | `false` |
-| `vertical-align` | 对话框垂直对齐方式, `top` - 顶部, `middle` - 居中 | `top` \| `middle` \| `bottom` | `top` |
-| `confirm-loading` | 确定按钮 `loading` | `boolean` | `false` |
-| `cancel` | 是否显示取消按钮 | `boolean` | `true` |
-| `width` | 对话框宽度 | `string` | `27%` |
-| `z-index` | 对话框层级 | `string` | `100` |
+| `show` | Whether to show the dialog | `boolean` | `false` |
+| `destroy-on-close` | Destroys Modal children when closed | `boolean` | `false` |
+| `mask-closable` | Whether clicking the overlay closes the dialog | `boolean` | `true` |
+| `mask` | Whether to show the overlay | `boolean` | `true` |
+| `header` | Whether to show the header | `boolean` | `true` |
+| `header-title` | Header title text | `string` | `""` |
+| `footer` | Whether to show the footer | `boolean` | `true` |
+| `cancel-text` | Cancel button text | `string` | `取消` |
+| `ok-text` | Confirmation button text | `string` | `确定` |
+| `close` | Close button position: 0 hidden, 1 inside (default), 2 at the corner | `0` \| `1` \| `2` | `1` |
+| `mobile` | Whether to use mobile styling | `boolean` | `false` |
+| `vertical-align` | Vertical alignment: top, middle, or bottom | `top` \| `middle` \| `bottom` | `top` |
+| `confirm-loading` | Confirmation button loading state | `boolean` | `false` |
+| `cancel` | Whether to show the cancel button | `boolean` | `true` |
+| `width` | Dialog width | `string` | `27%` |
+| `z-index` | Dialog stacking level | `string` | `100` |
 
 ### Modal Parts
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `mask` | 遮罩层 |
-| `wrapper` | 对话框外层 |
-| `default` | 对话框主体 |
-| `header` | 对话框头部 |
-| `container` | 对话框内容 |
-| `footer` | 对话框底部 |
-| `close-btn` | 关闭按钮 |
+| `mask` | Overlay |
+| `wrapper` | Outer wrapper |
+| `default` | Dialog body |
+| `header` | Dialog header |
+| `container` | Dialog content |
+| `footer` | Dialog footer |
+| `close-btn` | Close button |
 
 ### Modal Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 对话框内容 |
-| `header` | 对话框标题 |
-| `footer` | 对话框底部 |
+| `default` | Dialog content |
+| `header` | Dialog title |
+| `footer` | Dialog footer |
 
 ### Modal Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback |
 | --- | --- | --- |
-| `cancel` | 点击遮罩层或右上角叉或取消按钮的回调 | `(event: CustomEvent)` |
-| `ok` | 点击确定回调 | `(event: CustomEvent)` |
-| `close` | 关闭回调；在组件完全关闭后回调 | `(event: CustomEvent)` |
+| `cancel` | Fires when the overlay, close button, or cancel button is clicked | `(event: CustomEvent)` |
+| `ok` | Fires when confirmation is clicked | `(event: CustomEvent)` |
+| `close` | Fires after the component has fully closed | `(event: CustomEvent)` |
 
 ### Modal CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-modal-zindex` | 对话框的层级 `z-index` | `100` |
-| `--l-modal-width` | 对话框宽度 | `27%` |
-| `--l-modal-header-padding` | 弹窗头部 `padding` | `10px` |
-| `--l-modal-footer-padding` | 弹窗底部 `padding` | `10px` |
-| `--l-modal-border-radius` | 弹窗圆角 | `5px` |
+| `--l-modal-zindex` | Dialog stacking level (z-index) | `100` |
+| `--l-modal-width` | Dialog width | `27%` |
+| `--l-modal-header-padding` | Header padding | `10px` |
+| `--l-modal-footer-padding` | Footer padding | `10px` |
+| `--l-modal-border-radius` | Dialog border radius | `5px` |
 
 ### ModalBox Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 参数 | 返回值 |
+| Method | Description | Parameters | Returns |
 | --- | --- | --- | --- |
-| `alert` | 展示消息提示框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise` |
-| `confirm` | 展示消息确认框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise<boolean>` |
-| `prompt` | 展示输入框 | `message: string, title?: string, options?: LModalBoxOptions` | `Promise<string>` |
+| `alert` | Shows an alert | `message: string, title?: string, options?: ModalBoxOptions` | `Promise<boolean>` |
+| `confirm` | Shows a confirmation box | `message: string, title?: string, options?: ModalBoxOptions` | `Promise<boolean>` |
+| `prompt` | Shows a prompt | `message: string, title?: string, options?: ModalBoxOptions` | `Promise<string \| false>` |
 
 ### ModalBoxOptions
 
+These options describe the object accepted by the methods; ModalBoxOptions is a documentation label, not an exported package type.
+
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `showCancel` | 是否显示取消按钮 | `boolean` | `true`(`alert`默认`false`) |
-| `close` | 关闭按钮显示位置, `0` - 不显示, `1` - 显示在框内(默认), `2` - 显示在边角 | `0` \| `1` \| `2` | `0` |
-| `maskClosable` | 点击蒙层是否允许关闭 | `boolean` | `true`(`alert`默认`false`) |
-| `icon` | 自定义图标 | `() => HTMLElement` | `-` |
-| `placeholder` | 输入框占位符, `prompt` 时有效 | `string` | `-` |
+| `showCancel` | Whether to show the cancel button | `boolean` | `true` (false for alert) |
+| `close` | Close button position: 0 hidden, 1 inside (default), 2 at the corner | `0` \| `1` \| `2` | `0` |
+| `maskClosable` | Whether clicking the overlay closes the dialog | `boolean` | `true` (false for alert) |
+| `icon` | Custom icon renderer | `() => HTMLElement` | `-` |
+| `placeholder` | Input placeholder; prompt only | `string` | `-` |

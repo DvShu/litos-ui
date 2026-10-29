@@ -47,9 +47,11 @@ import "litos-ui/styles/theme-jade.css";
 
 预置主题通过 `:root` 定义全局 CSS 变量。一次选择一套，同时引入多套时，后加载的主题会覆盖先加载的主题。不引入预置主题时，使用默认蓝色主题，也可以在自己的样式文件中覆盖单个变量。
 
-暗黑模式变量已包含在 `vars.css` 中。在客户端代码中切换根元素的 `dark` 类即可：
+暗黑模式变量独立放在 `dark.css` 中。在 `vars.css` 之后引入，再通过客户端代码切换根元素的 `dark` 类：
 
 ```js
+import "litos-ui/styles/dark.css";
+
 document.documentElement.classList.add("dark");
 // 恢复浅色模式：
 document.documentElement.classList.remove("dark");

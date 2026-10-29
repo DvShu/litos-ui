@@ -1,10 +1,13 @@
-# Theme 主题切换
+# Theme
 
-通过切换主题来减轻长时间使用屏幕带来的视觉疲劳
+Switch themes for more comfortable viewing during extended screen use.
 
-## 引用
+## Import and Registration
 
 ```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/styles/dark.css";
+
 import {
   Theme,
   ThemeColor,
@@ -13,28 +16,30 @@ import {
   SelectOri,
   Switch,
   Radio,
+  RadioGroup,
+  ColorPicker,
   SunIcon,
   MoonIcon,
   ThemeDefaultIcon,
 } from "litos-ui";
 
 regist(Theme);
-// 颜色主题
-regist(ThemeColor);
-// 根据风格注册以下组件
-regist([Button, SunIcon, MoonIcon]); // 按钮风格
-regist(SelectOri); // 下拉风格
-regist([Switch, SunIcon, MoonIcon]); // 开关风格
-// 图标单选风格[label="icon"]
+// Theme color
+regist([ColorPicker, ThemeColor]);
+// Register the dependencies for the selected style.
+regist([Button, SunIcon, MoonIcon]); // Button style
+regist(SelectOri); // Select style
+regist([Switch, SunIcon, MoonIcon]); // Switch style
+// Radio group with icons [label="icon"]
 regist([Radio, SunIcon, MoonIcon, ThemeDefaultIcon, RadioGroup]);
-// 文本单选风格
+// Radio group with text labels
 regist([Radio, RadioGroup]);
 ```
 
-## 演示
+## Examples
 
-> 1. 主题切换是通过 [utilane](https://www.npmjs.com/package/utilane) 工具库的 `theme` 工具类控制
-> 2. 为了每次切换主题后，重新加载能够生效，需要在应用开始的时候, 执行 `initTheme()` 方法
+> 1. Theme switching is handled by the theme utilities in [utilane](https://www.npmjs.com/package/utilane).
+> 2. Call `initTheme()` when your application starts to restore the selected mode after a reload.
 
 ::: code-group
 
@@ -46,9 +51,11 @@ initTheme().then();
 
 :::
 
-### 基础用法
+### Basic Usage
 
-提供多种风格的主题切换按钮: 按钮、下拉选择、单选按钮组、开关; 通过 `type` 指定。
+Choose a theme switcher style with `type`: button, select, radio group, or switch.
+
+The component's built-in select and text-radio labels currently remain in Chinese. This page translates the documentation; component localization is separate.
 
 <ClientOnly>
 <l-code-preview>
@@ -62,7 +69,7 @@ initTheme().then();
 </l-code-preview>
 </ClientOnly>
 
-> 切换主题后，如果要让应用启动的时候也应用上一次切换的主题, 需要在应用开始的地方调用 `initTheme()` 函数
+> Call `initTheme()` at application startup to restore the last selected theme mode.
 
 ```javascript
 // main.js
@@ -72,28 +79,28 @@ import { initTheme } from "utilane/browser";
 initTheme().then();
 ```
 
-### 自定义风格
+### Custom Styles
 
-框架内置的主题切换其实就是一个排版的样式，核心的主题切换的逻辑是调用的 `utilane` 库的 `theme` 模块相关函数来实现的。
+The built-in theme switchers provide different layouts around the theme functions in `utilane`.
 
-通常调用的模块有: `getTheme()`、`applyTheme()`
+The commonly used functions are `getTheme()` and `applyTheme()`.
 
-内置的切换的动画效果为渐变动画。
+The built-in switching effect is a fade transition.
 
-如果想要实现自定义的排版或者自定义的动画完全可以通过自定义来实现，下面通过 `Radio` + 简单文字实现
+You can create your own layout or animation. The example below uses `Radio` with text labels. Its circular animation requires the View Transitions API.
 
 <!-- prettier-ignore -->
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-custom-theme>按钮</l-custom-theme>
+  <l-custom-theme>Theme</l-custom-theme>
 </textarea>
 <div class="source">
 <textarea lang="html">
   <l-radio-group gap="15" id="customThemeRadio">
-    <radio value="auto">自</radio>
-    <radio value="light">浅</radio>
-    <radio value="dark">深</radio>
+    <l-radio value="auto">System</l-radio>
+    <l-radio value="light">Light</l-radio>
+    <l-radio value="dark">Dark</l-radio>
   </l-radio-group>
 </textarea>
 <textarea lang="js">
@@ -104,30 +111,30 @@ initTheme().then();
   $radio.addEventListener('change', (e) => {
     const newTheme = e.target.value;
     const transition = document.startViewTransition(() => {
-      // 应用主题
+      // Apply the theme.
       applyTheme(newTheme, true, false).then();
     });
     //-
     transition.ready.then(() => {
       /*
-        如果在 click 事件中想根据鼠标位置来设置圆形扩散效果
-        // 获取鼠标的坐标
+        For a circular reveal centered on the pointer in a click handler:
+        // Get the pointer coordinates.
         const { clientX, clientY } = e;
         a: (clientX, clientY)
                               b: (innerWidth, innerHeight)
-        a -> b 的距离就是最大半径
+        The distance from a to b is the maximum radius.
         //-
-        // 计算最大半径
+        // Calculate the maximum radius.
         const radius = Math.hypot(
           Math.max(clientX, innerWidth - clientX),
           Math.max(clientY, innerHeight - clientY)
         );
       */
       //-
-      // 圆形动画扩散开始
+      // Start the circular reveal.
       document.documentElement.animate(
         /*
-          // 应用鼠标位置扩展
+          // Expand from the pointer position.
           clipPath: [
              `circle(0% at ${clientX}px ${clientY}px)`,
              `circle(${radius}px at ${clientX}px ${clientY}px)`,
@@ -136,7 +143,7 @@ initTheme().then();
         {
           clipPath: [`circle(0% at center)`, `circle(100% at center)`],
         },
-        // 设置时间，已经目标伪元素
+        // Set the duration and target pseudo-element.
         {
           duration: 300,
           pseudoElement: "::view-transition-new(root)",
@@ -148,7 +155,7 @@ initTheme().then();
 <textarea lang="css">
   ::view-transition-new(root),
   ::view-transition-old(root) {
-    /* 关闭默认动画 */
+    /* Disable the default animation. */
     animation: none;
   }
 </textarea>
@@ -156,9 +163,9 @@ initTheme().then();
 </l-code-preview>
 </ClientOnly>
 
-### 主题色更改
+### Changing the Theme Color
 
-除了修改主题风格，还可以修改主题色，通过修改 `ThemeColor` 来实现。
+In addition to switching modes, you can change the primary theme color with `ThemeColor`.
 
 <ClientOnly>
 <l-code-preview>
@@ -168,7 +175,7 @@ initTheme().then();
 </l-code-preview>
 </ClientOnly>
 
-生成的主题色代码如下:
+The generated theme color variables look like this:
 
 ```CSS
 :root {
@@ -182,13 +189,13 @@ initTheme().then();
 }
 ```
 
-> 跟主题模式一样，如果想要再下次启动时也应用选择的主题色，需要在应用启动时，调用 `initColorTheme()` 函数
+> As with the theme mode, call `initColorTheme()` at application startup to restore the selected theme color.
 
 ```javascript
 // main.js
 import { initColorTheme } from "utilane/browser";
 
-initColorTheme().then();
+await initColorTheme();
 ```
 
 ## On-demand entry
@@ -198,21 +205,21 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/theme";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Theme Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `type` | 主题切换按钮风格 | `button` \| `select` \| `switch` \| `radio` | `button` |
-| `label` | 当 `type="radio"` 时是使用文字还是图标 | `text` \| `icon` | `text` |
+| `type` | Theme switcher style | `button` \| `select` \| `switch` \| `radio` | `button` |
+| `label` | Whether radio mode uses text or icons | `text` \| `icon` | `text` |
 
 ### Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback |
 | --- | --- | --- |
-| `change` | 主题改变时触发, 可以通过 `e.detail` 获取值 | `(event: CustomEvent)` |
+| `change` | Fires when the theme changes; read the value from e.detail | `(event: CustomEvent)` |

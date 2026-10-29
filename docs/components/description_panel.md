@@ -7,7 +7,7 @@
 ```js
 import { DescriptionPanel, regist, Button, ArrowDownIcon } from "litos-ui";
 
-regist([DescriptionPanel, Button, ArrowDownIcon]);
+regist([ArrowDownIcon, Button, DescriptionPanel]);
 ```
 
 ## 演示
@@ -69,20 +69,6 @@ import "litos-ui/description-panel";
 | 名称 | 说明 |
 | --- | --- |
 | `default` | 内容 |
-
-### DescriptionPanel Events
-
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
-| --- | --- | --- |
-| - | - | - |
-
-### DescriptionPanel Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| - | - | - |
 
 ### DescriptionPanel CSS Variables
 

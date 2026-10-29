@@ -1,22 +1,33 @@
-# Loading 加载
+# Loading
 
-数据加载时显示的动效。
+Animated indicators shown while data is loading.
 
-## 引用
+## Import and Registration
 
-如果没有配合 `litosui-unplugin-resolver` 自动引用，则需要手动引入样式文件
+Import the stylesheet manually unless it is supplied by your resolver configuration.
 
 ```js
 import { Loading as LLoading } from "litos-ui";
 import "litos-ui/styles/loading.css";
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import Loading from '../../../src/components/loading';
   import { on, off, $one } from 'utilane/browser';
+
+  const listeners = [];
+  let disposed = false;
+
+  function bindClick(selector, handler) {
+    const element = $one(selector);
+    if (element) {
+      on(element, 'click', handler);
+      listeners.push([element, handler]);
+    }
+  }
 
   function handleLoading() {
     Loading.init('loading3');
@@ -40,7 +51,7 @@ import "litos-ui/styles/loading.css";
     });
 
     setTimeout(() => {
-      loading1.updateLoadingText("重新加载中……");
+      loading1.updateLoadingText("Reloading...");
     }, 3000);
 
     setTimeout(() => {
@@ -60,43 +71,42 @@ import "litos-ui/styles/loading.css";
 
   onMounted(() => {
     nextTick(() => {
-      if (!import.meta.env.SSR) {
+      if (!import.meta.env.SSR && !disposed) {
         Loading.init('loading1');
         Loading.init('loading2');
         Loading.init('loading5');
-        console.log()
-        on($one('[l-loading="loading3"]'), 'click', handleLoading);
-        on($one('#startLoading'), 'click', handleStartLoading);
-        on($one('#startBarLoading'), 'click', handleStartBarLoading);
-        on($one('#endBarLoading'), 'click', handleEndBarLoading);
-        on($one('#startLoading1'), 'click', handleUpdateText);
+        bindClick('[l-loading="loading3"]', handleLoading);
+        bindClick('#startLoading', handleStartLoading);
+        bindClick('#startBarLoading', handleStartBarLoading);
+        bindClick('#endBarLoading', handleEndBarLoading);
+        bindClick('#startLoading1', handleUpdateText);
       }
     })
   });
 
   onUnmounted(() => {
-    off($one('[l-loading="loading3"]'), 'click', handleLoading);
-    off($one('#startLoading'), 'click', handleStartLoading);
-    off($one('#startBarLoading'), 'click', handleStartBarLoading);
-    off($one('#endBarLoading'), 'click', handleEndBarLoading);
-    off($one('#startLoading1'), 'click', handleUpdateText);
+    disposed = true;
+    for (const [element, handler] of listeners) {
+      off(element, 'click', handler);
+    }
+    listeners.length = 0;
   });
 </script>
 
-### 区域加载
+### Regional Loading
 
-在某一个区域加载数据时展示加载动画，防止页面失去响应，提高用户体验
+Show a loading indicator over a region while its data is being loaded.
 
-给节点添加一个 `l-loading` 属性，然后调用 `LLoading.init()` 初始化, 调用 `LLoading.close()` 关闭。
+Add `l-loading` to an element, call `LLoading.init()` to show the indicator, and call `LLoading.close()` to close it.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <div style="height:150px;" l-loading="loading1">内容加载区域</div>
+  <div style="height:150px;" l-loading="loading1">Content loading area</div>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <div l-loading="loading">内容加载区域</div>
+  <div l-loading="loading">Content loading area</div>
 </textarea>
 <textarea source="js">
   LLoading.init();
@@ -105,11 +115,11 @@ import "litos-ui/styles/loading.css";
 </l-code-preview>
 </ClientOnly>
 
-### 自定义内容
+### Custom Content
 
-你可以自定义加载中组件的文字，背景颜色。
+Customize the loading text and background color.
 
-在绑定了 `l-loading` 属性的元素上添加 `l-loading-text` 属性，其值会被渲染为加载文案，并显示在加载图标的下方；将其设置为空字符串可以用于取消文本。`l-loading-background` 用来设定背景色值。
+Add `l-loading-text` to an element with `l-loading` to show text below the spinner. Set it to `false` or `0` to hide the text; an empty attribute uses the default text. Use `l-loading-background` to set the overlay background.
 
 <ClientOnly>
 <l-code-preview>
@@ -120,7 +130,7 @@ import "litos-ui/styles/loading.css";
     l-loading-text="loading……"
     l-loading-background="rgba(255, 255, 255, .9)"
   >
-    内容加载区域
+    Content loading area
   </div>
 </textarea>
 <div class="source">
@@ -131,7 +141,7 @@ import "litos-ui/styles/loading.css";
     l-loading-text="loading……"
     l-loading-background="rgba(255, 255, 255, .9)"
   >
-    内容加载区域
+    Content loading area
   </div>
 </textarea>
 <textarea source="js">
@@ -141,18 +151,18 @@ import "litos-ui/styles/loading.css";
 </l-code-preview>
 </ClientOnly>
 
-### 全屏
+### Fullscreen
 
-通过传递 `l-loading-fullscreen` 属性将遮罩插入至 `body` 上保证加载数据時显示全屏动画；当全屏时默认会禁止滚动，通过传递 `l-loading-lock="false"` 可以允许滚动。
+Add `l-loading-fullscreen` to mount the overlay on `body` and display a fullscreen indicator. Scrolling is locked by default; set `l-loading-lock="false"` to allow scrolling.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button l-loading="loading3" l-loading-fullscreen>加载</l-button>
+  <l-button l-loading="loading3" l-loading-fullscreen>Load</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button l-loading="loading3" l-loading-fullscreen>加载</l-button>
+  <l-button l-loading="loading3" l-loading-fullscreen>Load</l-button>
 </textarea>
 <textarea lang="js">
   LLoading.init();
@@ -161,9 +171,9 @@ import "litos-ui/styles/loading.css";
 </l-code-preview>
 </ClientOnly>
 
-### 进度条风格
+### Progress Bar
 
-通过传递 `l-loading-shape="bar"` 参数可以将圆形加载变为进度条风格。
+Set `l-loading-shape="bar"` to use a progress bar instead of a circular spinner.
 
 <ClientOnly>
 <l-code-preview>
@@ -173,8 +183,8 @@ import "litos-ui/styles/loading.css";
     l-loading="loading4"
     l-loading-shape="bar"
   >
-    <l-button id="startBarLoading" data-loading="loading4">开始</l-button>
-    <l-button id="endBarLoading" data-loading="loading4">结束</l-button>
+    <l-button id="startBarLoading" data-loading="loading4">Start</l-button>
+    <l-button id="endBarLoading" data-loading="loading4">Stop</l-button>
   </div>
 </textarea>
 <div class="source">
@@ -184,19 +194,19 @@ import "litos-ui/styles/loading.css";
     l-loading="loading4"
     l-loading-shape="bar"
   >
-    <l-button id="startBarLoading" data-loading="loading4">开始</l-button>
-    <l-button id="endBarLoading" data-loading="loading4">结束</l-button>
+    <l-button id="startBarLoading" data-loading="loading4">Start</l-button>
+    <l-button id="endBarLoading" data-loading="loading4">Stop</l-button>
   </div>
 </textarea>
 
 <textarea lang="js">
   //-
   function handleStartBarLoading() {
-    LLoading.init('loading5');
+    LLoading.init('loading4');
   }
   //-
   function handleEndBarLoading() {
-    LLoading.close('loading5');
+    LLoading.close('loading4');
   }
   //-
   const $startBarLoading = document.getElementById('startBarLoading');
@@ -208,9 +218,9 @@ import "litos-ui/styles/loading.css";
 </l-code-preview>
 </ClientOnly>
 
-### 边框动画风格
+### Animated Border
 
-通过传递 `l-loading-shape="border"` 参数可以变为边框加载动画。
+Set `l-loading-shape="border"` to use an animated border.
 
 <ClientOnly>
 <l-code-preview>
@@ -220,7 +230,7 @@ import "litos-ui/styles/loading.css";
     l-loading="loading5"
     l-loading-shape="border"
   >
-    内容加载区域
+    Content loading area
   </div>
 </textarea>
 <div class="source">
@@ -231,24 +241,24 @@ import "litos-ui/styles/loading.css";
     l-loading-mask="1"
     l-loading-shape="border"
   >
-    内容加载区域
+    Content loading area
   </div>
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-### 编程式调用
+### Imperative API
 
-> 编程式调用依赖于自动引入
+> Import the Loading API and loading.css explicitly for imperative usage.
 
-通过调用 `create()` 函数来显示加载动画，例如：
+Call `create()` to show a loading indicator:
 
 ```js
 const loading = LLoading.create(options);
 ```
 
-其中 `options` 参数为 `Loading` 的配置项，具体见下表。该会返回一个 `Loading` 实例，可通过调用该实例的 `hide()` 方法来关闭它：
+The `options` argument configures the indicator; see the options table below. The returned instance provides a `hide()` method:
 
 ```js
 const loading = LLoading.create({});
@@ -258,7 +268,7 @@ setTimeout(() => {
 }, 3000);
 ```
 
-需要注意的是，以编程方式创建的 `Loading` 默认为全屏的且该全屏 `Loading` 是单例的。 若在前一个全屏 `Loading` 关闭前再次调用全屏 `Loading`，并不会创建一个新的 `Loading` 实例，而是返回现有全屏 `Loading` 的实例，只要其中一个实例关闭，其它都关闭：
+Imperative indicators are fullscreen by default. Fullscreen calls share a single DOM indicator: another call creates a new wrapper instance around the existing fullscreen node. Hiding either wrapper closes the shared indicator:
 
 ```js
 const loading1 = LLoading.create();
@@ -270,11 +280,11 @@ loading2.hide();
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button id="startLoading">开始</l-button>
+  <l-button id="startLoading">Start</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="startLoading">按钮</l-button>
+  <l-button id="startLoading">Button</l-button>
 </textarea>
 <textarea lang="js">
   const $startLoading = document.getElementById('startLoading');
@@ -289,29 +299,31 @@ loading2.hide();
 </l-code-preview>
 </ClientOnly>
 
-使用编程方式时，可以修改加载文案。调用 `loading1.updateLoadingText(str)`
+Update the text of an imperative indicator with `loading1.updateLoadingText(str)`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div id="startLoading1Parent" style="height:150px;border:1px solid #dedede;padding:5px;">
-    <l-button id="startLoading1">开始</l-button>
+    <l-button id="startLoading1">Start</l-button>
   </div>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="startLoading">按钮</l-button>
+  <div id="startLoading1Parent" style="height:150px;border:1px solid #dedede;padding:5px;">
+    <l-button id="startLoading1">Start</l-button>
+  </div>
 </textarea>
 <textarea lang="js">
-  const $startLoading = document.getElementById('startLoading');
+  const $startLoading = document.getElementById('startLoading1');
   $startLoading.addEventListener('click', () => {
-    const loading = LLoading.create();
+    const loading = LLoading.create({ to: '#startLoading1Parent', fullscreen: false });
     setTimeout(() => {
-      loading.updateLoadingText("重新加载中……");
+      loading.updateLoadingText("Reloading...");
     }, 3000);
     setTimeout(() => {
       loading.hide();
-    }, 3000);
+    }, 6000);
   });
 </textarea>
 </div>
@@ -322,38 +334,43 @@ loading2.hide();
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/loading.css";
 import Loading from "litos-ui/loading";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
+The built-in loading text is Chinese. Set `text` for imperative calls or `l-loading-text` on an element to provide English text. The background and color defaults below are CSS fallbacks; JavaScript leaves them unset.
+
+Implementation limits: element-based `l-loading-mask` is currently read by presence, so any supplied value enables the overlay. `l-loading-zindex` is not read by the initializer; set `--l-loading-zindex` in CSS instead. Use imperative `mask` and `zindex` options when needed.
 
 ## API
 
-### 配置项
+### Options
 
 <!-- prettier-ignore -->
-| 字段 | 说明 | 类型 | 默认值 |
+| Property | Description | Type | Default |
 | --- | --- | --- | --- |
-| `to` | 加载条的挂载位置；可传入一个 `DOM` 对象或字符串；若传入字符串，则会将其作为参数传入 `document.querySelector` 以获取到对应 `DOM` 节点 | `string` \| `HTMLElement` | `body` |
-| `text` | 显示在加载图标下方的加载文案; 通过传递空字符串可以用于不显示文本 | `string` | `加载中……` |
-| `background` | 遮罩层背景色 | `string` | `rgba(0, 0, 0, .6)` |
-| `fullscreen` | 是否显示全屏加载动画 | `boolean` | `true` |
-| `lock` | 是否禁止滚动 | `boolean` | `true` |
-| `shape` | 形状, circle - 圆形, bar - 进度条样式, border - 边框动画 | `string` | `circle` |
-| `color` | 颜色 | `string` | `var(--l-primary-color, #722ed1)` |
-| `mask` | 是否显示阴影, 0 - 不显示, 1 - 显示, 2 - 自动[circle-显示,bar-不显示] | `number` | `2` |
-| `zindex` | z-index 层级 | `string` | `10` |
+| `to` | Mount target: an HTMLElement or a selector resolved with document.querySelector | `string` \| `HTMLElement` | `body` |
+| `text` | Text below the circular spinner; pass an empty string to hide it | `string` | `加载中……` |
+| `background` | Overlay background | `string` | `rgba(0, 0, 0, .7)` |
+| `fullscreen` | Whether to show a fullscreen indicator | `boolean` | `true` |
+| `lock` | Whether to lock scrolling | `boolean` | `true` |
+| `shape` | Shape: circle (spinner), bar (progress bar), or border (animated border) | `string` | `circle` |
+| `color` | Color | `string` | `var(--l-primary-color, #722ed1)` |
+| `mask` | Overlay: 0 hides it, 1 shows it, 2 shows it for circle only | `number` | `2` |
+| `zindex` | Overlay stacking level; CSS fallback is 10, or 50 for fullscreen | `number` | Not set |
 
-### 节点属性
+### Element Attributes
 
 <!-- prettier-ignore -->
-| 属性 | 说明 | 默认值 |
+| Attribute | Description | Default |
 | --- | --- | --- |
-| `l-loading-text` | 显示在加载图标下方的加载文案; 当值为 `false` 时则不显示文本 | `加载中……` |
-| `l-loading-background` | 遮罩层背景色 | `rgba(0, 0, 0, .6)` |
-| `l-loading-fullscreen` | 是否显示全屏加载动画 | `-` |
-| `l-loading-lock` | 是否禁止滚动, 当值为 `false` 或 `0` 时则允许滚动 | `true` |
-| `l-loading-shape` | 形状 | `circle` |
-| `l-loading-color` | 颜色 | `var(--l-primary-color, #722ed1)` |
-| `l-loading-mask` | 是否显示阴影, 0 - 不显示, 1 - 显示, 2 - 自动[circle-显示,bar-不显示] | `2` |
-| `l-loading-zindex` | z-index 层级 | `10` |
+| `l-loading-text` | Text below the circular spinner; false or 0 hides it | `加载中……` |
+| `l-loading-background` | Overlay background | `rgba(0, 0, 0, .7)` |
+| `l-loading-fullscreen` | Whether to show a fullscreen indicator | `-` |
+| `l-loading-lock` | Whether to lock scrolling; false or 0 allows scrolling | `true` |
+| `l-loading-shape` | Shape | `circle` |
+| `l-loading-color` | Color | `var(--l-primary-color, #722ed1)` |
+| `l-loading-mask` | Overlay: 0 hides it, 1 shows it, 2 shows it for circle only | `2` |
+| `l-loading-zindex` | Stacking level (z-index) | `10` |

@@ -1,8 +1,8 @@
-# Calendar 日历
+# Calendar
 
-显示日期；按照日历的形式展示数据的容器
+Display dates and data in a calendar layout.
 
-## 引用
+## Import and Registration
 
 ```js
 import { regist, Calendar } from "litos-ui";
@@ -10,7 +10,9 @@ import { regist, Calendar } from "litos-ui";
 regist(Calendar);
 ```
 
-## 演示
+The built-in weekday labels currently support only `zh-CN`. Translating this page does not change the component’s locale support.
+
+## Examples
 
 <script setup>
   import { $one, on, off } from 'utilane/browser';
@@ -107,9 +109,9 @@ regist(Calendar);
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-渲染 `year`、`month` 渲染指定年月的日历。默认为当前年月。
+Set `year` and `month` to display a specific month. The current year and month are used by default.
 
 <ClientOnly>
 <l-code-preview>
@@ -119,9 +121,9 @@ regist(Calendar);
 </l-code-preview>
 </ClientOnly>
 
-### 限制可选日期
+### Date Limits
 
-通过 `min-date`、`max-date` 属性可以限制可选日期的范围。
+Use `min-date` and `max-date` to limit the selectable dates.
 
 <ClientOnly>
 <l-code-preview>
@@ -131,9 +133,9 @@ regist(Calendar);
 </l-code-preview>
 </ClientOnly>
 
-### 日期切换
+### Changing the Month
 
-通过监听 `day-click` 事件来获取点击的日期，并实现点击上一月、下一月日期时，切换日期
+Handle `day-click` to obtain the clicked date and change the displayed month when a date from an adjacent month is clicked.
 
 <ClientOnly>
 <l-code-preview>
@@ -143,9 +145,9 @@ regist(Calendar);
 </l-code-preview>
 </ClientOnly>
 
-### 选中日期
+### Selected Dates
 
-通过 `type=select` 然后设置 `value` 属性，可以选中指定的日期。
+Use `type="select"` and set `value` to select dates.
 
 <ClientOnly>
 <l-code-preview>
@@ -177,11 +179,11 @@ regist(Calendar);
 </l-code-preview>
 </ClientOnly>
 
-> `value` 的值通过 `&` 分隔实现选择多个日期
+> Separate dates in `value` with `&` to select multiple dates.
 
-### 范围选择
+### Range Selection
 
-通过 `type=range` 然后设置 `value` 属性为一个 `number,number` 格式的值，可以选中的日期范围。
+Use `type="range"` and set `value` to two timestamps in `number,number` format to select a date range.
 
 <ClientOnly>
 <l-code-preview>
@@ -239,42 +241,42 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/calendar";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Calendar Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `min-date` | 最小日期, 例如: `2026-04-03` | `string` | - |
-| `max-date` | 最大日期, 例如: `2026-04-03` | `string` | - |
-| `year` | 年份, 例如: `2026` | `number` | 当前年份 |
-| `month` | 月份, 例如: `4` | `number` | 当前月份 |
-| `type` | 日历类型，可选值 `select`、`range` | `string` | `select` |
-| `value` | 选中日期，当 type 为 select 时为选中日期字符串以 `&`，当 type 为 range 时为两个日期的组合字符串（逗号分隔）; 同时也是 `value` 属性 | `string` | - |
-| `locale` | 语言，当前内置语言仅 zh-CN | `string` | `zh-CN` |
+| `min-date` | Earliest date, for example `2026-04-03` | `string` | - |
+| `max-date` | Latest date, for example `2026-04-03` | `string` | - |
+| `year` | Year, for example `2026` | `number` | Current year |
+| `month` | Month, for example `4` | `number` | Current month |
+| `type` | Calendar mode: select or range | `string` | `select` |
+| `value` | Selected dates: &-separated date strings in select mode, or two comma-separated timestamps in range mode; also available as the value property | `string` | - |
+| `locale` | Locale; only zh-CN is currently built in | `string` | `zh-CN` |
 
 ### Calendar Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| - | 当前未渲染默认插槽 |
+| - | The default slot is not currently rendered |
 
 ### Calendar Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `day-click` | 点击日期时触发，detail 包含 isActiveMonth、day、dayTimestamp、minTimestamp、maxTimestamp | `(event: CustomEvent)` |
-| `day-hover` | 鼠标悬停日期时触发，detail 结构同 day-click | `(event: CustomEvent)` |
+| `day-click` | Fires when a date is clicked; detail contains isActiveMonth, day, dayTimestamp, minTimestamp, and maxTimestamp | `(event: CustomEvent)` |
+| `day-hover` | Fires when a date is hovered; detail has the same structure as day-click | `(event: CustomEvent)` |
 
 ### Calendar CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-calendar-header-height` | 周信息栏高度 | `32px` |
-| `--l-calendar-off-text-color` | 当日期不是当前年月时的文字颜色 | `#a8abb2` |
+| `--l-calendar-header-height` | Weekday header height | `32px` |
+| `--l-calendar-off-text-color` | Text color for dates outside the displayed month | `#a8abb2` |

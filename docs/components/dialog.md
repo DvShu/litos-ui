@@ -5,13 +5,18 @@
 ## 引用
 
 ```js
-import { DialogContainer, regist, Button, CloseIcon, Dialog, DialogBox, InfoIcon } from "litos-ui";
+import {
+  DialogContainer,
+  regist,
+  Button,
+  CloseIcon,
+  Dialog,
+  DialogBox,
+  LoadingIcon,
+} from "litos-ui";
 import "litos-ui/styles/dialog.css";
 
-regist([DialogContainer, Button, CloseIcon]);
-
-// 注册本页演示使用的附加组件
-regist([InfoIcon]);
+regist([CloseIcon, LoadingIcon, Button, DialogContainer]);
 ```
 
 ## 演示
@@ -56,7 +61,9 @@ regist([InfoIcon]);
           console.log(action);
           done();
         } });
-        dialogs['dialog2'] = new Dialog({ el: '#dialog2' })
+        dialogs['dialog2'] = new Dialog({ el: '#dialog2', onAction: (action, done) => {
+          done();
+        } })
         dialogs['dialog3'] = new Dialog({ el: '#dialog3', onAction: (action, done) => {
           console.log(action);
           done();
@@ -149,7 +156,7 @@ regist([InfoIcon]);
 
 ### 自定义头部
 
-除了使用 `header` 属性定义头部内容外，也可以通过传递 `header-slot` 插槽自定义头部内容。通过传递 `width` 属性改变宽度；通常当需要在头部显示图标时有用, 比如：`confirm` 弹窗
+除了使用 `header` 属性定义头部内容外，也可以通过传递 `header` 插槽自定义头部内容。通过传递 `width` 属性改变宽度；通常当需要在头部显示图标时有用, 比如：`confirm` 弹窗
 
 <ClientOnly>
 <l-code-preview>
@@ -174,7 +181,12 @@ regist([InfoIcon]);
   </dialog>
 </textarea>
 <textarea lang="js">
-  const dialog = new Dialog({ el: '#dialog' });
+  const dialog = new Dialog({
+    el: '#dialog',
+    onAction: (action, done) => {
+      done();
+    }
+  });
   dialog.open(); // 打开弹窗
   // 在页面结束时 onUnmounted 中调用 dialog.destroy() 方法销毁弹窗
 </textarea>
@@ -306,6 +318,7 @@ regist([InfoIcon]);
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/dialog.css";
 import Dialog from "litos-ui/dialog";
 ```
 
@@ -336,6 +349,8 @@ new Dialog(option?: DialogInitialParams)
 | escClose | `boolean` | `true` | 是否在点击 Esc 时关闭弹窗 |
 | maskClosable | `boolean` | `true` | 是否可以通过点击遮罩关闭对话框 |
 | close | `number` | `1` | 是否显示右上角关闭按钮，`1` - 显示在框内，`2` - 显示在框角，`0` - 不显示 |
+
+当前实现限制：Esc 处理器仍会关闭对话框，未按 escClose 分支判断；初始纵向位置和关闭按钮设置从原生 dialog 属性读取，属性缺省时使用 top 和 1，而不是对应的 JavaScript 配置。
 
 #### 实例方法
 

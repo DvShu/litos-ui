@@ -2,7 +2,7 @@
 
 容器布局，采用了 `flex` 布局，一般用于后台管理项目的一些常用排版，方便快速搭建页面的基本结构：
 
-- `l-container`：外层容器，一般用于 `section` 标签，基本排版为水平左右排列，可以通过设置 `l-layout-verticle` 调整为垂直上下排列。可以嵌套
+- `l-container`：外层容器，一般用于 `section` 标签，基本排版为水平左右排列，可以通过设置 `l-layout-vertical` 调整为垂直上下排列。可以嵌套
 - `l-header`：顶栏容器，一般用于 `header` 标签
 - `l-aside`: 侧边栏容器，一般用于 `aside` 标签
 - `l-main`: 主要区域容器，一般用于 `main` 标签

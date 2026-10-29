@@ -7,9 +7,9 @@
 ## 引用
 
 ```js
-import { regist, Table } from "litos-ui";
+import { regist, Table, Button } from "litos-ui";
 
-regist(Table);
+regist([Table, Button]);
 ```
 
 ## 演示
@@ -145,14 +145,16 @@ regist(Table);
           }
         });
 
-        on($tables[0], 'action', handleAction);
+        on($tables[0], 'edit', handleAction);
+        on($tables[0], 'delete', handleAction);
       });
     }
   });
 
   onUnmounted(() => {
     if ($tables && $tables.length) {
-      off($tables[0], 'action', handleAction);
+      off($tables[0], 'edit', handleAction);
+      off($tables[0], 'delete', handleAction);
     }
     $tables = null;
   });
@@ -160,7 +162,7 @@ regist(Table);
 
 ### 基础用法
 
-先通过 `setColumns()` 定义列, 再通过 `setData()` 定义数据源；如果需要最后一列操作列，则可以通过给元素定义 `data-action` 属性，然后监听 `table` 的 `action` 事件。
+先通过 `setColumns()` 定义列, 再通过 `setData()` 定义数据源；如果需要最后一列操作列，则可以通过给元素定义 `data-action` 属性，然后监听 `table` 上对应名称的事件（本例为 `edit` 和 `delete`）。
 
 <ClientOnly>
 <l-code-preview>
@@ -172,9 +174,9 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'utilane/browser';
+  import { on, $$, $one } from 'utilane/browser';
   //-
-  const $table = $('.data-table');
+  const $table = $one('.data-table');
   //-
   const dataSource = [
     {
@@ -241,7 +243,8 @@ regist(Table);
     }
   }
   //-
-  on($table, 'action', handleAction);
+  on($table, 'edit', handleAction);
+  on($table, 'delete', handleAction);
 </textarea>
 </div>
 </l-code-preview>
@@ -297,9 +300,9 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'utilane/browser';
+  import { on, $$, $one } from 'utilane/browser';
   //-
-  const $table = $('.data-table');
+  const $table = $one('.data-table');
   //-
   const columns = [{
     title: '姓名',
@@ -352,7 +355,7 @@ regist(Table);
 
 ### 排序
 
-给列的选项增加 `sorter` 为 `true`、`costom` 来启用排序，同时配置 `key` 字段标记排序 `key`；如果 `sorter=costom` 就能启用手动排序，这个时候会触发一个`sort` 事件，然后在 `sort` 事件中调用 `setData` 方法来设置排序后的数据。
+给列的选项增加 `sorter` 为 `true`、`custom` 来启用排序，同时配置 `key` 字段标记排序 `key`；如果 `sorter=custom` 就能启用手动排序，这个时候会触发一个`sort` 事件，然后在 `sort` 事件中调用 `setData` 方法来设置排序后的数据。
 
 <ClientOnly>
 <l-code-preview>
@@ -385,7 +388,7 @@ import "litos-ui/table";
 | `max-height` | 最大高度 | `number \| string` | `-` |
 | `table-layout` | 表格布局 | `"auto" \| "fixed"` | `-` |
 
-### Table Column Attributes
+### Table Column Options
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 |

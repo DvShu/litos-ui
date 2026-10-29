@@ -122,5 +122,6 @@ export type {
   UploadRequestHandler,
 } from "./upload";
 
+export { default as NotificationBox } from "./notification/notification_box";
 export { default as Notification } from "./notification";
 export type { NotificationOptions, NotificationType, NotificationPlacement } from "./notification";

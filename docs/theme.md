@@ -36,6 +36,8 @@ import "litos-ui/styles/theme-jade.css";
 // import "litos-ui/styles/theme-tangerine.css";
 ```
 
+需要暗黑模式时，在基础变量之后额外引入 `litos-ui/styles/dark.css`，再通过根元素的 `dark` 类切换。该文件只包含暗黑变量覆盖，不自动切换模式，也不由 `vars.css` 隐式加载。
+
 ## 主题变量源码
 
 三套文件均使用 CSS 变量定义颜色，可直接引用，也可复制后调整。警告颜色统一使用 `--l-warning-color`，文字颜色使用 `--l-text-color` 和 `--l-text-secondary-color`。

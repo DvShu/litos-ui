@@ -98,7 +98,7 @@ trans.init();
 
 ### 基本用法
 
-创建过渡动画后，在节点加载完成后，调用 `init` 方法，即可自动加载带有 `l-transition` 属性的元素并应用动画。同时也会监听节点的 `l-transition-emit` 属性，可选值为 `show`、`false`, 当属性变化时，会自动应用动画。
+创建过渡动画后，在节点加载完成后，调用 `init` 方法，即可自动加载带有 `l-transition` 属性的元素并应用动画。同时也会监听节点的 `l-transition-emit` 属性，可选值为 `show`、`hide`， 当属性变化时，会自动应用动画。
 
 基于此当想要隐藏节点时，只需要将 `l-transition-emit` 属性设置为 `hide` 即可。
 
@@ -151,7 +151,7 @@ trans.init();
 </l-code-preview>
 </ClientOnly>
 
-> 注意: 设置 `l-transition-method="remove"` 后，新添加节点时，需要手动调用 `trans.add()` 方法重新添加节点动画
+> 注意: 设置 `l-transition-method="remove"` 后，新添加节点时，需要手动调用 `trans.add([element])` 方法重新添加节点动画
 
 ### 手动动画
 
@@ -211,10 +211,31 @@ trans.init();
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="toggle2">Toggle</l-button>
-  <p id="text2">hello</p>
+  <l-button id="toggle3">Toggle</l-button>
+  <div class="in-trans" l-name="l-opacity">l-opacity</div>
+  <div class="in-trans" l-name="l-fadein">l-fadein</div>
+  <div class="in-trans" l-name="l-scale">l-scale</div>
 </textarea>
 <textarea lang="js">
+  import { $, $one, on, off, iterate, transition } from 'utilane/browser';
+  import 'litos-ui/styles/transition.css';
+  //-
+  function toggleInner() {
+    iterate($('.in-trans'), (item) => {
+      const name = item.getAttribute('l-name');
+      if (item.style.display === 'none') {
+        item.style.display = 'inline-block';
+        transition(item, name, 'enter');
+      } else {
+        transition(item, name, 'leave', () => {
+          item.style.display = 'none';
+        });
+      }
+    });
+  }
+  //-
+  on($one('#toggle3'), 'click', toggleInner);
+  // 页面卸载时调用： off($one('#toggle3'), 'click', toggleInner);
 </textarea>
 </div>
 </l-code-preview>
@@ -246,5 +267,5 @@ import { createTransition } from "litos-ui/transition";
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `init` | 初始化，加载带有 `l-transition` 属性的元素并应用动画 | `() => void` | - |
-| `destroy` | 销毁，移除所有动画 | `() => void` | - |
+| `destroy` | 断开属性监听并释放 Observer | `() => void` | - |
 | `add` | 添加节点动画 | `(el: HTMLElement[]) => void` | - |

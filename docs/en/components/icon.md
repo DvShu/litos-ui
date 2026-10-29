@@ -1,10 +1,10 @@
-# icon
+# Icon
 
-内置图标有限，推荐使用 [iconify](https://iconify.design/docs/iconify-icon/)
+The built-in icon set is limited. For more icons, consider [Iconify](https://iconify.design/docs/iconify-icon/).
 
-## 基本使用
+## Basic Usage
 
-### 引入
+### Import and Registration
 
 ```js
 import { ArrowDownIcon, regist, BaseIcon, CaretBottomIcon, FontIcon } from "litos-ui";
@@ -12,27 +12,27 @@ import { ArrowDownIcon, regist, BaseIcon, CaretBottomIcon, FontIcon } from "lito
 regist(ArrowDownIcon);
 // ...
 
-// 注册本页演示使用的附加组件
+// Register the additional components used by this page's demos.
 regist([BaseIcon, CaretBottomIcon, FontIcon]);
 ```
 
-### 使用
+### Usage
 
 ```html
 <l-arrow-down-icon></l-arrow-down-icon>
 ```
 
-### 内置图标
+### Built-in Icons
 
-框架内置的图标如下：
+The library includes the following icons:
 
 <ClientOnly>
   <l-icon-list></l-icon-list>
 </ClientOnly>
 
-### `iconfont` 图标
+### Iconfont Icons
 
-使用时需要单独引入 `iconfont` 图标文件。`name` 属性填入引入的 `iconfont` 文件里面对应的 `id`.
+Load the iconfont file separately, then set the `name` attribute to the corresponding `id` in that file.
 
 <ClientOnly>
 <l-code-preview>
@@ -42,9 +42,9 @@ regist([BaseIcon, CaretBottomIcon, FontIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 自定义图标
+### Custom Icons
 
-可以通过使用 `base-icon` 然后加入自定义的 `svg-path` 路径来构建自定义的图标
+Create a custom icon by placing SVG path elements inside `l-base-icon`.
 
 <ClientOnly>
 <l-code-preview>
@@ -59,7 +59,7 @@ regist([BaseIcon, CaretBottomIcon, FontIcon]);
 </l-code-preview>
 </ClientOnly>
 
-> 当前也可以通过继承 `BaseIcon` 来自定义图标
+> You can also create custom icons by extending `BaseIcon`.
 
 ```js
 import { BaseIcon, regist } from "litos-ui";
@@ -67,7 +67,7 @@ import { BaseIcon, regist } from "litos-ui";
 class MyIcon extends BaseIcon {
   constructor() {
     super();
-    this.viewBox = "0 0 1024 1024"; // 默认
+    this.viewBox = "0 0 1024 1024"; // Default
   }
 
   renderChildren() {
@@ -80,9 +80,9 @@ regist(MyIcon, "my-icon");
 // <my-icon></my-icon>
 ```
 
-### 颜色和尺寸
+### Color and Size
 
-修改颜色和尺寸可以通过 `color` 和 `font-size` 样式修改；也可以通过 `color` 和 `size` 属性修改
+Set the color and size through the CSS `color` and `font-size` properties, or use the `color` and `size` attributes.
 
 <ClientOnly>
 <l-code-preview>
@@ -93,22 +93,30 @@ regist(MyIcon, "my-icon");
 </l-code-preview>
 </ClientOnly>
 
-> 这里是通过 `style` 属性来修改的，也可以通过 `class` 来修改
+> These examples use the `style` attribute. You can also apply styles through a CSS class.
 
-### Icon Attribute
+### Icon Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `view-box` | svg view box | `string` | `0 0 1024 1024` |
+| `color` | Icon color | `string` | - |
+| `size` | Icon size; numbers are treated as px, and CSS units are also supported | `string` | - |
 
-### 样式变量
+### Icon Properties
 
 <!-- prettier-ignore -->
-| 名称 | 描述 | 默认值 |
+| Name | Description | Type | Default |
+| --- | --- | --- | --- |
+| `viewBox` | Sets the SVG viewBox before the initial render; the view-box attribute is not observed | `string` | `0 0 1024 1024` for BaseIcon; individual icons may override it |
+
+### CSS Variables
+
+<!-- prettier-ignore -->
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-icon-size` | 尺寸 | `-` |
-| `--l-icon-color` | 颜色 | `-` |
+| `--l-icon-size` | Size | `-` |
+| `--l-icon-color` | Color | `-` |
 
 ## On-demand entry
 
@@ -117,4 +125,4 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/icon/loading";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.

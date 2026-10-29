@@ -541,7 +541,7 @@ For network or application-level failures, use `throw new Error("Upload failed")
 
 ### CSS Variables
 
-The component uses `var()` fallback values, so you can override individual variables without defining the entire set. The table below lists the light-mode fallbacks. After you import `litos-ui/styles/vars.css`, `:root.dark` overrides only the backgrounds, text, borders, and hover colors that need to change in dark mode. These values reach the component through CSS variable inheritance.
+The component uses `var()` fallback values, so you can override individual variables without defining the entire set. The table below lists the light-mode fallbacks. After you import `litos-ui/styles/dark.css` following the base variables and add the `dark` class to the root element, `:root.dark` overrides only the backgrounds, text, borders, and hover colors that need to change in dark mode. These values reach the component through CSS variable inheritance.
 
 <!-- prettier-ignore -->
 | Name | Description | Default |

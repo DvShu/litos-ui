@@ -1,13 +1,13 @@
-# reset - 样式重置
+# Style Reset
 
-组件默认是没有进行样式重置，但是也提供了样式重置文件，可以手动在入口文件引入
+Components do not apply a style reset by default. To opt in, manually import the provided reset stylesheet in your application entry point.
 
-例如，在 `main.ts` 中引入
+For example, import it in `main.ts`:
 
 ```ts
 import "litos-ui/styles/reset.css";
 ```
 
-重置样式包含如下内容：
+The reset stylesheet contains the following rules. This source file is shared with the Chinese documentation, so its original Chinese comments are preserved:
 
 <<< ../../styles/reset.css

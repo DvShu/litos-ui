@@ -11,40 +11,86 @@
 ## 引用
 
 ```js
-import { Notification, regist, Button } from "litos-ui";
+import {
+  Notification,
+  NotificationBox,
+  regist,
+  InfoIcon,
+  SuccessIcon,
+  WarnIcon,
+  CloseFilledIcon,
+  CloseIcon,
+} from "litos-ui";
 import "litos-ui/styles/notification.css";
 
-// 组件式使用需要注册组件
-regist(Notification);
-
-// 注册本页演示使用的附加组件
-regist([Button]);
+regist([InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon, Notification]);
 ```
 
-> 命令式调用(如 `Notification.info(...)`)会自动注册组件与依赖的图标, 无需手动调用 `regist`。
+> 组件式与命令式使用前均需显式注册 Notification 及所需图标；NotificationBox 不会自动注册组件。
 
 ## 基础用法
 
 ### 组件式
+
+点击下方按钮显示示例通知，进入页面时不会自动弹出。
 
 通过 `open` 属性控制显示, `title` 设置标题, `message` 设置消息内容。组件式使用时默认不会自动关闭(`duration` 默认为 `0`), 由 `open` 属性控制显示与隐藏。
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-notification
-    open
+  <l-button id="show-notification-basic" data-notification="component" data-target="notification-basic">显示组件式通知</l-button>
+  <l-notification id="notification-basic"
     title="系统通知"
     message="这是一条系统主动推送的通知, 点击右上角可以关闭。"
   ></l-notification>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-notification
-    open
+  <l-button id="show-notification-basic" data-notification="component" data-target="notification-basic">显示组件式通知</l-button>
+  <l-notification id="notification-basic"
     title="系统通知"
     message="这是一条系统主动推送的通知, 点击右上角可以关闭。"
   ></l-notification>
+</textarea>
+<textarea lang="js">
+  document.getElementById('show-notification-basic').addEventListener('click', (event) => {
+    document.getElementById(event.currentTarget.getAttribute('data-target')).show();
+  });
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
+组件式使用时, 也可以通过插槽自定义内容, 支持 `title`(标题)、`default`(内容)、`action`(行动点) 三个插槽。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-button id="show-notification-slots" data-notification="component" data-target="notification-slots">显示自定义通知</l-button>
+  <l-notification id="notification-slots" type="info" duration="0">
+    <span slot="title">自定义标题</span>
+    <div>
+      <p>第一行内容</p>
+      <p>第二行内容</p>
+    </div>
+  </l-notification>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button id="show-notification-slots" data-notification="component" data-target="notification-slots">显示自定义通知</l-button>
+  <l-notification id="notification-slots" type="info" duration="0">
+    <span slot="title">自定义标题</span>
+    <div>
+      <p>第一行内容</p>
+      <p>第二行内容</p>
+    </div>
+  </l-notification>
+</textarea>
+<textarea lang="js">
+  document.getElementById('show-notification-slots').addEventListener('click', (event) => {
+    document.getElementById(event.currentTarget.getAttribute('data-target')).show();
+  });
 </textarea>
 </div>
 </l-code-preview>
@@ -59,20 +105,25 @@ regist([Button]);
   import { elem, iterate, on } from 'utilane/browser';
 
   let $btns;
+  let disposed = false;
   let lastId = '';
   // 组件类中包含 DOM API, 需要在浏览器端动态引入
-  let LNotification;
+  let LNotificationBox;
 
   function showNotification(e) {
     const $target = e.target;
     const type = $target.getAttribute('data-notification');
-    if (!type || !LNotification) return;
+    if (!type || !LNotificationBox) return;
+    if (type === 'component') {
+      document.getElementById($target.getAttribute('data-target'))?.show();
+      return;
+    }
     if (type === 'close') {
-      LNotification.close(lastId);
+      LNotificationBox.close(lastId);
       return;
     }
     if (type === 'closeAll') {
-      LNotification.closeAll();
+      LNotificationBox.closeAll();
       return;
     }
     const duration = $target.getAttribute('data-duration');
@@ -83,13 +134,14 @@ regist([Button]);
       duration: duration == null ? 4500 : Number(duration),
       action: $target.getAttribute('data-action') || undefined,
     };
-    lastId = LNotification[type](option);
+    lastId = LNotificationBox[type](option);
   }
 
   onMounted(() => {
     nextTick(async () => {
-      if (import.meta.env.SSR) return;
-      LNotification = (await import('../../src/components/notification')).default;
+      if (import.meta.env.SSR || disposed) return;
+      LNotificationBox = (await import('../../src/components/notification/notification_box')).default;
+      if (disposed) return;
       $btns = elem('.preview-container l-button');
       iterate($btns, ($btn) => {
         on($btn, 'click', showNotification);
@@ -98,7 +150,9 @@ regist([Button]);
   });
 
   onUnmounted(() => {
+    disposed = true;
     if (!import.meta.env.SSR) {
+      LNotificationBox?.closeAll();
       iterate($btns || [], ($btn) => {
         $btn.removeEventListener('click', showNotification);
       });
@@ -120,11 +174,11 @@ regist([Button]);
   <l-button>显示通知</l-button>
 </textarea>
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   import { elem, on } from 'utilane/browser';
   //-
   on(elem('l-button')[0], 'click', () => {
-    Notification.show({
+    NotificationBox.show({
       title: '通知标题',
       message: '通知内容, 4.5 秒后自动关闭。',
     });
@@ -136,7 +190,7 @@ regist([Button]);
 
 ### 不同状态
 
-通过 `type` 设置通知状态, 提供 `info`、`success`、`error`、`warning` 四种状态; 同时为每种状态提供了同名方法, 可以在不传递 `type` 的情况下直接调用, 例如: `Notification.success('保存成功')`。
+通过 `type` 设置通知状态, 提供 `info`、`success`、`error`、`warning` 四种状态; 同时为每种状态提供了同名方法, 可以在不传递 `type` 的情况下直接调用, 例如: `NotificationBox.success('保存成功')`。
 
 <ClientOnly>
 <l-code-preview>
@@ -148,12 +202,12 @@ regist([Button]);
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   //-
-  Notification.info({ title: '提示', message: '这是一条普通提示信息。' });
-  Notification.success({ title: '成功', message: '数据保存成功。' });
-  Notification.warning({ title: '警告', message: '当前操作可能存在风险。' });
-  Notification.error({ title: '错误', message: '请求失败, 请稍后重试。' });
+  NotificationBox.info({ title: '提示', message: '这是一条普通提示信息。' });
+  NotificationBox.success({ title: '成功', message: '数据保存成功。' });
+  NotificationBox.warning({ title: '警告', message: '当前操作可能存在风险。' });
+  NotificationBox.error({ title: '错误', message: '请求失败, 请稍后重试。' });
 </textarea>
 </div>
 </l-code-preview>
@@ -161,7 +215,7 @@ regist([Button]);
 
 ### 显示方位
 
-通过 `placement` 设置显示方位, 提供 `topLeft`、`topRight`、`bottomLeft`、`bottomRight` 四个角; 同一个方位上的通知不会叠加, 已有的通知会自动向后补位。
+通过 `placement` 设置显示方位, 提供 `topLeft`、`topRight`、`bottomLeft`、`bottomRight` 四个角; 同一个方位上的通知不会叠加，新通知排在已有通知下方；关闭通知后，其余通知自动补位。
 
 <ClientOnly>
 <l-code-preview>
@@ -173,12 +227,12 @@ regist([Button]);
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   //-
-  Notification.info({ title: '左上', message: '来自左上角的消息。', placement: 'topLeft' });
-  Notification.info({ title: '右上', message: '来自右上角的消息。', placement: 'topRight' });
-  Notification.info({ title: '左下', message: '来自左下角的消息。', placement: 'bottomLeft' });
-  Notification.info({ title: '右下', message: '来自右下角的消息。', placement: 'bottomRight' });
+  NotificationBox.info({ title: '左上', message: '来自左上角的消息。', placement: 'topLeft' });
+  NotificationBox.info({ title: '右上', message: '来自右上角的消息。', placement: 'topRight' });
+  NotificationBox.info({ title: '左下', message: '来自左下角的消息。', placement: 'bottomLeft' });
+  NotificationBox.info({ title: '右下', message: '来自右下角的消息。', placement: 'bottomRight' });
 </textarea>
 </div>
 </l-code-preview>
@@ -201,39 +255,12 @@ regist([Button]);
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   //-
-  Notification.success({
+  NotificationBox.success({
     title: '部署完成',
     message: '<div>分支: <b>main</b></div><div>耗时: 32s</div>',
   });
-</textarea>
-</div>
-</l-code-preview>
-</ClientOnly>
-
-组件式使用时, 也可以通过插槽自定义内容, 支持 `title`(标题)、`default`(内容)、`action`(行动点) 三个插槽。
-
-<ClientOnly>
-<l-code-preview>
-<textarea lang="html">
-  <l-notification open type="info" duration="0">
-    <span slot="title">自定义标题</span>
-    <div>
-      <p>第一行内容</p>
-      <p>第二行内容</p>
-    </div>
-  </l-notification>
-</textarea>
-<div class="source">
-<textarea lang="html">
-  <l-notification open type="info" duration="0">
-    <span slot="title">自定义标题</span>
-    <div>
-      <p>第一行内容</p>
-      <p>第二行内容</p>
-    </div>
-  </l-notification>
 </textarea>
 </div>
 </l-code-preview>
@@ -256,9 +283,9 @@ regist([Button]);
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   //-
-  Notification.warning({
+  NotificationBox.warning({
     title: '检测到新版本',
     message: '新版本修复了若干问题, 建议立即更新。',
     action: '立即更新',
@@ -275,7 +302,7 @@ regist([Button]);
 
 ### 自动关闭与手动关闭
 
-`duration` 设置自动关闭的时间(毫秒), 设置为 `0` 时不会自动关闭; 鼠标悬浮在通知上时会暂停自动关闭的倒计时, 移出后继续。显示通知的方法会返回通知 `id`, 可以通过 `Notification.close(id)` 手动关闭。
+`duration` 设置自动关闭的时间(毫秒), 设置为 `0` 时不会自动关闭; 鼠标悬浮在通知上时会暂停自动关闭的倒计时, 移出后继续。显示通知的方法会返回通知 `id`, 可以通过 `NotificationBox.close(id)` 手动关闭。
 
 <ClientOnly>
 <l-code-preview>
@@ -286,18 +313,18 @@ regist([Button]);
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   //-
   // 打开通知, 保存返回的 id
-  const id = Notification.error({
+  const id = NotificationBox.error({
     title: '手动关闭',
     message: '这条通知不会自动关闭。',
     duration: 0,
   });
   // 关闭指定的通知
-  Notification.close(id);
+  NotificationBox.close(id);
   // 关闭全部通知
-  Notification.closeAll();
+  NotificationBox.closeAll();
 </textarea>
 </div>
 </l-code-preview>
@@ -305,7 +332,7 @@ regist([Button]);
 
 ### 全局配置
 
-通过 `Notification.config` 设置全局默认配置, 之后创建的通知都会使用该配置。
+通过 `NotificationBox.config` 设置全局默认配置, 之后创建的通知都会使用该配置。
 
 <ClientOnly>
 <l-code-preview>
@@ -314,29 +341,34 @@ regist([Button]);
 </textarea>
 <div class="source">
 <textarea lang="js">
-  import { Notification } from 'litos-ui';
+  import { NotificationBox } from 'litos-ui';
   //-
-  Notification.config({
+  NotificationBox.config({
     width: 380,
     duration: 6000,
     maxCount: 3,
   });
-  Notification.info({ title: '全局配置', message: '这条通知使用了全局配置的宽度与关闭时间。' });
+  NotificationBox.info({ title: '全局配置', message: '这条通知使用了全局配置的宽度与关闭时间。' });
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-> 全局配置会持续生效, 可以设置 `placement`、`width`、`duration`、`offset`、`zIndex`、`maxCount` 等所有配置项。上面的示例为了避免影响其它示例, 只修改了通知宽度与自动关闭时间。
+> 全局配置会持续生效, 可以设置 `placement`、`width`、`duration`、`offset`、`zIndex`、`maxCount` 等所有配置项。上面的配置代码仅供参考，演示按钮不调用全局配置，以免影响其它示例。
 
 ## 按需入口
 
 ```js
 import "litos-ui/styles/vars.css";
-import "litos-ui/notification";
+import "litos-ui/styles/notification.css";
+import Notification from "litos-ui/notification";
+import NotificationBox from "litos-ui/notification-box";
+// 按上方示例注册 Notification 和图标。
 ```
 
-元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+notification 与 notification-box 入口不会自动注册元素，需显式注册 Notification 及所需图标。SSR 框架请在客户端入口加载，参见[按需导入](/on_demand)。
+
+命令式方法现由 `NotificationBox` 提供，`Notification` 仅作为自定义元素组件类。原有 `Notification.info(...)` 等调用需改为 `NotificationBox.info(...)`。
 
 ## API
 
@@ -372,7 +404,7 @@ import "litos-ui/notification";
 ### Notification Events
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 回调参数 |
+| 名称 | 说明 | event.detail |
 | --- | --- | --- |
 | `close` | 通知关闭时触发 | `{ id: string }` |
 | `action` | 点击行动点时触发 | `{ id: string }` |
@@ -392,14 +424,14 @@ import "litos-ui/notification";
 <!-- prettier-ignore -->
 | 名称 | 说明 | 返回类型 |
 | --- | --- | --- |
-| `Notification.show(option)` | 显示通知 | `string`(通知 id) |
-| `Notification.info(option)` | 显示普通通知 | `string` |
-| `Notification.success(option)` | 显示成功通知 | `string` |
-| `Notification.warning(option)` / `warn(option)` | 显示警告通知 | `string` |
-| `Notification.error(option)` | 显示错误通知 | `string` |
-| `Notification.close(id)` | 关闭指定 id 的通知 | - |
-| `Notification.closeAll(placement?)` | 关闭所有通知, 传递 `placement` 时只关闭指定方位 | - |
-| `Notification.config(option)` | 设置全局默认配置 | - |
+| `NotificationBox.show(option)` | 显示通知 | `string`(通知 id) |
+| `NotificationBox.info(option)` | 显示普通通知 | `string` |
+| `NotificationBox.success(option)` | 显示成功通知 | `string` |
+| `NotificationBox.warning(option)` / `warn(option)` | 显示警告通知 | `string` |
+| `NotificationBox.error(option)` | 显示错误通知 | `string` |
+| `NotificationBox.close(id)` | 关闭指定 id 的通知 | - |
+| `NotificationBox.closeAll(placement?)` | 关闭所有通知, 传递 `placement` 时只关闭指定方位 | - |
+| `NotificationBox.config(option)` | 设置全局默认配置 | - |
 
 ### NotificationOptions
 

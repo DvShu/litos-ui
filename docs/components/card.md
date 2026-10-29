@@ -153,10 +153,11 @@ l-card::part(header) {
 
 组件在使用变量的位置通过 `var()` 提供浅色回退值，无需预先定义全部变量。下表列出这些回退值；边框颜色会优先使用已有的 `--l-border-color`。
 
-暗黑配色由全局主题变量提供。引入 `litos-ui/styles/vars.css`，并在 `html` 上添加 `dark` 类后，`:root.dark` 中的 Card 变量会通过继承作用于组件：
+暗黑配色由全局主题变量提供。引入 `litos-ui/styles/vars.css` 和 `litos-ui/styles/dark.css`，并在 `html` 上添加 `dark` 类后，`:root.dark` 中的 Card 变量会通过继承作用于组件：
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/dark.css";
 
 document.documentElement.classList.add("dark");
 ```

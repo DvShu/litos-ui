@@ -1,26 +1,26 @@
-# Container 容器布局
+# Container
 
-容器布局，采用了 `flex` 布局，一般用于后台管理项目的一些常用排版，方便快速搭建页面的基本结构：
+These container styles use flexbox to build common admin dashboard layouts and quickly establish a page structure:
 
-- `l-container`：外层容器，一般用于 `section` 标签，基本排版为水平左右排列，可以通过设置 `l-layout-verticle` 调整为垂直上下排列。可以嵌套
-- `l-header`：顶栏容器，一般用于 `header` 标签
-- `l-aside`: 侧边栏容器，一般用于 `aside` 标签
-- `l-main`: 主要区域容器，一般用于 `main` 标签
-- `l-footer`: 底栏容器，一般用于 `footer` 标签
+- `l-container`: Outer container, typically a `section`. Arranges children horizontally by default; add `l-layout-vertical` for a vertical layout. Containers can be nested.
+- `l-header`: Header container, typically a `header`.
+- `l-aside`: Sidebar container, typically an `aside`.
+- `l-main`: Main content container, typically a `main`.
+- `l-footer`: Footer container, typically a `footer`.
 
-通常用于后台管理系统的首页排版
+These layouts are commonly used for admin dashboard home pages.
 
-## 引入
+## Imports
 
-由于使用不是特别频繁，所以没有封装为组件，在需要时手动引入样式表
+These styles are not packaged as a custom element. Import the stylesheet manually when needed.
 
 ```ts
 import "litos-ui/styles/container.css";
 ```
 
-## 常见布局
+## Common Layouts
 
-### 上下两栏排版
+### Header and Main Content
 
 <ClientOnly>
 <l-code-preview class="mt-15">
@@ -33,7 +33,7 @@ import "litos-ui/styles/container.css";
 </l-code-preview>
 </ClientOnly>
 
-### 左右两栏排版
+### Sidebar and Main Content
 
 <ClientOnly>
 <l-code-preview class="mt-15">
@@ -46,7 +46,7 @@ import "litos-ui/styles/container.css";
 </l-code-preview>
 </ClientOnly>
 
-### 上下两栏嵌套
+### Vertical Layout with a Nested Horizontal Container
 
 <ClientOnly>
 <l-code-preview class="mt-15">
@@ -62,7 +62,7 @@ import "litos-ui/styles/container.css";
 </l-code-preview>
 </ClientOnly>
 
-### 左右两栏嵌套
+### Horizontal Layout with a Nested Vertical Container
 
 <ClientOnly>
 <l-code-preview class="mt-15">
@@ -78,7 +78,7 @@ import "litos-ui/styles/container.css";
 </l-code-preview>
 </ClientOnly>
 
-### 上中下三栏
+### Header, Main Content, and Footer
 
 <ClientOnly>
 <l-code-preview class="mt-15">
@@ -92,17 +92,17 @@ import "litos-ui/styles/container.css";
 </l-code-preview>
 </ClientOnly>
 
-### 经典后台系统
+### Classic Admin Dashboard
 
-在 `header` 里面放点东西就成了，就成了经典的后台管理系统的模板, 左边是图标，右边是登录用户；`Aside` 里面放菜单(`Menu`)，`Main` 里面放内容就是经典的后台管理系统模板
+Place a logo on the left and the signed-in user on the right of the header. Add a menu to the sidebar and page content to the main area to create a classic admin dashboard layout.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <section class="l-container l-layout-vertical">
     <header class="l-header">
-      <a href="#">LitOS UI</a>
-      <div>登录用户</div>
+      <a href="#">LitosUI</a>
+      <div>Signed-in user</div>
     </header>
     <section class="l-container">
       <aside class="l-aside">Aside</aside>
@@ -113,13 +113,13 @@ import "litos-ui/styles/container.css";
 </l-code-preview>
 </ClientOnly>
 
-## 主题定制
+## Theming
 
-### 样式变量
+### CSS Variables
 
 <!-- prettier-ignore -->
-| 名称 | 描述 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-header-height` | header高度 | `50px` |
-| `--l-aside-width` | 侧边栏宽度 | `240px` |
-| `--l-footer-height` | 底栏高度 | `var(--l-header-height, 50px)` |
+| `--l-header-height` | Header height | `50px` |
+| `--l-aside-width` | Sidebar width | `240px` |
+| `--l-footer-height` | Footer height | `var(--l-header-height, 50px)` |

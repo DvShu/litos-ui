@@ -189,9 +189,9 @@ function assertPureInitialization(harness) {
 }
 
 function assertRegisteredInitialization(harness, root, base) {
-  assert.deepEqual(harness.counts, { sheets: 8, replaceSync: 8, defines: 79, styles: 0 });
+  assert.deepEqual(harness.counts, { sheets: 8, replaceSync: 8, defines: 78, styles: 0 });
   assert.deepEqual([...harness.styles.keys()].sort(), globalStyleIds);
-  assert.equal(harness.registry.size, 79);
+  assert.equal(harness.registry.size, 78);
   assert(
     !harness.registry.has("l-base-component"),
     "The implementation base is not an element entry",
@@ -224,7 +224,7 @@ test("shared style modules export reusable stylesheet objects", async () => {
 });
 
 test("all opt-in entries preserve shared identity and register each dependency once without global styles", async () => {
-  assert.equal(entryFiles.length, 90);
+  assert.equal(entryFiles.length, 91);
   const harness = createHarness();
   const root = await harness.evaluate("index.ts");
   for (const file of entryFiles) await harness.evaluate(`entries/${file}`);
@@ -271,6 +271,7 @@ test("service imports alone do not open UI, scan pages or inject APIs", async ()
     "dialog-box",
     "modal-box",
     "notification",
+    "notification-box",
     "tabs",
     "popover",
     "popconfirm",
@@ -321,7 +322,6 @@ test("lazy services prepare dependencies before registration can upgrade existin
   for (const [service, parent] of [
     ["DialogBox", "l-dialog-container"],
     ["ModalBox", "l-modal"],
-    ["Notification", "l-notification"],
   ]) {
     for (const method of service === "Notification"
       ? ["success"]
@@ -347,19 +347,21 @@ test("lazy services prepare dependencies before registration can upgrade existin
   }
 });
 
-test("Notification can retry after an interrupted icon registration", async () => {
-  let interrupt = true;
-  const harness = createHarness((name) => {
-    if (name === "l-warn-icon" && interrupt) {
-      interrupt = false;
-      throw new Error("registration interrupted");
-    }
-  });
+test("Notification APIs require explicit registration and do not define elements", async () => {
+  const harness = createHarness();
   const root = await harness.evaluate("index.ts");
-  assert.throws(() => root.Notification.success("message"), /registration interrupted/);
+  await harness.evaluate("entries/notification.ts");
+  await harness.evaluate("entries/notification-box.ts");
   assert(!harness.registry.has("l-notification"));
-  assert.throws(() => root.Notification.success("message"), /Unexpected DOM creation/);
-  for (const name of ["info", "success", "warn", "close-filled", "close"])
-    assert(harness.registry.has(`l-${name}-icon`));
-  assert(harness.registry.has("l-notification"));
+  assert.throws(() => root.NotificationBox.success("message"), /Register Notification/);
+  assert.equal(harness.counts.defines, 0);
+  root.regist([
+    root.InfoIcon,
+    root.SuccessIcon,
+    root.WarnIcon,
+    root.CloseFilledIcon,
+    root.CloseIcon,
+    root.Notification,
+  ]);
+  assert.throws(() => root.NotificationBox.success("message"), /Unexpected DOM creation/);
 });

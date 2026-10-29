@@ -1,6 +1,9 @@
 // @ts-ignore
 import buttonCss from "./index.less?inline";
 
-const buttonSheet = new CSSStyleSheet();
-buttonSheet.replaceSync(buttonCss);
+const buttonSheet = /* @__PURE__ */ (() => {
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(buttonCss);
+  return sheet;
+})();
 export default buttonSheet;

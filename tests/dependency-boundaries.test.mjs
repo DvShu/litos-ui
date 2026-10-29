@@ -40,7 +40,10 @@ test("the real source graph keeps implementation and registration boundaries", (
   );
   assert(
     audit.modules["icon/icon_style.ts"].topLevelOperations.some(
-      (call) => call.callee === "CSSStyleSheet" && call.kind === "new",
+      (call) =>
+        call.kind === "call" &&
+        call.pureAnnotated &&
+        call.expression.includes("new CSSStyleSheet()"),
     ),
   );
   assert(!audit.modules["utils/style.ts"]);

@@ -116,6 +116,7 @@ regist([List, LoadingIcon]);
           end = max;
         }
         $list.append(createRenderFragemnt(start, end));
+        $list.removeAttribute('loading');
         if (isFinish) {
           $list.setAttribute('finish', 'finish');
         } else {

@@ -26,6 +26,8 @@ import "litos-ui/input-number";
 
 Button includes its loading icon. Parent entries such as form, tabbar, carousel and collapse include their standard child elements. Consumers import components placed in custom slots separately. Theme includes all its built-in display modes. Importing one icon, for example `litos-ui/icon/arrow-left`, registers only that icon.
 
+Notification requires explicit registration: neither `litos-ui/notification` nor `litos-ui/notification-box` registers elements or icons.
+
 ## Classes and services
 
 Element subpaths also provide the default class and public types. They register the same constructors exported by the root entry, so mixing subpaths with manual `regist()` calls is safe. The root entry remains available and does not automatically register components.
@@ -34,10 +36,13 @@ Element subpaths also provide the default class and public types. They register 
 import Button from "litos-ui/button";
 import Message from "litos-ui/message";
 import Notification from "litos-ui/notification";
+import NotificationBox from "litos-ui/notification-box";
+import { regist, InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon } from "litos-ui";
+regist([InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon, Notification]);
 import { Popover, popconfirmProps } from "litos-ui/popconfirm";
 
 Message.success("Saved");
-Notification.success("Saved");
+NotificationBox.success("Saved");
 ```
 
 ```ts
@@ -49,7 +54,7 @@ Service entries require explicit API calls. Their global CSS imports are current
 
 ## Styles, themes and SSR
 
-Element Shadow DOM styles come with the entry. Components reuse module-level CSSStyleSheet instances directly. Global CSS for Message, loading, dialog, modal-box, notification, tabs, popover, select and date-picker must currently be imported explicitly through the existing styles subpaths or configured by a future Vite plugin. Import vars.css once; reset, container, scrollbar and preset theme CSS remain explicit opt-ins through existing styles subpaths. Choose only one preset. No global stylesheet containing the entire library is required.
+Element Shadow DOM styles come with the entry. Components reuse module-level CSSStyleSheet instances directly. Global CSS for Message, loading, dialog, modal-box, notification, tabs, popover, select and date-picker must currently be imported explicitly through the existing styles subpaths or configured by a future Vite plugin. Import vars.css once. For dark mode, also import `litos-ui/styles/dark.css` after it and toggle the root element's `dark` class; reset, container, scrollbar and preset theme CSS remain explicit opt-ins through existing styles subpaths. Choose only one preset. No global stylesheet containing the entire library is required.
 
 ```js
 import "litos-ui/styles/theme-jade.css";

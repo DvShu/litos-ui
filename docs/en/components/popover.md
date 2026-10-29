@@ -1,20 +1,20 @@
-# Popover 弹出气泡
+# Popover
 
-点击/鼠标移入元素，弹出气泡式的卡片浮层。在内容周围弹出一些隐藏的信息。和 `Tooltip` 的区别是，用户可以对浮层上的元素进行操作，因此它可以承载更复杂的内容，比如链接或按钮等。
+Show a floating card when an element is clicked or hovered. Unlike a tooltip, a popover can contain interactive elements such as links and buttons, making it suitable for more complex content.
 
-## 引用
+## Import and Registration
 
 ```js
 import { Popover, regist, Button, WarnIcon } from "litos-ui";
 import "litos-ui/styles/popover.css";
-regist([Button, WarnIcon]); // 当使用 Popconfirm 时，需要注册 Button 和 WarnIcon 组件
+regist([Button, WarnIcon]); // Register Button and WarnIcon when using Popconfirm.
 
 const popover = new Popover();
 
-// 页面结束时调用: popover.destroy();
+// On unmount, call popover.destroy().
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { Popover, popconfirmProps, createPopoverObserver } from '../../../src/components/utils/popover';
@@ -37,12 +37,12 @@ const popover = new Popover();
   function handleAddTag() {
     if ($tagGroup) {
       let $addTagTmp = document.createElement('l-tag');
-      $addTagTmp.setAttribute('closable', 'true');
+      $addTagTmp.setAttribute('closeable', 'true');
       $addTagTmp.setAttribute('type', 'primary');
-      $addTagTmp.setAttribute('data-title', '标签提示');
+      $addTagTmp.setAttribute('data-title', 'Tag tooltip');
       $addTagTmp.style.marginRight = "5px";
       $addTagTmp.classList.add('tooltip-tag');
-      $addTagTmp.innerHTML = '标签';
+      $addTagTmp.innerHTML = 'Tag';
       $tagGroup.appendChild($addTagTmp);
       transition($addTagTmp, 'l-scale', "enter");
       $addTagTmp = null;
@@ -87,10 +87,10 @@ const popover = new Popover();
           contentRender () {
             const fragment = document.createDocumentFragment();
             const $p1 = document.createElement('p');
-            $p1.innerHTML = '自定义内容1';
+            $p1.innerHTML = 'Custom content 1';
             fragment.appendChild($p1);
             const $p2 = document.createElement('p');
-            $p2.innerHTML = '自定义内容2';
+            $p2.innerHTML = 'Custom content 2';
             fragment.appendChild($p2);
             return fragment;
           },
@@ -162,45 +162,45 @@ const popover = new Popover();
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-最简单的用法，给需要弹出的元素添加 `data-title` 属性以及 `l-popover-reference` 类, 然后构造一个 `Popover` 对象。
+Add a `data-title` attribute and the `l-popover-reference` class to the trigger element, then create a `Popover` instance.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <a data-title="悬浮提示" class="l-popover-reference">提示</a>
+  <a data-title="Hover hint" class="l-popover-reference">Hint</a>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <a data-title="悬浮提示" class="l-popover-reference">提示</a>
+  <a data-title="Hover hint" class="l-popover-reference">Hint</a>
 </textarea>
 <textarea lang="js">
   let popover = new Popover();
-  // 页面结束时调用: popover.destroy();
+  // On unmount, call popover.destroy().
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-> 构造 `Popver` 对象时支持传递 `reference` 参数，用于指定弹出层的参考元素，如果不指定则查找所有的 `.l-popover-reference` 元素。
+> Pass `reference` to specify the reference elements when constructing `Popover`. If omitted, it finds all `.l-popover-reference` elements.
 
-### 触发方式
+### Triggers
 
-三种触发方式：鼠标移入[`hover`]、点击[`click`]、焦点[`focus`]；通过 `trigger` 属性设置触发方式。默认为：`hover`；
+Set `trigger` to `hover`, `click`, or `focus`. The default is `hover`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button id="hover-popover" data-title="悬浮提示">悬浮提示</l-button>
-  <l-button id="click-popover" data-title="点击提示">点击提示</l-button>
-  <l-button id="focus-popover" data-title="焦点提示">焦点提示</l-button>
+  <l-button id="hover-popover" data-title="Hover hint">Hover hint</l-button>
+  <l-button id="click-popover" data-title="Click hint">Click hint</l-button>
+  <l-button id="focus-popover" data-title="Focus hint">Focus hint</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="hover-popover" data-title="悬浮提示">悬浮提示</l-button>
-  <l-button id="click-popover" data-title="点击提示">点击提示</l-button>
-  <l-button id="focus-popover" data-title="焦点提示">焦点提示</l-button>
+  <l-button id="hover-popover" data-title="Hover hint">Hover hint</l-button>
+  <l-button id="click-popover" data-title="Click hint">Click hint</l-button>
+  <l-button id="focus-popover" data-title="Focus hint">Focus hint</l-button>
 </textarea>
 <textarea lang="js">
   new Popover({
@@ -220,53 +220,53 @@ const popover = new Popover();
 </l-code-preview>
 </ClientOnly>
 
-> 也可以通过 传递 `trigger:'manual;` 来自定义触发；如果需要自定义触发方式，则可以通过引入 `updatePosition` 或者 `autoUpdate` 函数来，手动显示和隐藏弹出层。
+> Set `trigger: "manual"` for manual control, then call `popover.show(reference)` and `popover.hide()`. The separate `updatePosition` and `autoUpdate` helpers handle positioning rather than visibility.
 
-### 位置
+### Placement
 
-有 `12` 个弹出位置。通过 `data-placement` 属性设置弹出位置。
+There are `12` placements. Set the placement with the `data-placement` attribute.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div class="popover-p-row">
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="top-start">top-start</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="top">top</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="top-end">top-end</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="top-start">top-start</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="top">top</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="top-end">top-end</l-button>
   </div>
   <div class="popover-p-row">
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="left-start">left-start</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="left">left</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="left-end">left-end</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="left-start">left-start</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="left">left</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="left-end">left-end</l-button>
   </div>
   <div class="popover-p-row">
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="right-start">right-start</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="right">right</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="right-end">right-end</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="right-start">right-start</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="right">right</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="right-end">right-end</l-button>
   </div>
   <div class="popover-p-row">
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="bottom-start">bottom-start</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="bottom">bottom</l-button>
-    <l-button class="l-popover-reference" data-title="提示内容" data-placement="bottom-end">bottom-end</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="bottom-start">bottom-start</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="bottom">bottom</l-button>
+    <l-button class="l-popover-reference" data-title="Hint content" data-placement="bottom-end">bottom-end</l-button>
   </div>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 也可以再构造 `Popover` 对象时传递 `placement` 参数来设置弹出位置。
+> You can also pass `placement` when constructing `Popover`.
 
-### 不显示箭头
+### Hiding the Arrow
 
-构造 `Popover` 时将 `arrow` 参数设置为 `false` 即可；同时可以设置 `offset` 参数来设置偏移量。
+Set `arrow` to `false` when constructing `Popover` to hide the arrow. Use `offset` to adjust the distance from the reference element.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button id="none-arrow" data-title="提示内容">提示</l-button>
+  <l-button id="none-arrow" data-title="Hint content">Hint</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="none-arrow" data-title="提示内容">提示</l-button>
+  <l-button id="none-arrow" data-title="Hint content">Hint</l-button>
 </textarea>
 <textarea lang="js">
   new Popover({
@@ -279,34 +279,34 @@ const popover = new Popover();
 </l-code-preview>
 </ClientOnly>
 
-### 自定义内容
+### Custom Content
 
-通过 `slot` 插槽来设置 `l-popover` 的内容
+Customize content with `contentRender` and `updateContent`, or supply a custom DOM element through the `popover` option.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button id="custom">提示</l-button>
+  <l-button id="custom">Hint</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="custom">提示</l-button>
+  <l-button id="custom">Hint</l-button>
 </textarea>
 <textarea lang="js">
   new Popover({
     reference: '#custom',
-    // 提供自定义的内容渲染函数, 初次渲染时调用
+    // Provide a renderer called when content is first created.
     contentRender () {
       const fragment = document.createDocumentFragment();
       const $p1 = document.createElement('p');
-      $p1.innerHTML = '自定义内容1';
+      $p1.innerHTML = 'Custom content 1';
       fragment.appendChild($p1);
       const $p2 = document.createElement('p');
-      $p2.innerHTML = '自定义内容2';
+      $p2.innerHTML = 'Custom content 2';
       fragment.appendChild($p2);
       return fragment;
     },
-    // 每次显示的时候，都会调用这个函数更新渲染内容, datas 为 reference 节点上的 data 属性集
+    // Update content on each show; datas contains the reference data attributes.
     updateContent (popoverEl, datas) {}
   })
 </textarea>
@@ -314,14 +314,14 @@ const popover = new Popover();
 </l-code-preview>
 </ClientOnly>
 
-> 出了通过这种形式外，也可以自己通过 `popover` 属性，指向一个 `popover` 节点，这个时候，可以完全自定义包括整个 `popover` 在内的结构
+> Pass your own element through `popover` to customize the entire popover structure.
 
 ::: code-group
 
 ```html [html]
 <div id="popover" class="l-popover">
   <div class="l-popover-content">
-    <!--这里填充其余内容部分-->
+    <!-- Add the remaining content here. -->
   </div>
   <div class="l-popover-arrow"></div>
 </div>
@@ -339,16 +339,16 @@ new Popover({
 
 ### Tooltip
 
-`tooltip` 相对于 `popover` 只是样式进行了小调整；只需要设置 `theme="tooltip"` 属性就能即可。
+The tooltip variant uses slightly different styling. Set the constructor option `theme: 'tooltip'` to enable it.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button data-title="提示内容" id="tooltip">提示</l-button>
+  <l-button data-title="Hint content" id="tooltip">Hint</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button data-title="提示内容" id="tooltip">提示</l-button>
+  <l-button data-title="Hint content" id="tooltip">Hint</l-button>
 </textarea>
 <textarea lang="js">
   new Popover({
@@ -362,16 +362,18 @@ new Popover({
 
 ### Popconfirm
 
-引入 `Popconfirm` 配置，然后在 `reference` 节点上添加 `data-content` 属性为提示内容。
+Import the `popconfirmProps` configuration and set `data-content` on the reference element to provide the confirmation message.
+
+The built-in confirmation buttons currently use Chinese labels. This page translates the examples without changing component localization.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button data-content="确定删除吗？" id="popconfirm">删除</l-button>
+  <l-button data-content="Delete this item?" id="popconfirm">Delete</l-button>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button data-content="确定删除吗？" id="popconfirm">删除</l-button>
+  <l-button data-content="Delete this item?" id="popconfirm">Delete</l-button>
 </textarea>
 <textarea lang="js">
   import { regist, Button, WarnIcon, popconfirmProps } from 'litos-ui';
@@ -389,46 +391,48 @@ new Popover({
 </l-code-preview>
 </ClientOnly>
 
-### 列表元素
+### Dynamic List Elements
 
-由于动态列表元素，牵涉到元素的添加和删除，如果翻页等等，所以提供了 `createPopoverObserver` 函数来配合监听列表元素的添加和删除。
+Use `createPopoverObserver` to track elements added to or removed from a dynamic list, such as when changing pages.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button id="addTag" type="primary">添加标签</l-button>
+  <l-button id="addTag" type="primary">Add tag</l-button>
   <hr />
   <div id="tagGroup"></div>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="addTag" type="primary">添加标签</l-button>
+  <l-button id="addTag" type="primary">Add tag</l-button>
   <hr />
   <div id="tagGroup"></div>
 </textarea>
 <textarea lang="js">
-  import { createPopoverObserver, Popover } from 'litos-ui';
+  import { createPopoverObserver, Popover, Tag, Button, CloseIcon, regist } from 'litos-ui';
+  import 'litos-ui/styles/transition.css';
+  regist([CloseIcon, Button, Tag]);
   import { transition } from 'utilane/browser';
   //-
-  let tagGroup = document.getElementById('tagGroup');
-  let addTagBtn = document.getElementById('addTag');
+  let $tagGroup = document.getElementById('tagGroup');
+  let $addTag = document.getElementById('addTag');
   //-
-  let tootip = new Popover({
+  let tooltip = new Popover({
     reference: '.tooltip-tag',
     theme: 'tooltip',
   });
   //-
-  let observer = createPopoverObserver(tagGroup, 'tooltip-tag', tootip);
+  let observer = createPopoverObserver(tagGroup, 'tooltip-tag', tooltip);
   //-
   function handleAddTag() {
     if ($tagGroup) {
       let $addTagTmp = document.createElement('l-tag');
-      $addTagTmp.setAttribute('closable', 'true');
+      $addTagTmp.setAttribute('closeable', 'true');
       $addTagTmp.setAttribute('type', 'primary');
-      $addTagTmp.setAttribute('data-title', '标签提示'); // 设置提示内容
+      $addTagTmp.setAttribute('data-title', 'Tag tooltip'); // Set the tooltip content.
       $addTagTmp.style.marginRight = "5px";
-      $addTagTmp.classList.add('tooltip-tag'); // 添加 tooltip-tag 类名
-      $addTagTmp.innerHTML = '标签';
+      $addTagTmp.classList.add('tooltip-tag'); // Add the tooltip-tag class.
+      $addTagTmp.innerHTML = 'Tag';
       $tagGroup.appendChild($addTagTmp);
       transition($addTagTmp, 'l-scale', "enter");
       $addTagTmp = null;
@@ -441,14 +445,16 @@ new Popover({
     });
   }
   //-
-  $tagGroup.addEventListener('click', handleAddTag);
+  $addTag.addEventListener('click', handleAddTag);
+  $tagGroup.addEventListener('close', handleRemoveTag);
   //-
-  // 移除的时候释放资源
+  // Release resources on unmount.
   // tooltip.destroy();
   // observer.disconnect();
   // tooltip = null;
   // observer = null;
-  // $tagGroup.removeEventListener('click', handleRemoveTag);
+  // $addTag.removeEventListener('click', handleAddTag);
+  // $tagGroup.removeEventListener('close', handleRemoveTag);
 </textarea>
 </div>
 </l-code-preview>
@@ -456,51 +462,51 @@ new Popover({
 
 `createPopoverObserver(target: HTMLElement,class: string,popover: Popover): MutationObserver`
 
-创建元素监听器, 监听到元素添加和删除, 然后根据 `class` 类名, 来修改 `Popover` 元素。
+Creates an observer that updates the popover references when elements with the specified class are added or removed.
 
-1. `target`: 目标元素, 监听这个元素下的子元素添加和删除, 通常为列表容器或者 `table`。
-2. `class`: 类名, 当子元素添加和删除, 都包含这个类名时, 才会触发 `Popover` 元素的添加和删除。
-3. `popover`: `Popover` 对象, 当子元素添加和删除时符合 `class` 规则时, 会触发 `Popover refenrence` 元素的添加和删除。
+1. `target`: The element whose children are observed, typically a list container or table.
+2. `class`: The class used to identify relevant added or removed elements.
+3. `popover`: The Popover instance whose references are updated when matching elements change.
 
-> 如果是固定且少量的元素，则可以不用 `createPopoverObserver`，转而自己手动执行 `popover.addReference` 和 `popover.removeReference` 方法
+> For a small, fixed set of elements, call `popover.addReference` and `popover.removeReference` manually instead of using `createPopoverObserver`.
 
 ## On-demand entry
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/popover.css";
 import { Popover } from "litos-ui/popover";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
-### Popover Constructor Attributes
+### Popover Constructor Options
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `reference` | 触发元素, 不传,则查询所有的 `.l-popover-reference` | `HTMLElement`、`HTMLElement[]`、`string` | `-` |
-| `popover` | `Popover`元素节点, 不传会自动创建 | `HTMLElement` | `-` |
-| `contentRender` | 内容渲染函数 | `() => HTMLElement \| string \| DocumentFragment` | `-` |
-| `updateContent` | 内容更新函数, 每次显示的时候，都会调用这个函数更新渲染内容; `datas` 为 `reference` 节点上的 `data` 属性集 | `(popoverElement: HTMLElement, datas?: Record<string, any>) => void` | `-` |
-| `trigger` | 触发方式 | `hover`、`click`、`focus`、`manual`[手动控制] | `hover` |
-| `offset` | 偏移量 | `number` | `10` |
-| `arrow` | 是否显示箭头 | `boolean` | `true` |
-| `arrowSize` | 箭头大小 | `number` | `8` |
-| `width` | 宽度 | `string`、`number` | `-` |
-| `theme` | 主题 | `default`、`tooltip`、`popconfirm` | `default` |
-| `placement` | 位置 | `top`、`top-start`、`top-end`、`bottom`、`bottom-start`、`bottom-end`、`left`、`left-start`、`left-end`、`right`、`right-start`、`right-end` | `top` |
-| `popoverWidth` | 弹出宽度, `trigger` 保持和触发元素宽度一致 | `string`、`trigger` | `-` |
-| `onPopoverAction` | 点击 `Popover` 内具有 `data-action` 的元素时触发 | `(action: string) => void` | `-` |
-| `onOpenChange` | 显示/隐藏时触发 | `(isOpen: boolean, popoverElement?: HTMLElement) => void` | `-` |
-| `onOutsideTap` | 点击 `Popover` 外部时触发, `isReference`: 是否点击的是触发区域, `isPopover`: 是否点击的是 `Popover` 主体 | `(e: Event, isReference: boolean, isPopover: boolean) => void` | `-` |
+| `reference` | Reference elements; defaults to all .l-popover-reference elements | `HTMLElement`, `HTMLElement[]`, `string` | `-` |
+| `popover` | Popover DOM element; created automatically if omitted | `HTMLElement` | `-` |
+| `contentRender` | Content renderer | `() => HTMLElement \| string \| DocumentFragment` | `-` |
+| `updateContent` | Runs on each show to update content; datas contains the reference element data attributes | `(popoverElement: HTMLElement, datas?: Record<string, any>) => void` | `-` |
+| `trigger` | Trigger mode | `hover`, `click`, `focus`, `manual` (manual control) | `hover` |
+| `offset` | Offset | `number` | `10` |
+| `arrow` | Whether to show the arrow | `boolean` | `true` |
+| `arrowSize` | Arrow size | `number` | `8` |
+| `theme` | Theme | `default`, `tooltip`, `popconfirm` | `default` |
+| `placement` | Placement | `top`, `top-start`, `top-end`, `bottom`, `bottom-start`, `bottom-end`, `left`, `left-start`, `left-end`, `right`, `right-start`, `right-end` | `top` |
+| `popoverWidth` | Popover width; trigger matches the reference element width | `number`, `trigger` | `-` |
+| `onPopoverAction` | Called when a popover element with data-action is clicked | `(action: string, target: HTMLElement) => void` | `-` |
+| `onOpenChange` | Called when visibility changes | `(isOpen: boolean, popoverElement?: HTMLElement) => void` | `-` |
+| `onOutsideTap` | Called on outside clicks; isReference and isPopover identify the clicked area | `(e: Event, isReference: boolean, isPopover: boolean) => void` | `-` |
 
 ### Popover Methods
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 参数 |
+| Name | Description | Parameters |
 | --- | --- | --- |
-| `destroy` | 销毁 | `-` |
-| `hide` | 隐藏 | `-` |
-| `show` | 显示 | `(rereference: HTMLElement)` 浮层所对齐的 `HTML` 元素 |
+| `destroy` | Destroys the instance | `-` |
+| `hide` | Hides the popover | `-` |
+| `show` | Shows the popover | `(reference: HTMLElement)` The element used to position the popover |

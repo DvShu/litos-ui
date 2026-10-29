@@ -26,6 +26,8 @@ import "litos-ui/input-number";
 
 Button 自带 loading 图标注册。Form、Tabbar、Carousel、Collapse 的入口包含标准配套子元素；用户插槽内放入的其他组件仍需单独导入。Theme 包含全部内建显示模式。单独引入图标，例如 `litos-ui/icon/arrow-left`，只注册该图标。
 
+Notification 是显式注册的例外：`litos-ui/notification` 与 `litos-ui/notification-box` 都不会自动注册组件或图标。
+
 ## 类、类型与服务
 
 元素子路径同时默认导出组件类，并透出相关公开类型。子路径与总入口共享构造函数，可与手动 `regist()` 混用；总入口继续保留，不自动注册组件。
@@ -34,10 +36,13 @@ Button 自带 loading 图标注册。Form、Tabbar、Carousel、Collapse 的入�
 import Button from "litos-ui/button";
 import Message from "litos-ui/message";
 import Notification from "litos-ui/notification";
+import NotificationBox from "litos-ui/notification-box";
+import { regist, InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon } from "litos-ui";
+regist([InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon, Notification]);
 import { Popover, popconfirmProps } from "litos-ui/popconfirm";
 
 Message.success("保存成功");
-Notification.success("保存成功");
+NotificationBox.success("保存成功");
 ```
 
 ```ts
@@ -49,7 +54,7 @@ import type { Column } from "litos-ui/table";
 
 ## 样式、主题与 SSR
 
-元素的 Shadow DOM 样式随入口加载。组件模块级 CSSStyleSheet 在实例间共享，不通过样式工厂创建。Message、Loading、Dialog、ModalBox、Notification、Tabs、Popover、Select、DatePicker 所需全局 CSS 当前不由子路径引入，使用时需自行通过现有 styles 子路径引入或后续 Vite 插件接入；vars.css 仍需引入一次。reset、container、scrollbar 和主题配色沿用现有 styles 子路径按需引入，配色选择一套，无需引入全库样式集合。
+元素的 Shadow DOM 样式随入口加载。组件模块级 CSSStyleSheet 在实例间共享，不通过样式工厂创建。Message、Loading、Dialog、ModalBox、Notification、Tabs、Popover、Select、DatePicker 所需全局 CSS 当前不由子路径引入，使用时需自行通过现有 styles 子路径引入或后续 Vite 插件接入；vars.css 仍需引入一次；深色模式需在其后额外引入 `litos-ui/styles/dark.css` 并切换根元素的 `dark` 类。reset、container、scrollbar 和主题配色沿用现有 styles 子路径按需引入，配色选择一套，无需引入全库样式集合。
 
 ```js
 import "litos-ui/styles/theme-jade.css";

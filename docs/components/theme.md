@@ -5,6 +5,9 @@
 ## 引用
 
 ```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/styles/dark.css";
+
 import {
   Theme,
   ThemeColor,
@@ -13,6 +16,8 @@ import {
   SelectOri,
   Switch,
   Radio,
+  RadioGroup,
+  ColorPicker,
   SunIcon,
   MoonIcon,
   ThemeDefaultIcon,
@@ -20,7 +25,7 @@ import {
 
 regist(Theme);
 // 颜色主题
-regist(ThemeColor);
+regist([ColorPicker, ThemeColor]);
 // 根据风格注册以下组件
 regist([Button, SunIcon, MoonIcon]); // 按钮风格
 regist(SelectOri); // 下拉风格
@@ -91,9 +96,9 @@ initTheme().then();
 <div class="source">
 <textarea lang="html">
   <l-radio-group gap="15" id="customThemeRadio">
-    <radio value="auto">自</radio>
-    <radio value="light">浅</radio>
-    <radio value="dark">深</radio>
+    <l-radio value="auto">自</l-radio>
+    <l-radio value="light">浅</l-radio>
+    <l-radio value="dark">深</l-radio>
   </l-radio-group>
 </textarea>
 <textarea lang="js">
@@ -188,7 +193,7 @@ initTheme().then();
 // main.js
 import { initColorTheme } from "utilane/browser";
 
-initColorTheme().then();
+await initColorTheme();
 ```
 
 ## 按需入口

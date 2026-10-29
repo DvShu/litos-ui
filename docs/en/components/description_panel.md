@@ -1,45 +1,47 @@
-# DescriptionPanel 简介面板
+# DescriptionPanel
 
-通常用于显示描述信息、简介的地方；更多用于手机上，空间有限，一开始可以显示少量内容。
+Display descriptions or introductory text, especially on mobile screens where space is limited and only a small amount of content is shown initially.
 
-## 引用
+## Import and Registration
 
 ```js
 import { DescriptionPanel, regist, Button, ArrowDownIcon } from "litos-ui";
 
-regist([DescriptionPanel, Button, ArrowDownIcon]);
+regist([ArrowDownIcon, Button, DescriptionPanel]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-内容区域的所有的块级内容，会自动应用一个 `text-indent`。
+All block-level content in the content area inherits a `text-indent`.
+
+The sample article below is translated from the Chinese documentation. The component's built-in expand/collapse button currently uses Chinese labels; component localization is separate from this page's translation.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-description-panel>
-    <p>日前，奇瑞宣布与捷豹路虎达成战略合作意向，捷豹路虎全新产品线将采用奇瑞纯电平台生产，而在另一边，东风日产云峰工厂则选择为岚图生产全新纯电SUV产品。这两个外资品牌，一个是寻求自主品牌代工，一个是为自主品牌代工，两者都将目标对准了成本节约。</p>
-    <p>如果把时间轴往前拉，围绕节约成本的课题，作为合资品牌两大中坚力量的一汽-大众和广汽本田交出了一样的答卷——裁员，这也意味着曾经高高在上的合资品牌进入了最艰难的时刻。尤其是5月销量数据出炉，合资品牌市场份额降至28.8%，让公众更为直观清晰地感受到合资品牌在华形势之严峻。</p>
-    <p>虽然合资品牌在汽车电动化、智能化的冲击下处境直转急下的趋势有目共睹，但近年来兵败如山倒的局面仍然让不少业内人士感到惊讶。在这个几乎可以形容为“跳水”的过程中，合资品牌到底做错了什么？未来还有机会东山再起吗？ </p>
+    <p>Chery recently announced plans for a strategic partnership with Jaguar Land Rover, whose new product line will be built on Chery's electric vehicle platform. Meanwhile, Dongfeng Nissan's Yunfeng plant has chosen to manufacture a new electric SUV for Voyah. One foreign brand is seeking contract production from a domestic brand, while the other is manufacturing for a domestic brand. Both are focused on reducing costs.</p>
+    <p>Looking further back, cost reduction also led two major joint-venture automakers, FAW-Volkswagen and GAC Honda, to the same response: job cuts. This suggests that joint-venture brands, once dominant, have entered their most difficult period. The release of May sales figures, showing their market share falling to 28.8%, made the seriousness of their position in China even clearer to the public.</p>
+    <p>Although joint-venture brands have visibly struggled with the shift toward electric and intelligent vehicles, the scale of their decline in recent years has still surprised many industry observers. During this near free fall, what exactly did these brands get wrong? Do they still have a chance to recover?</p>
 
   </l-description-panel>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 折叠高度
+### Collapsed Height
 
-可以通过 `collapse-height` 设置折叠后的高度
+Set the collapsed height with `collapse-height`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-description-panel collapse-height="150">
-    <p>日前，奇瑞宣布与捷豹路虎达成战略合作意向，捷豹路虎全新产品线将采用奇瑞纯电平台生产，而在另一边，东风日产云峰工厂则选择为岚图生产全新纯电SUV产品。这两个外资品牌，一个是寻求自主品牌代工，一个是为自主品牌代工，两者都将目标对准了成本节约。</p>
-    <p>如果把时间轴往前拉，围绕节约成本的课题，作为合资品牌两大中坚力量的一汽-大众和广汽本田交出了一样的答卷——裁员，这也意味着曾经高高在上的合资品牌进入了最艰难的时刻。尤其是5月销量数据出炉，合资品牌市场份额降至28.8%，让公众更为直观清晰地感受到合资品牌在华形势之严峻。</p>
-    <p>虽然合资品牌在汽车电动化、智能化的冲击下处境直转急下的趋势有目共睹，但近年来兵败如山倒的局面仍然让不少业内人士感到惊讶。在这个几乎可以形容为“跳水”的过程中，合资品牌到底做错了什么？未来还有机会东山再起吗？ </p>
+    <p>Chery recently announced plans for a strategic partnership with Jaguar Land Rover, whose new product line will be built on Chery's electric vehicle platform. Meanwhile, Dongfeng Nissan's Yunfeng plant has chosen to manufacture a new electric SUV for Voyah. One foreign brand is seeking contract production from a domestic brand, while the other is manufacturing for a domestic brand. Both are focused on reducing costs.</p>
+    <p>Looking further back, cost reduction also led two major joint-venture automakers, FAW-Volkswagen and GAC Honda, to the same response: job cuts. This suggests that joint-venture brands, once dominant, have entered their most difficult period. The release of May sales figures, showing their market share falling to 28.8%, made the seriousness of their position in China even clearer to the public.</p>
+    <p>Although joint-venture brands have visibly struggled with the shift toward electric and intelligent vehicles, the scale of their decline in recent years has still surprised many industry observers. During this near free fall, what exactly did these brands get wrong? Do they still have a chance to recover?</p>
   </l-description-panel>
 </textarea>
 </l-code-preview>
@@ -52,43 +54,29 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/description-panel";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### DescriptionPanel Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `collapse-height` | 容器折叠后的高度 | `number` | `100` |
+| `collapse-height` | Container height when collapsed | `number` | `100` |
 
 ### DescriptionPanel Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 内容 |
-
-### DescriptionPanel Events
-
-<!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
-| --- | --- | --- |
-| - | - | - |
-
-### DescriptionPanel Methods
-
-<!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
-| --- | --- | --- |
-| - | - | - |
+| `default` | Content |
 
 ### DescriptionPanel CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-desc-panel-min-height` | 容器折叠后的高度 | `100px` |
-| `--l-desc-panel-font-size` | 字体大小 | `14px` |
-| `--l-desc-panel-textindent` | 缩进 | `calc(var(--l-desc-panel-font-size) * 2)` |
+| `--l-desc-panel-min-height` | Container height when collapsed | `100px` |
+| `--l-desc-panel-font-size` | Font size | `14px` |
+| `--l-desc-panel-textindent` | Text indentation | `calc(var(--l-desc-panel-font-size) * 2)` |

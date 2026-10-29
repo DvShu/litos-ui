@@ -63,7 +63,7 @@ export function collectEntries() {
       const own = graph.registrations
         .filter((call) => call.module === entry)
         .flatMap((call) => call.bindings);
-      const tag = own[0]?.tag ?? null;
+      const tag = own[0]?.tag ?? (publicPath === "notification" ? "l-notification" : null);
       const globals = unique(
         graph.modules
           .filter((id) => id.startsWith("entries/"))
@@ -149,6 +149,10 @@ export function collectEntries() {
 }
 
 const apiExamples = {
+  notification:
+    'import Notification from "litos-ui/notification";\nimport { regist } from "litos-ui";\nregist(Notification);\nconst el = document.createElement("l-notification");\nel.setAttribute("message", "Hello");\nel.setAttribute("open", "");\ndocument.body.append(el);',
+  "notification-box":
+    'import Notification from "litos-ui/notification";\nimport NotificationBox from "litos-ui/notification-box";\nimport { regist } from "litos-ui";\nregist(Notification);\nNotificationBox.info("Hello");',
   message: 'import Message from "litos-ui/message";\nMessage.success("保存成功");',
   loading:
     'import Loading from "litos-ui/loading";\nLoading.init(); // 页面已有 [l-loading] 节点\nLoading.close();',
@@ -175,7 +179,7 @@ export function renderCatalog(records = collectEntries()) {
     "",
     "覆盖 87 个公开对象及 popconfirm、transition、utils，共 90 个规范入口。总入口保留纯实现，独立包装不反向污染总入口。图标规范路径为 icon/*；不将通配符可解析的其他拼写当作新增 API 承诺。详见 [T200 审计](./TREE_SHAKING_AUDIT.md)。",
     "",
-    "示例在客户端执行，并预先导入 litos-ui/styles/vars.css；主题、reset、container、scrollbar 按需显式导入。DOM 示例只展示最小挂载，完整交互与配套内容见组件文档。Popover 示例需要页面已有 button；Tabs 需要已有 .l-tabs 和配套 Tabbar。SSR 仅在客户端加载。",
+    "示例在客户端执行，并预先导入 litos-ui/styles/vars.css；深色模式额外引入 litos-ui/styles/dark.css 并切换根元素 dark 类；主题、reset、container、scrollbar 按需显式导入。DOM 示例只展示最小挂载，完整交互与配套内容见组件文档。Popover 示例需要页面已有 button；Tabs 需要已有 .l-tabs 和配套 Tabbar。SSR 仅在客户端加载。",
     "",
     "继承不构成注册要求；用户插槽内容及自定义图标不纳入固定依赖。条件依赖是全部现有能力的并集，区分内建、标准配套、调用时注册。实际注册列仅表示导入时行为，不含服务函数内惰性注册。消费示例显式补齐全部条件依赖，不宣称当前包装已自动覆盖全部功能。",
     "",
@@ -214,7 +218,7 @@ export function renderCatalog(records = collectEntries()) {
       "| --- | --- |",
       `| 公共对象 | ${code(record.publicName ?? (record.source === "utils/popover.ts" ? "Popover／定位函数／popconfirmProps" : record.path))} |`,
       `| 实现／包装 | ${code("src/components/" + record.source)} ／ ${code("src/components/" + record.entry)} |`,
-      `| 行为／标签 | ${record.tag ? "自动注册" : "显式 API"} ／ ${record.tag ? code(record.tag) : "无元素标签"} |`,
+      `| 行为／标签 | ${record.path === "notification" ? "手动注册" : record.tag ? "自动注册" : "显式 API"} ／ ${record.tag ? code(record.tag) : "无元素标签"} |`,
       `| 继承实现（不注册） | ${record.inheritance ? code(record.inheritance) : "无"} |`,
       `| 条件依赖 | ${record.required.length ? record.required.map(([name, condition, kind]) => `${code(name)}（${condition}；${{ internal: "内建", companion: "标准配套", lazy: "调用时注册" }[kind]}）`).join("；") : "无额外元素依赖"} |`,
       `| 传递条件依赖 | ${cell(record.requiredClosure)} |`,
@@ -250,7 +254,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.ar
       renderCatalog(),
       "映射已漂移，请重新生成",
     );
-    console.log("Public entry mapping: PASS (90 entries)");
+    console.log(`Public entry mapping: PASS (${collectEntries().length} entries)`);
   } else if (mode === "--json") console.log(JSON.stringify(collectEntries(), null, 2));
   else throw new Error("Usage: node scripts/public-entries.mjs --write|--check|--json");
 }

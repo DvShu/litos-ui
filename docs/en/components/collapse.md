@@ -1,8 +1,8 @@
-# collapse 折叠面板
+# Collapse
 
-折叠/展开的内容区域; 通常用于后台系统的首页边栏的控制面板上
+Expand or collapse sections of content, such as panels in a dashboard sidebar.
 
-## 引用
+## Import and Registration
 
 ```js
 import { regist, Collapse, CollapseItem, ArrowRightIcon } from "litos-ui";
@@ -10,189 +10,189 @@ import { regist, Collapse, CollapseItem, ArrowRightIcon } from "litos-ui";
 regist([Collapse, CollapseItem, ArrowRightIcon]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-可以同时展开多个面板，面板之间不影响
+Multiple panels can be expanded independently.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse>
-    <l-collapse-item prop="1" header-text="红灯" expand>
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light" expand>
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 手动展开
+### Controlled Expansion
 
-将 `collapse` 标签的 `prop` 设置为展开项, 多个项用 `&` 分隔
+Set `prop` on `l-collapse` to the expanded panel names, separated by `&`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse prop="1&3">
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 也可以给 `collapse-item` 标签添加 `expand` 属性用于展开某一项
+> You can also add `expand` to an `l-collapse-item` to expand it.
 
-### 手风琴模式
+### Accordion
 
-通过设置 `accordion` 为 `true` 即可实现手风琴模式，每次只能展开一个面板
+Enable `accordion` to allow only one panel to be expanded at a time.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse accordion>
-    <l-collapse-item prop="1" header-text="红灯" expand>
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light" expand>
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 箭头位置
+### Arrow Placement
 
-使用 `arrow-placement` 来设定箭头的位置；可选值为 `left`[默认]、`right`
+Set `arrow-placement` to `left` (default) or `right`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right">
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 标题栏对齐方式
+### Header Alignment
 
-通过 `header-justify` 来设置对齐方式，例如设置为 `space-between` 表明两端对齐，这个时候，配合 `arrow-placement: right` 就能实现，箭头和文本两端对齐的效果
+Use `header-justify` to align header content. Combine `space-between` with `arrow-placement="right"` to place the text and arrow at opposite ends.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between">
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 背景边框
+### Background and Border
 
-通过设置 `background` 就能实现带背景边框样式
+Enable `background` to show the panel background and border.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between" background>
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 项间距
+### Panel Spacing
 
-通过 `gap` 设置项间距
+Set `gap` to control the space between panels.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between" background gap="10px">
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 圆角
+### Border Radius
 
-通过 `border-radius` 设置边框圆角
+Set `border-radius` to round the panel corners.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-collapse arrow-placement="right" header-justify="space-between" background border-radius="5px">
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 网格模式
+### Grid Layout
 
-通过传递 `grid` 属性让折叠面板变为网格模式
+Enable `grid` to arrange panels in a grid.
 
 <ClientOnly>
 <l-code-preview>
@@ -205,14 +205,14 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
     gap="10px"
     grid
   >
-    <l-collapse-item prop="1" header-text="红灯">
-      <div>红灯 - 停</div>
+    <l-collapse-item prop="1" header-text="Red light">
+      <div>Red light - Stop</div>
     </l-collapse-item>
-    <l-collapse-item prop="2" header-text="绿灯">
-      <div>绿灯 - 行</div>
+    <l-collapse-item prop="2" header-text="Green light">
+      <div>Green light - Go</div>
     </l-collapse-item>
-    <l-collapse-item prop="3" header-text="黄灯">
-      <div>黄灯 - 等</div>
+    <l-collapse-item prop="3" header-text="Yellow light">
+      <div>Yellow light - Wait</div>
     </l-collapse-item>
   </l-collapse>
 </textarea>
@@ -226,43 +226,43 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/collapse";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Collapse Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `prop` | 展开的面板,展开多选时以 `&` 分隔 | `string` | - |
-| `grid` | 网格模式 | `boolean` | `false` |
-| `gap` | 面板间距 | `string` | `0px` |
-| `border-radius` | 圆角 | `string` | `0px` |
-| `background` | 背景边框 | `boolean` | `false` |
-| `arrow-placement` | 箭头位置 | `string` | `left` |
-| `header-justify` | 标题栏对齐方式, `flex-start`、`flex-end`、`space-between` | `string` | `flex-start` |
-| `accordion` | 手风琴模式 | `boolean` | `false` |
+| `prop` | Expanded panel names, separated by & when multiple panels are expanded | `string` | - |
+| `grid` | Grid layout | `boolean` | `false` |
+| `gap` | Panel spacing | `string` | `0px` |
+| `border-radius` | Border radius | `string` | `0px` |
+| `background` | Background and border | `boolean` | `false` |
+| `arrow-placement` | Arrow position | `string` | `left` |
+| `header-justify` | Header alignment: flex-start, flex-end, or space-between | `string` | `flex-start` |
+| `accordion` | Accordion mode | `boolean` | `false` |
 
 ### CollapseItem Attributes
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `prop` | 面板名称 | `string` | - |
-| `header-text` | 标题栏文本 | `string` | - |
-| `expand` | 是否展开 | `boolean` | `false` |
+| `prop` | Panel name | `string` | - |
+| `header-text` | Header text | `string` | - |
+| `expand` | Whether the panel is expanded | `boolean` | `false` |
 
 ### Collapse Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 面板变化时触发, `detail: { expandedNames: string[] }` | `(event: CustomEvent)` |
+| `change` | Fires when panels change; detail: { expands: string[], value: string } | `(event: CustomEvent)` |
 
 ### Collapse CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
 | - | - | - |

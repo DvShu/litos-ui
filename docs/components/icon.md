@@ -95,12 +95,20 @@ regist(MyIcon, "my-icon");
 
 > 这里是通过 `style` 属性来修改的，也可以通过 `class` 来修改
 
-### Icon Attribute
+### Icon Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `view-box` | svg view box | `string` | `0 0 1024 1024` |
+| `color` | 图标颜色 | `string` | - |
+| `size` | 图标尺寸，数字按 px 处理，也支持 CSS 单位 | `string` | - |
+
+### Icon Properties
+
+<!-- prettier-ignore -->
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `viewBox` | 首次渲染前设置 SVG viewBox；不监听 view-box 属性 | `string` | BaseIcon 为 `0 0 1024 1024`，具体图标可覆盖 |
 
 ### 样式变量
 

@@ -96,7 +96,7 @@ regist([
 
   onUnmounted(() => {
     $morePreview = undefined;
-    this.handlePreviewClosed();
+    handlePreviewClosed();
     if ($customPreview) {
       iterate($customPreview, (item) => {
         off(item, 'click', handleCustomTap);
@@ -244,7 +244,7 @@ regist([
 
 ### 加载失败
 
-通过配置 `fallback` 配置加载失败显示图像占位符; 也可以传递 `custom-fallback` 启用自定义加载失败占位符, 然后配置 `slot-fallback` 来自定义加载失败显示.
+通过配置 `fallback` 配置加载失败显示图像占位符; 也可以传递 `custom-fallback` 启用自定义加载失败占位符, 然后配置 `fallback` 插槽 来自定义加载失败显示.
 
 <ClientOnly>
 <l-code-preview>
@@ -275,7 +275,12 @@ regist([
   <l-image class="morePreview" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px" preview-index="2"></l-image>
 </textarea>
 <textarea lang="js">
-  import { $, iterate } from 'utilane/browser';
+  import { $, $$, on, off, iterate } from 'utilane/browser';
+  const imgs = [
+    '/litos-ui/img1.svg',
+    '/litos-ui/img2.svg',
+    'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+  ];
   const $morePreview = $('.morePreview');
   iterate($morePreview, (item) => {
     item.setPreviewImageList(imgs);
@@ -317,7 +322,7 @@ regist([
 </l-code-preview>
 </ClientOnly>
 
-> 从 `ios 15.4` 开始已经全面支持; 对于不支持 `loading="lazy"` 属性的浏览器，可以通过 [loading-attribute-polyfill](https://github.com/mfranzke/loading-attribute-polyfill) 来兼容
+> 懒加载依赖浏览器支持；如有需要，可根据目标浏览器评估 [loading-attribute-polyfill](https://github.com/mfranzke/loading-attribute-polyfill)。
 
 ### 手动预览
 
@@ -373,7 +378,12 @@ regist([
   ></l-image>
 </textarea>
 <textarea lang="js">
-  import { $, iterate } from 'utilane/browser';
+  import { $, $$, on, off, iterate } from 'utilane/browser';
+  const imgs = [
+    '/litos-ui/img1.svg',
+    '/litos-ui/img2.svg',
+    'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+  ];
   let $preview;
   const $customPreview = $('.customPreview');
   iterate($customPreview, (item) => {

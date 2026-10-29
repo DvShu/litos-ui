@@ -1,36 +1,36 @@
-# 快速开始
+# Getting Started
 
-组件库使用工具库 [utilane](https://github.com/DvShu/utilane#readme)
+LitosUI uses the [utilane](https://github.com/DvShu/utilane#readme) utility library.
 
-## 使用
+## Usage
 
-### 安装
+### Installation
 
 ```shell
 npm install litos-ui
 ```
 
-### 引入
+### Import and Registration
 
 ```js
 import "litos-ui/styles/vars.css";
 import { Button, regist } from "litos-ui";
 
-// 注册为 Web Components, 注册后, 可以通过 `<l-button></l-button>` 使用
+// Register the Web Component, then use it as <l-button></l-button>.
 regist(Button);
 ```
 
-推荐在客户端入口文件中引入样式并注册组件，再在页面中使用：
+Import the styles and register components in your client entry point before using them on the page:
 
 ```html
-<l-button type="primary">按钮</l-button>
+<l-button type="primary">Button</l-button>
 ```
 
-### 注册组件
+### Registering Components
 
-`regist()` 支持传入一个组件或组件数组。组件统一使用 `l-` 前缀，标签名由 `l-` 和组件的 `baseName` 组成，例如 `Button` 对应 `l-button`。
+`regist()` accepts a single component or an array of components. Component tags use the `l-` prefix followed by the component's `baseName`. For example, `Button` becomes `l-button`.
 
-当前暂不支持自定义组件前缀或标签名，请使用默认的 `l-` 标签体系。组件库不提供 `config()` 全局前缀配置 API。
+Custom component prefixes and tag names are currently unsupported; use the default `l-` tags. The library does not provide a `config()` API for setting a global prefix.
 
 ```js
 import { Button, Input, regist } from "litos-ui";
@@ -38,26 +38,26 @@ import { Button, Input, regist } from "litos-ui";
 regist([Button, Input]);
 ```
 
-重复注册已有标签名时，`regist()` 会跳过该名称。
+If a tag name is already registered, `regist()` skips it.
 
-### 服务组件与可选自动导入
+### Services and Optional Auto-imports
 
-服务组件需要对应的全局样式。例如手动使用 Message：
+Services require their corresponding global styles. For example, to use Message manually:
 
 ```js
 import "litos-ui/styles/message.css";
 import { Message } from "litos-ui";
 
-Message.success("操作成功");
+Message.success("Operation successful");
 ```
 
-如需自动导入服务 API 与对应样式，可以按需使用自动导入插件：
+To automatically import service APIs and their styles, you can optionally use an auto-import plugin:
 
 ```shell
 npm install -D unplugin-auto-import litosui-unplugin-resolver
 ```
 
-在 Vite 配置中添加插件，保留项目已有配置：
+Add the plugin to your Vite configuration, keeping your existing project configuration:
 
 ```js
 import { defineConfig } from "vite";
@@ -74,25 +74,27 @@ export default defineConfig({
 });
 ```
 
-Web Components 的注册仍通过 `regist()` 完成。
+Web Components still need to be registered with `regist()`.
 
-### 全局变量
+### Global Variables
 
-组件库的样式全部使用 `CSS` 变量控制，为了让样式可控变得简单化，所以需要手动引入全局变量文件；在入口文件，如 `main.ts` 中引入:
+The library uses CSS variables for styling. Import the global variables stylesheet explicitly in your entry file, such as `main.ts`, to configure these values:
 
 ```js
 import "litos-ui/styles/vars.css";
 ```
 
-内容如下：
+The shared source file is shown below. Its original Chinese comments are preserved:
 
 <<< ../../styles/vars.css
 
-### 暗黑模式
+### Dark Mode
 
-暗黑模式变量已包含在 `vars.css` 中。在根元素上添加 `dark` 类即可启用，移除该类即可恢复浅色模式。
+Dark mode variables are in the separate `dark.css` file. Import it explicitly after `vars.css`, then add the `dark` class to the root element to enable dark mode. Remove the class to return to light mode. Importing `vars.css` alone does not include the dark color overrides.
 
 ```javascript
+import "litos-ui/styles/dark.css";
+
 document.documentElement.classList.add("dark");
 ```
 
@@ -104,4 +106,4 @@ import "litos-ui/button";
 import "litos-ui/input-number";
 ```
 
-These client-only element entries register their built-in dependencies, including Button's loading icon. Root imports with manual regist() remain supported. Service subpaths, such as Message from "litos-ui/message", require explicit API calls and do not install global styles. CSS imports are currently commented out for future Vite plugin configuration. See the [complete entry list and SSR guidance](/en/on_demand).
+These client-only element entries register themselves and their configured dependencies. Import additional dependencies explicitly for conditional features; for example, Button's loading state requires `import "litos-ui/icon/loading"`. Root imports with manual `regist()` remain supported. Service subpaths, such as the default import from `litos-ui/message`, do not automatically import global styles: CSS imports in these entries are currently commented out for future Vite plugin configuration. Service APIs still require explicit calls. See [On-demand Imports](/en/on_demand) for the complete entry list, types, and SSR limitations.

@@ -1,8 +1,8 @@
-# Polygon 多边形
+# Polygon
 
-显示一些多边形，例如：三角形、菱形、六边形、梯形等；全部采用 [clip-path](https://developer.mozilla.org/zh-CN/docs/Web/CSS/clip-path) 实现
+Display polygons such as triangles, rhombuses, hexagons, and trapezoids using [clip-path](https://developer.mozilla.org/en-US/docs/Web/CSS/clip-path).
 
-## 引用
+## Import and Registration
 
 ```js
 import { Polygon, regist } from "litos-ui";
@@ -10,11 +10,11 @@ import { Polygon, regist } from "litos-ui";
 regist(Polygon);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-默认提供了多种三角形，只需要配置 `shape` 属性即可。
+Several triangle shapes are provided by default. Select one with the `shape` attribute.
 
 <ClientOnly>
 <l-code-preview>
@@ -59,9 +59,9 @@ regist(Polygon);
 </l-code-preview>
 </ClientOnly>
 
-### 自定义形状
+### Custom Shapes
 
-通过 `part::(default)` 设置自定义的 `clip-path`。例如自定义菱形
+Set a custom `clip-path` through `::part(default)`. For example, create a rhombus:
 
 <ClientOnly>
 <l-code-preview>
@@ -88,24 +88,24 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/polygon";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Polygon Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `shape` | 传递指定的默认的形状 | `string` | `triangle-top` |
-| `background` | 背景颜色 | `string` | - |
+| `shape` | Selects a built-in shape | `string` | `triangle-top` |
+| `background` | Background color | `string` | - |
 
 ### Polygon CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-polygen-size` | 多边形大小 | `10px` |
-| `--l-polygen-width` | 多边形宽度 | `var(--l-polygen-size)` |
-| `--l-polygen-height` | 多边形高度 | `var(--l-polygen-size)` |
-| `--l-polygen-background` | 多边形背景色 | `#666` |
+| `--l-polygen-size` | Polygon size | `10px` |
+| `--l-polygen-width` | Polygon width | `var(--l-polygen-size)` |
+| `--l-polygen-height` | Polygon height | `var(--l-polygen-size)` |
+| `--l-polygen-background` | Polygon background color | `#666` |

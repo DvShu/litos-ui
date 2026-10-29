@@ -1,8 +1,8 @@
-# List 滚动列表
+# List
 
-无限加载数据的列表。滚动至底部时，加载更多数据。
+A list that loads more data as you scroll to the bottom.
 
-## 引用
+## Import and Registration
 
 ```js
 import { List, regist, LoadingIcon } from "litos-ui";
@@ -10,7 +10,7 @@ import { List, regist, LoadingIcon } from "litos-ui";
 regist([List, LoadingIcon]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { $one, on, off } from 'utilane/browser';
@@ -18,13 +18,13 @@ regist([List, LoadingIcon]);
 
   let $list;
   let $list1;
-  // 模拟分页数据
+  // Simulate paginated data.
   let start = 0;
   let max = 20;
   let step = 10;
 
   function handleLoadmore() {
-     // 模拟数据加载
+     // Simulate data loading.
     setTimeout(() => {
       if ($list && start < max) {
         let isFinish = false;
@@ -34,7 +34,7 @@ regist([List, LoadingIcon]);
           end = max;
         }
         $list.append(createRenderFragemnt(start, end));
-        $list.removeAttribute('loading'); // 移除loading 状态，显示更多内容
+        $list.removeAttribute('loading'); // Clear the loading state to show more content.
         if (isFinish) {
           $list.setAttribute('finish', 'finish');
         } else {
@@ -81,9 +81,9 @@ regist([List, LoadingIcon]);
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-滚动到底部触发 `load` 加载更多事件，通过 `finish` 属性决定是否加载完成。
+Scrolling to the bottom emits a `load` event. Set `finish` when all data has been loaded.
 
 <ClientOnly>
 <l-code-preview>
@@ -100,13 +100,13 @@ regist([List, LoadingIcon]);
 </textarea>
 <textarea lang="js">
   const $list = document.querySelector('#list');
-  // 模拟分页数据
+  // Simulate paginated data.
   let start = 0;
   let max = 20;
   let step = 10;
   //-
   function handleLoadmore() {
-     // 模拟数据加载
+     // Simulate data loading.
     setTimeout(() => {
       if ($list && start < max) {
         let isFinish = false;
@@ -116,6 +116,7 @@ regist([List, LoadingIcon]);
           end = max;
         }
         $list.append(createRenderFragemnt(start, end));
+        $list.removeAttribute('loading');
         if (isFinish) {
           $list.setAttribute('finish', 'finish');
         } else {
@@ -137,16 +138,16 @@ regist([List, LoadingIcon]);
     return fragment;
   }
   //-
-  // 监听加载事件
+  // Listen for the load event.
   $list.addEventListener('load', handleLoadmore);
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-### 普通列表
+### Regular List
 
-通过传递 `infinite="false"` 禁用滚动加载这样就成了一个单纯的可以滚动的列表。
+Set `infinite="false"` to disable infinite loading and use a regular scrollable list.
 
 <ClientOnly>
 <l-code-preview>
@@ -176,28 +177,30 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/list";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
+The built-in loading and end-of-list messages are currently Chinese.
 
 ## API
 
 ### List Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `finish` | 是否加载完成 | `boolean` | `false` |
-| `infinite` | 是否无限滚动 | `boolean` | `true` |
+| `finish` | Whether all data has been loaded | `boolean` | `false` |
+| `infinite` | Whether infinite loading is enabled | `boolean` | `true` |
 
 ### List Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 列表内容 |
+| `default` | List content |
 
 ### List Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `load` | 加载更多, `e.detail` 包含 `page` 分页页码 | `(e: CustomEvent)` |
+| `load` | Requests more data; e.detail.page contains the page number | `(e: CustomEvent)` |

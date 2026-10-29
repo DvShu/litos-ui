@@ -6,8 +6,8 @@ import { collectEntries, renderCatalog } from "../scripts/public-entries.mjs";
 test("catalog covers canonical entries, runtime elements, services and public declarations", () => {
   const entries = collectEntries();
   const byPath = new Map(entries.map((entry) => [entry.path, entry]));
-  assert.equal(entries.length, 90);
-  assert.equal(byPath.size, 90);
+  assert.equal(entries.length, 91);
+  assert.equal(byPath.size, 91);
   assert.equal(entries.filter((entry) => entry.tag).length, 79);
   for (const entry of entries) assert.match(entry.path, /^[a-z0-9]+(?:[-/][a-z0-9]+)*$/);
   for (const name of ["UploadFile", "UploadResponseParser", "defaultUploadResponseParser"])

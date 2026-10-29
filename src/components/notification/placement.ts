@@ -38,7 +38,7 @@ export interface NotificationLayoutItem extends HTMLElement {
   readonly notificationGap: number;
 }
 
-/** 每个方位上已经显示的通知, 索引 0 最靠近角落(最新创建) */
+/** 每个方位上已经显示的通知, 按创建时间从旧到新排列 */
 const groups = new Map<NotificationPlacement, NotificationLayoutItem[]>();
 
 /** 是否为顶部方位 */
@@ -73,18 +73,18 @@ export function getGroupSize(placement: NotificationPlacement): number {
   return groups.get(placement)?.length ?? 0;
 }
 
-/** 某个方位上最早创建的通知(最远离角落) */
+/** 某个方位上最早创建的通知 */
 export function getOldestNotification(
   placement: NotificationPlacement,
 ): NotificationLayoutItem | undefined {
   const group = groups.get(placement);
-  return group && group.length > 0 ? group[group.length - 1] : undefined;
+  return group && group.length > 0 ? group[0] : undefined;
 }
 
 /**
  * 注册到方位分组并重新排布
  *
- * 最新创建的通知放在最靠近角落的位置, 已有的通知依次向后移动。
+ * 最新创建的通知显示在最下方。顶部方位向下追加，底部方位将已有通知向上移动。
  */
 export function registerNotification(
   $el: NotificationLayoutItem,
@@ -96,7 +96,7 @@ export function registerNotification(
     group = [];
     groups.set(placement, group);
   }
-  group.unshift($el);
+  group.push($el);
   layoutGroup(placement);
 }
 
@@ -120,7 +120,7 @@ export function layoutGroup(placement: NotificationPlacement): void {
   const positionName = isTop ? "top" : "bottom";
   const oppositeName = isTop ? "bottom" : "top";
   let distance = 0;
-  for (const $el of group) {
+  for (const $el of isTop ? group : [...group].reverse()) {
     // 位置 = 自身偏移 + 前面所有通知占用的高度与间距
     $el.style.setProperty(positionName, `${$el.notificationOffset + distance}px`);
     $el.style.removeProperty(oppositeName);

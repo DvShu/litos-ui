@@ -4,7 +4,7 @@
 
 覆盖 87 个公开对象及 popconfirm、transition、utils，共 90 个规范入口。总入口保留纯实现，独立包装不反向污染总入口。图标规范路径为 icon/*；不将通配符可解析的其他拼写当作新增 API 承诺。详见 [T200 审计](./TREE_SHAKING_AUDIT.md)。
 
-示例在客户端执行，并预先导入 litos-ui/styles/vars.css；主题、reset、container、scrollbar 按需显式导入。DOM 示例只展示最小挂载，完整交互与配套内容见组件文档。Popover 示例需要页面已有 button；Tabs 需要已有 .l-tabs 和配套 Tabbar。SSR 仅在客户端加载。
+示例在客户端执行，并预先导入 litos-ui/styles/vars.css；深色模式额外引入 litos-ui/styles/dark.css 并切换根元素 dark 类；主题、reset、container、scrollbar 按需显式导入。DOM 示例只展示最小挂载，完整交互与配套内容见组件文档。Popover 示例需要页面已有 button；Tabs 需要已有 .l-tabs 和配套 Tabbar。SSR 仅在客户端加载。
 
 继承不构成注册要求；用户插槽内容及自定义图标不纳入固定依赖。条件依赖是全部现有能力的并集，区分内建、标准配套、调用时注册。实际注册列仅表示导入时行为，不含服务函数内惰性注册。消费示例显式补齐全部条件依赖，不宣称当前包装已自动覆盖全部功能。
 
@@ -1791,14 +1791,49 @@ await ModalBox.alert("保存成功");
 | --- | --- |
 | 公共对象 | `Notification` |
 | 实现／包装 | `src/components/notification/index.ts` ／ `src/components/entries/notification.ts` |
-| 行为／标签 | 自动注册 ／ `l-notification` |
+| 行为／标签 | 手动注册 ／ `l-notification` |
 | 继承实现（不注册） | `BaseComponent` |
-| 条件依赖 | `icon/info`（info；连接或调用时也会注册；调用时注册）；`icon/success`（success；调用时注册）；`icon/warn`（warning；调用时注册）；`icon/close-filled`（error；调用时注册）；`icon/close`（关闭；调用时注册） |
+| 条件依赖 | `icon/info`（info；标准配套）；`icon/success`（success；标准配套）；`icon/warn`（warning；标准配套）；`icon/close-filled`（error；标准配套）；`icon/close`（关闭；标准配套） |
 | 传递条件依赖 | `icon/close`、`icon/close-filled`、`icon/info`、`icon/success`、`icon/warn` |
-| 入口实际注册 | `l-close-filled-icon`、`l-close-icon`、`l-info-icon`、`l-notification`、`l-success-icon`、`l-warn-icon` |
+| 入口实际注册 | 无 |
 | 全局 CSS（含传递包装） | 无 |
 | 待插件接入的全局 CSS | `../../styles/notification.css` |
-| 样式资源（含内联） | `icon/index.less`、`notification/index.less` |
+| 样式资源（含内联） | `notification/index.less` |
+| 第三方实现依赖 | `utilane`、`utilane/browser` |
+| 声明／具名导出 | `NotificationOptions`、`NotificationPlacement`、`NotificationType`、`default` |
+
+客户端消费示例：
+
+```js
+import "litos-ui/icon/close";
+import "litos-ui/icon/close-filled";
+import "litos-ui/icon/info";
+import "litos-ui/icon/success";
+import "litos-ui/icon/warn";
+import Notification from "litos-ui/notification";
+import { regist } from "litos-ui";
+regist(Notification);
+const el = document.createElement("l-notification");
+el.setAttribute("message", "Hello");
+el.setAttribute("open", "");
+document.body.append(el);
+```
+
+## litos-ui/notification-box
+
+<!-- prettier-ignore -->
+| 项目 | 映射 |
+| --- | --- |
+| 公共对象 | `NotificationBox` |
+| 实现／包装 | `src/components/notification/notification_box.ts` ／ `src/components/entries/notification-box.ts` |
+| 行为／标签 | 显式 API ／ 无元素标签 |
+| 继承实现（不注册） | 无 |
+| 条件依赖 | `notification`（使用前显式注册；标准配套） |
+| 传递条件依赖 | `icon/close`、`icon/close-filled`、`icon/info`、`icon/success`、`icon/warn`、`notification` |
+| 入口实际注册 | 无 |
+| 全局 CSS（含传递包装） | 无 |
+| 待插件接入的全局 CSS | `../../styles/notification.css` |
+| 样式资源（含内联） | 无 |
 | 第三方实现依赖 | `utilane`、`utilane/browser` |
 | 声明／具名导出 | `NotificationOptions`、`NotificationPlacement`、`NotificationType`、`default` |
 
@@ -1811,7 +1846,11 @@ import "litos-ui/icon/info";
 import "litos-ui/icon/success";
 import "litos-ui/icon/warn";
 import "litos-ui/notification";
-document.body.insertAdjacentHTML("beforeend", "<l-notification></l-notification>");
+import Notification from "litos-ui/notification";
+import NotificationBox from "litos-ui/notification-box";
+import { regist } from "litos-ui";
+regist(Notification);
+NotificationBox.info("Hello");
 ```
 
 ## litos-ui/page-header

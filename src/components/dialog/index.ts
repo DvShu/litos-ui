@@ -27,6 +27,7 @@ export default class Dialog {
   private $dialog!: HTMLDialogElement;
   private $container: HTMLElement | null | undefined;
   private config!: Required<DialogInitialParams>;
+  private finishClose?: (event?: Event) => void;
 
   constructor(option?: DialogInitialParams) {
     if (option != null) {
@@ -117,6 +118,10 @@ export default class Dialog {
    */
   open() {
     if (this.$dialog) {
+      if (this.finishClose) {
+        off(this.$dialog, "transitionend", this.finishClose);
+        this.finishClose = undefined;
+      }
       this.$dialog.showModal();
       addClass(this.$dialog, "l-dialog--open");
       addClass(document.body, "l-body--dialog-open");
@@ -127,23 +132,26 @@ export default class Dialog {
    * 关闭对话框
    */
   close() {
-    if (this.$dialog && hasClass(this.$dialog, "l-dialog--open")) {
-      on(
-        this.$dialog,
-        "transitionend",
-        () => {
-          this.$dialog.close();
-          removeClass(document.body, "l-body--dialog-open");
-        },
-        { once: true },
-      );
-      removeClass(this.$dialog, "l-dialog--open");
+    const dialog = this.$dialog;
+    if (dialog && !this.finishClose && hasClass(dialog, "l-dialog--open")) {
+      const finish = (event?: Event) => {
+        if (event && event.target !== dialog) return;
+        if (this.finishClose !== finish) return;
+        off(dialog, "transitionend", finish);
+        this.finishClose = undefined;
+        if (dialog.open) dialog.close();
+        removeClass(document.body, "l-body--dialog-open");
+      };
+      this.finishClose = finish;
+      on(dialog, "transitionend", finish);
+      removeClass(dialog, "l-dialog--open");
     }
   }
 
   destroy() {
     if (this.$dialog) {
       this.close();
+      this.finishClose?.();
       off(this.$dialog, "keydown", this.handleKeydown as any);
       off(this.$dialog, "click", this.handleClick);
       if (this.$container) {

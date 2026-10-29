@@ -20,7 +20,7 @@ import {
   SortIcon,
 } from "litos-ui";
 
-regist([Tabbar, TabbarItem]);
+regist([TabbarItem, Tabbar]);
 
 // 注册本页演示使用的附加组件
 regist([ReductionIcon, RefreshLeftIcon, RefreshRightIcon, SearchIcon, SortIcon]);
@@ -174,8 +174,8 @@ import "litos-ui/tabbar";
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `name` | 选项卡项的名称， *必填* | `string` | - |
-| `icon` | 是否渲染图标 | `off` | - |
-| `only-icon` | 是否仅渲染图标 | `off` | - |
+| `icon` | 是否渲染图标 | `boolean` | - |
+| `only-icon` | 是否仅渲染图标 | `boolean` | - |
 
 ### Tabbar CSS Variables
 

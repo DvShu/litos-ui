@@ -47,9 +47,11 @@ import "litos-ui/styles/theme-jade.css";
 
 Presets define global CSS variables on `:root`. Choose one preset; importing several makes the last loaded theme override the earlier ones. Omit the preset import to use the default blue theme. You can also override individual variables in your own stylesheet.
 
-Dark mode variables are included in `vars.css`. Toggle the root element's `dark` class from client-side code:
+Dark mode variables are in the separate `dark.css` file. Import it after `vars.css`, then toggle the root element's `dark` class from client-side code:
 
 ```js
+import "litos-ui/styles/dark.css";
+
 document.documentElement.classList.add("dark");
 // Restore light mode:
 document.documentElement.classList.remove("dark");

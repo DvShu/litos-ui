@@ -5,13 +5,15 @@
 ## 引用
 
 ```js
-import { Menu, regist, Button } from "litos-ui";
+import { Menu, regist, Button, ArrowRightIcon } from "litos-ui";
 
-regist(Menu);
+regist([ArrowRightIcon, Menu]);
 
 // 注册本页演示使用的附加组件
 regist([Button]);
 ```
+
+本页自定义图标示例使用 iconify-icon，需单独安装并引入该包；Menu 本身不依赖这一图标库。
 
 ## 演示
 

@@ -1,6 +1,9 @@
 // @ts-ignore
 import notificationCss from "./index.less?inline";
 
-const notificationSheet = new CSSStyleSheet();
-notificationSheet.replaceSync(notificationCss);
+const notificationSheet = /* @__PURE__ */ (() => {
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(notificationCss);
+  return sheet;
+})();
 export default notificationSheet;

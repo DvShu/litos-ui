@@ -18,6 +18,17 @@ import "litos-ui/styles/loading.css";
   import Loading from '../../src/components/loading';
   import { on, off, $one } from 'utilane/browser';
 
+  const listeners = [];
+  let disposed = false;
+
+  function bindClick(selector, handler) {
+    const element = $one(selector);
+    if (element) {
+      on(element, 'click', handler);
+      listeners.push([element, handler]);
+    }
+  }
+
   function handleLoading() {
     Loading.init('loading3');
     setTimeout(() => {
@@ -60,26 +71,25 @@ import "litos-ui/styles/loading.css";
 
   onMounted(() => {
     nextTick(() => {
-      if (!import.meta.env.SSR) {
+      if (!import.meta.env.SSR && !disposed) {
         Loading.init('loading1');
         Loading.init('loading2');
         Loading.init('loading5');
-        console.log()
-        on($one('[l-loading="loading3"]'), 'click', handleLoading);
-        on($one('#startLoading'), 'click', handleStartLoading);
-        on($one('#startBarLoading'), 'click', handleStartBarLoading);
-        on($one('#endBarLoading'), 'click', handleEndBarLoading);
-        on($one('#startLoading1'), 'click', handleUpdateText);
+        bindClick('[l-loading="loading3"]', handleLoading);
+        bindClick('#startLoading', handleStartLoading);
+        bindClick('#startBarLoading', handleStartBarLoading);
+        bindClick('#endBarLoading', handleEndBarLoading);
+        bindClick('#startLoading1', handleUpdateText);
       }
     })
   });
 
   onUnmounted(() => {
-    off($one('[l-loading="loading3"]'), 'click', handleLoading);
-    off($one('#startLoading'), 'click', handleStartLoading);
-    off($one('#startBarLoading'), 'click', handleStartBarLoading);
-    off($one('#endBarLoading'), 'click', handleEndBarLoading);
-    off($one('#startLoading1'), 'click', handleUpdateText);
+    disposed = true;
+    for (const [element, handler] of listeners) {
+      off(element, 'click', handler);
+    }
+    listeners.length = 0;
   });
 </script>
 
@@ -109,7 +119,7 @@ import "litos-ui/styles/loading.css";
 
 你可以自定义加载中组件的文字，背景颜色。
 
-在绑定了 `l-loading` 属性的元素上添加 `l-loading-text` 属性，其值会被渲染为加载文案，并显示在加载图标的下方；将其设置为空字符串可以用于取消文本。`l-loading-background` 用来设定背景色值。
+在绑定了 `l-loading` 属性的元素上添加 `l-loading-text` 属性，其值会被渲染为加载文案，并显示在加载图标的下方；设置为 `false` 或 `0` 可隐藏文本；空字符串会恢复默认文案。`l-loading-background` 用来设定背景色值。
 
 <ClientOnly>
 <l-code-preview>
@@ -192,11 +202,11 @@ import "litos-ui/styles/loading.css";
 <textarea lang="js">
   //-
   function handleStartBarLoading() {
-    LLoading.init('loading5');
+    LLoading.init('loading4');
   }
   //-
   function handleEndBarLoading() {
-    LLoading.close('loading5');
+    LLoading.close('loading4');
   }
   //-
   const $startBarLoading = document.getElementById('startBarLoading');
@@ -240,7 +250,7 @@ import "litos-ui/styles/loading.css";
 
 ### 编程式调用
 
-> 编程式调用依赖于自动引入
+> 编程式调用需要显式导入 Loading API 和 loading.css。
 
 通过调用 `create()` 函数来显示加载动画，例如：
 
@@ -258,7 +268,7 @@ setTimeout(() => {
 }, 3000);
 ```
 
-需要注意的是，以编程方式创建的 `Loading` 默认为全屏的且该全屏 `Loading` 是单例的。 若在前一个全屏 `Loading` 关闭前再次调用全屏 `Loading`，并不会创建一个新的 `Loading` 实例，而是返回现有全屏 `Loading` 的实例，只要其中一个实例关闭，其它都关闭：
+需要注意的是，以编程方式创建的 `Loading` 默认为全屏的且该全屏 `Loading` 是单例的。 若在前一个全屏 `Loading` 关闭前再次调用全屏 `Loading`，不会创建新的全屏节点，而是创建共享同一全屏节点的新包装实例，只要其中一个实例关闭，其它都关闭：
 
 ```js
 const loading1 = LLoading.create();
@@ -300,18 +310,20 @@ loading2.hide();
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="startLoading">按钮</l-button>
+  <div id="startLoading1Parent" style="height:150px;border:1px solid #dedede;padding:5px;">
+    <l-button id="startLoading1">开始</l-button>
+  </div>
 </textarea>
 <textarea lang="js">
-  const $startLoading = document.getElementById('startLoading');
+  const $startLoading = document.getElementById('startLoading1');
   $startLoading.addEventListener('click', () => {
-    const loading = LLoading.create();
+    const loading = LLoading.create({ to: '#startLoading1Parent', fullscreen: false });
     setTimeout(() => {
       loading.updateLoadingText("重新加载中……");
     }, 3000);
     setTimeout(() => {
       loading.hide();
-    }, 3000);
+    }, 6000);
   });
 </textarea>
 </div>
@@ -322,10 +334,15 @@ loading2.hide();
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/loading.css";
 import Loading from "litos-ui/loading";
 ```
 
 元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+
+内置默认加载文案为中文。下表中的背景色和颜色为 CSS 回退值，JavaScript 默认未指定这两项。
+
+当前实现限制：节点属性 `l-loading-mask` 按是否存在读取，传入任意值均启用遮罩；初始化器未读取 `l-loading-zindex`，需通过 CSS 设置 `--l-loading-zindex`。需要这些配置时可使用编程式 `mask` 和 `zindex` 选项。
 
 ## API
 
@@ -336,13 +353,13 @@ import Loading from "litos-ui/loading";
 | --- | --- | --- | --- |
 | `to` | 加载条的挂载位置；可传入一个 `DOM` 对象或字符串；若传入字符串，则会将其作为参数传入 `document.querySelector` 以获取到对应 `DOM` 节点 | `string` \| `HTMLElement` | `body` |
 | `text` | 显示在加载图标下方的加载文案; 通过传递空字符串可以用于不显示文本 | `string` | `加载中……` |
-| `background` | 遮罩层背景色 | `string` | `rgba(0, 0, 0, .6)` |
+| `background` | 遮罩层背景色 | `string` | `rgba(0, 0, 0, .7)` |
 | `fullscreen` | 是否显示全屏加载动画 | `boolean` | `true` |
 | `lock` | 是否禁止滚动 | `boolean` | `true` |
 | `shape` | 形状, circle - 圆形, bar - 进度条样式, border - 边框动画 | `string` | `circle` |
 | `color` | 颜色 | `string` | `var(--l-primary-color, #722ed1)` |
 | `mask` | 是否显示阴影, 0 - 不显示, 1 - 显示, 2 - 自动[circle-显示,bar-不显示] | `number` | `2` |
-| `zindex` | z-index 层级 | `string` | `10` |
+| `zindex` | 遮罩层级；CSS 回退值为 10，全屏时为 50 | `number` | 未设置 |
 
 ### 节点属性
 
@@ -350,7 +367,7 @@ import Loading from "litos-ui/loading";
 | 属性 | 说明 | 默认值 |
 | --- | --- | --- |
 | `l-loading-text` | 显示在加载图标下方的加载文案; 当值为 `false` 时则不显示文本 | `加载中……` |
-| `l-loading-background` | 遮罩层背景色 | `rgba(0, 0, 0, .6)` |
+| `l-loading-background` | 遮罩层背景色 | `rgba(0, 0, 0, .7)` |
 | `l-loading-fullscreen` | 是否显示全屏加载动画 | `-` |
 | `l-loading-lock` | 是否禁止滚动, 当值为 `false` 或 `0` 时则允许滚动 | `true` |
 | `l-loading-shape` | 形状 | `circle` |

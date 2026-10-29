@@ -5,34 +5,35 @@ layout: home
 hero:
   name: "LitosUI"
   text: "Web Component UI"
-  tagline: 原生 Web Components、主题定制、TypeScript
+  tagline: Native Web Components, customizable themes, TypeScript
   image:
     src: /logo.svg
+    alt: LitosUI logo
   actions:
     - theme: brand
-      text: 快速开始
+      text: Getting Started
       link: /en/usage
     - theme: alt
       text: GitHub
       link: https://github.com/DvShu/litos-ui
 
 features:
-  - title: 原生组件
-    details: 基于原生 Web Components 构建，使用自定义元素与 Shadow DOM，可在支持相关能力的浏览器中运行。
+  - title: Native Components
+    details: Built with native Web Components, using Custom Elements and Shadow DOM. Runs in browsers that support these APIs.
     icon: 🧩
-  - title: npm 安装
-    details: 通过 npm 安装 litos-ui，使用 ESM 导入所需组件，并通过 regist 注册后使用。
+  - title: Installation
+    details: Install litos-ui from npm, import the components you need with ESM, and register them with regist.
     icon: 📦
-  - title: 主题定制
-    details: 使用 CSS 变量调整配色，提供翡翠绿、珊瑚红和活力橙预置主题，并支持暗黑模式。
+  - title: Theming
+    details: Customize colors with CSS variables. Choose from the Jade, Coral, and Tangerine presets, with support for dark mode.
     icon: 🎨
-  - title: 样式扩展
-    details: 通过组件提供的 CSS 变量与 part 定制样式，按组件文档选择对应的扩展入口。
+  - title: Styling
+    details: Customize components with CSS variables and CSS parts. See each component's documentation for its styling options.
     icon: 🛠️
   - title: TypeScript
-    details: 组件使用 TypeScript 编写，发布包包含类型声明，便于在开发时查看 API 与类型提示。
+    details: Written in TypeScript, with type declarations included in the package for API discovery and type hints during development.
     icon: 📝
-  - title: 浏览器环境
-    details: 依赖 Custom Elements、Shadow DOM 和可构造样式表等浏览器 API；服务端渲染项目需在客户端导入和注册组件。
+  - title: Browser Environment
+    details: Requires browser APIs such as Custom Elements, Shadow DOM, and constructable stylesheets. In server-rendered applications, import and register components on the client.
     icon: 🌐
 ---

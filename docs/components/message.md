@@ -135,6 +135,7 @@ import "litos-ui/styles/message.css";
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/message.css";
 import Message from "litos-ui/message";
 ```
 
@@ -160,5 +161,5 @@ import Message from "litos-ui/message";
 | --- | --- | --- | --- |
 | `message` | `string` | - | 消息正文内容 |
 | `duration` | `number` | `3000` | 消息显示的持续时间，单位为毫秒。如果设置为 `0`，则不会自动关闭 |
-| `type` | `string` | `info` | 消息类型，可选值为 `success`、`warning`、`error`、`info` |
+| `type` | `string` | `info` | 消息类型，可选值为 `success`、`warn`、`error`、`info` |
 | `customClass` | `string` | - | 自定义类名 |

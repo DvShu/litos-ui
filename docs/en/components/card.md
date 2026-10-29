@@ -1,100 +1,100 @@
-# Card 卡片
+# Card
 
-通用卡片应用，常用于后台概览页面。
+A general-purpose card, commonly used in dashboard overview pages.
 
-## 引用
+## Import and Registration
 
 ```js
 import { Card, regist, Button } from "litos-ui";
 
 regist(Card);
 
-// 注册本页演示使用的附加组件
+// Register additional components used in this page’s demos.
 regist([Button]);
 ```
 
-## 典型卡片
+## Basic Card
 
-包含标题、内容、操作区域。
+A card with a header, content, and actions.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-card header-text="卡片标题">
-    <div>卡片内容</div>
-    <l-button slot="header-extra" text type="primary" size="small">按钮</l-button>
+  <l-card header-text="Card title">
+    <div>Card content</div>
+    <l-button slot="header-extra" text type="primary" size="small">Button</l-button>
   </l-card>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-## 简洁卡片
+## Simple Card
 
-只包含内容区域，通过设置 `show-header` 为 `false` 隐藏标题。
+Show only the content area by setting `show-header="false"`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-card header-text="卡片标题" show-header="false">
-    <div>卡片内容</div>
+  <l-card header-text="Card title" show-header="false">
+    <div>Card content</div>
   </l-card>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-## 完整卡片
+## Complete Card
 
-卡片包含标题、内容、操作区域以及底部区域。
+A card with a header, content, actions, and a footer.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-card header-text="卡片标题" show-footer footer-text="底部区域">
-    <div>卡片内容</div>
-    <l-button slot="header-extra" text type="primary" size="small">按钮</l-button>
+  <l-card header-text="Card title" show-footer footer-text="Footer">
+    <div>Card content</div>
+    <l-button slot="header-extra" text type="primary" size="small">Button</l-button>
   </l-card>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-## 卡片标题
+## Custom Header and Footer
 
-标题和底部区域除了可以通过 `header-text` 和 `footer-text` 传递以外，也可以通过 `header` 和 `footer` 插槽自定义。
+Set `header-text` and `footer-text`, or customize these areas with the `header` and `footer` slots.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-card show-footer>
-    <span slot="header" style="color: red">卡片标题</span>
-    <div>卡片内容</div>
-    <l-button slot="header-extra" text type="primary" size="small">按钮</l-button>
-    <span slot="footer" style="color: orange">底部区域</span>
+    <span slot="header" style="color: red">Card title</span>
+    <div>Card content</div>
+    <l-button slot="header-extra" text type="primary" size="small">Button</l-button>
+    <span slot="footer" style="color: orange">Footer</span>
   </l-card>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-## 栅格卡片
+## Grid Cards
 
-在系统概览页面常常和栅格进行配合。通常用于管理后台的工作台聚合展示。
+Combine cards with a grid layout to build a dashboard overview.
 
-关于栅格布局，框架不提供，推荐使用 [unocss](https://unocss.dev/interactive/?s=grid) 或者 [tailwindcss](https://www.tailwindcss.cn/docs/display#grid) 的 `grid` 实现
+The library does not provide a grid layout. You can use [unocss](https://unocss.dev/interactive/?s=grid) or [tailwindcss](https://tailwindcss.com/docs/display#grid) for a CSS grid layout.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div class="grid grid-cols-3 gap-4">
-    <l-card header-text="卡片标题1">
-      <div>卡片内容1</div>
-      <l-button slot="header-extra" text type="primary" size="small">按钮</l-button>
+    <l-card header-text="Card title1">
+      <div>Card content1</div>
+      <l-button slot="header-extra" text type="primary" size="small">Button</l-button>
     </l-card>
-    <l-card header-text="卡片标题2">
-      <div>卡片内容2</div>
-      <l-button slot="header-extra" text type="primary" size="small">按钮</l-button>
+    <l-card header-text="Card title2">
+      <div>Card content2</div>
+      <l-button slot="header-extra" text type="primary" size="small">Button</l-button>
     </l-card>
-    <l-card header-text="卡片标题3">
-      <div>卡片内容3</div>
-      <l-button slot="header-extra" text type="primary" size="small">按钮</l-button>
+    <l-card header-text="Card title3">
+      <div>Card content3</div>
+      <l-button slot="header-extra" text type="primary" size="small">Button</l-button>
     </l-card>
   </div>
 </textarea>
@@ -108,40 +108,40 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/card";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Card Attributes
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `header-text` | 标题文本 | `string` | - |
-| `show-header` | 是否显示标题 | `boolean` | `true` |
-| `footer-text` | 底部区域文本 | `string` | - |
-| `show-footer` | 是否显示底部区域 | `boolean` | `false` |
+| `header-text` | Header text | `string` | - |
+| `show-header` | Whether to show the header | `boolean` | `true` |
+| `footer-text` | Footer text | `string` | - |
+| `show-footer` | Whether to show the footer | `boolean` | `false` |
 
 ### Card Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 内容区域内容 |
-| `header` | 自定义标题内容 |
-| `footer` | 自定义底部区域内容 |
-| `header-extra` | 自定义标题右侧内容（操作区域） |
+| `default` | Body content |
+| `header` | Custom header content |
+| `footer` | Custom footer content |
+| `header-extra` | Custom content to the right of the header (actions) |
 
 ### CSS Parts
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `header` | 标题区域 |
-| `body` | 内容区域 |
-| `footer` | 底部区域 |
+| `header` | Header area |
+| `body` | Body area |
+| `footer` | Footer |
 
-通过 `::part(header)` 可以自定义标题区域样式：
+Customize the header with `::part(header)`:
 
 ```css
 l-card::part(header) {
@@ -149,26 +149,27 @@ l-card::part(header) {
 }
 ```
 
-### 样式变量
+### CSS Variables
 
-组件在使用变量的位置通过 `var()` 提供浅色回退值，无需预先定义全部变量。下表列出这些回退值；边框颜色会优先使用已有的 `--l-border-color`。
+The component provides light-color fallbacks through `var()`, so you do not need to define every variable. The table below lists these fallbacks; the border uses `--l-border-color` when available.
 
-暗黑配色由全局主题变量提供。引入 `litos-ui/styles/vars.css`，并在 `html` 上添加 `dark` 类后，`:root.dark` 中的 Card 变量会通过继承作用于组件：
+Dark colors are provided by global theme variables. Import `litos-ui/styles/vars.css` and `litos-ui/styles/dark.css`, then add `dark` to `html`. The Card variables in `:root.dark` are inherited by the component:
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/dark.css";
 
 document.documentElement.classList.add("dark");
 ```
 
 <!-- prettier-ignore -->
-| 名称 | 描述 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-card-bg` | 卡片背景颜色 | `#ffffff` |
-| `--l-card-text-color` | 卡片文字颜色 | `#333` |
-| `--l-card-border-color` | 卡片边框颜色 | `var(--l-border-color, #e8e8e8)` |
+| `--l-card-bg` | Card background | `#ffffff` |
+| `--l-card-text-color` | Card text color | `#333` |
+| `--l-card-border-color` | Card border color | `var(--l-border-color, #e8e8e8)` |
 
-也可以在祖先容器或单个 `l-card` 上设置变量，局部配置在暗黑模式下仍然生效。例如，为卡片添加 `custom-card` 类后设置：
+You can also set variables on an ancestor or an individual `l-card`. Local overrides still apply in dark mode. For example, add `custom-card` to a card and set:
 
 ```css
 l-card.custom-card {

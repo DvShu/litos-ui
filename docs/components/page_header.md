@@ -18,7 +18,7 @@ regist([MoreIcon]);
 
 ### 基础用法
 
-通过 `title-align` 属性设置标题的对齐方式。分为：`left`、`center`。默认为: `left`
+通过 `align` 属性设置标题的对齐方式。分为：`left`、`center`。默认为: `left`
 
 <ClientOnly>
 <l-code-preview>
@@ -107,7 +107,7 @@ import "litos-ui/page-header";
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `click` | 点击按钮时触发 | `(event: Event)` |
-| `action` | 点击子节点时触发, 子节点需要添加 `l-action` 属性, 通过 `event.detail` 获取 `acton` 以及 `dataset` | `(event: CustomEvent)` |
+| `action` | 点击子节点时触发, 子节点需要添加 `l-action` 属性, 通过 `event.detail` 获取 `action` 以及展开的 `dataset` 字段 | `(event: CustomEvent)` |
 
 ### PageHeader Methods
 

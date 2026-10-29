@@ -1,8 +1,8 @@
-# Qrcode 二维码
+# Qrcode
 
-生成二维码；底层的二维码的渲染是使用 [qrcode-generator-es](https://www.npmjs.com/package/qrcode-generator-es) 进行渲染
+Generate QR codes using [qrcode-generator-es](https://www.npmjs.com/package/qrcode-generator-es) for rendering.
 
-## 引用
+## Import and Registration
 
 ```js
 import { Qrcode, regist } from "litos-ui";
@@ -10,11 +10,11 @@ import { Qrcode, regist } from "litos-ui";
 regist(Qrcode);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-`text` 属性为二维码内容
+Set the QR code content with `text`.
 
 <ClientOnly>
 <l-code-preview>
@@ -24,9 +24,9 @@ regist(Qrcode);
 </l-code-preview>
 </ClientOnly>
 
-### 样式调整
+### Styling
 
-可以通过 `fill` 属性更改二维码颜色, `size` 属性更改大小; 注意: 实际的二维码的大小不一定跟传递的 `size` 一样大，因为会调整每一个二维码小单元格尺寸, 所以最终大小只能是小于等于传递的 `size`
+Use `fill` to set the color and `size` to set the size. The renderer adjusts each QR module to whole pixels, so the actual size may be smaller than the requested `size`.
 
 <ClientOnly>
 <l-code-preview>
@@ -36,9 +36,9 @@ regist(Qrcode);
 </l-code-preview>
 </ClientOnly>
 
-### 图标
+### Icon
 
-可以将 `logo` 放入二维码
+Use `icon` to place a logo in the QR code.
 
 <ClientOnly>
 <l-code-preview>
@@ -55,18 +55,18 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/qrcode";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Qrcode Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `text` | 二维码内容 | `string` | — |
-| `fill` | 二维码颜色 | `string` | `#000000` |
-| `size` | 二维码大小 | `string` | `120` |
-| `level` | 二维码容错率, `L`、`M`、`Q`、`H` | `string` | `M` |
+| `text` | QR code content | `string` | — |
+| `fill` | QR code color | `string` | `#000000` |
+| `size` | QR code size | `string` | `120` |
+| `level` | QR error correction level: `L`, `M`, `Q`, `H` | `string` | `M` |
 
-`icon` 属性可指定二维码中间图标的图片地址，默认为不显示图标。
+The `icon` attribute accepts an image URL for the center logo. No logo is shown by default.

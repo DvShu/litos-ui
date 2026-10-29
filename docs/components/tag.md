@@ -8,7 +8,7 @@
 import { regist, Tag, CloseIcon, Button } from "litos-ui";
 
 regist(Tag);
-regist(CloseIcon); // 需要 closable 引入
+regist(CloseIcon); // 需要 closeable 引入
 
 // 注册本页演示使用的附加组件
 regist([Button]);
@@ -26,7 +26,7 @@ regist([Button]);
   function handleAddTag() {
     if ($tagContainer) {
       let $addTag = document.createElement('l-tag');
-      $addTag.setAttribute('closable', 'true');
+      $addTag.setAttribute('closeable', 'true');
       $addTag.setAttribute('type', 'primary');
       $addTag.style.marginRight = "5px";
       $addTag.innerHTML = '标签';
@@ -53,6 +53,10 @@ regist([Button]);
     });
   });
 
+  onUnmounted(() => {
+    $tagContainer?.removeEventListener('close', onClose);
+    $addBtn?.removeEventListener('click', handleAddTag);
+  });
 </script>
 
 ### 基础用法
@@ -124,8 +128,8 @@ regist([Button]);
   //-
   function handleAddTag() {
     if ($tagContainer) {
-      const $addTag = document.createElement('l-tag');
-      $addTag.setAttribute('closable', 'true');
+      let $addTag = document.createElement('l-tag');
+      $addTag.setAttribute('closeable', 'true');
       $addTag.setAttribute('type', 'primary');
       $addTag.style.marginRight = "5px";
       $addTag.innerHTML = '标签';
@@ -169,7 +173,7 @@ import "litos-ui/tag";
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `type` | 类型 | `string` | `primary`, 可选值有: `primary`, `success`, `info`, `warning`, `error` |
+| `type` | 类型 | `string` | `info`；可选值有: `primary`, `success`, `info`, `warning`, `error` |
 | `color` | 标签颜色 | `string` | - |
 | `closeable` | 是否可移除 | `boolean` | `false` |
 

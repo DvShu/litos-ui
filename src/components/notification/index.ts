@@ -1,12 +1,7 @@
 import BaseComponent from "../base";
-import { kebabToCamel, parseAttrValue, unitNumberStr, useId, regist } from "../utils";
+import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import { $one, $$, on, off } from "utilane/browser";
 import notificationSheet from "./style";
-import InfoIcon from "../icon/info";
-import SuccessIcon from "../icon/success";
-import WarnIcon from "../icon/warn";
-import CloseFilledIcon from "../icon/close_filled";
-import CloseIcon from "../icon/close";
 import {
   DEFAULT_GAP,
   DEFAULT_OFFSET,
@@ -78,12 +73,6 @@ type NotificationState = {
   customClass: string;
 };
 
-/** 组件标签名 */
-const TAG_NAME = "l-notification";
-
-/** 默认自动关闭时间(毫秒) */
-const DEFAULT_DURATION = 4500;
-
 /** 状态类型与图标的映射 */
 const ICON_MAP: Record<NotificationType, string> = {
   info: "info",
@@ -92,119 +81,8 @@ const ICON_MAP: Record<NotificationType, string> = {
   warning: "warn",
 };
 
-/** 图标是否已经注册 */
-let iconRegistered = false;
-
-/** 全局默认配置 */
-let globalConfig: NotificationOptions = {};
-
-/** 注册组件依赖的图标 */
-function registIcons() {
-  if (iconRegistered) return;
-  regist([InfoIcon, SuccessIcon, WarnIcon, CloseFilledIcon, CloseIcon]);
-  iconRegistered = true;
-}
-
-/**
- * 设置全局默认配置, 之后创建的通知都会使用该配置
- * @param option 配置项
- */
-function configNotification(option: NotificationOptions) {
-  globalConfig = { ...globalConfig, ...option };
-}
-
-/**
- * 创建一条通知
- * @param option 通知内容或配置项
- * @param type 状态类型, 会覆盖配置项中的 `type`
- * @returns 通知 id, 可以配合 `Notification.close` 手动关闭
- */
-function showNotification(option: string | NotificationOptions, type?: NotificationType): string {
-  // 保证组件与图标已经注册, 命令式使用时无需手动调用 regist
-  registIcons();
-  regist(Notification);
-  const opts: NotificationOptions = {
-    ...globalConfig,
-    ...(typeof option === "string" ? { message: option } : option),
-  };
-  if (type) opts.type = type;
-  const id = opts.id || useId();
-  const placement = normalizePlacement(opts.placement);
-  const $notification = document.createElement(TAG_NAME) as Notification;
-  $notification.id = id;
-  // 命令式创建的通知在关闭后直接从文档中移除
-  $notification.removeOnClose = true;
-  $notification.setAttribute("open", "");
-  $notification.setAttribute("type", opts.type || "info");
-  $notification.setAttribute("placement", placement);
-  if (opts.title != null) $notification.setAttribute("title", opts.title);
-  if (opts.message != null) $notification.setAttribute("message", opts.message);
-  // 命令式调用默认 4.5s 后自动关闭, 传 0 表示不自动关闭
-  $notification.setAttribute("duration", `${opts.duration ?? DEFAULT_DURATION}`);
-  if (opts.closable === false) $notification.setAttribute("closable", "false");
-  if (opts.showIcon === false) $notification.setAttribute("show-icon", "false");
-  if (opts.width != null) $notification.setAttribute("width", `${opts.width}`);
-  if (opts.offset != null) $notification.setAttribute("offset", `${opts.offset}`);
-  if (opts.zIndex != null) $notification.setAttribute("z-index", `${opts.zIndex}`);
-  if (opts.maxCount != null) $notification.setAttribute("max-count", `${opts.maxCount}`);
-  if (opts.action) $notification.setAttribute("action", opts.action);
-  if (opts.customClass) $notification.setAttribute("custom-class", opts.customClass);
-  if (opts.onClose) on($notification, "close", () => opts.onClose?.(id));
-  if (opts.onAction) on($notification, "action", () => opts.onAction?.(id));
-  // 挂载到 body 上, 保证定位相对于视口
-  document.body.appendChild($notification);
-  return id;
-}
-
-/**
- * 关闭指定 id 的通知
- * @param id 通知 id
- */
-function closeNotification(id: string) {
-  const $notification = document.getElementById(id) as Notification | null;
-  if ($notification && typeof $notification.close === "function") {
-    $notification.close();
-  }
-}
-
-/**
- * 关闭所有通知
- * @param placement 只关闭指定方位的通知, 不传递则关闭所有方位
- */
-function closeAllNotification(placement?: NotificationPlacement) {
-  const placements = placement ? [normalizePlacement(placement)] : undefined;
-  const $list = document.querySelectorAll(TAG_NAME);
-  for (const $item of Array.from($list)) {
-    const $notification = $item as Notification;
-    if (typeof $notification.close !== "function") continue;
-    if (placements && !placements.includes($notification.placement)) continue;
-    $notification.close();
-  }
-}
-
 export default class Notification extends BaseComponent<NotificationState> {
   public static baseName = "notification";
-
-  /* ------------------------------- 命令式 API ------------------------------- */
-
-  /** 显示通知, 返回通知 id */
-  static show = showNotification;
-  /** 显示普通通知 */
-  static info = (option: string | NotificationOptions) => showNotification(option, "info");
-  /** 显示成功通知 */
-  static success = (option: string | NotificationOptions) => showNotification(option, "success");
-  /** 显示错误通知 */
-  static error = (option: string | NotificationOptions) => showNotification(option, "error");
-  /** 显示警告通知 */
-  static warning = (option: string | NotificationOptions) => showNotification(option, "warning");
-  /** 显示警告通知, `warning` 的别名 */
-  static warn = (option: string | NotificationOptions) => showNotification(option, "warning");
-  /** 关闭指定 id 的通知 */
-  static close = closeNotification;
-  /** 关闭所有通知 */
-  static closeAll = closeAllNotification;
-  /** 设置全局默认配置 */
-  static config = configNotification;
 
   /** 关闭后是否从文档中移除, 命令式 API 创建的通知为 `true` */
   public removeOnClose = false;
@@ -371,11 +249,6 @@ export default class Notification extends BaseComponent<NotificationState> {
     if (changedProps.has("open")) {
       this._toggleOpen();
     }
-  }
-
-  connectedCallback(): void {
-    registIcons();
-    super.connectedCallback();
   }
 
   disconnectedCallback(): void {

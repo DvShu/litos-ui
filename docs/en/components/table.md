@@ -1,18 +1,18 @@
-# Table 表格
+# Table
 
-用于展示大量结构化数据
+Display structured datasets.
 
-这个表格只是一个简单的数据展示功能，只包含有固定表头和列、排序功能。如果当前组件不能满足需求需要使用更多功能的时候，可以考虑使用 [TanstackTable](https://tanstack.com/table/latest)
+This table provides basic data display, fixed headers and columns, and sorting. For more advanced requirements, consider [TanstackTable](https://tanstack.com/table/latest)
 
-## 引用
+## Import and Registration
 
 ```js
-import { regist, Table } from "litos-ui";
+import { regist, Table, Button } from "litos-ui";
 
-regist(Table);
+regist([Table, Button]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick  }  from 'vue';
@@ -23,53 +23,53 @@ regist(Table);
   const dataSource = [
     {
       id: 1,
-      name: '张三',
+      name: 'Zhang San',
       age: 18,
-      address: '北京朝阳',
+      address: 'Chaoyang, Beijing',
     },
     {
       id: 2,
-      name: '李四',
+      name: 'Li Si',
       age: 19,
-      address: '北京朝阳',
+      address: 'Chaoyang, Beijing',
     },
     {
       id: 3,
-      name: '王五',
+      name: 'Wang Wu',
       age: 20,
-      address: '北京朝阳',
+      address: 'Chaoyang, Beijing',
     },
   ];
   let dataSource1 = dataSource.concat([{
     id: 4,
-    name: '赵六',
+    name: 'Zhao Liu',
     age: 21,
-    address: '北京朝阳',
+    address: 'Chaoyang, Beijing',
   }, {
     id: 5,
-    name: '钱七',
+    name: 'Qian Qi',
     age: 22,
-    address: '北京朝阳',
+    address: 'Chaoyang, Beijing',
   }, {
     id: 6,
-    name: '孙八',
+    name: 'Sun Ba',
     age: 23,
-    address: '北京朝阳',
+    address: 'Chaoyang, Beijing',
   }]);
 
   const columns = [{
-    title: '姓名',
+    title: 'Name',
     key: 'name',
     sorter: true
   }, {
-    title: '年龄',
+    title: 'Age',
     key: 'age',
     sorter: true,
   }, {
-    title: '住址',
+    title: 'Address',
     key: 'address',
   }, {
-    title: '操作',
+    title: 'Actions',
     render: (rowData) => {
       const children = [];
       const attrs = {
@@ -78,26 +78,26 @@ regist(Table);
         'data-id': `${rowData.id}`,
         height: 'auto'
       }
-      children.push($$('l-button', { ...attrs, 'data-action': 'edit', textContent: '编辑' }));
-      children.push($$('l-button', { ...attrs, 'data-action': 'delete', textContent: '删除' }));
+      children.push($$('l-button', { ...attrs, 'data-action': 'edit', textContent: 'Edit' }));
+      children.push($$('l-button', { ...attrs, 'data-action': 'delete', textContent: 'Delete' }));
       return children;
     }
   }];
   let columns1 = [{
-    title: '姓名',
+    title: 'Name',
     key: 'name',
     width: 80,
     fixed: 'left'
   }, {
-    title: '年龄',
+    title: 'Age',
     key: 'age',
     width: 200,
   }, {
-    title: '住址',
+    title: 'Address',
     key: 'address',
     width: 200,
   }, {
-    title: '操作',
+    title: 'Actions',
     width: 200,
     fixed: 'right',
     render: (rowData) => {
@@ -108,8 +108,8 @@ regist(Table);
         'data-id': `${rowData.id}`,
         height: 'auto'
       }
-      children.push($$('l-button', { ...attrs, 'data-action': 'edit', textContent: '编辑' }));
-      children.push($$('l-button', { ...attrs, 'data-action': 'delete', textContent: '删除' }));
+      children.push($$('l-button', { ...attrs, 'data-action': 'edit', textContent: 'Edit' }));
+      children.push($$('l-button', { ...attrs, 'data-action': 'delete', textContent: 'Delete' }));
       return children;
     }
   }];
@@ -117,9 +117,9 @@ regist(Table);
   function handleAction(e) {
     const d = e.detail;
     if (d.action === 'edit') {
-      // 编辑 d.id 数据
+      // Edit the record identified by d.id.
     } else if (d.action === 'delete') {
-      // 删除 d.id 数据
+      // Delete the record identified by d.id.
     }
   }
 
@@ -145,22 +145,24 @@ regist(Table);
           }
         });
 
-        on($tables[0], 'action', handleAction);
+        on($tables[0], 'edit', handleAction);
+        on($tables[0], 'delete', handleAction);
       });
     }
   });
 
   onUnmounted(() => {
     if ($tables && $tables.length) {
-      off($tables[0], 'action', handleAction);
+      off($tables[0], 'edit', handleAction);
+      off($tables[0], 'delete', handleAction);
     }
     $tables = null;
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-先通过 `setColumns()` 定义列, 再通过 `setData()` 定义数据源；如果需要最后一列操作列，则可以通过给元素定义 `data-action` 属性，然后监听 `table` 的 `action` 事件。
+Define columns with `setColumns()` and provide data with `setData()`. To create an action column, add `data-action` to its elements and listen for events with the corresponding names (`edit` and `delete` in this example).
 
 <ClientOnly>
 <l-code-preview>
@@ -172,42 +174,42 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'utilane/browser';
+  import { on, $$, $one } from 'utilane/browser';
   //-
-  const $table = $('.data-table');
+  const $table = $one('.data-table');
   //-
   const dataSource = [
     {
       id: 1,
-      name: '张三',
+      name: 'Zhang San',
       age: 18,
-      address: '北京朝阳',
+      address: 'Chaoyang, Beijing',
     },
     {
       id: 2,
-      name: '李四',
+      name: 'Li Si',
       age: 19,
-      address: '北京朝阳',
+      address: 'Chaoyang, Beijing',
     },
     {
       id: 3,
-      name: '王五',
+      name: 'Wang Wu',
       age: 20,
-      address: '北京朝阳',
+      address: 'Chaoyang, Beijing',
     },
   ];
   //-
   const columns = [{
-    title: '姓名',
+    title: 'Name',
     key: 'name',
   }, {
-    title: '年龄',
+    title: 'Age',
     key: 'age',
   }, {
-    title: '住址',
+    title: 'Address',
     key: 'address',
   }, {
-    title: '操作',
+    title: 'Actions',
     render: (rowData) => {
       const children = [];
       const attrs = {
@@ -218,13 +220,13 @@ regist(Table);
       children.push($$('l-button', {
         ...attrs,
         'data-action': 'edit',
-        textContent: '编辑'
+        textContent: 'Edit'
       }));
       //-
       children.push($$('l-button', {
         ...attrs,
         'data-action': 'delete',
-        textContent: '删除'
+        textContent: 'Delete'
       }));
       return children;
     }
@@ -235,21 +237,22 @@ regist(Table);
   function handleAction(e) {
     const d = e.detail;
     if (d.action === 'edit') {
-      // 编辑 d.id 数据
+      // Edit the record identified by d.id.
     } else if (d.action === 'delete') {
-      // 删除 d.id 数据
+      // Delete the record identified by d.id.
     }
   }
   //-
-  on($table, 'action', handleAction);
+  on($table, 'edit', handleAction);
+  on($table, 'delete', handleAction);
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-### 斑马纹
+### Striped Rows
 
-表格默认带斑马纹，可以通过设置 `stripe` 为 `off` 来取消斑马纹
+Tables have striped rows by default. Set `stripe="off"` to disable them.
 
 <ClientOnly>
 <l-code-preview>
@@ -259,9 +262,9 @@ regist(Table);
 </l-code-preview>
 </ClientOnly>
 
-### 边框
+### Borders
 
-默认情况下，`Table` 组件是不具有竖直方向的边框的， 如果需要，可以使用 `border` 属性，把该属性设置为 `on` 即可启用。
+Vertical borders are hidden by default. Enable `border` to show them.
 
 <ClientOnly>
 <l-code-preview>
@@ -271,9 +274,9 @@ regist(Table);
 </l-code-preview>
 </ClientOnly>
 
-### 空表格
+### Empty State
 
-数据列表没有数据时，显示空表格
+An empty state is shown when the data array is empty.
 
 <ClientOnly>
 <l-code-preview>
@@ -283,9 +286,9 @@ regist(Table);
 </l-code-preview>
 </ClientOnly>
 
-### 固定表头和列
+### Fixed Header and Columns
 
-设置 `fixed-head` 属性即可实现固定表头。将需要固定的列设置 `fixed` 为 `left` 或 `right`，就能实现固定列。
+Enable `fixed-head` to fix the header. Set a column’s `fixed` option to `left` or `right` to fix that column.
 
 <ClientOnly>
 <l-code-preview>
@@ -297,25 +300,25 @@ regist(Table);
   <l-table class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
-  import { on, $$ } from 'utilane/browser';
+  import { on, $$, $one } from 'utilane/browser';
   //-
-  const $table = $('.data-table');
+  const $table = $one('.data-table');
   //-
   const columns = [{
-    title: '姓名',
+    title: 'Name',
     key: 'name',
     fixed: 'left',
     width: 80
   }, {
-    title: '年龄',
+    title: 'Age',
     key: 'age',
     width: 200
   }, {
-    title: '住址',
+    title: 'Address',
     key: 'address',
     width: 200
   }, {
-    title: '操作',
+    title: 'Actions',
     width: 200,
     fixed: 'right',
     render: (rowData) => {
@@ -328,13 +331,13 @@ regist(Table);
       children.push($$('l-button', {
         ...attrs,
         'data-action': 'edit',
-        textContent: '编辑'
+        textContent: 'Edit'
       }));
       //-
       children.push($$('l-button', {
         ...attrs,
         'data-action': 'delete',
-        textContent: '删除'
+        textContent: 'Delete'
       }));
       return children;
     }
@@ -346,13 +349,13 @@ regist(Table);
 </l-code-preview>
 </ClientOnly>
 
-> 可以通过 `max-height` 来设置表格的最大高度, 以更好的适配固定 `head`
+> Use `max-height` to limit the scrollable table height when fixing the header.
 
-> 如果需要改变滚动条样式，引入 [滚动条样式](/en/css_util#_3-滚动条样式)，然后给 `table` 添加 `l-scrollbar`
+> To customize the scrollbar, import the [scrollbar styles](/en/css_util#_3-scrollbar-styles) and add `l-scrollbar` to the table.
 
-### 排序
+### Sorting
 
-给列的选项增加 `sorter` 为 `true`、`costom` 来启用排序，同时配置 `key` 字段标记排序 `key`；如果 `sorter=costom` 就能启用手动排序，这个时候会触发一个`sort` 事件，然后在 `sort` 事件中调用 `setData` 方法来设置排序后的数据。
+Set `sorter` to `true` or `custom` and supply a column `key`. With `sorter="custom"`, the table emits `sort`; handle it and call `setData` with the sorted data.
 
 <ClientOnly>
 <l-code-preview>
@@ -369,75 +372,75 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/table";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Table Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `stripe` | 斑马纹 | `boolean` | `true` |
-| `border` | 是否显示四周边框 | `boolean` | `false` |
-| `fixed-head` | 是否固定表头 | `boolean` | `false` |
-| `fixed-column` | 是否固定列，在进行列解析时，会自动确认该属性 | `boolean` | `false` |
-| `max-height` | 最大高度 | `number \| string` | `-` |
-| `table-layout` | 表格布局 | `"auto" \| "fixed"` | `-` |
+| `stripe` | Striped rows | `boolean` | `true` |
+| `border` | Whether to show outer borders | `boolean` | `false` |
+| `fixed-head` | Whether to fix the header | `boolean` | `false` |
+| `fixed-column` | Whether columns are fixed; determined automatically when columns are parsed | `boolean` | `false` |
+| `max-height` | Maximum height | `number \| string` | `-` |
+| `table-layout` | Table layout | `"auto" \| "fixed"` | `-` |
 
-### Table Column Attributes
+### Table Column Options
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 |
+| Name | Description | Type |
 | --- | --- | --- |
-| `title` | 列的标题 | `string` |
-| `key` | 列标识, 列排序必传 | `string` |
-| `width` | 列宽度, 固定列时，需要传 | `number` \| `string` |
-| `fixed` | 是否固定列 | `"left"` \| `"right"` |
-| `left` | 列固定左时, 左边偏移量 | `number` |
-| `right` | 列固定右时, 右边偏移量 | `number` |
-| `children` | 多级表头 | `Column[]` |
-| `titleRowspan` | 表头跨行 | `number` |
-| `titleColspan` | 表头跨列 | `number` |
-| `sorter` | 列是否支持排序 | `boolean` \| `"custom"` |
-| `style` | 列的样式 | `Record<string, string \| null \| undefined>` |
+| `title` | Column title | `string` |
+| `key` | Column key; required for sorting | `string` |
+| `width` | Column width; required for fixed columns | `number` \| `string` |
+| `fixed` | Whether the column is fixed | `"left"` \| `"right"` |
+| `left` | Left offset for a column fixed to the left | `number` |
+| `right` | Right offset for a column fixed to the right | `number` |
+| `children` | Nested header columns | `Column[]` |
+| `titleRowspan` | Header row span | `number` |
+| `titleColspan` | Header column span | `number` |
+| `sorter` | Whether sorting is enabled | `boolean` \| `"custom"` |
+| `style` | Column styles | `Record<string, string \| null \| undefined>` |
 | `colspan` | td colspan | `number` \| `(rowData: any, rowIndex: number) => number` |
 | `rowspan` | td rowspan | `number` \| `(rowData: any, rowIndex: number) => number` |
-| `render` | 单元格内容渲染函数 | `(rowData: any, rowIndex: number) => HTMLElement \| DocumentFragment \| HTMLElement[] \| string` |
+| `render` | Cell content renderer | `(rowData: any, rowIndex: number) => HTMLElement \| DocumentFragment \| HTMLElement[] \| string` |
 
 ### Table Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 | detail |
+| Event | Description | Callback parameter | detail |
 | --- | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` | - |
-| `sort` | 排序时触发 | `(event: CustomEvent)` | `{ index: number, key: string, dir: asc \| desc }` |
-| `[action]` | 所有设置了 `data-action` 属性的节点，点击时触发 | `(event: CustomEvent)` | 该节点上的所有的 `dataset` 属性 |
+| `click` | Fires when clicked | `(event: Event)` | - |
+| `sort` | Fires when sorting is requested | `(event: CustomEvent)` | `{ index: number, key: string, dir: asc \| desc }` |
+| `[action]` | Fires with the data-action value as the event name when that element is clicked | `(event: CustomEvent)` | All dataset fields on the clicked element |
 
 ### Table Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
-| `setColumns` | 设置列 | `(columns: Column[]) => void` |
-| `setData` | 设置数据 | `(data: any[], sortInfo?: {key: string; order: "asc" \| "desc"}) => void` |
+| `setColumns` | Sets the columns | `(columns: Column[]) => void` |
+| `setData` | Sets the data | `(data: any[], sortInfo?: {key: string; order: "asc" \| "desc"}) => void` |
 
 ### Table CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-table-max-height` | 表格最大高度 | `100%` |
-| `--l-table-font-size` | 表格字体大小 | `14px` |
-| `--l-table-td-padding` | 单元格内边距 | `10px` |
-| `--l-table-th-padding` | 表头单元格内边距 | `10px` |
-| `--l-table-layout` | 表格布局；`auto` 或 `fixed` | `auto` |
-| `--l-table-border-color` | 表格边框颜色（包括单元格底部和边框表格） | `#e6e6e6` |
-| `--l-table-th-bg` | 表头背景色 | `#f2f2f2` |
-| `--l-table-th-color` | 表头文字颜色 | `#000000` |
-| `--l-table-td-bg` | 单元格背景色 | `#ffffff` |
-| `--l-table-td-color` | 单元格文字颜色 | `#000000` |
-| `--l-table-row-hover-bg` | 行悬停时单元格背景色 | `#f2f2f2` |
-| `--l-table-empty-color` | 空状态文字颜色 | `#999999` |
-| `--l-table-stripe-bg` | 斑马纹偶数行背景色 | `#fafafa` |
-| `--l-table-sort-inactive-color` | 排序图标未激活状态颜色 | `#c0c4cc` |
+| `--l-table-max-height` | Maximum table height | `100%` |
+| `--l-table-font-size` | Table font size | `14px` |
+| `--l-table-td-padding` | Cell padding | `10px` |
+| `--l-table-th-padding` | Header cell padding | `10px` |
+| `--l-table-layout` | Table layout: auto or fixed | `auto` |
+| `--l-table-border-color` | Border color for cell bottoms and bordered tables | `#e6e6e6` |
+| `--l-table-th-bg` | Header background | `#f2f2f2` |
+| `--l-table-th-color` | Header text color | `#000000` |
+| `--l-table-td-bg` | Cell background | `#ffffff` |
+| `--l-table-td-color` | Cell text color | `#000000` |
+| `--l-table-row-hover-bg` | Cell background on row hover | `#f2f2f2` |
+| `--l-table-empty-color` | Empty-state text color | `#999999` |
+| `--l-table-stripe-bg` | Background of even striped rows | `#fafafa` |
+| `--l-table-sort-inactive-color` | Inactive sort icon color | `#c0c4cc` |

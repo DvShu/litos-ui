@@ -1,12 +1,12 @@
-# Tabs 标签页
+# Tabs
 
-选项卡切换组件；其实这个模块的内容就是 [Tabbar 标签栏](/en/components/tabbar) + 内容区域；所以就没有单独抽取为组件，转而函数 + `html` 模板的形式。
+Tabs combine [Tabbar](/en/components/tabbar) with a content area. This module uses an initialization function and an HTML template rather than a separate custom element.
 
-## 引入
+## Imports
 
-### 手动引入
+### Manual Imports
 
-如果没有使用 `litosui-unplugin-resolver` 自动引入, 则需要手动引入
+Import the API, elements, and styles explicitly unless your resolver configuration supplies them.
 
 ```js
 import { Tabs as LTabs, Tabbar, TabbarItem, regist, Button, Form, FormItem, Input } from "litos-ui";
@@ -14,16 +14,16 @@ import { Tabs as LTabs, Tabbar, TabbarItem, regist, Button, Form, FormItem, Inpu
 regist([Tabbar, TabbarItem]);
 import "litos-ui/styles/tabs.css";
 
-// 该函数会初始化所有 .l-tabs 标签页
+// Initialize all .l-tabs containers.
 const tabs = LTabs.init();
 
-tabs.destroy(); // 页面关闭时, 释放
+tabs.destroy(); // Release listeners when the page unmounts.
 
-// 注册本页演示使用的附加组件
+// Register additional components used in this page’s demos.
 regist([Button, Form, FormItem, Input]);
 ```
 
-## 演示
+## Examples
 
 <script setup lang="ts">
 import Tabs from '../../../src/components/tabs';
@@ -41,21 +41,21 @@ onUnmounted(() => {
 });
 </script>
 
-### 基础用法
+### Basic Usage
 
-基础的、简洁的标签页。
+A basic tab layout.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div class="l-tabs">
     <l-tabbar class="l-tabs__bar" name="1" type="bar">
-      <l-tabbar-item name="1">标签一</l-tabbar-item>
-      <l-tabbar-item name="2">标签二</l-tabbar-item>
+      <l-tabbar-item name="1">Tab one</l-tabbar-item>
+      <l-tabbar-item name="2">Tab two</l-tabbar-item>
     </l-tabbar>
     <div class="l-tabs-main">
-      <div class="l-tabs__content" l-tab="1">标签一内容</div>
-      <div class="l-tabs__content" l-tab="2">标签二内容</div>
+      <div class="l-tabs__content" l-tab="1">Tab one content</div>
+      <div class="l-tabs__content" l-tab="2">Tab two content</div>
     </div>
   </div>
 </textarea>
@@ -63,28 +63,28 @@ onUnmounted(() => {
 <textarea lang="html">
   <div class="l-tabs">
     <l-tabbar class="l-tabs__bar" name="1" type="bar">
-      <l-tabbar-item name="1">标签一</l-tabbar-item>
-      <l-tabbar-item name="2">标签二</l-tabbar-item>
+      <l-tabbar-item name="1">Tab one</l-tabbar-item>
+      <l-tabbar-item name="2">Tab two</l-tabbar-item>
     </l-tabbar>
     <div class="l-tabs-main">
-      <div class="l-tabs__content" l-tab="1">标签一内容</div>
-      <div class="l-tabs__content" l-tab="2">标签二内容</div>
+      <div class="l-tabs__content" l-tab="1">Tab one content</div>
+      <div class="l-tabs__content" l-tab="2">Tab two content</div>
     </div>
   </div>
 </textarea>
 <textarea source="js">
   const tabs  = LTabs.init();
   //-
-  tabs.destroy(); // 页面关闭时, 释放
+  tabs.destroy(); // Release listeners when the page unmounts.
 </textarea>
 
 </div>
 </l-code-preview>
 </ClientOnly>
 
-### 简单登录注册
+### Sign-in and Registration
 
-通过组件搭配: [form 表单](/en/components/form)、[input 输入框](/en/components/input)、[button 按钮](/en/components/button)、[tabbar 选项卡](/en/components/tabbar) 等组件，实现简单的登录注册。
+Combine [Form](/en/components/form), [Input](/en/components/input), [Button](/en/components/button), and [Tabbar](/en/components/tabbar) to build a simple sign-in and registration form.
 
 <ClientOnly>
 <l-code-preview>
@@ -92,38 +92,38 @@ onUnmounted(() => {
   <div class="login-form-wrapper">
     <div class="l-tabs">
       <l-tabbar class="l-tabs__bar" name="login" type="bar" justify-content="space-evenly">
-        <l-tabbar-item name="login">登录</l-tabbar-item>
-        <l-tabbar-item name="regist">注册</l-tabbar-item>
+        <l-tabbar-item name="login">Sign in</l-tabbar-item>
+        <l-tabbar-item name="regist">Sign up</l-tabbar-item>
       </l-tabbar>
       <div class="l-tabs-main">
         <div class="l-tabs__content" l-tab="login">
           <l-form inner-block>
-            <l-form-item required label="用户名" name="username">
-              <l-input placeholder="请输入用户名"></l-input>
+            <l-form-item required label="Username" name="username">
+              <l-input placeholder="Enter your username"></l-input>
             </l-form-item>
-            <l-form-item required label="密码" name="password">
-              <l-input placeholder="请输入密码" type="password"></l-input>
+            <l-form-item required label="Password" name="password">
+              <l-input placeholder="Enter your password" type="password"></l-input>
             </l-form-item>
             <l-form-item label="" class="l-btn-group">
-              <l-button html-type="reset">重置</l-button>
-              <l-button html-type="submit" type="primary">提交</l-button>
+              <l-button html-type="reset">Reset</l-button>
+              <l-button html-type="submit" type="primary">Submit</l-button>
             </l-form-item>
           </l-form>
         </div>
         <div class="l-tabs__content" l-tab="regist">
           <l-form inner-block>
-            <l-form-item required label="用户名" name="username">
-              <l-input placeholder="请输入用户名"></l-input>
+            <l-form-item required label="Username" name="username">
+              <l-input placeholder="Enter your username"></l-input>
             </l-form-item>
-            <l-form-item required label="密码" name="password">
-              <l-input placeholder="请输入密码" type="password"></l-input>
+            <l-form-item required label="Password" name="password">
+              <l-input placeholder="Enter your password" type="password"></l-input>
             </l-form-item>
-            <l-form-item required label="确认密码" verify="same:password" name="confimPassword">
-              <l-input placeholder="请再次输入密码" type="password"></l-input>
+            <l-form-item required label="Confirm password" verify="same:password" name="confimPassword">
+              <l-input placeholder="Enter your password again" type="password"></l-input>
             </l-form-item>
             <l-form-item label="" class="l-btn-group">
-              <l-button html-type="reset">重置</l-button>
-              <l-button html-type="submit" type="primary">提交</l-button>
+              <l-button html-type="reset">Reset</l-button>
+              <l-button html-type="submit" type="primary">Submit</l-button>
             </l-form-item>
           </l-form>
         </div>
@@ -134,28 +134,28 @@ onUnmounted(() => {
 </l-code-preview>
 </ClientOnly>
 
-### 卡片风格
+### Card Style
 
-通过设置 `tabbar` 的 `type=card` 来使用卡片风格。如果需要为卡片风格的同时添加内容边框，需要添加 `l-tabs-card` 类
+Set the tabbar’s `type=card` for card styling. Add `l-tabs-card` to the container to give the content area a border as well.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div class="l-tabs l-tabs-card">
     <l-tabbar class="l-tabs__bar" name="1" type="card">
-      <l-tabbar-item name="1">标签一</l-tabbar-item>
-      <l-tabbar-item name="2">标签二</l-tabbar-item>
+      <l-tabbar-item name="1">Tab one</l-tabbar-item>
+      <l-tabbar-item name="2">Tab two</l-tabbar-item>
     </l-tabbar>
     <div class="l-tabs-main" style="padding:15px;">
-      <div class="l-tabs__content" l-tab="1">标签一内容</div>
-      <div class="l-tabs__content" l-tab="2">标签二内容</div>
+      <div class="l-tabs__content" l-tab="1">Tab one content</div>
+      <div class="l-tabs__content" l-tab="2">Tab two content</div>
     </div>
   </div>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 基本结构
+### Structure
 
 ```html
 <div class="l-tabs">
@@ -174,7 +174,9 @@ onUnmounted(() => {
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/tabs.css";
+import "litos-ui/tabbar";
 import Tabs from "litos-ui/tabs";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.

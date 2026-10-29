@@ -1,12 +1,12 @@
-# Tabbar 标签栏
+# Tabbar
 
-使用场景如下:
+Common use cases include:
 
-1. 底部导航栏，用于在不同页面之间进行切换
-2. 标签切换
-3. 选项卡
+1. Bottom navigation for switching between pages
+2. Switching between labeled sections
+3. Tabs
 
-## 引用
+## Import and Registration
 
 ```js
 import {
@@ -20,17 +20,17 @@ import {
   SortIcon,
 } from "litos-ui";
 
-regist([Tabbar, TabbarItem]);
+regist([TabbarItem, Tabbar]);
 
-// 注册本页演示使用的附加组件
+// Register the additional components used in this page’s demos.
 regist([ReductionIcon, RefreshLeftIcon, RefreshRightIcon, SearchIcon, SortIcon]);
 ```
 
-## 演示
+## Examples
 
-### 导航栏模式
+### Navigation Mode
 
-将 `type` 设置为 `nav`[默认]; 通过 `name` 标记选项卡项，`icon` 标记渲染图标; 然后通过 `slot="icon"` 来渲染图标
+Set `type` to `nav` (the default). Identify each item with `name`, enable its icon with `icon`, and place the icon in `slot="icon"`.
 
 <ClientOnly>
 <l-code-preview>
@@ -61,73 +61,73 @@ regist([ReductionIcon, RefreshLeftIcon, RefreshRightIcon, SearchIcon, SortIcon])
 </l-code-preview>
 </ClientOnly>
 
-### 选项卡模式
+### Tab Mode
 
-基础的、简洁的选项卡，设置 `type` 为 `bar`。
+Set `type` to `bar` for simple tabs.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar type="bar" name="2">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 卡片式
+### Card Style
 
-具有卡片风格的标签。只需要设置 `type` 属性为 `card` 就可以使选项卡改变为标签风格。 同时可以通过 `gap` 调整选项卡之间的间距。
+Set `type` to `card` for card-style tabs. Use `gap` to adjust the space between items.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar type="card" name="1">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="card" name="1" gap="5">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 排列方式
+### Alignment
 
-主轴的排列方式，只对 `bar` 类型生效。只需要将 `justify-content` 的属性设置为 [justify-content](https://developer.mozilla.org/zh-CN/docs/Web/CSS/justify-content#%E5%80%BC) 可用值即可。
+Main-axis alignment applies only to `bar` mode. Set the `justify-content` attribute to a valid CSS [justify-content](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content#values) value.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-tabbar type="bar" name="1" justify-content="center">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="bar" name="1" justify-content="space-between">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="bar" name="1" justify-content="space-around">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
   <hr />
   <l-tabbar type="bar" name="1" justify-content="space-evenly">
-    <l-tabbar-item name="1">选项1</l-tabbar-item>
-    <l-tabbar-item name="2">选项2</l-tabbar-item>
-    <l-tabbar-item name="3">选项3</l-tabbar-item>
+    <l-tabbar-item name="1">Option 1</l-tabbar-item>
+    <l-tabbar-item name="2">Option 2</l-tabbar-item>
+    <l-tabbar-item name="3">Option 3</l-tabbar-item>
   </l-tabbar>
 </textarea>
 </l-code-preview>
@@ -140,52 +140,52 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/tabbar";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Tabbar Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `name` | 选中的选项卡 | `string` | - |
-| `type` | 风格 | `nav`、`bar`、`card` | `nav` |
-| `gap` | 选项卡之间的间距 | `number`、`string` | `0` |
-| `justify-content` | 主轴排列方式 | `string` | `flex-start` |
+| `name` | Selected tab | `string` | - |
+| `type` | Tab style | `nav`, `bar`, `card` | `nav` |
+| `gap` | Space between items | `number`, `string` | `0` |
+| `justify-content` | Main-axis alignment | `string` | `flex-start` |
 
 ### Tabbar Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 只能为 `l-tabbar-item` 标签 |
+| `default` | Accepts only l-tabbar-item elements |
 
 ### Tabbar Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback |
 | --- | --- | --- |
-| `change` | 选项卡切换时触发, `e.detail.name` 获取选中值 | `(e: CustomEvent<{ name: string }>)` |
+| `change` | Fires when the selected tab changes; read the selected value from e.detail.name | `(e: CustomEvent<{ name: string }>)` |
 
-### TabbarItem
+### TabbarItem Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `name` | 选项卡项的名称， *必填* | `string` | - |
-| `icon` | 是否渲染图标 | `off` | - |
-| `only-icon` | 是否仅渲染图标 | `off` | - |
+| `name` | Item name; *required* | `string` | - |
+| `icon` | Whether to render an icon | `boolean` | - |
+| `only-icon` | Whether to render only the icon | `boolean` | - |
 
 ### Tabbar CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-tabbar-hover-color` | 选项卡的鼠标悬浮时的颜色 | `var(--l-primary-color-light1, #9254de)` |
-| `--l-tabbar-active-color` | 选项卡的选中时的颜色 | `var(--l-primary-color, #722ed1)` |
-| `--l-tabbar-item-gap` | 选项卡之间的间距 | `0` |
-| `--l-tabbar-height` | 选项卡的高度 | `38px`[`nav`时默认为: `50px`] |
-| `--l-tabbar-line-color` | 下划线的颜色 | `var(--l-primary-color, #722ed1)` |
-| `--l-tabbar-card-border-color` | 卡片选项卡的边框颜色 | `#f5f7fa` |
-| `--l-tabbar-card-border-radius` | 卡片选项卡的边框圆角 | `5px` |
+| `--l-tabbar-hover-color` | Item color on hover | `var(--l-primary-color-light1, #9254de)` |
+| `--l-tabbar-active-color` | Selected item color | `var(--l-primary-color, #722ed1)` |
+| `--l-tabbar-item-gap` | Space between items | `0` |
+| `--l-tabbar-height` | Tabbar height | `38px` (`50px` in nav mode) |
+| `--l-tabbar-line-color` | Indicator line color | `var(--l-primary-color, #722ed1)` |
+| `--l-tabbar-card-border-color` | Card tab border color | `#f5f7fa` |
+| `--l-tabbar-card-border-radius` | Card tab border radius | `5px` |

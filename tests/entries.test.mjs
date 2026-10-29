@@ -81,7 +81,7 @@ const publicEntries = readdirSync(path.join(packageRoot, "lib/entries"))
   });
 
 test("published entries and declarations exist with exact case and no source aliases", () => {
-  assert.equal(publicEntries.length, 90);
+  assert.equal(publicEntries.length, 91);
   for (const [key, target] of publicEntries) {
     assert.match(key, /^\.\/[a-z0-9/-]+$/);
     for (const value of [target.import, target.types]) {
@@ -95,6 +95,7 @@ test("published entries and declarations exist with exact case and no source ali
     }
   }
   assert(packed.files.every((file) => !file.path.startsWith("src/")));
+  assert(packed.files.some((file) => file.path === "styles/dark.css"));
   for (const file of packed.files.filter(
     (file) => file.path.startsWith("lib/") && file.path.endsWith(".js"),
   )) {
@@ -196,6 +197,32 @@ test("production consumer keeps explicit registration and excludes unrelated com
   assert(only.code.length < all.code.length / 2);
   const css = await bundle("css", 'import "litos-ui/styles/vars.css"; import "litos-ui/button";');
   assert(css.outputs.some((item) => item.type === "asset" && item.fileName.endsWith(".css")));
+  const cssText = (result) =>
+    result.outputs
+      .filter((item) => item.type === "asset" && item.fileName.endsWith(".css"))
+      .map((item) =>
+        typeof item.source === "string" ? item.source : Buffer.from(item.source).toString("utf8"),
+      )
+      .join("\n");
+  assert(
+    !cssText(css).includes("--l-card-bg"),
+    "vars.css must not implicitly include dark overrides",
+  );
+  const dark = await bundle("dark-css", 'import "litos-ui/styles/dark.css";');
+  assert(
+    cssText(dark).includes("--l-card-bg"),
+    "explicit dark CSS must survive production optimization",
+  );
+  assert(
+    !cssText(dark).includes("--l-primary-color:"),
+    "dark.css must not duplicate base variables",
+  );
+  const themed = await bundle(
+    "base-and-dark-css",
+    'import "litos-ui/styles/vars.css"; import "litos-ui/styles/dark.css";',
+  );
+  assert(cssText(themed).includes("--l-primary-color:"));
+  assert(cssText(themed).includes("--l-card-bg"));
   console.log("Consumer bytes / gzip:", results);
 });
 

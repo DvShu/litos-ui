@@ -1,20 +1,20 @@
-# Tag 标签
+# Tag
 
-通常用来展示一些属性
+Display short labels or attributes.
 
-## 引用
+## Import and Registration
 
 ```js
 import { regist, Tag, CloseIcon, Button } from "litos-ui";
 
 regist(Tag);
-regist(CloseIcon); // 需要 closable 引入
+regist(CloseIcon); // Required when closeable is enabled.
 
-// 注册本页演示使用的附加组件
+// Register additional components used in this page’s demos.
 regist([Button]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
@@ -26,10 +26,10 @@ regist([Button]);
   function handleAddTag() {
     if ($tagContainer) {
       let $addTag = document.createElement('l-tag');
-      $addTag.setAttribute('closable', 'true');
+      $addTag.setAttribute('closeable', 'true');
       $addTag.setAttribute('type', 'primary');
       $addTag.style.marginRight = "5px";
-      $addTag.innerHTML = '标签';
+      $addTag.innerHTML = 'Tag';
       $tagContainer.appendChild($addTag);
       transition($addTag, 'l-scale', "enter");
       $addTag = null;
@@ -53,27 +53,31 @@ regist([Button]);
     });
   });
 
+  onUnmounted(() => {
+    $tagContainer?.removeEventListener('close', onClose);
+    $addBtn?.removeEventListener('click', handleAddTag);
+  });
 </script>
 
-### 基础用法
+### Basic Usage
 
-由 `type` 属性来选择 `tag` 的类型。也可以通过 `color` 属性来自定义背景色。
+Choose a tag style with `type`, or set `color` for a custom background.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-tag type="primary">标签</l-tag>
-  <l-tag type="success">标签</l-tag>
-  <l-tag type="info">标签</l-tag>
-  <l-tag type="warning">标签</l-tag>
-  <l-tag type="error">标签</l-tag>
-  <l-tag color="#409eff">标签</l-tag>
-  <l-tag type="blue">标签</l-tag>
+  <l-tag type="primary">Tag</l-tag>
+  <l-tag type="success">Tag</l-tag>
+  <l-tag type="info">Tag</l-tag>
+  <l-tag type="warning">Tag</l-tag>
+  <l-tag type="error">Tag</l-tag>
+  <l-tag color="#409eff">Tag</l-tag>
+  <l-tag type="blue">Tag</l-tag>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> `type` 属性，可以传递一个自定义的值，然后在 `css` 中定义 `.l-tag--xx` 就能实现自定义的样式。
+> Pass a custom `type` and define `.l-tag--xx` in CSS for a custom style.
 
 ```css
 .l-tag--blue {
@@ -83,39 +87,39 @@ regist([Button]);
 }
 ```
 
-### 可移除
+### Removable Tags
 
-通过 `closeable` 属性来实现可移除的标签，然后监听 `close` 事件。
+Add `closeable` to show a close button, then handle the `close` event to remove the tag.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-tag type="primary" closeable>标签</l-tag>
-  <l-tag type="success" closeable>标签</l-tag>
-  <l-tag type="info" closeable>标签</l-tag>
-  <l-tag type="warning" closeable>标签</l-tag>
-  <l-tag type="error" closeable>标签</l-tag>
-  <l-tag color="#409eff" closeable>标签</l-tag>
+  <l-tag type="primary" closeable>Tag</l-tag>
+  <l-tag type="success" closeable>Tag</l-tag>
+  <l-tag type="info" closeable>Tag</l-tag>
+  <l-tag type="warning" closeable>Tag</l-tag>
+  <l-tag type="error" closeable>Tag</l-tag>
+  <l-tag color="#409eff" closeable>Tag</l-tag>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 需要引入 `CloseIcon` 组件
+> Import and register `CloseIcon`.
 
-### 过渡效果
+### Transitions
 
-如果想给标签添加显示或移除时的过渡效果，通过 `utilane/transition` 实现, 具体使用参考 [transition](/en/components/transition)。
+Use `transition` from `utilane/browser` to animate tags as they appear or are removed. See [Transition](/en/components/transition).
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-<l-button id="btn-add">添加</l-button>
+<l-button id="btn-add">Add</l-button>
 <hr />
 <div id="tag-container"></div>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="btn-add">添加</l-button>
+  <l-button id="btn-add">Add</l-button>
   <hr />
   <div id="tag-container"></div>
 </textarea>
@@ -124,11 +128,11 @@ regist([Button]);
   //-
   function handleAddTag() {
     if ($tagContainer) {
-      const $addTag = document.createElement('l-tag');
-      $addTag.setAttribute('closable', 'true');
+      let $addTag = document.createElement('l-tag');
+      $addTag.setAttribute('closeable', 'true');
       $addTag.setAttribute('type', 'primary');
       $addTag.style.marginRight = "5px";
-      $addTag.innerHTML = '标签';
+      $addTag.innerHTML = 'Tag';
       $tagContainer.appendChild($addTag);
       transition($addTag, 'l-scale', "enter");
       $addTag = null;
@@ -150,8 +154,8 @@ regist([Button]);
 </l-code-preview>
 </ClientOnly>
 
-> 这里使用的是内置的过渡名称，需要手动引入 `litos-ui/styles/transition.css` 文件
-> 也可以通过传递 `css` 属性实现过渡, 例如: `transition(target, [["opacity", "0", "0.3s"]], "enter")`
+> This example uses built-in transition names. Import `litos-ui/styles/transition.css` explicitly.
+> You can also pass CSS property transitions, for example: `transition(target, [["opacity", "0", "0.3s"]], "enter")`
 
 ## On-demand entry
 
@@ -160,47 +164,47 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/tag";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Tag Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `type` | 类型 | `string` | `primary`, 可选值有: `primary`, `success`, `info`, `warning`, `error` |
-| `color` | 标签颜色 | `string` | - |
-| `closeable` | 是否可移除 | `boolean` | `false` |
+| `type` | Type | `string` | `info`; Available values: `primary`, `success`, `info`, `warning`, `error` |
+| `color` | Tag color | `string` | - |
+| `closeable` | Whether to show the close button | `boolean` | `false` |
 
 ### Tag Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 内容 |
+| `default` | Content |
 
 ### Tag Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `click` | 点击按钮时触发 | `(event: Event)` |
-| `close` | 移除标签时触发 | `(event: CustomEvent)` |
+| `click` | Fires when clicked | `(event: Event)` |
+| `close` | Fires when the close button is clicked; remove the tag in the handler | `(event: CustomEvent)` |
 
 ### Tag Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
 | - | - | - |
 
 ### Tag CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-tag-height` | 标签高度 | `22px` |
-| `--l-tag-border-color` | 标签边框颜色 | `#dedede` |
-| `--l-tag-background` | 标签背景色 | `#fff` |
-| `--l-tag-color` | 标签字体颜色 | `#333` |
+| `--l-tag-height` | Tag height | `22px` |
+| `--l-tag-border-color` | Tag border color | `#dedede` |
+| `--l-tag-background` | Tag background | `#fff` |
+| `--l-tag-color` | Tag text color | `#333` |

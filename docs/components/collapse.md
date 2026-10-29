@@ -258,7 +258,7 @@ import "litos-ui/collapse";
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 面板变化时触发, `detail: { expandedNames: string[] }` | `(event: CustomEvent)` |
+| `change` | 面板变化时触发, `detail: { expands: string[], value: string }` | `(event: CustomEvent)` |
 
 ### Collapse CSS Variables
 

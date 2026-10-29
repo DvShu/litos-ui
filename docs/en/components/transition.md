@@ -1,20 +1,20 @@
-# Transition 过渡
+# Transition
 
-帮助你制作基于状态变化的过渡和动画；通常在一个元素或组件进入和离开 `DOM` 时应用动画
+Create transitions and animations based on state changes, typically when an element or component enters or leaves the DOM.
 
-## 引用
+## Import and Registration
 
 ```js
 import { createTransition } from "litos-ui/lib/utils/transition.js";
 
-// 会自动加载页面中带有 l-transition 属性的元素并应用动画
+// init() finds elements with l-transition and applies their transitions.
 const trans = createTransition();
 
 trans.init();
-// 页面销毁时调用 trans.destroy() 释放监听
+// Call trans.destroy() when the page unmounts to release observers.
 ```
 
-## 演示
+## Examples
 
 <script setup lang="ts">
   import { $one, on, off, transition, $, iterate } from 'utilane/browser';
@@ -38,10 +38,10 @@ trans.init();
     const display = $text.style.display;
     if (display === 'none') {
       $text.style.display = 'block';
-      // 展示显示动画
+      // Apply the enter transition.
       transition($text, [['opacity', '0', '0.3s']]);
     } else {
-      // 隐藏隐藏动画
+      // Apply the leave transition.
       transition($text, [['opacity', '0', '0.3s']], 'leave', () => {
         $text.style.display = 'none';
       });
@@ -68,7 +68,7 @@ trans.init();
     if (!import.meta.env.SSR) {
       nextTick(() => {
         trans = createTransition();
-        // 初始化, 加载带有 l-transition 属性的元素动画
+        // Initialize transitions for elements with l-transition.
         trans.init();
         on($one('#toggle1'), 'click', toggle);
         on($one('#toggle2'), 'click', toggle2);
@@ -96,13 +96,13 @@ trans.init();
   })
 </script>
 
-### 基本用法
+### Basic Usage
 
-创建过渡动画后，在节点加载完成后，调用 `init` 方法，即可自动加载带有 `l-transition` 属性的元素并应用动画。同时也会监听节点的 `l-transition-emit` 属性，可选值为 `show`、`false`, 当属性变化时，会自动应用动画。
+Create a transition handler, then call `init` after the elements have mounted. It finds elements with `l-transition`, applies their transitions, and observes changes to `l-transition-emit`. Set this attribute to `show` or `hide` to apply the corresponding transition.
 
-基于此当想要隐藏节点时，只需要将 `l-transition-emit` 属性设置为 `hide` 即可。
+To hide an element, set its `l-transition-emit` attribute to `hide`.
 
-如果想要隐藏动画完成后，删除节点而不是设置 `display: none` ; 可以将 `l-transition-method` 属性设置为 `remove` 即可。
+To remove an element after its leave transition instead of setting `display: none`, set `l-transition-method` to `remove`.
 
 <ClientOnly>
 <l-code-preview>
@@ -131,8 +131,8 @@ trans.init();
   import { createTransition } from 'litos-ui/lib/utils/transition.js';
   //-
   const trans = createTransition();
-  // 初始化, 加载带有 l-transition 属性的元素动画
-  // 需要在页面结束时调用 trans.destroy()
+  // Initialize transitions for elements with l-transition.
+  // Call trans.destroy() when the page unmounts.
   trans.init();
   //-
   function toggle() {
@@ -151,11 +151,11 @@ trans.init();
 </l-code-preview>
 </ClientOnly>
 
-> 注意: 设置 `l-transition-method="remove"` 后，新添加节点时，需要手动调用 `trans.add()` 方法重新添加节点动画
+> After using `l-transition-method="remove"`, register any newly added elements with `trans.add([element])` to observe their transitions.
 
-### 手动动画
+### Manual Transitions
 
-如果想要手动控制动画，可以通过直接引用 `utilane/browser transition` 然后调用 `transition` 方法即可。
+For manual control, import `transition` from `utilane/browser` and call it directly.
 
 <ClientOnly>
 <l-code-preview>
@@ -174,10 +174,10 @@ trans.init();
     const display = $text.style.display;
     if (display === 'none') {
       $text.style.display = 'block';
-      // 展示显示动画
+      // Apply the enter transition.
       transition($text, [['opacity', '0', '0.3s']]);
     } else {
-      // 隐藏隐藏动画
+      // Apply the leave transition.
       transition($text, [['opacity', '0', '0.3s']], 'leave', () => {
         $text.style.display = 'none';
       });
@@ -190,16 +190,16 @@ trans.init();
 </l-code-preview>
 </ClientOnly>
 
-> `transition()` 函数有4个参数
+> `transition()` accepts four parameters:
 >
-> 1. `el: HTMLElement` 执行过渡的节点
-> 2. `property: string | [string, string, string][]` 过渡的属性，当为 `string` 时为过渡名称，通过 `css` 定义过渡; 为数组时为过渡的属性名，过渡的属性值，过渡的持续时间，如 `['opacity', '0', '0.3s']` 为透明度从 `1` 到 `0` 的过渡，持续时间为 `0.3s`
-> 3. `dir: 'enter' | 'leave'` 过渡的方向，`enter` 为进入，`leave` 为离开
-> 4. `finish?:() => void` 过渡完成后的回调函数
+> 1. `el: HTMLElement`: The element to animate.
+> 2. `property: string | [string, string, string][]`: A CSS transition name, or an array of property names, values, and durations. For example, `['opacity', '0', '0.3s']` defines an opacity transition between `1` and `0` lasting `0.3s`.
+> 3. `dir: 'enter' | 'leave'`: The direction: `enter` for entering and `leave` for leaving.
+> 4. `finish?:() => void`: Callback invoked when the transition finishes.
 
-### 内置过渡
+### Built-in Transitions
 
-在使用 `transition` 函数进行过渡时，可以通过引入内置的过渡文件 `litos-ui/styles/transition.css`，然后就可以通过名称的方式来应用过渡动画。
+Import `litos-ui/styles/transition.css` to apply the built-in transitions by name with the `transition` function.
 
 <ClientOnly>
 <l-code-preview>
@@ -211,10 +211,31 @@ trans.init();
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-button id="toggle2">Toggle</l-button>
-  <p id="text2">hello</p>
+  <l-button id="toggle3">Toggle</l-button>
+  <div class="in-trans" l-name="l-opacity">l-opacity</div>
+  <div class="in-trans" l-name="l-fadein">l-fadein</div>
+  <div class="in-trans" l-name="l-scale">l-scale</div>
 </textarea>
 <textarea lang="js">
+  import { $, $one, on, off, iterate, transition } from 'utilane/browser';
+  import 'litos-ui/styles/transition.css';
+  //-
+  function toggleInner() {
+    iterate($('.in-trans'), (item) => {
+      const name = item.getAttribute('l-name');
+      if (item.style.display === 'none') {
+        item.style.display = 'inline-block';
+        transition(item, name, 'enter');
+      } else {
+        transition(item, name, 'leave', () => {
+          item.style.display = 'none';
+        });
+      }
+    });
+  }
+  //-
+  on($one('#toggle3'), 'click', toggleInner);
+  // On unmount, call: off($one('#toggle3'), 'click', toggleInner);
 </textarea>
 </div>
 </l-code-preview>
@@ -227,24 +248,24 @@ import "litos-ui/styles/vars.css";
 import { createTransition } from "litos-ui/transition";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
-### Transition Property
+### Transition Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `l-transition` | 为节点添加过渡动画 | `string` | `l` |
-| `l-transition-method` | 为节点添加过渡动画后，节点隐藏方式 | `remove`[删除节点]、`hide`[隐藏节点] | `hide` |
-| `l-transition-emit` | 为节点应用过渡动画, 该属性变化时节点自动应用动画 | `show`[显示节点]、`hide`[隐藏节点] | `show` |
+| `l-transition` | Transition name applied to the element | `string` | `l` |
+| `l-transition-method` | How to handle the element after its leave transition | `remove` (remove the element), `hide` (hide the element) | `hide` |
+| `l-transition-emit` | Applies the corresponding transition when the attribute changes | `show` (show the element), `hide` (hide the element) | `show` |
 
-### Transition Method
+### Transition Methods
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `init` | 初始化，加载带有 `l-transition` 属性的元素并应用动画 | `() => void` | - |
-| `destroy` | 销毁，移除所有动画 | `() => void` | - |
-| `add` | 添加节点动画 | `(el: HTMLElement[]) => void` | - |
+| `init` | Finds elements with l-transition and initializes their transitions | `() => void` | - |
+| `destroy` | Disconnects attribute observation and releases the Observer | `() => void` | - |
+| `add` | Adds elements to the transition observer | `(el: HTMLElement[]) => void` | - |

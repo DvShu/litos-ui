@@ -1,19 +1,21 @@
-# Menu 菜单
+# Menu
 
-为网站提供导航功能的垂直菜单组件，支持多级嵌套子菜单、手风琴模式、压缩模式和自定义图标。
+A vertical navigation menu with nested submenus, accordion mode, collapsed mode, and custom icons.
 
-## 引用
+## Import and Registration
 
 ```js
-import { Menu, regist, Button } from "litos-ui";
+import { Menu, regist, Button, ArrowRightIcon } from "litos-ui";
 
-regist(Menu);
+regist([ArrowRightIcon, Menu]);
 
-// 注册本页演示使用的附加组件
+// Register the additional components used in this page’s demos.
 regist([Button]);
 ```
 
-## 演示
+The custom icon examples use iconify-icon. Install and import that package separately to use them; Menu itself does not require this icon library.
+
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
@@ -22,42 +24,42 @@ regist([Button]);
   const menuItems = [
     {
       key: "N1",
-      label: "导航一",
+      label: "Navigation 1",
       icon: () => {
         return $$('iconify-icon', { icon: 'tdesign:app' });
       },
       children: [
-        { key: "A1", label: "选项1" },
-        { key: "A2", label: "选项2" },
-        { key: "A3", label: "选项3" },
+        { key: "A1", label: "Option 1" },
+        { key: "A2", label: "Option 2" },
+        { key: "A3", label: "Option 3" },
       ],
     },
     {
       key: "N2",
-      label: "导航二",
+      label: "Navigation 2",
       icon: () => {
         return $$('iconify-icon', { icon: 'solar:bug-outline' });
       },
       children: [
-        { key: "B1", label: "选项1" },
-        { key: "B2", label: "选项2" },
-        { key: "B3", label: "选项3" },
+        { key: "B1", label: "Option 1" },
+        { key: "B2", label: "Option 2" },
+        { key: "B3", label: "Option 3" },
       ],
     },
     {
       key: "N3",
-      label: "导航三",
+      label: "Navigation 3",
       icon: () => {
         return $$('iconify-icon', { icon: 'stash:light-bulb' });
       },
       children: [
-        { key: "C1", label: "选项1" },
-        { key: "C2", label: "选项2" },
+        { key: "C1", label: "Option 1" },
+        { key: "C2", label: "Option 2" },
       ],
     },
     {
       key: "N4",
-      label: "选项四",
+      label: "Option 4",
       icon: () => {
         return $$('iconify-icon', { icon: 'solar:book-linear' });
       },
@@ -111,9 +113,9 @@ regist([Button]);
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-垂直菜单，可内嵌子菜单。
+A vertical menu that supports nested submenus.
 
 <ClientOnly>
 <l-code-preview>
@@ -130,42 +132,42 @@ regist([Button]);
     const menuItems = [
       {
         key: "N1",
-        label: "导航一",
+        label: "Navigation 1",
         icon: () => {
           return $$('iconify-icon', { icon: 'tdesign:app' });
         },
         children: [
-          { key: "A1", label: "选项1" },
-          { key: "A2", label: "选项2" },
-          { key: "A3", label: "选项3" },
+          { key: "A1", label: "Option 1" },
+          { key: "A2", label: "Option 2" },
+          { key: "A3", label: "Option 3" },
         ],
       },
       {
         key: "N2",
-        label: "导航二",
+        label: "Navigation 2",
         icon: () => {
           return $$('iconify-icon', { icon: 'solar:bug-outline' });
         },
         children: [
-          { key: "B1", label: "选项1" },
-          { key: "B2", label: "选项2" },
-          { key: "B3", label: "选项3" },
+          { key: "B1", label: "Option 1" },
+          { key: "B2", label: "Option 2" },
+          { key: "B3", label: "Option 3" },
         ],
       },
       {
         key: "N3",
-        label: "导航三",
+        label: "Navigation 3",
         icon: () => {
           return $$('iconify-icon', { icon: 'stash:light-bulb' });
         },
         children: [
-          { key: "C1", label: "选项1" },
-          { key: "C2", label: "选项2" },
+          { key: "C1", label: "Option 1" },
+          { key: "C2", label: "Option 2" },
         ],
       },
       {
         key: "N4",
-        label: "选项四",
+        label: "Option 4",
         icon: () => {
           return $$('iconify-icon', { icon: 'solar:book-linear' });
         },
@@ -178,9 +180,9 @@ regist([Button]);
 </l-code-preview>
 </ClientOnly>
 
-### 手风琴模式
+### Accordion Mode
 
-设置 `accordion` 属性，同一时间只展开一个子菜单。
+Set the `accordion` attribute to keep only one submenu expanded at a time.
 
 <ClientOnly>
 <l-code-preview>
@@ -191,16 +193,16 @@ regist([Button]);
 </l-code-preview>
 </ClientOnly>
 
-### 压缩模式
+### Collapsed Mode
 
-设置 `collapsed` 属性，菜单将压缩为仅显示图标的窄栏模式，同时自动折叠所有已展开的子菜单。通过 `collapsed-width` 控制压缩后的宽度，`collapsed-icon-size` 控制压缩后的图标大小。
+Set `collapsed` to display a narrow, icon-only menu and collapse all expanded submenus. Use `collapsed-width` to set the collapsed width and `collapsed-icon-size` to set the icon size in this mode.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div>
-    <l-button role="collapsed" data-action="expand">展开</l-button>
-    <l-button role="collapsed" data-action="collapse">折叠</l-button>
+    <l-button role="collapsed" data-action="expand">Expand</l-button>
+    <l-button role="collapsed" data-action="collapse">Collapse</l-button>
   </div>
   <l-menu id="menu-collapsed" collapsed collapsed-width="56" collapsed-icon-size="20">
   </l-menu>
@@ -214,31 +216,31 @@ regist([Button]);
     const menuItems = [
       {
         key: "N1",
-        label: "导航一",
+        label: "Navigation 1",
         icon: () => {
           return $$('iconify-icon', { icon: 'tdesign:app' });
         },
         children: [
-          { key: "A1", label: "选项1" },
-          { key: "A2", label: "选项2" },
-          { key: "A3", label: "选项3" },
+          { key: "A1", label: "Option 1" },
+          { key: "A2", label: "Option 2" },
+          { key: "A3", label: "Option 3" },
         ],
       },
       {
         key: "N2",
-        label: "导航二",
+        label: "Navigation 2",
         icon: () => {
           return $$('iconify-icon', { icon: 'solar:bug-outline' });
         },
         children: [
-          { key: "B1", label: "选项1" },
-          { key: "B2", label: "选项2" },
-          { key: "B3", label: "选项3" },
+          { key: "B1", label: "Option 1" },
+          { key: "B2", label: "Option 2" },
+          { key: "B3", label: "Option 3" },
         ],
       },
       {
         key: "N4",
-        label: "选项四",
+        label: "Option 4",
         icon: () => {
           return $$('iconify-icon', { icon: 'solar:book-linear' });
         },
@@ -251,15 +253,15 @@ regist([Button]);
 </l-code-preview>
 </ClientOnly>
 
-## MenuItem 数据结构
+## MenuItem Data Structure
 
 <!-- prettier-ignore -->
-| 属性 | 说明 | 类型 | 必填 |
+| Property | Description | Type | Required |
 | --- | --- | --- | --- |
-| `key` | 菜单项唯一标识 | `string` | 是 |
-| `label` | 菜单项标题 | `string \| ((item: MenuItem) => HTMLElement)` | 是 |
-| `icon` | 菜单项图标，返回 HTMLElement | `(item: MenuItem) => HTMLElement` | 否 |
-| `children` | 子菜单项 | `MenuItem[]` | 否 |
+| `key` | Unique item identifier | `string` | Yes |
+| `label` | Item label | `string \| ((item: MenuItem) => HTMLElement)` | Yes |
+| `icon` | Item icon renderer; returns an HTMLElement | `(item: MenuItem) => HTMLElement` | No |
+| `children` | Submenu items | `MenuItem[]` | No |
 
 ## On-demand entry
 
@@ -268,61 +270,61 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/menu";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Menu Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `selected-index` | 当前选中的菜单项 key | `string` | - |
-| `accordion` | 是否手风琴模式，只有一个子菜单展开 | `boolean` | `false` |
-| `collapsed` | 是否压缩菜单，只显示图标，隐藏文本并折叠所有子菜单 | `boolean` | `false` |
-| `collapsed-width` | 压缩后菜单宽度 | `number` | `-` |
-| `icon-size` | 图标大小 | `number` | `-` |
-| `collapsed-icon-size` | 压缩后图标大小 | `number` | `-` |
+| `selected-index` | Key of the selected menu item | `string` | - |
+| `accordion` | Whether only one submenu can be expanded | `boolean` | `false` |
+| `collapsed` | Whether to show only icons, hide text, and collapse all submenus | `boolean` | `false` |
+| `collapsed-width` | Menu width when collapsed | `number` | `-` |
+| `icon-size` | Icon size | `number` | `-` |
+| `collapsed-icon-size` | Icon size when collapsed | `number` | `-` |
 
 ### Menu Properties
 
 <!-- prettier-ignore -->
-| 属性 | 说明 | 类型 |
+| Property | Description | Type |
 | --- | --- | --- |
-| `items` | 菜单项数据，可通过 JS 动态设置 | `MenuItem[]` |
+| `items` | Menu item data; can be updated dynamically through JavaScript | `MenuItem[]` |
 
 ### Menu Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback |
 | --- | --- | --- |
-| `select` | 菜单项点击时触发 | `(event: CustomEvent<{ key: string, keyPaths: string[] }>)` |
+| `select` | Fires when a menu item is clicked | `(event: CustomEvent<{ key: string, keyPaths: string[] }>)` |
 
 ### Menu Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 参数 |
+| Method | Description | Parameters |
 | --- | --- | --- |
-| `expandSubmenus` | 展开指定 key 的子菜单 | `(keys: string[], collapseOther?: boolean): void` |
-| `updateSelectedKeys` | 更新选中的菜单项 | `(key: string): void` |
+| `expandSubmenus` | Expands the submenus with the specified keys | `(keys: string[], collapseOther?: boolean): void` |
+| `updateSelectedKeys` | Updates the selected menu item | `(key: string): void` |
 
 ### Menu CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-menu-width` | 菜单宽度 | `240px` |
-| `--l-menu-height` | 菜单高度 | `auto` |
-| `--l-menu-item-height` | 菜单项高度 | `40px` |
-| `--l-menu-item-padding-x` | 菜单项水平内边距 | `10px` |
-| `--l-menu-item-indent` | 子菜单缩进距离 | `15px` |
-| `--l-menu-item-radius` | 菜单项圆角 | `0` |
-| `--l-menu-item-hover-background` | 菜单项悬浮背景色 | `var(--l-primary-color-light5, #f9f0ff)` |
-| `--l-menu-item-active-color` | 菜单项选中文字颜色 | `var(--l-primary-color, #722ed1)` |
-| `--l-menu-item-active-background` | 菜单项选中背景色 | `var(--l-primary-color-light5, #f9f0ff)` |
-| `--l-menu-border-color` | 菜单边框颜色 | `transparent` |
-| `--l-menu-border-width` | 菜单边框宽度 | `0px` |
-| `--l-menu-arrow-color` | 子菜单箭头颜色 | `var(--l-text-color, #8c8c8c)` |
-| `--l-menu-collapsed-width` | 压缩后菜单宽度 | `40px` |
-| `--l-menu-icon-size` | 图标大小 | `1.8rem` |
-| `--l-menu-collapsed-icon-size` | 压缩后图标大小 | `1.8rem` |
+| `--l-menu-width` | Menu width | `240px` |
+| `--l-menu-height` | Menu height | `auto` |
+| `--l-menu-item-height` | Item height | `40px` |
+| `--l-menu-item-padding-x` | Item horizontal padding | `10px` |
+| `--l-menu-item-indent` | Submenu indentation | `15px` |
+| `--l-menu-item-radius` | Item border radius | `0` |
+| `--l-menu-item-hover-background` | Item background on hover | `var(--l-primary-color-light5, #f9f0ff)` |
+| `--l-menu-item-active-color` | Selected item text color | `var(--l-primary-color, #722ed1)` |
+| `--l-menu-item-active-background` | Selected item background | `var(--l-primary-color-light5, #f9f0ff)` |
+| `--l-menu-border-color` | Menu border color | `transparent` |
+| `--l-menu-border-width` | Menu border width | `0px` |
+| `--l-menu-arrow-color` | Submenu arrow color | `var(--l-text-color, #8c8c8c)` |
+| `--l-menu-collapsed-width` | Menu width when collapsed | `40px` |
+| `--l-menu-icon-size` | Icon size | `1.8rem` |
+| `--l-menu-collapsed-icon-size` | Icon size when collapsed | `1.8rem` |

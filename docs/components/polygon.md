@@ -61,7 +61,7 @@ regist(Polygon);
 
 ### 自定义形状
 
-通过 `part::(default)` 设置自定义的 `clip-path`。例如自定义菱形
+通过 `::part(default)` 设置自定义的 `clip-path`。例如自定义菱形
 
 <ClientOnly>
 <l-code-preview>

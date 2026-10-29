@@ -1,8 +1,8 @@
-# Carousel 轮播
+# Carousel
 
-在同一平级(水平、垂直)内容下，循环播放展示子内容。
+Display a sequence of slides within the same content area.
 
-## 引用
+## Import and Registration
 
 ```js
 import { Carousel, CarouselItem, regist } from "litos-ui";
@@ -10,11 +10,11 @@ import { Carousel, CarouselItem, regist } from "litos-ui";
 regist([Carousel, CarouselItem]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-结合使用 `l-carousel` 和 `l-carousel-item` 标签就能实现轮播。把想要展示的内容放在 `l-carousel-item` 标签内。
+Combine `l-carousel` with `l-carousel-item`. Place each slide’s content inside an `l-carousel-item`.
 
 <ClientOnly>
 <l-code-preview>
@@ -30,9 +30,9 @@ regist([Carousel, CarouselItem]);
 </l-code-preview>
 </ClientOnly>
 
-### 箭头切换
+### Navigation Arrows
 
-`arrows` 属性定义了切换箭头的显示时机。默认情况下，切换箭头只有在鼠标 `hover` 到组件上时才会显示。 若将 `arrows` 设置为 `always`，则会一直显示；设置为 `never`，则会一直隐藏。
+The `arrows` attribute controls when navigation arrows appear. By default they appear on `hover`. Set `always` to keep them visible or `never` to hide them.
 
 <ClientOnly>
 <l-code-preview>
@@ -55,16 +55,16 @@ import "litos-ui/styles/vars.css";
 import "litos-ui/carousel";
 ```
 
-Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
 ## API
 
 ### Carousel Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `arrows` | 切换箭头的显示时机 | `hover`\|`always`\|`never` | `hover` |
-| `current-index` | 激活的幻灯片的索引，从 `0` 开始 | `number` | `0` |
-| `loop` | 是否开启循环显示 | `on`\|`off` | `on` |
-| `autoplay` | 是否自动切换 | `boolean` | `false` |
+| `arrows` | When navigation arrows appear | `hover`\|`always`\|`never` | `hover` |
+| `current-index` | Active slide index, starting at 0 | `number` | `0` |
+| `loop` | Whether to loop slides | `on`\|`off` | `on` |
+| `autoplay` | Whether to advance automatically | `boolean` | `false` |

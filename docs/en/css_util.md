@@ -1,6 +1,6 @@
-# CSS Util
+# Utility Styles
 
-提供一些常用的 `CSS` 工具类
+Common CSS utility classes for transitions, animations, and scrollbars.
 
 <script setup>
   import { nextTick, onMounted, onUnmounted } from 'vue';
@@ -39,23 +39,23 @@
   });
 </script>
 
-## 1. `Transition` 渐变
+## 1. Transitions
 
-### 1.1 引入样式
+### 1.1 Importing Styles
 
 ```js
 import "litos-ui/styles/transition.css";
 ```
 
-### 1.2 使用
+### 1.2 Usage
 
-所有的渐变都支持传递 `--l-transition-times` 控制时长, 默认为 `0.3s`；添加相应的 `l-transition` 属性即可。然后执行 `transition.init()`, 详细文档 [Transition渐变](/en/components/transition)
+All transitions support `--l-transition-times` to control their duration, which defaults to `0.3s`. Add the corresponding `l-transition` attribute, then call `transition.init()`. See [Transition](/en/components/transition) for details.
 
-### 1.3 示例
+### 1.3 Examples
 
 1. `l-opacity`
 
-普通渐变进入/退出
+Fade in and out by changing opacity.
 
 <ClientOnly>
 <l-code-preview>
@@ -87,7 +87,7 @@ import "litos-ui/styles/transition.css";
 
 2. `l-fadein`
 
-从顶部往下移动渐变的进入/退出; 支持通过 `--l-fadein-offset` 控制距离, 默认为 `-20px`
+Fade in from above and reverse the effect when leaving. Use `--l-fadein-offset` to control the distance; the default is `-20px`.
 
 <ClientOnly>
 <l-code-preview>
@@ -121,7 +121,7 @@ import "litos-ui/styles/transition.css";
 
 3. `l-scale`
 
-缩放进入/退出
+Scale in and out.
 
 <ClientOnly>
 <l-code-preview>
@@ -151,35 +151,35 @@ import "litos-ui/styles/transition.css";
 </l-code-preview>
 </ClientOnly>
 
-> 这些渐变效果也支持在 `vue` 中使用
+> These transition effects can also be used with Vue.
 
 ```vue
 <Transition name="l-opacity">...</Transition>
 ```
 
-## 2. `CSS Animation` 动画
+## 2. CSS Animations
 
-### 2.1 引入样式
+### 2.1 Importing Styles
 
 ```js
 import "litos-ui/styles/animation.css";
 ```
 
-### 2.2 使用
+### 2.2 Usage
 
-可以直接通过动画名称，添加 `css class`、也可以通过 `css animation` 使用动画名称；例如：
+Apply an animation by adding its CSS class or by referencing its name in the CSS `animation` property:
 
-1. 添加 `css class`
+1. Add a CSS class.
 
-所有的动画的 `class` 规则为: `l-` + 动画名称 + `-anim`；例如旋转动画为: `l-rotate-anim`
+Animation classes follow the pattern `l-` + animation name + `-anim`. For example, the rotation animation uses `l-rotate-anim`.
 
 ```html
 <l-loading-icon class="l-rotate-anim"></l-loading-icon>
 ```
 
-2. 通过 `css animation` 使用动画名称
+2. Reference the animation name in CSS.
 
-所有的动画的 `animation` 名称规则为：`l-` + 动画名称 + `-frame`；例如旋转动画为: `l-rotate-frame`
+Animation names follow the pattern `l-` + animation name + `-frame`. For example, the rotation animation is named `l-rotate-frame`.
 
 ::: code-group
 
@@ -195,21 +195,21 @@ import "litos-ui/styles/animation.css";
 
 :::
 
-内置动画有：`rotate` 旋转
+The built-in animation is `rotate` (rotation).
 
-## 3. 滚动条样式
+## 3. Scrollbar Styles
 
-如果觉得默认滚动条不好看，想修改滚动条样式
+Use these styles to customize the appearance of the default scrollbar.
 
-### 3.1 引入样式
+### 3.1 Importing Styles
 
 ```js
 import "litos-ui/styles/scrollbar.css";
 ```
 
-### 3.2 使用
+### 3.2 Usage
 
-只需要在滚动容器添加 `l-scrollbar` 类即可
+Add the `l-scrollbar` class to the scroll container.
 
 <ClientOnly>
 <l-code-preview>
@@ -221,9 +221,9 @@ import "litos-ui/styles/scrollbar.css";
 </l-code-preview>
 </ClientOnly>
 
-### 3.3 更改滚动条颜色以及大小
+### 3.3 Changing Scrollbar Colors and Size
 
-通过使用下面表格中的 `CSS` 变量，可以更改滚动条的颜色以及大小
+Use the CSS variables in the table below to change the scrollbar colors and size.
 
 <ClientOnly>
 <l-code-preview>
@@ -235,11 +235,11 @@ import "litos-ui/styles/scrollbar.css";
 </l-code-preview>
 </ClientOnly>
 
-### 3.4 样式变量
+### 3.4 CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 默认值 | 描述 |
+| Name | Default | Description |
 | --- | --- | --- |
-| `--l-scrollbar-bg` | `#d9d9d9` | 滚动条背景色 |
-| `--l-scrollbar-hover` | `#bfbfbf` | 鼠标悬浮时滑块颜色 |
-| `--l-scrollbar-size` | `10px` | 滑块尺寸, 水平滚动条时为高度，垂直时为宽度 |
+| `--l-scrollbar-bg` | `#d9d9d9` | Scrollbar thumb background color |
+| `--l-scrollbar-hover` | `#bfbfbf` | Scrollbar thumb color on hover |
+| `--l-scrollbar-size` | `10px` | Thumb size: height for horizontal scrollbars and width for vertical scrollbars |

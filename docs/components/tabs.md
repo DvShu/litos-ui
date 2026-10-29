@@ -174,6 +174,8 @@ onUnmounted(() => {
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/tabs.css";
+import "litos-ui/tabbar";
 import Tabs from "litos-ui/tabs";
 ```
 

@@ -90,9 +90,11 @@ import "litos-ui/styles/vars.css";
 
 ### 暗黑模式
 
-暗黑模式变量已包含在 `vars.css` 中。在根元素上添加 `dark` 类即可启用，移除该类即可恢复浅色模式。
+暗黑模式变量独立放在 `dark.css` 中，需在 `vars.css` 之后显式引入。在根元素上添加 `dark` 类即可启用，移除该类即可恢复浅色模式。仅引入 `vars.css` 不包含暗黑配色。
 
 ```javascript
+import "litos-ui/styles/dark.css";
+
 document.documentElement.classList.add("dark");
 ```
 
@@ -104,4 +106,4 @@ import "litos-ui/button";
 import "litos-ui/input-number";
 ```
 
-在客户端入口加载后即可使用，自动注册内建依赖（包括 Button 的 loading 图标）。原有总入口加手动 regist() 用法继续支持。服务子路径（如默认导入 litos-ui/message）不自动引入全局样式（入口仅保留 CSS 引入注释，后续由 Vite 插件配置），仍需显式调用 API。完整入口、类型及 SSR 限制见[按需导入指南](/on_demand)。
+在客户端入口加载后即可使用，元素入口会注册自身及已配置的依赖。条件功能所需的额外依赖需显式引入，例如 Button 的 loading 状态需要 `import "litos-ui/icon/loading"`。原有总入口加手动 `regist()` 用法继续支持。服务子路径（如默认导入 `litos-ui/message`）不自动引入全局样式（入口仅保留 CSS 引入注释，后续由 Vite 插件配置），仍需显式调用 API。完整入口、类型及 SSR 限制见[按需导入指南](/on_demand)。

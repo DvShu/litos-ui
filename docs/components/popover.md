@@ -37,7 +37,7 @@ const popover = new Popover();
   function handleAddTag() {
     if ($tagGroup) {
       let $addTagTmp = document.createElement('l-tag');
-      $addTagTmp.setAttribute('closable', 'true');
+      $addTagTmp.setAttribute('closeable', 'true');
       $addTagTmp.setAttribute('type', 'primary');
       $addTagTmp.setAttribute('data-title', '标签提示');
       $addTagTmp.style.marginRight = "5px";
@@ -183,7 +183,7 @@ const popover = new Popover();
 </l-code-preview>
 </ClientOnly>
 
-> 构造 `Popver` 对象时支持传递 `reference` 参数，用于指定弹出层的参考元素，如果不指定则查找所有的 `.l-popover-reference` 元素。
+> 构造 `Popover` 对象时支持传递 `reference` 参数，用于指定弹出层的参考元素，如果不指定则查找所有的 `.l-popover-reference` 元素。
 
 ### 触发方式
 
@@ -220,7 +220,7 @@ const popover = new Popover();
 </l-code-preview>
 </ClientOnly>
 
-> 也可以通过 传递 `trigger:'manual;` 来自定义触发；如果需要自定义触发方式，则可以通过引入 `updatePosition` 或者 `autoUpdate` 函数来，手动显示和隐藏弹出层。
+> 也可以通过 传递 `trigger: "manual"` 来自定义触发；如果需要自定义触发方式，则可以通过引入 `updatePosition` 或者 `autoUpdate` 函数来，手动显示和隐藏弹出层。
 
 ### 位置
 
@@ -281,7 +281,7 @@ const popover = new Popover();
 
 ### 自定义内容
 
-通过 `slot` 插槽来设置 `l-popover` 的内容
+通过 `contentRender` 和 `updateContent` 自定义弹层内容；也可以通过 `popover` 配置传入自定义 DOM 节点。
 
 <ClientOnly>
 <l-code-preview>
@@ -407,23 +407,25 @@ new Popover({
   <div id="tagGroup"></div>
 </textarea>
 <textarea lang="js">
-  import { createPopoverObserver, Popover } from 'litos-ui';
+  import { createPopoverObserver, Popover, Tag, Button, CloseIcon, regist } from 'litos-ui';
+  import 'litos-ui/styles/transition.css';
+  regist([CloseIcon, Button, Tag]);
   import { transition } from 'utilane/browser';
   //-
-  let tagGroup = document.getElementById('tagGroup');
-  let addTagBtn = document.getElementById('addTag');
+  let $tagGroup = document.getElementById('tagGroup');
+  let $addTag = document.getElementById('addTag');
   //-
-  let tootip = new Popover({
+  let tooltip = new Popover({
     reference: '.tooltip-tag',
     theme: 'tooltip',
   });
   //-
-  let observer = createPopoverObserver(tagGroup, 'tooltip-tag', tootip);
+  let observer = createPopoverObserver(tagGroup, 'tooltip-tag', tooltip);
   //-
   function handleAddTag() {
     if ($tagGroup) {
       let $addTagTmp = document.createElement('l-tag');
-      $addTagTmp.setAttribute('closable', 'true');
+      $addTagTmp.setAttribute('closeable', 'true');
       $addTagTmp.setAttribute('type', 'primary');
       $addTagTmp.setAttribute('data-title', '标签提示'); // 设置提示内容
       $addTagTmp.style.marginRight = "5px";
@@ -441,14 +443,16 @@ new Popover({
     });
   }
   //-
-  $tagGroup.addEventListener('click', handleAddTag);
+  $addTag.addEventListener('click', handleAddTag);
+  $tagGroup.addEventListener('close', handleRemoveTag);
   //-
   // 移除的时候释放资源
   // tooltip.destroy();
   // observer.disconnect();
   // tooltip = null;
   // observer = null;
-  // $tagGroup.removeEventListener('click', handleRemoveTag);
+  // $addTag.removeEventListener('click', handleAddTag);
+  // $tagGroup.removeEventListener('close', handleRemoveTag);
 </textarea>
 </div>
 </l-code-preview>
@@ -468,6 +472,7 @@ new Popover({
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/popover.css";
 import { Popover } from "litos-ui/popover";
 ```
 
@@ -488,11 +493,10 @@ import { Popover } from "litos-ui/popover";
 | `offset` | 偏移量 | `number` | `10` |
 | `arrow` | 是否显示箭头 | `boolean` | `true` |
 | `arrowSize` | 箭头大小 | `number` | `8` |
-| `width` | 宽度 | `string`、`number` | `-` |
 | `theme` | 主题 | `default`、`tooltip`、`popconfirm` | `default` |
 | `placement` | 位置 | `top`、`top-start`、`top-end`、`bottom`、`bottom-start`、`bottom-end`、`left`、`left-start`、`left-end`、`right`、`right-start`、`right-end` | `top` |
-| `popoverWidth` | 弹出宽度, `trigger` 保持和触发元素宽度一致 | `string`、`trigger` | `-` |
-| `onPopoverAction` | 点击 `Popover` 内具有 `data-action` 的元素时触发 | `(action: string) => void` | `-` |
+| `popoverWidth` | 弹出宽度, `trigger` 保持和触发元素宽度一致 | `number`、`trigger` | `-` |
+| `onPopoverAction` | 点击 `Popover` 内具有 `data-action` 的元素时触发 | `(action: string, target: HTMLElement) => void` | `-` |
 | `onOpenChange` | 显示/隐藏时触发 | `(isOpen: boolean, popoverElement?: HTMLElement) => void` | `-` |
 | `onOutsideTap` | 点击 `Popover` 外部时触发, `isReference`: 是否点击的是触发区域, `isPopover`: 是否点击的是 `Popover` 主体 | `(e: Event, isReference: boolean, isPopover: boolean) => void` | `-` |
 

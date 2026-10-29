@@ -1,5 +1,6 @@
 import BaseComponent from "../base";
 import style from "./dialog_container_style";
+import { parseAttrValue } from "../utils";
 
 import { $$, formatClass, $one, $, iterate, on, off, shouldEventNext } from "utilane/browser";
 
@@ -90,7 +91,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
       case "show-header":
-        this._state.showHeader = newValue !== null;
+        this._state.showHeader = parseAttrValue(newValue, true, name);
         this.connectedCallback();
         break;
       case "header":
@@ -98,11 +99,10 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
         this.connectedCallback();
         break;
       case "show-footer":
-        this._state.showFooter = newValue !== null;
-        this.connectedCallback();
+        this._state.showFooter = parseAttrValue(newValue, true, name);
         break;
       case "show-cancel":
-        this._state.showCancel = newValue !== null;
+        this._state.showCancel = parseAttrValue(newValue, true, name);
         this.connectedCallback();
         break;
       case "cancel-text":
@@ -110,7 +110,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
         this.connectedCallback();
         break;
       case "show-ok":
-        this._state.showOk = newValue !== null;
+        this._state.showOk = parseAttrValue(newValue, true, name);
         this.connectedCallback();
         break;
       case "ok-text":
@@ -143,11 +143,11 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
         this.connectedCallback();
         break;
       case "mobile":
-        this._state.mobile = newValue !== null;
+        this._state.mobile = parseAttrValue(newValue, false, name);
         this.connectedCallback();
         break;
       case "confirm-loading":
-        this._state.confirmLoading = newValue !== null;
+        this._state.confirmLoading = parseAttrValue(newValue, false, name);
         const $ok = $one('[data-action="ok"]', this.root);
         if ($ok) {
           $ok.setAttribute("loading", this._state.confirmLoading.toString());
@@ -171,6 +171,48 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
     const $closeIcon = $$("l-close-icon");
     $close.appendChild($closeIcon);
     return $close;
+  }
+
+  protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("show-footer")) {
+      const footer = $one(".l-dialog-footer", this.root);
+      if (!this._state.showFooter) {
+        if (footer) {
+          footer.remove();
+        }
+      } else if (!footer) {
+        const main = $one(".l-dialog-main", this.root);
+        if (main) {
+          main.appendChild(this.#createFooter());
+        }
+      }
+    }
+  }
+
+  #createFooter() {
+    // footer
+    const $footer = $$("div", { class: "l-dialog-footer", part: "footer" });
+    const $footerSlot = $$("slot", { name: "footer" });
+    if (this._state.showCancel) {
+      const $cancelBtn = $$("l-button", {
+        "data-action": "cancel",
+        text: this._state.mobile,
+      });
+      $cancelBtn.textContent = this._state.cancelText;
+      $footerSlot.appendChild($cancelBtn);
+    }
+    if (this._state.showOk) {
+      const $okBtn = $$("l-button", {
+        type: "primary",
+        "data-action": "ok",
+        loading: this._state.confirmLoading,
+        text: this._state.mobile,
+      });
+      $okBtn.textContent = this._state.okText;
+      $footerSlot.appendChild($okBtn);
+    }
+    $footer.appendChild($footerSlot);
+    return $footer;
   }
 
   render_v2() {
@@ -208,29 +250,7 @@ export default class DialogContainer extends BaseComponent<DialogContainerState>
     $main.appendChild($body);
 
     if (this._state.showFooter) {
-      // footer
-      const $footer = $$("div", { class: "l-dialog-footer", part: "footer" });
-      const $footerSlot = $$("slot", { name: "footer" });
-      if (this._state.showCancel) {
-        const $cancelBtn = $$("l-button", {
-          "data-action": "cancel",
-          text: this._state.mobile,
-        });
-        $cancelBtn.textContent = this._state.cancelText;
-        $footerSlot.appendChild($cancelBtn);
-      }
-      if (this._state.showOk) {
-        const $okBtn = $$("l-button", {
-          type: "primary",
-          "data-action": "ok",
-          loading: this._state.confirmLoading,
-          text: this._state.mobile,
-        });
-        $okBtn.textContent = this._state.okText;
-        $footerSlot.appendChild($okBtn);
-      }
-      $footer.appendChild($footerSlot);
-      $main.appendChild($footer);
+      $main.appendChild(this.#createFooter());
     }
     fragment.appendChild($main);
     return fragment;
