@@ -1,27 +1,23 @@
 # Form
 
-表单控件，自带数据域管理。包含数据录入、校验、重置以及对应样式。
+A form with field management, data entry, validation, reset behavior, and layout styles.
 
-## 引用
+## Import and Registration
 
 ```js
-import { Form, FormItem, regist, Space, Button, Input, Radio, RadioGroup } from "litos-ui";
+import { Form, FormItem, regist } from "litos-ui";
 
-regist([Form, FormItem]);
-regist([Space]); // 表单按钮组的间距
-
-// 注册本页演示使用的附加组件
-regist([Button, Input, Radio, RadioGroup]);
+regist([FormItem, Form]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import { $one, on, off } from 'utilane/browser';
 
   let $form, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
-  let lang = 'zh';
+  let lang = 'en';
   let errors = {};
   const i18n = {
     zh: {
@@ -35,8 +31,8 @@ regist([Button, Input, Radio, RadioGroup]);
       mobile_required: 'Mobile is required',
       mobile_invalid: 'Please enter a valid mobile number',
       password_required: 'Password is required',
-      password_min6: 'Password length is at least 6 digits',
-      password_invalid: 'Password contain letters and numbers'
+      password_min6: 'Password must be at least 6 characters',
+      password_invalid: 'Password must contain letters and numbers'
     }
   }
 
@@ -54,9 +50,9 @@ regist([Button, Input, Radio, RadioGroup]);
   function handleCustomClick() {
     const $customValidForm = $one('#customValidForm');
     $customValidForm.setErrors({
-      name: '姓名不能为空',
-      password: '密码不能为空',
-      confimPassword: '确认密码不能为空',
+      name: 'Name is required',
+      password: 'Password is required',
+      confimPassword: 'Confirm password is required',
     });
   }
 
@@ -103,11 +99,11 @@ regist([Button, Input, Radio, RadioGroup]);
         $form = $one('#lform');
         on($form, 'submit', handleFormSubmit);
 
-        // 自定义验证
+        // Custom validation
         $customSubmitBtn = $one('#customSubmit');
         on($customSubmitBtn, 'click', handleCustomClick);
 
-        // 自定义验证 - 支持 i18n
+        // Custom validation with localization
         $i18nForm = $one('#i18nForm');
         $langCheck = $one("#langCheck");
         $i18nForm.setSchemas([{
@@ -156,27 +152,32 @@ regist([Button, Input, Radio, RadioGroup]);
   })
 </script>
 
-### 基础用法
+### Basic Usage
 
-基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [utilane/validator](https://github.com/DvShu/utilane#readme)
+```js
+import { Space, Button, Input, regist } from "litos-ui";
+regist([Space, Button, Input]);
+```
+
+A basic form with layout, initialization, validation, reset, and submission. Validation uses [utilane/validator](https://github.com/DvShu/utilane#readme)
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-form id="lform">
-    <l-form-item required label="姓名" prop="name">
-      <l-input placeholder="请输入姓名" value=""></l-input>
+    <l-form-item required label="Name" prop="name">
+      <l-input placeholder="Enter your name" value=""></l-input>
     </l-form-item>
-    <l-form-item required label="密码" prop="password">
-      <l-input placeholder="请输入密码" type="password" value=""></l-input>
+    <l-form-item required label="Password" prop="password">
+      <l-input placeholder="Enter your password" type="password" value=""></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
-      <l-input placeholder="请再次输入密码" type="password" value=""></l-input>
+    <l-form-item required label="Confirm password" verify="same:password" prop="confimPassword">
+      <l-input placeholder="Enter your password again" type="password" value=""></l-input>
     </l-form-item>
     <l-form-item label="">
       <l-space>
-        <l-button html-type="reset">重置</l-button>
-        <l-button html-type="submit" type="primary">提交</l-button>
+        <l-button html-type="reset">Reset</l-button>
+        <l-button html-type="submit" type="primary">Submit</l-button>
       </l-space>
     </l-form-item>
   </l-form>
@@ -184,59 +185,59 @@ regist([Button, Input, Radio, RadioGroup]);
 </l-code-preview>
 </ClientOnly>
 
-> 1. 如果想要实现按钮之间的间隔，需要引入 `Space` 组件
-> 2. 当 `Button` 在 `Form` 里面时，如果 `Button` 的 `html-type` 属性为 `reset`、`submit` 时会自动触发表单的重置、提交。
+> 1. Use the Space component to add spacing between buttons.
+> 2. Inside Form, a Button with `html-type="reset"` or `html-type="submit"` triggers form reset or submission.
 
-### 自定义验证
+### Custom Validation
 
-对于复杂的表单，如果默认的验证不符合需求，可以通过给 `Form` 传递 `novalidate="on"` 禁用默认验证，然后手动调用 `Form` 的 `setErrors(errors: Reocord<string, any>)` 传递验证的错误信息即可。
+For custom validation, set `novalidate="on"` to disable validation on submission, then call `setErrors(errors: Record<string, any>)` to supply error messages.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-form id="customValidForm" novalidate="on">
-    <l-form-item required label="姓名" prop="name">
-      <l-input placeholder="请输入姓名"></l-input>
+    <l-form-item required label="Name" prop="name">
+      <l-input placeholder="Enter your name"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" prop="password">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+    <l-form-item required label="Password" prop="password">
+      <l-input placeholder="Enter your password" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" prop="confimPassword">
-      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    <l-form-item required label="Confirm password" prop="confimPassword">
+      <l-input placeholder="Enter your password again" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
-      <l-button type="primary" id="customSubmit">提交</l-button>
+      <l-button type="primary" id="customSubmit">Submit</l-button>
     </l-form-item>
   </l-form>
 </textarea>
 <div class="source">
 <textarea lang="html">
   <l-form id="customValidForm" novalidate="on">
-    <l-form-item required label="姓名" prop="name">
-      <l-input placeholder="请输入姓名"></l-input>
+    <l-form-item required label="Name" prop="name">
+      <l-input placeholder="Enter your name"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" prop="password">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+    <l-form-item required label="Password" prop="password">
+      <l-input placeholder="Enter your password" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" prop="confimPassword">
-      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    <l-form-item required label="Confirm password" prop="confimPassword">
+      <l-input placeholder="Enter your password again" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
-      <l-button id="customSubmit" type="primary">提交</l-button>
+      <l-button id="customSubmit" type="primary">Submit</l-button>
     </l-form-item>
   </l-form>
 </textarea>
 <textarea lang="ts">
   import { $one } from 'utilane/browser';
   //-
-  // 自定义验证
+  // Custom validation
   const $customValidForm = $one('#customValidForm');
   const $customSubmitBtn = $one('#customSubmit');
   $customSubmitBtn.addEventListener('click', (event) => {
     $customValidForm.setErrors({
-      name: '姓名不能为空',
-      password: '密码不能为空',
-      confimPassword: '确认密码不能为空',
+      name: 'Name is required',
+      password: 'Password is required',
+      confimPassword: 'Confirm password is required',
     });
   });
 </textarea>
@@ -244,31 +245,38 @@ regist([Button, Input, Radio, RadioGroup]);
 </l-code-preview>
 </ClientOnly>
 
-> 验证成功的字段，可以不传或者传递为 `undefined`、`null`
-> 当然也可以手动验证数据，然后分别调用输入框以及 `FormItem` 的 `setError({})` 方法设置错误
+> Omit valid fields, or pass undefined or null for them.
+> For standalone FormItem usage, set its `error` attribute to display a message. There is no `setError()` method on FormItem.
 
-### 验证多语言支持
+### Localized Validation
 
-通过自定义验证的方式，可以配置多语言支持。通过调用 `Form` 的 `setSchemas` 方法，可以设置自定义验证规则; 然后给 `Form` 设置 `emit-error` 表明验证失败后，通过 `validate-error` 自定义事件来处理，传递验证失败的数据, 然后再通过 `setErrors` 传递自定义验证数据
+The example defaults to English and retains Chinese messages under the `zh` key to demonstrate language switching. This translates validation messages supplied by the page; it does not change built-in component messages.
+
+```js
+import { Radio, RadioGroup, regist } from "litos-ui";
+regist([Radio, RadioGroup]);
+```
+
+Configure custom validation rules with `setSchemas()` to provide localized messages. Enable `emit-error` to receive validation failures through `validate-error`, translate the error identifiers, then pass the messages to `setErrors()`.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div>
-    <l-radio-group value="zh" id="langCheck">
-      <l-radio label="中文" value="zh" button></l-radio>
+    <l-radio-group value="en" id="langCheck">
+      <l-radio label="Chinese" value="zh" button></l-radio>
       <l-radio label="En" value="en" button></l-radio>
     </l-radio-group>
     <hr/>
     <l-form id="i18nForm" emit-error>
-      <l-form-item required label="手机号" prop="mobile">
-        <l-input placeholder="请输入手机号"></l-input>
+      <l-form-item required label="Mobile number" prop="mobile">
+        <l-input placeholder="Enter your mobile number"></l-input>
       </l-form-item>
-      <l-form-item required label="密码" prop="password">
-        <l-input placeholder="请输入密码" type="password"></l-input>
+      <l-form-item required label="Password" prop="password">
+        <l-input placeholder="Enter your password" type="password"></l-input>
       </l-form-item>
       <l-form-item label="">
-        <l-button type="primary" html-type="submit">提交</l-button>
+        <l-button type="primary" html-type="submit">Submit</l-button>
       </l-form-item>
     </l-form>
   </div>
@@ -276,20 +284,20 @@ regist([Button, Input, Radio, RadioGroup]);
 <div class="source">
 <textarea lang="html">
   <div>
-    <l-radio-group value="zh" id="langCheck">
-      <l-radio label="中文" value="zh" button></l-radio>
+    <l-radio-group value="en" id="langCheck">
+      <l-radio label="Chinese" value="zh" button></l-radio>
       <l-radio label="En" value="en" button></l-radio>
     </l-radio-group>
     <hr/>
     <l-form id="i18nForm" emit-error>
-      <l-form-item required label="手机号" prop="mobile">
-        <l-input placeholder="请输入手机号"></l-input>
+      <l-form-item required label="Mobile number" prop="mobile">
+        <l-input placeholder="Enter your mobile number"></l-input>
       </l-form-item>
-      <l-form-item required label="密码" prop="password">
-        <l-input placeholder="请输入密码" type="password"></l-input>
+      <l-form-item required label="Password" prop="password">
+        <l-input placeholder="Enter your password" type="password"></l-input>
       </l-form-item>
       <l-form-item label="">
-        <l-button type="primary" html-type="submit">提交</l-button>
+        <l-button type="primary" html-type="submit">Submit</l-button>
       </l-form-item>
     </l-form>
   </div>
@@ -298,7 +306,7 @@ regist([Button, Input, Radio, RadioGroup]);
   import { $one, on } from 'utilane/browser';
   //-
   let $i18nForm, $langCheck;
-  let lang = 'zh';
+  let lang = 'en';
   let errors = {};
   const i18n = {
     zh: {
@@ -312,8 +320,8 @@ regist([Button, Input, Radio, RadioGroup]);
       mobile_required: 'Mobile is required',
       mobile_invalid: 'Please enter a valid mobile number',
       password_required: 'Password is required',
-      password_min6: 'Password length is at least 6 digits',
-      password_invalid: 'Password contain letters and numbers'
+      password_min6: 'Password must be at least 6 characters',
+      password_invalid: 'Password must contain letters and numbers'
     }
   }
   //-
@@ -376,70 +384,70 @@ regist([Button, Input, Radio, RadioGroup]);
 </l-code-preview>
 </ClientOnly>
 
-> 要求传递的 `key` 必须和 `FormItem` 的 `prop` 字段一致，否则不会生效
-> 传递的规则里，将 `message` 定义为一个唯一性的标记，用来标识自定义验证的错误信息
+> Each schema key must match a FormItem prop.
+> Use unique message identifiers in the rules so they can be mapped to localized error messages.
 
 ### `InnerBlock`
 
-设置 `inner-block` 能够让表单的行内元素铺满剩余宽度
+Enable `inner-block` to let form controls fill the remaining width.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-form inner-block>
-    <l-form-item required label="姓名" prop="name">
-      <l-input placeholder="请输入姓名" value="张三"></l-input>
+    <l-form-item required label="Name" prop="name">
+      <l-input placeholder="Enter your name" value="Zhang San"></l-input>
     </l-form-item>
-    <l-form-item required label="密码" prop="password">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+    <l-form-item required label="Password" prop="password">
+      <l-input placeholder="Enter your password" type="password"></l-input>
     </l-form-item>
-    <l-form-item required label="确认密码" verify="same:password" prop="confimPassword">
-      <l-input placeholder="请再次输入密码" type="password"></l-input>
+    <l-form-item required label="Confirm password" verify="same:password" prop="confimPassword">
+      <l-input placeholder="Enter your password again" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
-      <l-button html-type="reset">重置</l-button>
-      <l-button html-type="submit" type="primary">提交</l-button>
+      <l-button html-type="reset">Reset</l-button>
+      <l-button html-type="submit" type="primary">Submit</l-button>
     </l-form-item>
   </l-form>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 行内表单
+### Inline Form
 
-当前表单较简单时，可以在一行内放置表单。
+Place a simple form on a single row.
 
-通过设置 `inline` 属性为 `true` 可以让表单域变为行内的表单域。
+Enable `inline` to arrange form fields inline.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-form inline inner-block label-width="auto">
-    <l-form-item label="用户名">
-      <l-input placeholder="请输入用户名" value="张三"></l-input>
+    <l-form-item label="Username">
+      <l-input placeholder="Enter your username" value="Zhang San"></l-input>
     </l-form-item>
-    <l-form-item label="密码">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+    <l-form-item label="Password">
+      <l-input placeholder="Enter your password" type="password"></l-input>
     </l-form-item>
-    <l-form-item label="用户名">
-      <l-input placeholder="请输入用户名" value="张三"></l-input>
+    <l-form-item label="Username">
+      <l-input placeholder="Enter your username" value="Zhang San"></l-input>
     </l-form-item>
-    <l-form-item label="密码">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+    <l-form-item label="Password">
+      <l-input placeholder="Enter your password" type="password"></l-input>
     </l-form-item>
     <l-form-item>
-      <l-button type="primary">提交</l-button>
+      <l-button type="primary">Submit</l-button>
     </l-form-item>
   </l-form>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 对齐方式
+### Label Alignment
 
-通过设置 `label-position` 来应用标签和内容的对齐方式。
+Set `label-position` to control label alignment relative to the content.
 
-您可以分别设置 `l-form-item` 的 `label-position`. 如果值为空, 则会使用 `l-form` 的 `label-position`。
+Set `label-position` on individual form items to override the form setting. When it is empty, the form’s label position is used.
 
 <ClientOnly>
 <l-code-preview>
@@ -452,29 +460,29 @@ regist([Button, Input, Radio, RadioGroup]);
         <l-radio label="Top" value="top" button></l-radio>
       </l-radio-group>
     </l-form-item>
-    <l-form-item label="用户名">
-      <l-input placeholder="请输入用户名" value="张三"></l-input>
+    <l-form-item label="Username">
+      <l-input placeholder="Enter your username" value="Zhang San"></l-input>
     </l-form-item>
-    <l-form-item label="密码">
-      <l-input placeholder="请输入密码" type="password"></l-input>
+    <l-form-item label="Password">
+      <l-input placeholder="Enter your password" type="password"></l-input>
     </l-form-item>
     <l-form-item label="">
-      <l-button type="primary">提交</l-button>
+      <l-button type="primary">Submit</l-button>
     </l-form-item>
   </l-form>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 只使用 `FormItem`
+### Standalone FormItem
 
-`FormItem` 可以不放在 `Form` 里面，从而进行单独使用。
+FormItem can be used on its own, outside Form.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-form-item id="form1" label="姓名">
-    <l-input placeholder="请输入文本"></l-input>
+  <l-form-item id="form1" label="Name">
+    <l-input placeholder="Enter text"></l-input>
   </l-form-item>
 </textarea>
 </l-code-preview>
@@ -494,70 +502,70 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### Form Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `inline` | 行内表单, 每一行放置尽量多的项 | `boolean` | `false` |
-| `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
-| `label-width` | 表单域标签的宽度, 可以传 `auto` | `string` | `80px` |
-| `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
-| `novalidate` | 是否在提交时禁用表单验证 | `boolean` | `false` |
+| `inline` | Inline form; arrange as many items as possible on each row | `boolean` | `false` |
+| `label-position` | Label position | `left`, `right`, `top` | `right` |
+| `label-width` | Field label width; accepts auto | `string` | `80px` |
+| `inner-block` | Whether controls fill the remaining width | `boolean` | `false` |
+| `novalidate` | Whether to disable validation on submission | `boolean` | `false` |
 
-Form 和 FormItem 当前没有提供统一 disabled 属性，禁用状态应配置在具体输入控件上。
+Form and FormItem do not provide a shared disabled attribute. Configure disabled on each input control.
 
 ### Form Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 表单项 |
+| `default` | Form item |
 
 ### Form Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `submit` | 表单提交事件，detail 为表单数据 | `(e: CustomEvent): void` |
-| `validate-error` | emit-error 开启时上报校验错误，detail 包含 errors 和 all | `(e: CustomEvent): void` |
+| `submit` | Fires on submission; detail contains the form data | `(e: CustomEvent): void` |
+| `validate-error` | Reports validation errors when emit-error is enabled; detail contains errors and all | `(e: CustomEvent): void` |
 
 ### Form Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
-| `validate` | 校验全部数据，结果通过 Promise 返回 | `() => Promise<{ result: boolean; errors: Record<string, any> }>` |
-| `validateField` | 当前未接入实际字段校验规则；需要完整校验时使用 validate | `(field: string \| string[]) => Promise<void>` |
-| `clearValidate` | 移除表单项的校验结果 | `() => void` |
-| `setErrors(errors: Record<string, string>)` | 设置表单错误信息 | - |
+| `validate` | Validates all data and returns a Promise with the result | `() => Promise<{ result: boolean; errors: Record<string, any> }>` |
+| `validateField` | Does not currently apply field validation rules; use validate for full validation | `(field: string \| string[]) => Promise<void>` |
+| `clearValidate` | Clears validation results from form items | `() => void` |
+| `setErrors(errors: Record<string, string>)` | Sets form error messages | - |
 
 ### FormItem Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `label` | 标签文本 | `string` | - |
-| `verify` | 内置验证规则:`required`-必填,`same:password`-一般用于验证确认密码,`mobile`-验证电话号码 | `string` | - |
-| `pattern` | 正则表达式 | `string` | - |
-| `validity` | 验证失败时的提示信息 | `string` | - |
-| `prop` | 对应表单域 `name` | `string` | - |
-| `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
-| `required` | 是否必填 | `boolean` | `false` |
-| `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
-| `error` | 错误提示 | `string` | `-` |
+| `label` | Label text | `string` | - |
+| `verify` | Built-in rules: required, same:password (password confirmation), and mobile (phone number) | `string` | - |
+| `pattern` | Regular expression | `string` | - |
+| `validity` | Message displayed on validation failure | `string` | - |
+| `prop` | Field key used to identify the form value | `string` | - |
+| `label-position` | Label position | `left`, `right`, `top` | `right` |
+| `required` | Whether the field is required | `boolean` | `false` |
+| `inner-block` | Whether controls fill the remaining width | `boolean` | `false` |
+| `error` | Error message | `string` | `-` |
 
 ### FormItem Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 表单项 |
+| `default` | Form item |
 
 ### FormItem Events
 
-FormItem 当前没有单独派发 focus 或 blur 自定义事件。需要监听输入焦点时，在具体输入控件上绑定相应的原生事件。
+FormItem does not emit custom focus or blur events. Listen for the corresponding native events on the input control.
 
 ### Form CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
 | - | - | - |

@@ -1,8 +1,8 @@
-# ColorPicker 颜色选择器
+# ColorPicker
 
-通常用于进行颜色选择。
+Choose a color.
 
-## 引用
+## Import and Registration
 
 ```js
 import { ColorPicker, regist } from "litos-ui";
@@ -10,11 +10,11 @@ import { ColorPicker, regist } from "litos-ui";
 regist(ColorPicker);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-通过 `value` 设置初始颜色。
+Set the initial color with `value`.
 
 <ClientOnly>
 <l-code-preview>
@@ -38,15 +38,15 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### ColorPicker Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `name` | 原生 `name` 属性 | `string` | - |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `value` | 颜色值 | `string` | `#000000` |
+| `name` | Native name attribute | `string` | - |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `value` | Color value | `string` | `#000000` |
 
 ### ColorPicker Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 颜色改变时触发，`event.detail` 为颜色字符串，也可通过组件 value 属性读取 | `(event: CustomEvent<string>)` |
+| `change` | Fires when the color changes; event.detail is the color string, also available through the value property | `(event: CustomEvent<string>)` |

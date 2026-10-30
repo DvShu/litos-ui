@@ -3,13 +3,10 @@
 ## 引用
 
 ```js
-import { Input, regist, CloseFilledIcon, ReductionIcon, SearchIcon } from "litos-ui";
+import { Input, regist, CloseFilledIcon } from "litos-ui";
 
 regist(Input);
 regist(CloseFilledIcon); // 需要使用 clearable 功能时
-
-// 注册本页演示使用的附加组件
-regist([ReductionIcon, SearchIcon]);
 ```
 
 ## 演示
@@ -19,6 +16,10 @@ regist([ReductionIcon, SearchIcon]);
   import { $one, on, off } from 'utilane/browser';
 
   let $input;
+
+  function handleChange(e) {
+    console.log('input', e.target.value);
+  }
 
   function numericParse(value) {
     let val = parseInt(value, 10)
@@ -34,12 +35,16 @@ regist([ReductionIcon, SearchIcon]);
     nextTick(() => {
       if (!import.meta.env.SSR) {
         $input = $one('#input');
-        $input.addEventListener('change', function(e) {
-          console.log('input', e.target.value);
-        });
-        $input.setParser(numericParse);
+        if ($input) {
+          $input.addEventListener('change', handleChange);
+          $input.setParser(numericParse);
+        }
       }
     })
+  });
+  onUnmounted(() => {
+    $input?.removeEventListener('change', handleChange);
+    $input = undefined;
   });
 </script>
 
@@ -66,6 +71,25 @@ regist([ReductionIcon, SearchIcon]);
 </textarea>
 </l-code-preview>
 </ClientOnly>
+
+### 只读状态
+
+通过 `readonly` 设置只读，仍可聚焦、选择和复制文字；只读时不显示清除按钮。支持 `readonly`、`readonly="true"`，`readonly="false"` 或移除属性恢复编辑。也可通过实例的 `readOnly` 布尔属性动态切换，程序设置 `value` 不受影响。原生 input 的只读限制适用于文本、数字等类型，不适用于 checkbox、range 等不支持只读的原生类型。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input value="只读内容，可以选择和复制" readonly clearable></l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+```js
+const input = document.querySelector("l-input");
+input.readOnly = true;
+input.readOnly = false;
+// 也可以使用 setAttribute("readonly", "") / removeAttribute("readonly")。
+```
 
 ### 限制输入
 
@@ -105,6 +129,11 @@ regist([ReductionIcon, SearchIcon]);
 </ClientOnly>
 
 ### 带图标的输入框
+
+```js
+import { ReductionIcon, SearchIcon, regist } from "litos-ui";
+regist([ReductionIcon, SearchIcon]);
+```
 
 要在输入框中添加图标，只需要使用 `prefix` 和 `suffix` 命名的插槽。
 
@@ -161,6 +190,7 @@ import "litos-ui/input";
 | --- | --- | --- | --- |
 | `value` | 输入值，可通过实例 value 属性读写 | `string` | - |
 | `disabled` | 是否禁用 | `boolean` | `false` |
+| `readonly` | 是否只读；可通过实例 readOnly 属性动态读写 | `boolean` | `false` |
 | `name` | 表单字段名 | `string` | - |
 | `type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
 | `placeholder` | 占位文本 | `string` | - |

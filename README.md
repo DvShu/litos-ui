@@ -136,9 +136,9 @@ Confirm that formatting does not add table padding. A formatting check does not 
 
 ## Documentation
 
-[Documentation](https://dvshu.github.io/litos-ui/en/)
+[English documentation](https://dvshu.github.io/litos-ui/en/) | [Chinese documentation](https://dvshu.github.io/litos-ui/)
 
-The English documentation structure is available; page content is currently copied from Chinese and awaits translation.
+The Chinese documentation is the content source for the English documentation. After component development is complete, the English pages are translated and verified against the Chinese pages in a coordinated pass. New, missing, or outdated translations are tracked and synchronized according to the [translation guide](./TRANSLATION_GUIDE.md).
 
 ## License
 

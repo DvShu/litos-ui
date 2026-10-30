@@ -89,6 +89,7 @@ type FormProps = HTMLAttributes<HTMLElement> & {
 };
 
 type InputProps = HTMLAttributes<HTMLElement> & {
+  readonly?: boolean;
   placeholder?: string;
   value?: string;
   oninput?: (e: CustomEvent) => void;

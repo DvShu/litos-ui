@@ -1,24 +1,25 @@
-# Input 输入框
+# Input
 
-## 引用
+## Import and Registration
 
 ```js
-import { Input, regist, CloseFilledIcon, ReductionIcon, SearchIcon } from "litos-ui";
+import { Input, regist, CloseFilledIcon } from "litos-ui";
 
 regist(Input);
-regist(CloseFilledIcon); // 需要使用 clearable 功能时
-
-// 注册本页演示使用的附加组件
-regist([ReductionIcon, SearchIcon]);
+regist(CloseFilledIcon); // Required for clearable inputs.
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { $one, on, off } from 'utilane/browser';
 
   let $input;
+
+  function handleChange(e) {
+    console.log('input', e.target.value);
+  }
 
   function numericParse(value) {
     let val = parseInt(value, 10)
@@ -34,55 +35,78 @@ regist([ReductionIcon, SearchIcon]);
     nextTick(() => {
       if (!import.meta.env.SSR) {
         $input = $one('#input');
-        $input.addEventListener('change', function(e) {
-          console.log('input', e.target.value);
-        });
-        $input.setParser(numericParse);
+        if ($input) {
+          $input.addEventListener('change', handleChange);
+          $input.setParser(numericParse);
+        }
       }
     })
   });
+  onUnmounted(() => {
+    $input?.removeEventListener('change', handleChange);
+    $input = undefined;
+  });
 </script>
 
-### 基础用法
+### Basic Usage
 
-文本输入的基础用法。
+A basic text input.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="请输入内容"></l-input>
+  <l-input placeholder="Enter text"></l-input>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 禁用状态
+### Disabled State
 
-通过 `disabled` 属性设置输入框为禁用状态。
+Set `disabled` to disable the input.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="请输入内容" disabled></l-input>
+  <l-input placeholder="Enter text" disabled></l-input>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 限制输入
+### Read-only State
 
-当前版本未接入 `allow-input` 和 `autofocus` 属性。限制输入请使用下面的 `setParser()` 示例；需要聚焦时，在组件挂载后调用 `focus()`。
-
-### 输入解析
-
-通过 `setParser` 给节点设置自定义 `parser` 在接受到输入值的时候进行解析，例如：只允许输入正整数
+Set `readonly` to make the input read-only. Users can still focus it and select or copy text, but the clear button is hidden. Use `readonly` or `readonly="true"` to enable it; set `readonly="false"` or remove the attribute to restore editing. You can also toggle the instance’s boolean `readOnly` property dynamically. Programmatic changes to `value` remain available. Native input read-only restrictions apply to types such as text and number, but not to types such as checkbox or range that do not support read-only behavior.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input id="input" placeholder="请输入正整数" clearable></l-input>
+  <l-input value="Read-only text you can select and copy" readonly clearable></l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+```js
+const input = document.querySelector("l-input");
+input.readOnly = true;
+input.readOnly = false;
+// Alternatively, use setAttribute("readonly", "") / removeAttribute("readonly").
+```
+
+### Restricting Input
+
+The current implementation does not support `allow-input` or `autofocus`. Use `setParser()` to restrict input, as shown below. Call `focus()` after mounting to focus the input.
+
+### Input Parser
+
+Use `setParser` to parse incoming values with a custom function, for example to accept only non-negative integers.
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input id="input" placeholder="Enter a non-negative integer" clearable></l-input>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-input id="input" placeholder="请输入正整数"></l-input>
+  <l-input id="input" placeholder="Enter a non-negative integer"></l-input>
 </textarea>
 <textarea lang="ts">
   import { $one, on, off } from 'utilane/browser';
@@ -104,9 +128,14 @@ regist([ReductionIcon, SearchIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 带图标的输入框
+### Input with Icons
 
-要在输入框中添加图标，只需要使用 `prefix` 和 `suffix` 命名的插槽。
+```js
+import { ReductionIcon, SearchIcon, regist } from "litos-ui";
+regist([ReductionIcon, SearchIcon]);
+```
+
+Use the `prefix` and `suffix` slots to add icons.
 
 <ClientOnly>
 <l-code-preview>
@@ -119,9 +148,9 @@ regist([ReductionIcon, SearchIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 带清除图标
+### Clearable Input
 
-使用 `clearable` 属性即可显示一个清除图标，点击图标删除所有内容。
+Set `clearable` to show a clear icon. Clicking it clears the input.
 
 <ClientOnly>
 <l-code-preview>
@@ -131,14 +160,14 @@ regist([ReductionIcon, SearchIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 错误状态
+### Error State
 
-通过 `error` 属性设置输入框为错误状态。
+Add `error` to display the error state.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input placeholder="请输入内容" error block></l-input>
+  <l-input placeholder="Enter text" error block></l-input>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -157,40 +186,41 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### Input Attributes
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 输入值，可通过实例 value 属性读写 | `string` | - |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `name` | 表单字段名 | `string` | - |
-| `type` | 原始的 [type](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/input#input_%E7%B1%BB%E5%9E%8B) | `string` | `text` |
-| `placeholder` | 占位文本 | `string` | - |
-| `block` | 宽度是否铺满父元素 | `boolean` | `false` |
-| `width` | 宽度 | `string` | - |
-| `clearable` | 是否显示清除按钮 | `boolean` | `false` |
-| `inputmode` | 原生输入模式，未设置时由浏览器决定 | `string` | 未设置 |
-| `maxlength` | 最大输入长度 | `number` | - |
-| `minlength` | 最小输入长度 | `number` | - |
-| `error` | 错误状态标记；存在该属性即显示错误状态，恢复时移除属性 | `string` | 未设置 |
+| `value` | Input value; also readable and writable through the value property | `string` | - |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `readonly` | Whether the input is read-only; also readable and writable through the readOnly property | `boolean` | `false` |
+| `name` | Form field name | `string` | - |
+| `type` | Native input [type](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/input#input_types) | `string` | `text` |
+| `placeholder` | Placeholder text | `string` | - |
+| `block` | Whether to fill the parent’s width | `boolean` | `false` |
+| `width` | Width | `string` | - |
+| `clearable` | Whether to show the clear button | `boolean` | `false` |
+| `inputmode` | Native input mode; determined by the browser when unset | `string` | Not set |
+| `maxlength` | Maximum input length | `number` | - |
+| `minlength` | Minimum input length | `number` | - |
+| `error` | Error-state marker; its presence enables the error state. Remove it to clear the state | `string` | Not set |
 
 ### Input Methods
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 参数 |
+| Name | Description | Parameters |
 | --- | --- | --- |
-| `setParser` | 设置输入解析 | `(parser: (val: string) => string): void` |
-| `focus` | 聚焦 | `(): void` |
+| `setParser` | Sets the input parser | `(parser: (val: string) => string): void` |
+| `focus` | Focuses the input | `(): void` |
 
 ### Input Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `prefix` | 前缀图标 |
-| `suffix` | 后缀图标 |
+| `prefix` | Prefix icon |
+| `suffix` | Suffix icon |
 
-### 样式变量
+### CSS Variables
 
 <!-- prettier-ignore -->
-| 名称 | 描述 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-input-width` | 输入框宽度 | `170px` |
+| `--l-input-width` | Input width | `170px` |

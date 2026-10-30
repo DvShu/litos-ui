@@ -10,7 +10,7 @@ import { regist, Calendar } from "litos-ui";
 regist(Calendar);
 ```
 
-The built-in weekday labels currently support only `zh-CN`. Translating this page does not change the component’s locale support.
+Weekday labels support Chinese and English. These examples use `locale="en-US"`; the week starts on Monday in both languages.
 
 ## Examples
 
@@ -116,7 +116,7 @@ Set `year` and `month` to display a specific month. The current year and month a
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar year="2026" month="2"></l-calendar>
+  <l-calendar locale="en-US" year="2026" month="2"></l-calendar>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -128,7 +128,7 @@ Use `min-date` and `max-date` to limit the selectable dates.
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar min-date="2026-03-20" max-date="2026-03-25"></l-calendar>
+  <l-calendar locale="en-US" min-date="2026-03-20" max-date="2026-03-25"></l-calendar>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -140,7 +140,7 @@ Handle `day-click` to obtain the clicked date and change the displayed month whe
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar id="calendar1"></l-calendar>
+  <l-calendar locale="en-US" id="calendar1"></l-calendar>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -152,11 +152,11 @@ Use `type="select"` and set `value` to select dates.
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar id="calendar2"></l-calendar>
+  <l-calendar locale="en-US" id="calendar2"></l-calendar>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-calendar id="calendar2"></l-calendar>
+  <l-calendar locale="en-US" id="calendar2"></l-calendar>
 </textarea>
 <textarea lang="js">
   const $calendar2 = $one('#calendar2');
@@ -188,11 +188,11 @@ Use `type="range"` and set `value` to two timestamps in `number,number` format t
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-calendar id="calendar3" type="range"></l-calendar>
+  <l-calendar locale="en-US" id="calendar3" type="range"></l-calendar>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-calendar id="calendar3" type="range"></l-calendar>
+  <l-calendar locale="en-US" id="calendar3" type="range"></l-calendar>
 </textarea>
 <textarea lang="js">
   const $calendar3 = $one('#calendar3');
@@ -243,6 +243,18 @@ import "litos-ui/calendar";
 
 Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
+## Locale Resolution
+
+`getLocale()` reads an explicit argument, sessionStorage, localStorage, `html.lang`, browser languages, then falls back to `zh-CN`. Both storage sources use the `locale` key with plain language strings; JSON and legacy cache formats are not parsed. Reading blocked storage is safe. The utility returns a language identifier; Calendar maps it to supported labels.
+
+```js
+import { getLocale } from "litos-ui/utils";
+localStorage.setItem("locale", "en-US");
+const locale = getLocale();
+```
+
+Changing the locale attribute updates an existing Calendar. Removing it reads the current environment again. Changing storage or html.lang alone does not automatically update mounted components; set their locale attributes when switching language.
+
 ## API
 
 ### Calendar Attributes
@@ -256,7 +268,7 @@ Element entries register themselves and their configured dependencies; condition
 | `month` | Month, for example `4` | `number` | Current month |
 | `type` | Calendar mode: select or range | `string` | `select` |
 | `value` | Selected dates: &-separated date strings in select mode, or two comma-separated timestamps in range mode; also available as the value property | `string` | - |
-| `locale` | Locale; only zh-CN is currently built in | `string` | `zh-CN` |
+| `locale` | Locale; en variants use en-US, zh variants and unsupported languages use zh-CN; supports dynamic updates | `string` | Resolved by getLocale(), with zh-CN as the final fallback |
 
 ### Calendar Slots
 

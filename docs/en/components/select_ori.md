@@ -1,8 +1,8 @@
-# SelectOri 原生下拉框
+# SelectOri
 
-这个是原生的下拉选择，只是对于 `select` 标签进行了一定的优化，通常用于单选时使用。
+A wrapper around the native `select` element, typically used for single selection.
 
-## 引用
+## Import and Registration
 
 ```js
 import { SelectOri, regist } from "litos-ui";
@@ -10,19 +10,19 @@ import { SelectOri, regist } from "litos-ui";
 regist(SelectOri);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-通过 `options` 属性设置选项或者通过 `slot-default` 来手动渲染选项。
+Call `setOptions()` to supply options, or place native `<option>` elements inside the component.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-select-ori value="2">
-    <option value="1">选项一</option>
-    <option value="2">选项二</option>
-    <option value="3">选项三</option>
+    <option value="1">Option one</option>
+    <option value="2">Option two</option>
+    <option value="3">Option three</option>
   </l-select-ori>
 </textarea>
 </l-code-preview>
@@ -42,38 +42,38 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### SelectOri Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 选中项绑定值 | `string` | - |
-| `name` | 原生的 `name` 属性 | `string` | - |
-| `disabled` | 是否禁用 | `boolean` | `false` |
+| `value` | Selected value | `string` | - |
+| `name` | Native name attribute | `string` | - |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
 
 ### SelectOri Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 选项列表 |
+| `default` | Option list |
 
 ### SelectOri Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 选中项改变时触发，`event.detail` 为选中的字符串值 | `(event: CustomEvent<string>)` |
+| `change` | Fires when selection changes; event.detail is the selected string value | `(event: CustomEvent<string>)` |
 
 ### SelectOri Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
-| `setOptions` | 重新设置新的选项列表 | `(options: SelectOption[]): void` |
-| `appendOptions` | 为选项列表追加新的选项 | `(options: SelectOption[]): void` |
+| `setOptions` | Replaces the option list | `(options: SelectOption[]): void` |
+| `appendOptions` | Appends options to the list | `(options: SelectOption[]): void` |
 
-### SelectOption Attributes
+### SelectOption
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 选项值 | `string` | - |
-| `label` | 选项标签 | `string` | - |
+| `value` | Option value | `string` | - |
+| `label` | Option label | `string` | - |

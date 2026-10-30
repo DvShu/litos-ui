@@ -92,6 +92,8 @@ import "litos-ui/pagination";
 
 Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
 
+Navigation titles and accessible labels use English: Previous page, Next page, Previous 5 pages, Next 5 pages, Page N, and Page number. The active page is marked with `aria-current="page"`.
+
 ## API
 
 ### Pagination Attributes

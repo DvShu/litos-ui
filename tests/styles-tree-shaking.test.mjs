@@ -10,6 +10,7 @@ const styles = [
   "button/style.js",
   "dialog/dialog_container_style.js",
   "icon/icon_style.js",
+  "input/style.js",
   "input_number/style.js",
   "notification/style.js",
   "styles/animation/index.js",

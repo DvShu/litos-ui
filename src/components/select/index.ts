@@ -42,6 +42,8 @@ type SelectState = {
   loading?: boolean;
   /** 是否展开下拉选择 */
   expanded?: boolean;
+  /** 无匹配选项时的提示文案 */
+  emptyText: string;
 };
 
 export default class Select extends FormInner<SelectState> {
@@ -65,6 +67,7 @@ export default class Select extends FormInner<SelectState> {
     this._state = {
       filterable: false,
       placeholder: "请选择",
+      emptyText: "暂无数据",
       labelField: "label",
       valueField: "value",
       multiple: false,
@@ -180,6 +183,7 @@ export default class Select extends FormInner<SelectState> {
       "width",
       "clearable",
       "remote",
+      "empty-text",
     ];
   }
 
@@ -190,8 +194,13 @@ export default class Select extends FormInner<SelectState> {
         break;
       case "label-field":
       case "value-field":
+        this._state[kebabToCamel(name) as "valueField"] = newValue;
+        break;
+      case "empty-text":
+        this._state.emptyText = newValue ?? "暂无数据";
+        break;
       case "placeholder":
-        this._state[name as "valueField"] = newValue;
+        this._state.placeholder = newValue ?? "请选择";
         break;
       case "multiple":
       case "clearable":
@@ -214,7 +223,14 @@ export default class Select extends FormInner<SelectState> {
         this.style.removeProperty("--l-select-width");
       }
     }
-    if (changedProps.has("label-field") || changedProps.has("value-field")) {
+    if (changedProps.has("placeholder")) {
+      this._reRenderLabels();
+    }
+    if (
+      changedProps.has("label-field") ||
+      changedProps.has("value-field") ||
+      changedProps.has("empty-text")
+    ) {
       this._updatePopoverContent();
     }
   }
@@ -304,7 +320,7 @@ export default class Select extends FormInner<SelectState> {
     if (children.length === 0) {
       const $li = $$("li", {
         class: "l-select-option l-select-option--empty",
-        textContent: "暂无数据",
+        textContent: this._state.emptyText,
       });
       children.push($li.outerHTML);
     }
@@ -601,7 +617,7 @@ export default class Select extends FormInner<SelectState> {
     $main.appendChild($tags);
     // filter
     if (this._state.filterable) {
-      let placeholder = this._state.placeholder || "请选择";
+      let placeholder = this._state.placeholder;
       let value = "";
       if (this.selectedLabels.length > 0) {
         if (!this._state.multiple) {
@@ -688,7 +704,7 @@ export default class Select extends FormInner<SelectState> {
 
   private _updateSearchValue() {
     if (this._searchEl) {
-      let placeholder = this._state.placeholder || "请选择";
+      let placeholder = this._state.placeholder;
       let value = "";
       if (this.selectedLabels.length > 0) {
         if (!this._state.multiple) {

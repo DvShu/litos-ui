@@ -241,6 +241,18 @@ import "litos-ui/calendar";
 
 元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
 
+## 语言获取
+
+`getLocale()` 按显式参数、sessionStorage、localStorage、`html.lang`、浏览器语言、`zh-CN` 的优先级获取语言。两种缓存均使用 `locale` 键，直接存储语言字符串，不解析 JSON 或旧缓存格式；存储不可访问时会继续回退。工具返回语言标识，由 Calendar 匹配内置文案。
+
+```js
+import { getLocale } from "litos-ui/utils";
+localStorage.setItem("locale", "en-US");
+const locale = getLocale();
+```
+
+修改 locale 属性可更新已挂载的日历，移除该属性时重新读取当前环境。仅修改缓存或 html.lang 不会自动更新已有组件，应用切换语言时应同步设置组件的 locale 属性。
+
 ## API
 
 ### Calendar Attributes
@@ -254,7 +266,7 @@ import "litos-ui/calendar";
 | `month` | 月份, 例如: `4` | `number` | 当前月份 |
 | `type` | 日历类型，可选值 `select`、`range` | `string` | `select` |
 | `value` | 选中日期，当 type 为 select 时为选中日期字符串以 `&`，当 type 为 range 时为两个日期的组合字符串（逗号分隔）; 同时也是 `value` 属性 | `string` | - |
-| `locale` | 语言，当前内置语言仅 zh-CN | `string` | `zh-CN` |
+| `locale` | 语言；en 系列使用 en-US，zh 系列及不支持的语言回退 zh-CN，支持动态更新 | `string` | 通过 getLocale() 读取，最终回退 zh-CN |
 
 ### Calendar Slots
 

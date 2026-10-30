@@ -1,8 +1,7 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "utilane/browser";
 import { parseAttrValue, unitNumberStr } from "../utils";
 import FormInner from "../form/form_inner";
-import css from "./index.less?inline";
-import innerCss from "./input_inner.less?inline";
+import inputSheet from "./style";
 
 interface InputState {
   /** 原生 input 的类型，默认为 "text" */
@@ -14,6 +13,7 @@ interface InputState {
   /** 限制输入类型, number, integer */
   allowInput: string | undefined;
   clearable: boolean;
+  readonly: boolean;
   error?: string;
   maxlength?: string;
   minlength?: string;
@@ -47,6 +47,7 @@ export default class Input extends FormInner<InputState> {
       allowInput: undefined,
       block: false,
       clearable: false,
+      readonly: false,
     };
   }
 
@@ -54,6 +55,7 @@ export default class Input extends FormInner<InputState> {
     this.setValue(value);
     if (this.$inner) {
       this.$inner.value = value;
+      this.#renderClearable();
     }
   }
 
@@ -61,9 +63,19 @@ export default class Input extends FormInner<InputState> {
     return this.getValue();
   }
 
+  get readOnly() {
+    return this._state.readonly;
+  }
+
+  set readOnly(value: boolean) {
+    if (value) this.setAttribute("readonly", "");
+    else this.removeAttribute("readonly");
+  }
+
   static get observedAttributes() {
     return [
       "disabled",
+      "readonly",
       "value",
       "name",
       "inner-block",
@@ -88,6 +100,9 @@ export default class Input extends FormInner<InputState> {
 
   beforeDestroy(): void {
     off(this.$inner as HTMLInputElement, "input", this._input);
+    off(this.$inner as HTMLInputElement, "change", this.#handleChange);
+    const clear = $one(".l-clearable", this.root);
+    if (clear) off(clear, "click", this.#handleClear);
   }
 
   protected attributeChange(name: string, oldValue: string, newValue: string): void {
@@ -101,6 +116,7 @@ export default class Input extends FormInner<InputState> {
         this._state[name] = newValue;
         break;
       case "clearable":
+      case "readonly":
       case "block":
         const v = parseAttrValue(newValue, false, name);
         this._state[name] = v;
@@ -112,6 +128,12 @@ export default class Input extends FormInner<InputState> {
   }
 
   protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("readonly") && this.$inner) {
+      this.$inner.readOnly = this._state.readonly;
+    }
+    if (changedProps.has("readonly") || changedProps.has("clearable")) {
+      this.#renderClearable();
+    }
     // 新的按条件更新逻辑:
     if (changedProps.has("clearable")) {
       if (this._state.clearable) {
@@ -158,7 +180,7 @@ export default class Input extends FormInner<InputState> {
   render_v2() {
     return {
       template: this.render(),
-      style: [css, innerCss],
+      styleSheets: [inputSheet],
     };
   }
 
@@ -191,6 +213,7 @@ export default class Input extends FormInner<InputState> {
       minlength: this._state.minlength,
       disabled: this.isDisabled() ? true : undefined,
     }) as HTMLInputElement;
+    $inner.readOnly = this._state.readonly;
     fragment.appendChild($inner);
 
     // suffix
@@ -273,30 +296,29 @@ export default class Input extends FormInner<InputState> {
   };
 
   #renderClearable() {
-    if (this._state.clearable) {
-      let $clearWrapper = $one(".l-clearable", this.root);
-      if (this.value.length > 0) {
-        if ($clearWrapper == null) {
-          // 创建清除按钮
-          $clearWrapper = $$("span", {
-            class: "l-input__suffix l-clearable",
-          });
-          const $clearIcon = $$("l-close-filled-icon");
-          $clearWrapper.appendChild($clearIcon);
-          this.root.appendChild($clearWrapper);
-          on($clearWrapper, "click", this.#handleClear);
-        }
-      } else {
-        if ($clearWrapper) {
-          off($clearWrapper, "click", this.#handleClear);
-          // 清除按钮
-          $clearWrapper.remove();
-        }
+    let $clearWrapper = $one(".l-clearable", this.root);
+    if (this._state.clearable && !this.readOnly && !this.isDisabled() && this.value?.length > 0) {
+      if ($clearWrapper == null) {
+        // 创建清除按钮
+        $clearWrapper = $$("span", {
+          class: "l-input__suffix l-clearable",
+        });
+        const $clearIcon = $$("l-close-filled-icon");
+        $clearWrapper.appendChild($clearIcon);
+        this.root.appendChild($clearWrapper);
+        on($clearWrapper, "click", this.#handleClear);
+      }
+    } else {
+      if ($clearWrapper) {
+        off($clearWrapper, "click", this.#handleClear);
+        // 清除按钮
+        $clearWrapper.remove();
       }
     }
   }
 
   #handleClear = () => {
+    if (this.readOnly || this.isDisabled()) return;
     this.value = "";
     this.dispatchEvent(
       new CustomEvent("input", {
@@ -315,6 +337,7 @@ export default class Input extends FormInner<InputState> {
     }
     if (this.$inner) {
       this.$inner.disabled = this.isDisabled();
+      this.#renderClearable();
     }
   }
 

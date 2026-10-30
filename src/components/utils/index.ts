@@ -135,3 +135,4 @@ export function unitNumberStr(value?: string | null | undefined, unit = "px") {
   if (!value) return value;
   return isNumeric(value) ? `${value}${unit}` : value;
 }
+export { getLocale } from "./locale";

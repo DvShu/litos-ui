@@ -92,6 +92,8 @@ import "litos-ui/pagination";
 
 元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
 
+分页导航标题与无障碍文案统一使用英文：Previous page、Next page、Previous 5 pages、Next 5 pages、Page N 和 Page number。当前页通过 `aria-current="page"` 标识。
+
 ## API
 
 ### Pagination Attributes

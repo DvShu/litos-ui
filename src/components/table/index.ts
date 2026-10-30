@@ -12,6 +12,8 @@ type ChangeFixedParams = {
 };
 
 type TableState = {
+  /** 无数据时的提示文案 */
+  emptyText: string;
   /** 斑马纹 */
   stripe: boolean;
   /** 是否显示四周边框 */
@@ -32,6 +34,7 @@ export default class Table extends BaseComponent<TableState> {
   constructor() {
     super();
     this._state = {
+      emptyText: "暂无数据",
       stripe: true,
       border: false,
       fixedHead: false,
@@ -90,12 +93,15 @@ export default class Table extends BaseComponent<TableState> {
   }
 
   static get observedAttributes() {
-    return ["stripe", "border", "fixed-head", "max-height", "table-layout"];
+    return ["stripe", "border", "fixed-head", "max-height", "table-layout", "empty-text"];
   }
 
   protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
     const camelName = kebabToCamel(name);
     switch (camelName) {
+      case "emptyText":
+        this._state.emptyText = newValue ?? "暂无数据";
+        break;
       case "stripe":
       case "border":
       case "fixedHead":
@@ -112,6 +118,10 @@ export default class Table extends BaseComponent<TableState> {
   }
 
   protected updateDOM(changedProps: Set<string>): void {
+    if (changedProps.has("empty-text")) {
+      const emptyCell = $one(".l-table__empty-col", this.root);
+      if (emptyCell) emptyCell.textContent = this._state.emptyText;
+    }
     if (changedProps.has("stripe")) {
       this._classAttrChannge("stripe", this._state.stripe);
     }
@@ -277,7 +287,7 @@ export default class Table extends BaseComponent<TableState> {
       const $emptyTr = $$("tr");
       const $td = $$("td", {
         class: "l-table__empty-col",
-        textContent: "暂无数据",
+        textContent: this._state.emptyText,
       }) as HTMLTableCellElement;
       if (this.columns) {
         $td.colSpan = this.columns.length;

@@ -14,7 +14,7 @@ regist(SelectOri);
 
 ### 基础用法
 
-通过 `options` 属性设置选项或者通过 `slot-default` 来手动渲染选项。
+通过 `setOptions()` 方法设置选项，或者在组件内提供原生 `<option>` 子元素。
 
 <ClientOnly>
 <l-code-preview>
@@ -70,7 +70,7 @@ import "litos-ui/select-ori";
 | `setOptions` | 重新设置新的选项列表 | `(options: SelectOption[]): void` |
 | `appendOptions` | 为选项列表追加新的选项 | `(options: SelectOption[]): void` |
 
-### SelectOption Attributes
+### SelectOption
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |

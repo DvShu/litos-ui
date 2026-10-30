@@ -22,6 +22,7 @@ const sharedSheets = [
   "button/style.ts",
   "dialog/dialog_container_style.ts",
   "icon/icon_style.ts",
+  "input/style.ts",
   "input_number/style.ts",
   "notification/style.ts",
   "styles/animation/index.ts",
@@ -175,7 +176,12 @@ function createHarness(onDefine = () => {}) {
 }
 
 function assertPureInitialization(harness) {
-  assert.deepEqual(harness.counts, { sheets: 8, replaceSync: 8, defines: 0, styles: 0 });
+  assert.deepEqual(harness.counts, {
+    sheets: sharedSheets.length,
+    replaceSync: sharedSheets.length,
+    defines: 0,
+    styles: 0,
+  });
   const loadedSheets = [...harness.modules.keys()]
     .filter((file) => sharedSheets.includes(path.relative(components, file).replaceAll("\\", "/")))
     .map((file) => path.relative(components, file).replaceAll("\\", "/"))
@@ -189,7 +195,12 @@ function assertPureInitialization(harness) {
 }
 
 function assertRegisteredInitialization(harness, root, base) {
-  assert.deepEqual(harness.counts, { sheets: 8, replaceSync: 8, defines: 78, styles: 0 });
+  assert.deepEqual(harness.counts, {
+    sheets: sharedSheets.length,
+    replaceSync: sharedSheets.length,
+    defines: 78,
+    styles: 0,
+  });
   assert.deepEqual([...harness.styles.keys()].sort(), globalStyleIds);
   assert.equal(harness.registry.size, 78);
   assert(

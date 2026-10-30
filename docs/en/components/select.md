@@ -1,13 +1,13 @@
-# Select 选择器
+# Select
 
-下拉选择器
+A dropdown selector.
 
-- 弹出一个下拉菜单给用户选择操作，用于代替原生的选择器，或者需要一个更优雅的多选器
-- 选项过多时，使用下拉菜单展示并选择内容
+- Show a dropdown menu as an alternative to a native select, including support for multiple selection.
+- Use a dropdown when there are too many options to display at once.
 
-> `l-select` 的默认宽度更改为 `100%` 当使用内联形式时，宽度将显示异常。为了保持显示正常, 您需要手动配置 `l-select` 的宽度
+> The default width of `l-select` is `100%`. Set an explicit width when using it inline.
 
-## 引用
+## Import and Registration
 
 ```js
 import {
@@ -21,7 +21,7 @@ import {
 } from "litos-ui";
 import "litos-ui/styles/select.css";
 
-regist([Select, ArrowDownIcon]);
+regist([ArrowDownIcon, Select]);
 // multiple
 regist([Tag, CloseIcon]);
 // loading
@@ -30,12 +30,12 @@ regist([LoadingIcon]);
 regist([CloseFilledIcon]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { $, iterate, on, off } from 'utilane/browser';
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  const fruits = ["苹果", "香蕉", "橙子", "葡萄", "柠檬", "草莓", "樱桃", "芒果", "猕猴桃", "杨梅", "菠萝", "西瓜", "哈密瓜", "桃子", "梨", "柿子", "榴莲", "椰子", "龙眼", "荔枝"];
+  const fruits = ["Apple", "Banana", "Orange", "Grape", "Lemon", "Strawberry", "Cherry", "Mango", "Kiwifruit", "Bayberry", "Pineapple", "Watermelon", "Hami melon", "Peach", "Pear", "Persimmon", "Durian", "Coconut", "Longan", "Lychee"];
   const options = fruits.map((item, i) => { return { value: i, label: item } });
 
   let $selects;
@@ -86,92 +86,92 @@ regist([CloseFilledIcon]);
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-通过 `setOptions()` 函数设置选项，可以通过 `.value` 获取或设置选中项[多选，设置为数组]
+Supply options with `setOptions()`. Read or update the selection through `.value`; use an array for multiple selection.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select></l-select>
+  <l-select empty-text="No options" placeholder="Select an option"></l-select>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-select id="select1"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" id="select1"></l-select>
 </textarea>
 <textarea lang="js">
   const $select1 = document.querySelector('#select1');
-  $select1.setOptions([{value:0,label:'苹果'}, {value:1,label:'香蕉'}]);
-  // 多选 $select1.value = [0, 1];
+  $select1.setOptions([{value:0,label:'Apple'}, {value:1,label:'Banana'}]);
+  // Multiple selection: $select1.value = [0, 1];
   $select1.value = 0;
 </textarea>
 </div>
 </l-code-preview>
 </ClientOnly>
 
-> 1. 可以通过 `value-field` 和 `label-field` 属性设置选项的 `value` 和 `label` 字段
-> 2. 如果选中项是字符串，可以直接通过节点的 `value` 属性，设置选中值设置选中值[多选用 `,` 分隔]
+> 1. Use `value-field` and `label-field` to customize the option keys for values and labels.
+> 2. String selections can also be provided through the HTML `value` attribute; separate multiple values with `,`.
 
-### 禁用
+### Disabled State
 
-通过 `disabled` 属性设置禁用状态
+Set `disabled` to disable the selector.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select disabled></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" disabled></l-select>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 也可以通过 `l-form-item` 或 `l-form-item` 组件的 `disabled` 属性设置禁用状态
+> Form and FormItem do not currently provide a shared disabled attribute. Set disabled on each Select control.
 
-### 多选
+### Multiple Selection
 
-设置 `multiple` 属性即可启用多选，默认情况下选中值会以 `Tag` 组件的形式展现， 你也可以设置 `collapse-tags` 属性将它们合并为一段文字。
+Enable `multiple` for multiple selection. Selected values are shown as Tag components by default; enable `collapse-tags` to show them as text instead.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select multiple width="180px"></l-select>
-  <l-select multiple collapse-tags width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" multiple width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" multiple collapse-tags width="180px"></l-select>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 可清空
+### Clearable Selection
 
-设置 clearable 属性，则可将选择器清空。
+Enable `clearable` to let users clear the selection.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select clearable width="180px"></l-select>
-  <l-select multiple collapse-tags clearable width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" clearable width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" multiple collapse-tags clearable width="180px"></l-select>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 过滤选项
+### Filtering Options
 
-可以利用过滤功能快速查找选项。
+Filter options to find them quickly.
 
-为 `l-select` 添加 `filterable` 属性即可启用搜索功能。 默认情况下，`Select` 会找出所有 `label` 属性包含输入值的选项。 如果希望使用其他的搜索逻辑，可以通过 `setFilter()` 传入一个 `filter` 函数来实现。 `filter` 为一个 `Function`，它会在输入值发生变化时调用，参数为当前输入值以及当前选项，返回值为 `boolean` 表明当前选项是否符合过滤。
+Enable `filterable` to search options. By default, Select matches labels containing the input. Call `setFilter()` with a custom function to change this behavior. The function receives the search string and option, and returns a boolean indicating whether the option matches.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select filterable width="180px"></l-select>
-  <l-select multiple filterable width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" filterable width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" multiple filterable width="180px"></l-select>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-select filterable width="180px"></l-select>
-  <l-select id="select2" multiple filterable width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" filterable width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" id="select2" multiple filterable width="180px"></l-select>
 </textarea>
 <textarea lang="js">
   const $select2 = document.querySelector('#select2');
-  $select2.setOptions([{value:0,label:'苹果'}, {value:1,label:'香蕉'}]);
+  $select2.setOptions([{value:0,label:'Apple'}, {value:1,label:'Banana'}]);
   //-
   function filter(match, option) {
     return option.label.includes(match) || option.value == match;
@@ -183,33 +183,33 @@ regist([CloseFilledIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 远程搜索
+### Remote Search
 
-搜索框和远程数据结合，输入关键字以从远程服务器中查找数据。
+Search remote data by entering keywords.
 
-为了启用远程搜索，需要将 `filterable` 和 `remote` 同时设置为 `true`，同时监听 `search` 事件，事件参数为输入的值, 可以在事件中搜索远程结果，并重新更新 `options` 选项；可以在搜索的过程中设置 `loading` 为 `true` 来显示加载状态。
+Enable both `filterable` and `remote`, then handle `search` using `event.detail.value`. Fetch matching data and call `setOptions()` to replace the options. Set `loading` while the request is pending.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-select multiple filterable remote width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" multiple filterable remote width="180px"></l-select>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-select id="select3" multiple filterable remote width="180px"></l-select>
+  <l-select empty-text="No options" placeholder="Select an option" id="select3" multiple filterable remote width="180px"></l-select>
 </textarea>
 <textarea lang="js">
-  const fruits = ["苹果", "香蕉", "橙子", "葡萄", "柠檬", "草莓", "樱桃", "芒果", "猕猴桃", "杨梅", "菠萝", "西瓜", "哈密瓜", "桃子", "梨", "柿子", "榴莲", "椰子", "龙眼", "荔枝"];
+  const fruits = ["Apple", "Banana", "Orange", "Grape", "Lemon", "Strawberry", "Cherry", "Mango", "Kiwifruit", "Bayberry", "Pineapple", "Watermelon", "Hami melon", "Peach", "Pear", "Persimmon", "Durian", "Coconut", "Longan", "Lychee"];
   const $select = document.querySelector('#select3');
   //-
   function handleSearch(e) {
     const $target = e.target;
     if ($target.loading) return;
     $target.loading = true;
-    // 也可以通过属性设置 loading
+    // You can also set loading through an attribute.
     // $target.setAttribute('loading', 'on');
     const searchValue = e.detail.value;
-    // 模拟请求
+    // Simulate a request.
     setTimeout(() => {
       const options = fruits.filter((item) => {
         return item.includes(searchValue);
@@ -233,67 +233,73 @@ regist([CloseFilledIcon]);
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/select.css";
 import "litos-ui/select";
 ```
 
 Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
+The default placeholder and empty-state labels are Chinese. These examples set English `placeholder` and `empty-text` attributes explicitly. Both support dynamic updates; an empty string hides the text and removing the attribute restores its default.
 
 ## API
 
 ### Select Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 选中项绑定值 | `string、number、array` | - |
-| `placeholder` | 占位符 | `string` | 请选择 |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `label-field` | 选项 `label` 的字段名 | `string` | `label` |
-| `value-field` | 选项 `value` 的字段名 | `string` | `value` |
-| `multiple` | 是否多选 | `boolean` | `false` |
-| `collapse-tags` | 多选时是否将选中值按文字的形式展示 | `boolean` | `false` |
-| `clearable` | 是否可清空 | `boolean` | `false` |
-| `filterable` | 是否启用过滤 | `boolean` | `false` |
-| `remote` | 是否启用远程搜索 | `boolean` | `false` |
-| `loading` | 是否为加载状态, 通常为远程搜索时使用 | `boolean` | `false` |
-| `width` | 宽度 | `string` | `100%` |
+| `value` | Selected value as an HTML attribute | `string` | - |
+| `placeholder` | Placeholder | `string` | 请选择 |
+| `empty-text` | Text displayed when no options match; supports dynamic updates. An empty string hides the text; removing the attribute restores the default | `string` | 暂无数据 |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `label-field` | Option field used for labels | `string` | `label` |
+| `value-field` | Option field used for values | `string` | `value` |
+| `multiple` | Whether to allow multiple selection | `boolean` | `false` |
+| `collapse-tags` | Whether to display multiple selected values as text | `boolean` | `false` |
+| `clearable` | Whether to allow clearing | `boolean` | `false` |
+| `filterable` | Whether to enable filtering | `boolean` | `false` |
+| `remote` | Whether to enable remote search | `boolean` | `false` |
+| `loading` | Whether to show loading, typically during remote search | `boolean` | `false` |
+| `width` | Width | `string` | `100%` |
+
+The JavaScript `value` property accepts a string, number, or an array of selected values. Arrays must be assigned as a property rather than an HTML attribute.
 
 ### Select Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 内容 |
+| - | The default slot is not currently rendered |
 
 ### Select Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `search` | 搜索时触发，e.detail.value 为搜索内容 | `(e: CustomEvent)` |
-| `change` | 选择变化时触发，detail 包含 value 和 labels | `(e: CustomEvent)` |
+| `search` | Fires when searching; e.detail.value contains the search text | `(e: CustomEvent)` |
+| `change` | Fires when selection changes; detail contains value and labels | `(e: CustomEvent)` |
 
-选项数据通过 `setOptions()` 设置，自定义过滤函数通过 `setFilter()` 设置，不能把对象数组或函数直接作为 HTML 属性传入。
+Use `setOptions()` for option objects and `setFilter()` for a filter function. Object arrays and functions cannot be passed directly as HTML attributes.
 
 ### Select Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 |
+| Method | Description |
 | --- | --- |
-| `setOptions(options: SelectOption[])` | 设置选项 |
-| `setFilter(filter: (match: string, option: SelectOption) => boolean)` | 设置自定义过滤函数 |
+| `setOptions(options: SelectOption[])` | Sets the options |
+| `setFilter(filter: (match: string, option: SelectOption) => boolean)` | Sets a custom filter function |
 
 ### SelectOption
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 选项的值 | `string` 或 `number` | - |
-| `label` | 选项的标签 | `string` | - |
+| `value` | Option value | `string` or `number` | - |
+| `label` | Option label | `string` | - |
 
 ### Select CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
 | - | - | - |

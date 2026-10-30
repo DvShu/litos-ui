@@ -1,8 +1,8 @@
-# Radio 单选框
+# Radio
 
-在一组选项中进行单选操作。
+Select one option from a group.
 
-## 引用
+## Import and Registration
 
 ```js
 import { RadioGroup, Radio, regist } from "litos-ui";
@@ -10,63 +10,63 @@ import { RadioGroup, Radio, regist } from "litos-ui";
 regist([RadioGroup, Radio]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot` 来重写选项的文字。
+For a standalone radio, use the boolean `checked` state to control selection. Supply custom label content through the default slot.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
 <l-radio>
   <span>
-    <span>同意</span>
-    <a href='#'>隐私协议</a>
+    <span>I agree to the</span>
+    <a href='#'>Privacy policy</a>
   </span>
 </l-radio>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 禁用状态
+### Disabled State
 
-设置 `disabled` 属性即可。
+Set `disabled` to disable the option.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-radio disabled label="禁用"></l-radio>
+  <l-radio disabled label="Disabled"></l-radio>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 单选框组
+### Radio Group
 
-结合 `l-radio-group` 组件实现单选框组
+Combine radio options inside `l-radio-group` for single selection.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-radio-group value="1" gap="15">
-    <l-radio label="女" value="0"></l-radio>
-    <l-radio label="男" value="1"></l-radio>
+    <l-radio label="Female" value="0"></l-radio>
+    <l-radio label="Male" value="1"></l-radio>
   </l-radio-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 按钮样式
+### Button Style
 
-在单选框组基础上，设置 `type` 为 `button` 可以使用按钮样式。
+Add `button` to each `l-radio` in a group for button styling.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-radio-group value="0">
-    <l-radio label="女" value="0" button></l-radio>
-    <l-radio label="未知" value="-1" button></l-radio>
-    <l-radio label="男" value="1" button></l-radio>
+    <l-radio label="Female" value="0" button></l-radio>
+    <l-radio label="Unknown" value="-1" button></l-radio>
+    <l-radio label="Male" value="1" button></l-radio>
   </l-radio-group>
 </textarea>
 </l-code-preview>
@@ -77,6 +77,7 @@ regist([RadioGroup, Radio]);
 ```js
 import "litos-ui/styles/vars.css";
 import "litos-ui/radio";
+import "litos-ui/radio-group";
 ```
 
 Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
@@ -86,42 +87,42 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### Radio Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `name` | 原生 `name` 属性 | `string` | - |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `button` | 是否使用按钮风格 | `boolean` | `false` |
-| `value` | 选项值 | `string` | - |
-| `checked` | 是否选中 | `boolean` | `false` |
-| `label` | 标签文本 | `string` | - |
+| `name` | Native name attribute | `string` | - |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `button` | Whether to use button styling | `boolean` | `false` |
+| `value` | Option value | `string` | - |
+| `checked` | Whether the option is checked | `boolean` | `false` |
+| `label` | Label text | `string` | - |
 
 ### Radio Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 单选框选项文本 |
+| `default` | Radio label content |
 
 ### Radio Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 单个选项变化时 detail 包含 value、name、checked；组的 change 事件 detail.value 为选中值 | `(event: CustomEvent)` |
+| `change` | For an individual option, detail contains value, name, and checked; the group event provides the selected value in detail.value | `(event: CustomEvent)` |
 
 ### RadioGroup Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 选中的选项值 | `string` | - |
-| `gap` | 选项间距 | `string` | - |
+| `value` | Selected option value | `string` | - |
+| `gap` | Spacing between options | `string` | - |
 
-组内选项通过 `l-radio` 子元素提供，当前没有 `setItems()` 方法。
+Provide options as `l-radio` children. There is currently no `setItems()` method.
 
 ### Radio CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-check-size` | 单选框尺寸 | `14px` |
+| `--l-check-size` | Radio size | `14px` |

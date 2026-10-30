@@ -1,8 +1,8 @@
-# DatePicker 日期选择器
+# DatePicker
 
-日期面板组件，目前处于完善阶段：支持打开浮层和配置宽度，尚未接入日期选择回填、月份切换和此刻按钮行为。需要可用的原生日期输入或范围输入时，请使用 [DatePickerOri](./date_picker_ori)。
+This date panel is still under development. It opens a popover and supports width configuration, but date selection, value updates, month navigation, and the current-time button are not implemented. For native date or range input, use [DatePickerOri](./date_picker_ori).
 
-## 引用
+## Import and Registration
 
 ```js
 import {
@@ -30,11 +30,11 @@ regist([
 ]);
 ```
 
-## 演示
+## Examples
 
-### 基础用法
+### Basic Usage
 
-基础演示：点击输入框打开日期面板。此演示不代表已实现日期选择与值回填。
+Click the input to open the date panel. This demo does not provide date selection or value updates.
 
 <ClientOnly>
 <l-code-preview>
@@ -53,47 +53,50 @@ regist([
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/datepicker.css";
 import "litos-ui/date-picker";
 ```
 
 Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
+
+The embedded calendar and unfinished panel controls retain their built-in Chinese labels.
 
 ## API
 
 ### DatePicker Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `width` | 宽度 | `string` | `-` |
+| `width` | Width | `string` | `-` |
 
 ### DatePicker Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| - | 当前未渲染默认插槽 |
+| - | The default slot is not currently rendered |
 
 ### DatePicker Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `click` | 原生点击事件，不代表日期选择或值改变 | `(event: Event)` |
+| `click` | Native click event; does not indicate date selection or a value change | `(event: Event)` |
 
 ### DatePicker Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
 | - | - | - |
 
 ### DatePicker CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-date-picker-width` | 宽度 | `140px` |
-| `--l-form-control-height` | 高度 | `40px`（引入 vars.css 后；未引入时组件回退为 32px） |
-| `--l-border-color` | 边框颜色 | `#dedede` |
-| `--l-border-radius` | 边框圆角 | `5px`（引入 vars.css 后；未引入时组件回退为 3px） |
+| `--l-date-picker-width` | Width | `140px` |
+| `--l-form-control-height` | Height | `40px` (with vars.css; component fallback without it: 32px) |
+| `--l-border-color` | Border color | `#dedede` |
+| `--l-border-radius` | Border radius | `5px` (with vars.css; component fallback without it: 3px) |

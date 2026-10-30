@@ -136,9 +136,9 @@ pnpm fmt:check
 
 ## 文档
 
-[中文文档](https://dvshu.github.io/litos-ui/)
+[中文文档](https://dvshu.github.io/litos-ui/) | [英文文档](https://dvshu.github.io/litos-ui/en/)
 
-英文文档结构已建立，页面正文暂时保留中文，待后续翻译。
+英文文档以中文文档为内容依据。组件开发完成后，统一对照中文文档翻译并验证；新增、遗漏或过期的翻译按[翻译指南](./TRANSLATION_GUIDE.md)记录和同步。
 
 ## 许可证
 

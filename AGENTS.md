@@ -102,7 +102,7 @@ pnpm docs:build
 
 ## 文档翻译约定
 
-修改英文 README、`docs/en/` 或英文文档界面时，遵循根目录 [TRANSLATION_GUIDE.md](./TRANSLATION_GUIDE.md)。保留公开 API 的精确拼写，区分 Attributes 与 Properties。已有英文翻译不可被中文副本整份覆盖；新增组件按当前翻译阶段处理，并分别更新对应任务状态。
+修改英文 README、`docs/en/` 或英文文档界面时，遵循根目录 [TRANSLATION_GUIDE.md](./TRANSLATION_GUIDE.md)。保留公开 API 的精确拼写，区分 Attributes 与 Properties。已有英文翻译不可被中文副本整份覆盖；新增组件按当前翻译阶段处理，并分别更新对应任务状态。 英文文档统一以中文文档为内容依据；组件开发时先完成中文文档，并在 TRANSLATION_GUIDE.md 的“翻译待同步记录”登记新增、遗漏或过期内容。用户会在组件开发完成后要求统一翻译，届时对照当前中文全文同步并验证；当次明确要求同步翻译时按当次要求执行。未同步的页面不得宣称翻译完成，已有页面翻译任务发现遗漏或过期时重新打开，完成同步和检查后再勾选。
 
 ## 待完成清单的编号操作
 

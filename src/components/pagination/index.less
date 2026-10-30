@@ -24,6 +24,9 @@
   --l-btn-padding: 0;
 }
 .l-pagination--link {
+  font: inherit;
+  padding: 0;
+  background: transparent;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -74,4 +77,15 @@
 }
 .l-pagination-simple-divide {
   margin: 0 5px;
+}
+.l-pagination-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

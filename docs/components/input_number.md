@@ -11,20 +11,28 @@ regist(InputNumber);
 ## 演示
 
 <script setup>
-  import { onMounted, nextTick } from 'vue';
+  import { onMounted, nextTick, onUnmounted } from 'vue';
   import { $one } from 'utilane/browser';
+
+  let $num1;
+
+  function handleChange(e) {
+    console.log('input-number change', e.detail);
+  }
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        const $num1 = $one('#num-change');
+        $num1 = $one('#num-change');
         if ($num1) {
-          $num1.addEventListener('change', function(e) {
-            console.log('input-number change', e.detail);
-          });
+          $num1.addEventListener('change', handleChange);
         }
       }
     })
+  });
+  onUnmounted(() => {
+    $num1?.removeEventListener('change', handleChange);
+    $num1 = undefined;
   });
 </script>
 
@@ -177,7 +185,7 @@ import "litos-ui/input-number";
 | `placeholder` | 占位文本 | `string` | - |
 | `size` | 尺寸，`small`、`default`、`large` | `string` | `default` |
 | `width` | 宽度 | `string` | `170px` |
-| `block` | 宽度是否铺满父元素 | `boolean` | `false` |
+| `inner-block` | 宽度是否铺满父元素 | `boolean` | `false` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `controls-disabled` | 是否隐藏步进按钮 | `boolean` | `false` |
 | `name` | 表单字段名 | `string` | - |
@@ -185,7 +193,7 @@ import "litos-ui/input-number";
 ### InputNumber Events
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 回调参数 |
+| 名称 | 说明 | event.detail |
 | --- | --- | --- |
 | `input` | 值变化时触发（实时） | `{ value: number, name: string }` |
 | `change` | 值变化时触发（失焦或回车） | `{ value: number, name: string }` |

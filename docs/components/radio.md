@@ -58,7 +58,7 @@ regist([RadioGroup, Radio]);
 
 ### 按钮样式
 
-在单选框组基础上，设置 `type` 为 `button` 可以使用按钮样式。
+在单选框组基础上，给 `l-radio` 设置 `button` 属性可以使用按钮样式。
 
 <ClientOnly>
 <l-code-preview>
@@ -77,6 +77,7 @@ regist([RadioGroup, Radio]);
 ```js
 import "litos-ui/styles/vars.css";
 import "litos-ui/radio";
+import "litos-ui/radio-group";
 ```
 
 元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。

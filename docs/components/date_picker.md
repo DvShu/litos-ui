@@ -53,6 +53,7 @@ regist([
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/datepicker.css";
 import "litos-ui/date-picker";
 ```
 

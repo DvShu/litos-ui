@@ -167,11 +167,11 @@ Define columns with `setColumns()` and provide data with `setData()`. To create 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-table class="data-table"></l-table>
+  <l-table empty-text="No data" class="data-table"></l-table>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-table class="data-table"></l-table>
+  <l-table empty-text="No data" class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
   import { on, $$, $one } from 'utilane/browser';
@@ -257,7 +257,7 @@ Tables have striped rows by default. Set `stripe="off"` to disable them.
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-table class="data-table" stripe="off"></l-table>
+  <l-table empty-text="No data" class="data-table" stripe="off"></l-table>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -269,19 +269,19 @@ Vertical borders are hidden by default. Enable `border` to show them.
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-table class="data-table" border></l-table>
+  <l-table empty-text="No data" class="data-table" border></l-table>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
 ### Empty State
 
-An empty state is shown when the data array is empty.
+An empty state is shown when the data array is empty. Set `empty-text` to customize its message; dynamic changes update the visible empty state. An empty string hides the text, and removing the attribute restores the Chinese default.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-table class="data-table"></l-table>
+  <l-table empty-text="No data" class="data-table"></l-table>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -293,11 +293,11 @@ Enable `fixed-head` to fix the header. Set a column’s `fixed` option to `left`
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-table class="data-table" fixed-head max-height="200px"></l-table>
+  <l-table empty-text="No data" class="data-table" fixed-head max-height="200px"></l-table>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-table class="data-table"></l-table>
+  <l-table empty-text="No data" class="data-table"></l-table>
 </textarea>
 <textarea lang="js">
   import { on, $$, $one } from 'utilane/browser';
@@ -360,7 +360,7 @@ Set `sorter` to `true` or `custom` and supply a column `key`. With `sorter="cust
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-table class="data-table" border></l-table>
+  <l-table empty-text="No data" class="data-table" border></l-table>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -387,6 +387,7 @@ Element entries register themselves and their configured dependencies; condition
 | `fixed-column` | Whether columns are fixed; determined automatically when columns are parsed | `boolean` | `false` |
 | `max-height` | Maximum height | `number \| string` | `-` |
 | `table-layout` | Table layout | `"auto" \| "fixed"` | `-` |
+| `empty-text` | Text displayed when the table has no data; supports dynamic updates. An empty string hides the text; removing the attribute restores the default | `string` | 暂无数据 |
 
 ### Table Column Options
 

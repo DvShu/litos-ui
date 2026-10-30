@@ -5,13 +5,9 @@
 ## 引用
 
 ```js
-import { Form, FormItem, regist, Space, Button, Input, Radio, RadioGroup } from "litos-ui";
+import { Form, FormItem, regist } from "litos-ui";
 
-regist([Form, FormItem]);
-regist([Space]); // 表单按钮组的间距
-
-// 注册本页演示使用的附加组件
-regist([Button, Input, Radio, RadioGroup]);
+regist([FormItem, Form]);
 ```
 
 ## 演示
@@ -158,6 +154,11 @@ regist([Button, Input, Radio, RadioGroup]);
 
 ### 基础用法
 
+```js
+import { Space, Button, Input, regist } from "litos-ui";
+regist([Space, Button, Input]);
+```
+
 基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [utilane/validator](https://github.com/DvShu/utilane#readme)
 
 <ClientOnly>
@@ -189,7 +190,7 @@ regist([Button, Input, Radio, RadioGroup]);
 
 ### 自定义验证
 
-对于复杂的表单，如果默认的验证不符合需求，可以通过给 `Form` 传递 `novalidate="on"` 禁用默认验证，然后手动调用 `Form` 的 `setErrors(errors: Reocord<string, any>)` 传递验证的错误信息即可。
+对于复杂的表单，如果默认的验证不符合需求，可以通过给 `Form` 传递 `novalidate="on"` 禁用默认验证，然后手动调用 `Form` 的 `setErrors(errors: Record<string, any>)` 传递验证的错误信息即可。
 
 <ClientOnly>
 <l-code-preview>
@@ -245,9 +246,14 @@ regist([Button, Input, Radio, RadioGroup]);
 </ClientOnly>
 
 > 验证成功的字段，可以不传或者传递为 `undefined`、`null`
-> 当然也可以手动验证数据，然后分别调用输入框以及 `FormItem` 的 `setError({})` 方法设置错误
+> 单独使用 FormItem 时，可通过其 `error` 属性显示错误信息；当前 FormItem 没有 `setError()` 方法。
 
 ### 验证多语言支持
+
+```js
+import { Radio, RadioGroup, regist } from "litos-ui";
+regist([Radio, RadioGroup]);
+```
 
 通过自定义验证的方式，可以配置多语言支持。通过调用 `Form` 的 `setSchemas` 方法，可以设置自定义验证规则; 然后给 `Form` 设置 `emit-error` 表明验证失败后，通过 `validate-error` 自定义事件来处理，传递验证失败的数据, 然后再通过 `setErrors` 传递自定义验证数据
 

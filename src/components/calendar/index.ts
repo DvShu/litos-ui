@@ -1,10 +1,9 @@
-import { parseAttrValue } from "../utils";
+import { parseAttrValue, getLocale } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 import { $one, off, on, shouldEventNext, hasClass } from "utilane/browser";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
-import { get } from "utilane/browser";
 import { format, startOf, endOf, timestamp } from "utilane";
 import BaseComponent from "../base";
 
@@ -31,7 +30,7 @@ export default class Calendar extends BaseComponent<CalendarState> {
     super();
     this.version = 2;
     // 获取语言, 适配未来的整个工程的语言
-    const appLocale = get("l_app_locale", "zh-CN", { storage: "session" });
+    const appLocale = this._resolveLocale();
     const now = new Date();
     this._value = "";
     this._state = {
@@ -45,6 +44,11 @@ export default class Calendar extends BaseComponent<CalendarState> {
     this._langData = langs[appLocale];
     this._selectDates = new Set();
     this._range = [0, 0];
+  }
+
+  private _resolveLocale(locale?: string | null): string {
+    const language = getLocale(locale).split("-")[0];
+    return language === "en" ? "en-US" : "zh-CN";
   }
 
   get value() {
@@ -129,10 +133,8 @@ export default class Calendar extends BaseComponent<CalendarState> {
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     switch (name) {
       case "locale":
-        if (langs.hasOwnProperty(newValue)) {
-          this._state.locale = newValue;
-          this._langData = langs[newValue];
-        }
+        this._state.locale = this._resolveLocale(newValue);
+        this._langData = langs[this._state.locale];
         break;
       case "min-date":
         this._state.minDate = startOf(newValue).getTime();
@@ -159,7 +161,8 @@ export default class Calendar extends BaseComponent<CalendarState> {
   protected updateDOM(changedProps: Set<string>): void {
     if (changedProps.has("locale")) {
       this.rerenderHeader();
-    } else if (changedProps.has("year") || changedProps.has("month")) {
+    }
+    if (changedProps.has("year") || changedProps.has("month")) {
       if (this.$container) {
         this.$container.innerHTML = this.rerender();
       }

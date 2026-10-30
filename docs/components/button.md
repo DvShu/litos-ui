@@ -3,14 +3,11 @@
 ## 引用
 
 ```js
-import { Button, regist, LoadingIcon, SearchIcon } from "litos-ui";
+import { Button, regist, LoadingIcon } from "litos-ui";
 
 regist(Button);
 // 如果需要使用加载状态
 regist(LoadingIcon);
-
-// 注册本页演示使用的附加组件
-regist([SearchIcon]);
 ```
 
 ## 基础使用
@@ -113,6 +110,11 @@ regist([SearchIcon]);
 
 ### 按钮图标
 
+```js
+import { SearchIcon, regist } from "litos-ui";
+regist(SearchIcon);
+```
+
 直接在 `Button` 内使用 [Icon](/components/icon) 组件。可以搭配文字形成图标文字按钮。
 
 <ClientOnly>
@@ -177,8 +179,8 @@ regist([SearchIcon]);
   }
   l-button[type="gradient"]::part(default) {
     border: none;
-    --l-btn-color: #389e0d;
-    --l-btn-active-color: #0fd850;
+    --l-btn-text-color: #389e0d;
+    --l-btn-active-text-color: #0fd850;
     --l-btn-background: linear-gradient(90deg, #0fd850 0%, #f9f047 100%);
     --l-btn-hover-background: linear-gradient(90deg, #2af06a 0%, #fbf478 100%);
     --l-btn-active-background: linear-gradient(90deg, #0a9036 0%, #ece008 100%);

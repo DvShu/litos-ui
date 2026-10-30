@@ -7,10 +7,7 @@
 ```js
 import { Checkbox, regist, CheckboxGroup } from "litos-ui";
 
-regist([Checkbox]);
-
-// 注册本页演示使用的附加组件
-regist([CheckboxGroup]);
+regist([Checkbox, CheckboxGroup]);
 ```
 
 ## 演示
@@ -70,7 +67,7 @@ regist([CheckboxGroup]);
 
 ### 基础用法
 
-使用当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot-label` 来重写选项的文字。
+使用当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用默认插槽来重写选项的文字。
 
 <ClientOnly>
 <l-code-preview>
@@ -99,7 +96,7 @@ regist([CheckboxGroup]);
 
 ### 多选框组
 
-结合 `l-checkbox-group` 组件实现单选框组
+结合 `l-checkbox-group` 组件实现多选框组
 
 <ClientOnly>
 <l-code-preview>
@@ -109,7 +106,7 @@ regist([CheckboxGroup]);
     <l-checkbox value="BJ">北京</l-checkbox>
     <l-checkbox value="SZ">深圳</l-checkbox>
     <l-checkbox value="SH">上海</l-checkbox>
-  </l-checkbox>
+  </l-checkbox-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -128,7 +125,7 @@ regist([CheckboxGroup]);
     <l-checkbox value="BJ" button>北京</l-checkbox>
     <l-checkbox value="SZ" button>深圳</l-checkbox>
     <l-checkbox value="HZ" button>杭州</l-checkbox>
-  </l-checkbox>
+  </l-checkbox-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -148,7 +145,7 @@ regist([CheckboxGroup]);
     <l-checkbox value="BJ" button>北京</l-checkbox>
     <l-checkbox value="SZ" button>深圳</l-checkbox>
     <l-checkbox value="HZ" button>杭州</l-checkbox>
-  </l-checkbox>
+  </l-checkbox-group>
 </textarea>
 <div class="source">
 <textarea lang="html">
@@ -205,6 +202,7 @@ regist([CheckboxGroup]);
 ```js
 import "litos-ui/styles/vars.css";
 import "litos-ui/checkbox";
+import "litos-ui/checkbox-group";
 ```
 
 元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。

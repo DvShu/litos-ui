@@ -26,7 +26,7 @@ type DialogInitialParams = DialogProps & {
 export default class Dialog {
   private $dialog!: HTMLDialogElement;
   private $container: HTMLElement | null | undefined;
-  private config!: Required<DialogInitialParams>;
+  private config!: Omit<Required<DialogInitialParams>, "close"> & Pick<DialogProps, "close">;
   private finishClose?: (event?: Event) => void;
 
   constructor(option?: DialogInitialParams) {
@@ -36,8 +36,15 @@ export default class Dialog {
   }
 
   private handleKeydown = (e: KeyboardEvent) => {
-    if (e.code === "Escape") {
-      e.preventDefault();
+    if (e.key === "Escape" || e.code === "Escape") {
+      this.handleCancel(e);
+    }
+  };
+
+  private handleCancel = (e: Event) => {
+    // 阻止原生 dialog 直接关闭，统一按配置执行关闭动画。
+    e.preventDefault();
+    if (this.config.escClose !== false) {
       this.close();
     }
   };
@@ -60,6 +67,16 @@ export default class Dialog {
     }
   };
 
+  private applyClose(close: number | undefined) {
+    if (close === undefined) return;
+    if (close === 2) {
+      addClass(this.$dialog, "l-dialog-close-outside");
+    } else {
+      removeClass(this.$dialog, "l-dialog-close-outside");
+    }
+    this.$container?.setAttribute("close", `${close}`);
+  }
+
   /**
    * 初始化对话框
    * @param option 配置项
@@ -70,7 +87,6 @@ export default class Dialog {
         escClose: true,
         verticalAlign: "top",
         maskClosable: true,
-        close: 1,
         ...option,
       };
       this.$dialog = $one(option.el) as HTMLDialogElement;
@@ -94,16 +110,10 @@ export default class Dialog {
           this.$dialog.style.setProperty("--l-dialog-width", width);
         }
         // close
-        const close = getAttr(this.$dialog, "close", 1);
-        if (close === 2) {
-          addClass(this.$dialog, "l-dialog-close-outside");
-        }
-        if (this.$container) {
-          this.$container.setAttribute("close", `${close}`);
-        }
-        tmpconfig.close = close;
+        this.applyClose(tmpconfig.close);
         // 监听 esc
         on(this.$dialog, "keydown", this.handleKeydown as any);
+        on(this.$dialog, "cancel", this.handleCancel);
         on(this.$dialog, "click", this.handleClick);
         if (this.$container) {
           on(this.$container, "dialogAction", this.handleContainerAction as any);
@@ -153,6 +163,7 @@ export default class Dialog {
       this.close();
       this.finishClose?.();
       off(this.$dialog, "keydown", this.handleKeydown as any);
+      off(this.$dialog, "cancel", this.handleCancel);
       off(this.$dialog, "click", this.handleClick);
       if (this.$container) {
         off(this.$container, "dialogAction", this.handleContainerAction as any);
@@ -184,9 +195,7 @@ export default class Dialog {
             this.$dialog.style.removeProperty("--l-dialog-width");
           }
         } else if (key === "close") {
-          if (this.$container) {
-            this.$container.setAttribute("close", `${value}`);
-          }
+          this.applyClose(value as number | undefined);
         }
       }
     }

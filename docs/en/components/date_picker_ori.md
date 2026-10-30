@@ -1,8 +1,8 @@
-# DatePickerOri 原生日期选择器
+# DatePickerOri
 
-基于原生 `input` 封装的输入或选择日期的控件。
+A date input and picker built on native `input` elements.
 
-## 引用
+## Import and Registration
 
 ```js
 import { DatePickerOri, regist } from "litos-ui";
@@ -10,7 +10,7 @@ import { DatePickerOri, regist } from "litos-ui";
 regist(DatePickerOri);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
@@ -38,9 +38,9 @@ regist(DatePickerOri);
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-通过 `type` 属性指定类型，`date`、`datetime-local`、`time`、`month`、`week`。`value` 设置初始值。
+Set `type` to `date`, `datetime-local`, `time`, `month`, or `week`. Use `value` for the initial value.
 
 <ClientOnly>
 <l-code-preview>
@@ -72,11 +72,11 @@ regist(DatePickerOri);
 </l-code-preview>
 </ClientOnly>
 
-> 注意使用 `month`、`week` 时需要考虑兼容性
+> Support for `month` and `week` depends on the browser.
 
-### 限定日期范围
+### Date Limits
 
-通过 `min` 和 `max` 限定日期范围。
+Limit the date range with `min` and `max`.
 
 <ClientOnly>
 <l-code-preview>
@@ -86,9 +86,9 @@ regist(DatePickerOri);
 </l-code-preview>
 </ClientOnly>
 
-### 范围选择器
+### Range Picker
 
-通过 `range` 属性开启范围选择。
+Enable `range` to select a date range.
 
 <ClientOnly>
 <l-code-preview>
@@ -112,23 +112,23 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### DatePickerOri Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 初始值, 如果是范围选择，则逗号分隔开始结束日期, 例如: `2025-04-01,2025-04-15` | `string` | `-` |
-| `min` | 最小日期 | `string` | `-` |
-| `max` | 最大日期 | `string` | `-` |
-| `type` | 类型, 可选值: `date`、`datetime-local`、`time`、`month`、`week` | `string` | `date` |
-| `range` | 是否开启范围选择 | `boolean` | `false` |
-| `allow-empty` | 是否允许空值, 设置为 `false` 时如果为空会赋值初始值 | `boolean` | `true` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `width` | 宽度 | `string` | `-` |
-| `delay` | 触发 `change` 事件时延时, 在范围选择时有效；为了性能考虑, 立即改变一个日期后，会延迟 `300ms` 通知, 以响应其它选择器, `0` - 立即触发 | `number` | `300` |
+| `value` | Initial value; in range mode, separate the start and end dates with a comma, for example 2025-04-01,2025-04-15 | `string` | `-` |
+| `min` | Earliest date | `string` | `-` |
+| `max` | Latest date | `string` | `-` |
+| `type` | Input type: date, datetime-local, time, month, or week | `string` | `date` |
+| `range` | Whether to enable range selection | `boolean` | `false` |
+| `allow-empty` | Whether empty values are allowed; false restores the initial value when cleared | `boolean` | `true` |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `width` | Width | `string` | `-` |
+| `delay` | Change event delay in range mode, in milliseconds; defaults to 300 to batch changes. Set 0 to emit immediately | `number` | `300` |
 
 ### DatePickerOri Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 日期改变时触发, 通过 `event.detail` 可以获取到当前值 | `(event: CustomEvent)` |
+| `change` | Fires when the date changes; event.detail contains the current value | `(event: CustomEvent)` |
 
-初始 `datetime-local` 值使用原生输入框要求的格式，例如 `2025-05-02T17:00`。
+Initial `datetime-local` values must use the native input format, for example `2025-05-02T17:00`.

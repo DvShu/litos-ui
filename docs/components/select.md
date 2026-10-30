@@ -21,7 +21,7 @@ import {
 } from "litos-ui";
 import "litos-ui/styles/select.css";
 
-regist([Select, ArrowDownIcon]);
+regist([ArrowDownIcon, Select]);
 // multiple
 regist([Tag, CloseIcon]);
 // loading
@@ -124,7 +124,7 @@ regist([CloseFilledIcon]);
 </l-code-preview>
 </ClientOnly>
 
-> 也可以通过 `l-form-item` 或 `l-form-item` 组件的 `disabled` 属性设置禁用状态
+> 当前 Form 和 FormItem 未提供统一 disabled 属性，请在具体 Select 控件上设置禁用状态。
 
 ### 多选
 
@@ -233,6 +233,7 @@ regist([CloseFilledIcon]);
 
 ```js
 import "litos-ui/styles/vars.css";
+import "litos-ui/styles/select.css";
 import "litos-ui/select";
 ```
 
@@ -245,8 +246,9 @@ import "litos-ui/select";
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 选中项绑定值 | `string、number、array` | - |
+| `value` | 选中项绑定值；HTML 属性为字符串 | `string` | - |
 | `placeholder` | 占位符 | `string` | 请选择 |
+| `empty-text` | 无选项或无匹配结果时的提示文案，支持动态更新；空字符串隐藏文案，移除属性恢复默认值 | `string` | 暂无数据 |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `label-field` | 选项 `label` 的字段名 | `string` | `label` |
 | `value-field` | 选项 `value` 的字段名 | `string` | `value` |
@@ -258,12 +260,14 @@ import "litos-ui/select";
 | `loading` | 是否为加载状态, 通常为远程搜索时使用 | `boolean` | `false` |
 | `width` | 宽度 | `string` | `100%` |
 
+JavaScript `value` 属性可以接收字符串、数字或选中值数组。数组需通过实例属性赋值，不能直接作为 HTML 属性。
+
 ### Select Slots
 
 <!-- prettier-ignore -->
 | 名称 | 说明 |
 | --- | --- |
-| `default` | 内容 |
+| - | 当前未渲染默认插槽 |
 
 ### Select Events
 
@@ -288,7 +292,7 @@ import "litos-ui/select";
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 选项的值 | `string` 或 `number` | - |
+| `value` | 选项的值 | `string` or `number` | - |
 | `label` | 选项的标签 | `string` | - |
 
 ### Select CSS Variables

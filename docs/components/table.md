@@ -276,7 +276,7 @@ regist([Table, Button]);
 
 ### 空表格
 
-数据列表没有数据时，显示空表格
+数据列表没有数据时，显示空表格。通过 `empty-text` 自定义提示文案，动态修改时同步更新；空字符串隐藏文案，移除属性恢复默认的“暂无数据”。
 
 <ClientOnly>
 <l-code-preview>
@@ -387,6 +387,7 @@ import "litos-ui/table";
 | `fixed-column` | 是否固定列，在进行列解析时，会自动确认该属性 | `boolean` | `false` |
 | `max-height` | 最大高度 | `number \| string` | `-` |
 | `table-layout` | 表格布局 | `"auto" \| "fixed"` | `-` |
+| `empty-text` | 无数据时的提示文案，支持动态更新；空字符串隐藏文案，移除属性恢复默认值 | `string` | 暂无数据 |
 
 ### Table Column Options
 

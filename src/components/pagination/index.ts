@@ -93,7 +93,7 @@ export default class Pagination extends BaseComponent<PaginationProps> {
   }
 
   render() {
-    return `<div class="l-pagination">${this.#renderMain()}</div>`;
+    return `<div class="l-pagination" role="navigation" aria-label="Pagination">${this.#renderMain()}</div>`;
   }
 
   render_v2() {
@@ -148,10 +148,11 @@ export default class Pagination extends BaseComponent<PaginationProps> {
     // 上一页切换按钮
     children.push(
       this.#generateItemElem("l-button", {
-        title: "上一页",
+        title: "Previous page",
         disabled: this._state.currentPage === 1,
-        "data-page": this._state.currentPage - 1,
-        innerHTML: "<l-arrow-left-icon></l-arrow-left-icon>",
+        "data-page": `${this._state.currentPage - 1}`,
+        innerHTML:
+          '<l-arrow-left-icon></l-arrow-left-icon><span class="l-pagination-sr-only">Previous page</span>',
         class: ["l-pagination-item", "l-pagination--btn", "prev-btn"],
       }),
     );
@@ -162,6 +163,7 @@ export default class Pagination extends BaseComponent<PaginationProps> {
           class: ["l-pagination-item", "l-pagination-simple-layout"],
           innerHTML: [
             this.#generateItemElem("l-input", {
+              title: "Page number",
               inputmode: "numeric",
               value: `${this._state.currentPage}`,
               class: ["l-pagination-simple-input"],
@@ -175,8 +177,9 @@ export default class Pagination extends BaseComponent<PaginationProps> {
     } else {
       // 首页按钮
       children.push(
-        this.#generateItemElem("a", {
-          title: "1",
+        this.#generateItemElem("button", {
+          title: "Page 1",
+          "aria-current": this._state.currentPage === 1 ? "page" : undefined,
           innerHTML: "1",
           class: [
             "l-pagination-item",
@@ -190,8 +193,8 @@ export default class Pagination extends BaseComponent<PaginationProps> {
       // 向前5页按钮
       if (this._state.currentPage > 4) {
         children.push(
-          this.#generateItemElem("a", {
-            title: "上5页",
+          this.#generateItemElem("button", {
+            title: "Previous 5 pages",
             innerHTML: [
               "<l-d-arrow-left-icon class='darrow-icon'></l-d-arrow-left-icon>",
               "<l-more-icon class='more-icon'></l-more-icon>",
@@ -220,8 +223,9 @@ export default class Pagination extends BaseComponent<PaginationProps> {
         if (i <= 1) continue;
         if (i >= this._state.pageCount) break;
         children.push(
-          this.#generateItemElem("a", {
-            title: `${i}`,
+          this.#generateItemElem("button", {
+            title: `Page ${i}`,
+            "aria-current": this._state.currentPage === i ? "page" : undefined,
             innerHTML: `${i}`,
             class: [
               "l-pagination-item",
@@ -236,8 +240,8 @@ export default class Pagination extends BaseComponent<PaginationProps> {
       // 向后5页
       if (this._state.currentPage < this._state.pageCount - 3) {
         children.push(
-          this.#generateItemElem("a", {
-            title: "下5页",
+          this.#generateItemElem("button", {
+            title: "Next 5 pages",
             innerHTML: [
               "<l-d-arrow-right-icon class='darrow-icon'></l-d-arrow-right-icon>",
               "<l-more-icon class='more-icon'></l-more-icon>",
@@ -251,8 +255,9 @@ export default class Pagination extends BaseComponent<PaginationProps> {
       // 末页按钮
       if (this._state.pageCount > 1) {
         children.push(
-          this.#generateItemElem("a", {
-            title: `${this._state.pageCount}`,
+          this.#generateItemElem("button", {
+            title: `Page ${this._state.pageCount}`,
+            "aria-current": this._state.currentPage === this._state.pageCount ? "page" : undefined,
             innerHTML: `${this._state.pageCount}`,
             class: [
               "l-pagination-item",
@@ -268,8 +273,9 @@ export default class Pagination extends BaseComponent<PaginationProps> {
     // 下一页切换按钮
     children.push(
       this.#generateItemElem("l-button", {
-        title: `${this._state.currentPage + 1}`,
-        innerHTML: "<l-arrow-right-icon></l-arrow-right-icon>",
+        title: "Next page",
+        innerHTML:
+          '<l-arrow-right-icon></l-arrow-right-icon><span class="l-pagination-sr-only">Next page</span>',
         class: ["l-pagination-item", "l-pagination--btn", "next-btn"],
         disabled: this._state.currentPage === this._state.pageCount,
         "data-page": `${this._state.currentPage + 1}`,
@@ -282,6 +288,7 @@ export default class Pagination extends BaseComponent<PaginationProps> {
     const $input = $one(".l-pagination-simple-input", this.root) as any;
     if ($input) {
       $input.setParser(this.#simpleInputParser);
+      $input.shadowRoot?.querySelector("input")?.setAttribute("aria-label", "Page number");
       on($input, "keyup", this.#onKeyup as any);
       on($input, "blur", this.#onBlur as any);
     }
@@ -330,6 +337,10 @@ export default class Pagination extends BaseComponent<PaginationProps> {
 
   #generateItemElem(tagName: string = "a", options: Record<string, any>) {
     let attrs = [];
+    if (tagName === "button") attrs.push(tagAttr("type", "button"));
+    if (options.title && options["aria-label"] == null) {
+      attrs.push(tagAttr("aria-label", options.title));
+    }
     let innerHTML = "";
     for (const key in options) {
       if (key === "innerHTML") {

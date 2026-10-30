@@ -5,12 +5,9 @@
 ## 引用
 
 ```js
-import { Switch, regist, MoonIcon, SunIcon } from "litos-ui";
+import { Switch, regist } from "litos-ui";
 
 regist(Switch);
-
-// 注册本页演示使用的附加组件
-regist([MoonIcon, SunIcon]);
 ```
 
 ## 演示
@@ -65,6 +62,11 @@ regist([MoonIcon, SunIcon]);
 </ClientOnly>
 
 ### 自定义操作图标
+
+```js
+import { MoonIcon, SunIcon, regist } from "litos-ui";
+regist([MoonIcon, SunIcon]);
+```
 
 既可以通过使用 `checked-action` 插槽 和 `unchecked-action` 插槽分别渲染打开/关闭时的操作图标。也可以通过 `js` 设置 `actionRender` 来渲染操作图标.
 
@@ -138,7 +140,7 @@ import "litos-ui/switch";
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 开关状态改变时的事件 | `(event: Event)` |
+| `change` | 开关状态改变时的事件 | `(event: CustomEvent)` |
 
 ### Switch Methods
 

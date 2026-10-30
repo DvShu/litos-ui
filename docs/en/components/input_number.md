@@ -1,6 +1,6 @@
-# InputNumber 数字输入框
+# InputNumber
 
-## 引用
+## Import and Registration
 
 ```js
 import { InputNumber, regist } from "litos-ui";
@@ -8,29 +8,37 @@ import { InputNumber, regist } from "litos-ui";
 regist(InputNumber);
 ```
 
-## 演示
+## Examples
 
 <script setup>
-  import { onMounted, nextTick } from 'vue';
+  import { onMounted, nextTick, onUnmounted } from 'vue';
   import { $one } from 'utilane/browser';
+
+  let $num1;
+
+  function handleChange(e) {
+    console.log('input-number change', e.detail);
+  }
 
   onMounted(() => {
     nextTick(() => {
       if (!import.meta.env.SSR) {
-        const $num1 = $one('#num-change');
+        $num1 = $one('#num-change');
         if ($num1) {
-          $num1.addEventListener('change', function(e) {
-            console.log('input-number change', e.detail);
-          });
+          $num1.addEventListener('change', handleChange);
         }
       }
     })
   });
+  onUnmounted(() => {
+    $num1?.removeEventListener('change', handleChange);
+    $num1 = undefined;
+  });
 </script>
 
-### 基础用法
+### Basic Usage
 
-数字输入框的基础用法，支持通过 `+` / `-` 按钮或键盘上下方向键增减数值。
+Change the value with the `+` / `-` buttons or the Up and Down arrow keys.
 
 <ClientOnly>
 <l-code-preview>
@@ -40,9 +48,9 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 禁用状态
+### Disabled State
 
-通过 `disabled` 属性设置数字输入框为禁用状态。
+Set `disabled` to disable the number input.
 
 <ClientOnly>
 <l-code-preview>
@@ -52,9 +60,9 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 步长设置
+### Step
 
-通过 `step` 属性设置每次增减的步长，默认为 `1`。支持小数步长。
+Set `step` to control each increment or decrement. It defaults to `1` and supports decimals.
 
 <ClientOnly>
 <l-code-preview>
@@ -65,9 +73,9 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 精度控制
+### Precision
 
-通过 `precision` 属性设置数值的小数精度，输入值会在失焦时自动格式化。
+Set `precision` to control decimal places. The value is formatted when the input loses focus.
 
 <ClientOnly>
 <l-code-preview>
@@ -77,9 +85,9 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 范围限制
+### Value Limits
 
-通过 `min` 和 `max` 属性设置数值的有效范围，达到边界时对应按钮自动禁用。
+Use `min` and `max` to limit the value. The corresponding step button is disabled at each boundary.
 
 <ClientOnly>
 <l-code-preview>
@@ -89,9 +97,9 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 尺寸
+### Sizes
 
-数字输入框有大中小三种尺寸。通过设置 `size` 为 `large`、`small` 分别设为大、小尺寸。若不设置 `size`，则尺寸默认为 `default`。
+Number inputs have three sizes: `large`, `default`, and `small`. The default size is `default`.
 
 <ClientOnly>
 <l-code-preview>
@@ -103,21 +111,21 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 隐藏步进按钮
+### Hiding Step Buttons
 
-通过 `controls-disabled` 属性可以隐藏左右两侧的 `+` / `-` 步进按钮，仅保留输入框。
+Enable `controls-disabled` to hide the `+` / `-` buttons and show only the input.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input-number value="10" controls-disabled placeholder="请输入"></l-input-number>
+  <l-input-number value="10" controls-disabled placeholder="Enter a value"></l-input-number>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 宽度与 InnerBlock
+### Width and InnerBlock
 
-通过 `width` 属性自定义宽度，或使用 `inner-block` 属性使输入框铺满父元素。
+Set `width` for a custom width, or enable `inner-block` to fill the parent.
 
 <ClientOnly>
 <l-code-preview>
@@ -128,9 +136,9 @@ regist(InputNumber);
 </l-code-preview>
 </ClientOnly>
 
-### 监听事件
+### Events
 
-通过监听 `change` 事件获取值的变化，事件 `detail` 中包含 `value` 和 `name`。
+Listen for `change` to receive the updated value. `event.detail` contains `value` and `name`.
 
 <ClientOnly>
 <l-code-preview>
@@ -167,47 +175,47 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### InputNumber Attributes
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 当前值 | `number` | - |
-| `min` | 最小值 | `number` | - |
-| `max` | 最大值 | `number` | - |
-| `step` | 步长 | `number` | `1` |
-| `precision` | 数值精度（小数位数） | `number` | - |
-| `placeholder` | 占位文本 | `string` | - |
-| `size` | 尺寸，`small`、`default`、`large` | `string` | `default` |
-| `width` | 宽度 | `string` | `170px` |
-| `block` | 宽度是否铺满父元素 | `boolean` | `false` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `controls-disabled` | 是否隐藏步进按钮 | `boolean` | `false` |
-| `name` | 表单字段名 | `string` | - |
+| `value` | Current value | `number` | - |
+| `min` | Minimum value | `number` | - |
+| `max` | Maximum value | `number` | - |
+| `step` | Step | `number` | `1` |
+| `precision` | Precision (decimal places) | `number` | - |
+| `placeholder` | Placeholder text | `string` | - |
+| `size` | Size: small, default, or large | `string` | `default` |
+| `width` | Width | `string` | `170px` |
+| `inner-block` | Whether to fill the parent’s width | `boolean` | `false` |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `controls-disabled` | Whether to hide the step buttons | `boolean` | `false` |
+| `name` | Form field name | `string` | - |
 
 ### InputNumber Events
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 回调参数 |
+| Name | Description | event.detail |
 | --- | --- | --- |
-| `input` | 值变化时触发（实时） | `{ value: number, name: string }` |
-| `change` | 值变化时触发（失焦或回车） | `{ value: number, name: string }` |
+| `input` | Fires immediately when the value changes | `{ value: number, name: string }` |
+| `change` | Fires when a value change is committed on blur or Enter | `{ value: number, name: string }` |
 
 ### InputNumber Methods
 
 <!-- prettier-ignore -->
-| 名称 | 说明 | 参数 |
+| Name | Description | Parameters |
 | --- | --- | --- |
-| `focus` | 聚焦输入框 | `(): void` |
+| `focus` | Focuses the input | `(): void` |
 
-### 样式变量
+### CSS Variables
 
 <!-- prettier-ignore -->
-| 名称 | 描述 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-input-number-width` | 组件宽度 | `170px` |
-| `--l-input-number-border-color` | 边框颜色 | `var(--l-border-color, #d9d9d9)` |
-| `--l-input-number-bg` | 背景色 | `#ffffff` |
-| `--l-input-number-btn-color` | 按钮文字颜色 | `#606266` |
-| `--l-input-number-btn-bg` | 按钮背景色 | `#f5f7fa` |
-| `--l-input-number-btn-hover-color` | 按钮悬浮文字颜色 | `var(--l-primary-color, #722ed1)` |
-| `--l-input-number-btn-hover-bg` | 按钮悬浮背景色 | `var(--l-primary-color-light5, #f3e8ff)` |
-| `--l-input-number-btn-disabled-color` | 禁用时按钮颜色 | `#c0c4cc` |
-| `--l-form-control-height` | 组件高度 | `40px`（引入 vars.css 后；未引入时组件回退为 32px） |
+| `--l-input-number-width` | Component width | `170px` |
+| `--l-input-number-border-color` | Border color | `var(--l-border-color, #d9d9d9)` |
+| `--l-input-number-bg` | Background color | `#ffffff` |
+| `--l-input-number-btn-color` | Button text color | `#606266` |
+| `--l-input-number-btn-bg` | Button background | `#f5f7fa` |
+| `--l-input-number-btn-hover-color` | Button text color on hover | `var(--l-primary-color, #722ed1)` |
+| `--l-input-number-btn-hover-bg` | Button background on hover | `var(--l-primary-color-light5, #f3e8ff)` |
+| `--l-input-number-btn-disabled-color` | Disabled button color | `#c0c4cc` |
+| `--l-form-control-height` | Component height | `40px` (with vars.css; component fallback without it: 32px) |

@@ -1,19 +1,16 @@
-# Checkbox 复选框
+# Checkbox
 
-在一组备选项中进行多选。适用提醒用户勾选场景，突出多选框选项，可以有效增加用户识别度。
+Select multiple options from a group, or use a standalone checkbox to ask users to acknowledge a choice.
 
-## 引用
+## Import and Registration
 
 ```js
 import { Checkbox, regist, CheckboxGroup } from "litos-ui";
 
-regist([Checkbox]);
-
-// 注册本页演示使用的附加组件
-regist([CheckboxGroup]);
+regist([Checkbox, CheckboxGroup]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
@@ -25,13 +22,13 @@ regist([CheckboxGroup]);
   function handleGroupChange(e) {
     const valueLen = e.detail.value.length;
     if (valueLen === 4) {
-      $allCheck.removeAttribute('indeterminate'); // 全选
+      $allCheck.removeAttribute('indeterminate'); // Select all
       $allCheck.checked = true;
     } else if (valueLen === 0) {
-      $allCheck.removeAttribute('indeterminate'); // 全不选
+      $allCheck.removeAttribute('indeterminate'); // Clear all
       $allCheck.checked = false;
     } else {
-      $allCheck.setAttribute('indeterminate', ''); // 部分选中
+      $allCheck.setAttribute('indeterminate', ''); // Partially selected
       $allCheck.checked = false;
     }
   }
@@ -40,9 +37,9 @@ regist([CheckboxGroup]);
     const checked = e.detail.checked;
     $allCheck.removeAttribute('indeterminate');
     if (checked) {
-      $group.value = 'CD&BJ&SZ&HZ'; // 全选
+      $group.value = 'CD&BJ&SZ&HZ'; // Select all
     } else {
-      $group.value = ''; // 全不选
+      $group.value = ''; // Clear all
     }
   }
 
@@ -68,98 +65,98 @@ regist([CheckboxGroup]);
   })
 </script>
 
-### 基础用法
+### Basic Usage
 
-使用当只有一个选项时，可以直接 `checked` 绑定 `boolean` 值来控制是否选中；使用 `slot-label` 来重写选项的文字。
+For a standalone checkbox, use the boolean `checked` state to control selection. Supply custom label content through the default slot.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-checkbox checked>
     <span>
-      <span>同意</span>
-      <a href='#'>隐私协议</a>
+      <span>I agree to the</span>
+      <a href='#'>Privacy policy</a>
     </span>
   </l-checkbox>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 禁用状态
+### Disabled State
 
-使用 `disabled` 属性来禁用复选框。
+Set `disabled` to disable a checkbox.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-checkbox disabled checked>禁用</l-checkbox>
+  <l-checkbox disabled checked>Disabled</l-checkbox>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 多选框组
+### Checkbox Group
 
-结合 `l-checkbox-group` 组件实现单选框组
+Place checkboxes inside `l-checkbox-group` for multiple selection.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-checkbox-group value="CD&BJ" gap="15">
-    <l-checkbox value="CD">成都</l-checkbox>
-    <l-checkbox value="BJ">北京</l-checkbox>
-    <l-checkbox value="SZ">深圳</l-checkbox>
-    <l-checkbox value="SH">上海</l-checkbox>
-  </l-checkbox>
+    <l-checkbox value="CD">Chengdu</l-checkbox>
+    <l-checkbox value="BJ">Beijing</l-checkbox>
+    <l-checkbox value="SZ">Shenzhen</l-checkbox>
+    <l-checkbox value="SH">Shanghai</l-checkbox>
+  </l-checkbox-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-> 注意：传递给 `l-checkbox-group` 的 `value` 为多选值的每一项 `encodeURIComponent` 后拼接 `&`
+> Encode each selected value with `encodeURIComponent`, then join the values with `&` for `l-checkbox-group`.
 
-### 按钮样式
+### Button Style
 
-只需要为 `l-checkbox` 设置 `button` 属性，即可将复选框变为按钮样式
+Add `button` to `l-checkbox` for button styling.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <l-checkbox-group value="CD&BJ">
-    <l-checkbox value="CD" button>成都</l-checkbox>
-    <l-checkbox value="BJ" button>北京</l-checkbox>
-    <l-checkbox value="SZ" button>深圳</l-checkbox>
-    <l-checkbox value="HZ" button>杭州</l-checkbox>
-  </l-checkbox>
+    <l-checkbox value="CD" button>Chengdu</l-checkbox>
+    <l-checkbox value="BJ" button>Beijing</l-checkbox>
+    <l-checkbox value="SZ" button>Shenzhen</l-checkbox>
+    <l-checkbox value="HZ" button>Hangzhou</l-checkbox>
+  </l-checkbox-group>
 </textarea>
 </l-code-preview>
 </ClientOnly>
 
-### 中间状态
+### Indeterminate State
 
-设置 `indeterminate` 属性，表示不确定状态，一般用于实现部分选中的状态。
+Set `indeterminate` to show a partially selected state.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
   <div style="margin-bottom: 10px;">
-    <l-checkbox id="check-all" indeterminate>全选</l-checkbox>
+    <l-checkbox id="check-all" indeterminate>Select all</l-checkbox>
   </div>
   <l-checkbox-group id="group" value="CD&BJ">
-    <l-checkbox value="CD" button>成都</l-checkbox>
-    <l-checkbox value="BJ" button>北京</l-checkbox>
-    <l-checkbox value="SZ" button>深圳</l-checkbox>
-    <l-checkbox value="HZ" button>杭州</l-checkbox>
-  </l-checkbox>
+    <l-checkbox value="CD" button>Chengdu</l-checkbox>
+    <l-checkbox value="BJ" button>Beijing</l-checkbox>
+    <l-checkbox value="SZ" button>Shenzhen</l-checkbox>
+    <l-checkbox value="HZ" button>Hangzhou</l-checkbox>
+  </l-checkbox-group>
 </textarea>
 <div class="source">
 <textarea lang="html">
   <div style="margin-bottom: 10px;">
-    <l-checkbox id="check-all" indeterminate>全选</l-checkbox>
+    <l-checkbox id="check-all" indeterminate>Select all</l-checkbox>
   </div>
   <l-checkbox-group id="group" value="CD&BJ">
-    <l-checkbox value="CD" button>成都</l-checkbox>
-    <l-checkbox value="BJ" button>北京</l-checkbox>
-    <l-checkbox value="SZ" button>深圳</l-checkbox>
-    <l-checkbox value="HZ" button>杭州</l-checkbox>
+    <l-checkbox value="CD" button>Chengdu</l-checkbox>
+    <l-checkbox value="BJ" button>Beijing</l-checkbox>
+    <l-checkbox value="SZ" button>Shenzhen</l-checkbox>
+    <l-checkbox value="HZ" button>Hangzhou</l-checkbox>
   </l-checkbox-group>
 </textarea>
 <textarea lang="ts">
@@ -168,22 +165,22 @@ regist([CheckboxGroup]);
   function handleGroupChange(e) {
     const valueLen = e.detail.value.length;
     if (valueLen === 4) {
-      $allCheck.removeAttribute('indeterminate'); // 全选
+      $allCheck.removeAttribute('indeterminate'); // Select all
       $allCheck.checked = true;
     } else if (valueLen === 0) {
-      $allCheck.removeAttribute('indeterminate'); // 全不选
+      $allCheck.removeAttribute('indeterminate'); // Clear all
       $allCheck.checked = false;
     } else {
-      $allCheck.setAttribute('indeterminate', ''); // 部分选中
+      $allCheck.setAttribute('indeterminate', ''); // Partially selected
     }
   }
   //-
   function handleAllCheckChange(e) {
     const checked = e.detail.checked;
     if (checked) {
-      $group.value = 'CD&BJ&SZ&HZ'; // 全选
+      $group.value = 'CD&BJ&SZ&HZ'; // Select all
     } else {
-      $group.value = ''; // 全不选
+      $group.value = ''; // Clear all
     }
   }
   //-
@@ -192,7 +189,7 @@ regist([CheckboxGroup]);
   //-
   on($group, 'change', handleGroupChange);
   on($allCheck, 'change', handleAllCheckChange);
-  // 页面关闭时移除事件
+  // Remove listeners when the page unmounts.
   // off($group, 'change', handleGroupChange);
   // off($allCheck, 'change', handleAllCheckChange);
 </textarea>
@@ -205,6 +202,7 @@ regist([CheckboxGroup]);
 ```js
 import "litos-ui/styles/vars.css";
 import "litos-ui/checkbox";
+import "litos-ui/checkbox-group";
 ```
 
 Element entries register built-in dependencies. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
@@ -214,52 +212,52 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### Checkbox Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
 | `value` | value | `string` | `-` |
-| `checked` | 是否选中 | `boolean` | `false` |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `button` | 是否为按钮样式 | `boolean` | `false` |
-| `indeterminate` | 是否为中间状态 | `boolean` | `false` |
-| `name` | 原生属性 | `string` | `-` |
-| `label` | 显示的标签 | `string` | `-` |
+| `checked` | Whether the option is checked | `boolean` | `false` |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `button` | Whether to use button styling | `boolean` | `false` |
+| `indeterminate` | Whether to display the indeterminate state | `boolean` | `false` |
+| `name` | Native attribute | `string` | `-` |
+| `label` | Displayed label | `string` | `-` |
 
 ### CheckboxGroup Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 多选值,每一项 `encodeURIComponent` 后拼接 `&` | `string` | `-` |
+| `value` | Selected values, each encoded with encodeURIComponent and joined with & | `string` | `-` |
 
 ### Checkbox Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `default` | 标签 |
+| `default` | Label |
 
 ### Checkbox Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 选中改变时触发, `e.detail` 包含 `value`、`name`、`checked` | `(event: CustomEvent)` |
+| `change` | Fires when selection changes; e.detail contains value, name, and checked | `(event: CustomEvent)` |
 
 ### CheckboxGroup Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 选中改变时触发, `e.detail` 包含 `value` 为选中的值的列表 | `(event: CustomEvent)` |
+| `change` | Fires when the group selection changes; e.detail.value is the list of selected values | `(event: CustomEvent)` |
 
 ### Checkbox CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-check-size` | 复选框尺寸 | `14px` |
-| `--l-check-border-radius` | 复选框圆角 | `3px` |
-| `--l-primary-color` | 选中状态颜色 | `#007bff`（引入 vars.css 后） |
-| `--l-disabled-color` | 禁用状态颜色 | `#e6e6e6` |
-| `--l-form-control-height` | 按钮样式高度 | `40px`（引入 vars.css 后；未引入时组件回退为 32px） |
-| `--l-check-gap` | 复选框组间距 | `0px` |
+| `--l-check-size` | Checkbox size | `14px` |
+| `--l-check-border-radius` | Checkbox border radius | `3px` |
+| `--l-primary-color` | Checked-state color | `#007bff` (with vars.css) |
+| `--l-disabled-color` | Disabled-state color | `#e6e6e6` |
+| `--l-form-control-height` | Button-style height | `40px` (with vars.css; component fallback without it: 32px) |
+| `--l-check-gap` | Checkbox group spacing | `0px` |

@@ -1,19 +1,16 @@
-# Switch 开关
+# Switch
 
-表示两种相互对立的状态间的切换，多用于触发「开/关」。
+Toggle between two opposing states, commonly on and off.
 
-## 引用
+## Import and Registration
 
 ```js
-import { Switch, regist, MoonIcon, SunIcon } from "litos-ui";
+import { Switch, regist } from "litos-ui";
 
 regist(Switch);
-
-// 注册本页演示使用的附加组件
-regist([MoonIcon, SunIcon]);
 ```
 
-## 演示
+## Examples
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
@@ -40,9 +37,9 @@ regist([MoonIcon, SunIcon]);
   });
 </script>
 
-### 基础用法
+### Basic Usage
 
-绑定 `value` 到一个 `boolean` 类型的变量。可以使用 `true` 和 `false` 分别表示开和关。
+Use a boolean `value` to represent the on (true) and off (false) states.
 
 <ClientOnly>
 <l-code-preview>
@@ -52,9 +49,9 @@ regist([MoonIcon, SunIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 文字描述
+### Text Labels
 
-使用 `checked-text` 和 `unchecked-text` 属性来设置开关的文字描述。
+Set `checked-text` and `unchecked-text` to describe the on and off states.
 
 <ClientOnly>
 <l-code-preview>
@@ -64,9 +61,14 @@ regist([MoonIcon, SunIcon]);
 </l-code-preview>
 </ClientOnly>
 
-### 自定义操作图标
+### Custom Action Icons
 
-既可以通过使用 `checked-action` 插槽 和 `unchecked-action` 插槽分别渲染打开/关闭时的操作图标。也可以通过 `js` 设置 `actionRender` 来渲染操作图标.
+```js
+import { MoonIcon, SunIcon, regist } from "litos-ui";
+regist([MoonIcon, SunIcon]);
+```
+
+Use the `checked-action` and `unchecked-action` slots for on and off icons, or call `setActionRender()` with a renderer.
 
 <ClientOnly>
 <l-code-preview>
@@ -79,17 +81,17 @@ regist([MoonIcon, SunIcon]);
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <!-- 使用 checked-action 和 unchecked-action 插槽 -->
+  <!-- Use the checked-action and unchecked-action slots. -->
   <l-switch>
     <l-sun-icon slot="unchecked-action"></l-sun-icon>
     <l-moon-icon slot="checked-action"></l-moon-icon>
   </l-switch>
-  <!-- 使用 js 设置 -->
+  <!-- Set the renderer with JavaScript. -->
   <l-switch id="custom-switch"></l-switch>
 </textarea>
 <textarea lang="js">
   let $customSwitch = document.querySelector('#custom-switch');
-  // 设置 actionRender
+  // Set actionRender.
   $customSwitch.setActionRender((cfg) => {
     if (cfg.checked) {
       return '<l-moon-icon></l-moon-icon>';
@@ -117,40 +119,40 @@ Element entries register built-in dependencies. Service and utility APIs still r
 ### Switch Attributes
 
 <!-- prettier-ignore -->
-| 参数 | 说明 | 类型 | 默认值 |
+| Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | 开关状态(是否打开) | `boolean` | `false` |
-| `checked-text` | 打开时的文字描述 | `string` | - |
-| `unchecked-text` | 关闭时的文字描述 | `string` | - |
-| `disabled` | 是否禁用 | `boolean` | `false` |
-| `name` | 原生 `name` 属性 | `string` | - |
+| `value` | Whether the switch is on | `boolean` | `false` |
+| `checked-text` | Text for the on state | `string` | - |
+| `unchecked-text` | Text for the off state | `string` | - |
+| `disabled` | Whether the control is disabled | `boolean` | `false` |
+| `name` | Native name attribute | `string` | - |
 
 ### Switch Slots
 
 <!-- prettier-ignore -->
-| 名称 | 说明 |
+| Name | Description |
 | --- | --- |
-| `checked-action` | 打开时的操作图标 |
-| `unchecked-action` | 关闭时的操作图标 |
+| `checked-action` | Action icon for the on state |
+| `unchecked-action` | Action icon for the off state |
 
 ### Switch Events
 
 <!-- prettier-ignore -->
-| 事件名 | 说明 | 回调参数 |
+| Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | 开关状态改变时的事件 | `(event: Event)` |
+| `change` | Fires when the switch state changes; read the component value property for the current state | `(event: CustomEvent)` |
 
 ### Switch Methods
 
 <!-- prettier-ignore -->
-| 方法名 | 说明 | 类型 |
+| Method | Description | Type |
 | --- | --- | --- |
-| `setActionRender` | 设置操作图标渲染函数 | `((cfg: { checked: boolean }) => string \| HTMLElement): void` |
+| `setActionRender` | Sets the action icon renderer | `((cfg: { checked: boolean }) => string \| HTMLElement): void` |
 
 ### Switch CSS Variables
 
 <!-- prettier-ignore -->
-| 变量名 | 说明 | 默认值 |
+| Name | Description | Default |
 | --- | --- | --- |
-| `--l-switch-height` | 开关按钮高度 | `22px` |
-| `--l-switch-width` | 开关按钮宽度 | `40px` |
+| `--l-switch-height` | Switch height | `22px` |
+| `--l-switch-width` | Switch width | `40px` |

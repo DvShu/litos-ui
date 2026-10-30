@@ -69,7 +69,7 @@ export const en: LocaleConfig<DefaultTheme.Config>[string] = {
             link: "/en/components/input",
           },
           {
-            text: "MdInput Material Input",
+            text: "MdInput",
             link: "/en/components/md_input",
           },
           {
@@ -81,7 +81,7 @@ export const en: LocaleConfig<DefaultTheme.Config>[string] = {
             link: "/en/components/checkbox",
           },
           {
-            text: "SelectOri Native Select",
+            text: "SelectOri",
             link: "/en/components/select_ori",
           },
           {
@@ -101,7 +101,7 @@ export const en: LocaleConfig<DefaultTheme.Config>[string] = {
             link: "/en/components/form",
           },
           {
-            text: "DatePickerOri Legacy Date Picker",
+            text: "DatePickerOri",
             link: "/en/components/date_picker_ori",
           },
           {
