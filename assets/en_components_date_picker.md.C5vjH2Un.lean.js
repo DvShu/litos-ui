@@ -1,3 +1,0 @@
-import{_ as n,C as i,o as r,c as l,a2 as e,E as d,w as p,j as s}from"./chunks/framework.nU6eqUhJ.js";const y=JSON.parse('{"title":"DatePicker 日期选择器","description":"","frontmatter":{},"headers":[],"relativePath":"en/components/date_picker.md","filePath":"en/components/date_picker.md","lastUpdated":1793115401000}'),h={name:"en/components/date_picker.md"};function c(o,a,k,b,E,u){const t=i("ClientOnly");return r(),l("div",null,[a[1]||(a[1]=e("",7)),d(t,null,{default:p(()=>[...a[0]||(a[0]=[s("l-code-preview",null,[s("textarea",{lang:"html"},`  <l-date-picker></l-date-picker>
-`),s("div",{class:"source"},[s("textarea",{lang:"html"},`  <l-date-picker></l-date-picker>
-`)])],-1)])]),_:1}),a[2]||(a[2]=e("",14))])}const g=n(h,[["render",c]]);export{y as __pageData,g as default};
