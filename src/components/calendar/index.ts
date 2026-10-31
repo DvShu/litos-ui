@@ -1,7 +1,7 @@
-import { parseAttrValue, getLocale } from "../utils";
+import { parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { $one, off, on, shouldEventNext, hasClass } from "utilane/browser";
+import { $one, off, on, shouldEventNext, hasClass, getLocale } from "utilane/browser";
 import { langs } from "./langs";
 import type { LangItem } from "./langs";
 import { format, startOf, endOf, timestamp } from "utilane";

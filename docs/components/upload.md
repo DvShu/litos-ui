@@ -551,7 +551,7 @@ UploadRequestResult = {
 | `--l-upload-background` | 背景颜色 | `#ffffff` |
 | `--l-upload-dragover-background` | 拖拽时背景颜色 | `var(--l-primary-color-light5, #e6f2ff)` |
 | `--l-upload-text-color` | 文字颜色 | `var(--l-text-color, rgba(0, 0, 0, 0.88))` |
-| `--l-upload-text-secondary-color` | 次要文字颜色 | `var(--l-text-secondary-color, rgba(0, 0, 0, 0.45))` |
+| `--l-upload-text-secondary-color` | 次要文字颜色 | `var(--l-text-secondary-color, rgba(0, 0, 0, 0.65))` |
 | `--l-upload-progress-color` | 进度条颜色 | `var(--l-primary-color, #007bff)` |
 | `--l-upload-success-color` | 成功状态颜色 | `var(--l-success-color, #52c41a)` |
 | `--l-upload-error-color` | 错误状态颜色 | `var(--l-error-color, #f5222d)` |

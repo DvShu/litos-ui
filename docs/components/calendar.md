@@ -246,7 +246,7 @@ import "litos-ui/calendar";
 `getLocale()` 按显式参数、sessionStorage、localStorage、`html.lang`、浏览器语言、`zh-CN` 的优先级获取语言。两种缓存均使用 `locale` 键，直接存储语言字符串，不解析 JSON 或旧缓存格式；存储不可访问时会继续回退。工具返回语言标识，由 Calendar 匹配内置文案。
 
 ```js
-import { getLocale } from "litos-ui/utils";
+import { getLocale } from "utilane/browser";
 localStorage.setItem("locale", "en-US");
 const locale = getLocale();
 ```

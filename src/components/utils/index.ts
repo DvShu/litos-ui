@@ -1,5 +1,5 @@
 import type { SignalStop } from "./signal_types";
-import { isBlank, isNumeric } from "utilane";
+import { adjust, isBlank, isNumeric } from "utilane";
 
 let seed = -1; // 用于构建多个id，避免重复
 
@@ -135,4 +135,70 @@ export function unitNumberStr(value?: string | null | undefined, unit = "px") {
   if (!value) return value;
   return isNumeric(value) ? `${value}${unit}` : value;
 }
-export { getLocale } from "./locale";
+
+/** Button 支持的自定义颜色变量，可只覆盖其中一部分。 */
+export type ButtonColor = Partial<
+  Record<
+    | "--l-btn-border-color"
+    | "--l-btn-text-color"
+    | "--l-btn-hover-text-color"
+    | "--l-btn-background"
+    | "--l-btn-active-text-color"
+    | "--l-btn-hover-border-color"
+    | "--l-btn-hover-background"
+    | "--l-btn-active-background"
+    | "--l-btn-active-border-color",
+    string
+  >
+>;
+
+/**
+ * 按需生成普通、文本或幽灵按钮的颜色变量，不修改按钮或 DOM。
+ * 仅调用此函数时进行颜色调整；普通按钮无需引入颜色计算。
+ *
+ * @param {string} color 基础颜色，使用 adjust 支持的颜色字符串，例如 "#00AA7E"；空字符串返回空对象。
+ * @param {boolean} [text=false] 是否生成文本按钮配色；为 true 时背景和边框透明，文字随交互状态变色。
+ * @param {boolean} [ghost=false] 是否生成幽灵按钮配色；为 true 时背景透明，文字和边框随交互状态变色。
+ * text 与 ghost 同为 true 时，按文本按钮处理（边框透明）。
+ * @returns {ButtonColor} 包含默认、hover 和 active 状态的九个 CSS 变量的全新对象；
+ * 可赋给 Button.color 或传入 Button.setColor()，不会随按钮属性变化自动重新计算。
+ */
+export function generateButtonColor(
+  color: string,
+  text: boolean = false,
+  ghost: boolean = false,
+): ButtonColor {
+  if (!color) return {};
+  const lighten = adjust(color, 1, true);
+  const darken = adjust(color, 3, false);
+  return {
+    "--l-btn-border-color": text ? "transparent" : color,
+    "--l-btn-text-color": ghost || text ? color : "#ffffff",
+    "--l-btn-hover-text-color": ghost || text ? lighten : "#ffffff",
+    "--l-btn-background": ghost || text ? "transparent" : color,
+    "--l-btn-active-text-color": ghost || text ? darken : "#ffffff",
+    "--l-btn-hover-border-color": text ? "transparent" : lighten,
+    "--l-btn-hover-background": ghost || text ? "transparent" : lighten,
+    "--l-btn-active-background": ghost || text ? "transparent" : darken,
+    "--l-btn-active-border-color": text ? "transparent" : darken,
+  };
+}
+
+/** Tag 支持的自定义颜色变量，可只覆盖其中一部分。 */
+export type TagColor = Partial<
+  Record<"--l-tag-color" | "--l-tag-border-color" | "--l-tag-background", string>
+>;
+
+/**
+ * 生成标签的文字、边框和浅色背景配色，不修改标签或 DOM。
+ * @param {string} color 基础颜色，使用 adjust 支持的颜色字符串，例如 "#00AA7E"；空白字符串返回空对象。
+ * @returns {TagColor} 包含三个 CSS 变量的全新对象，可赋给 Tag.color 或传入 Tag.setColor()。
+ */
+export function generateTagColor(color: string): TagColor {
+  if (isBlank(color)) return {};
+  return {
+    "--l-tag-color": color,
+    "--l-tag-border-color": color,
+    "--l-tag-background": adjust(color, 5, true),
+  };
+}

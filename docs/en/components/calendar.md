@@ -248,7 +248,7 @@ Element entries register themselves and their configured dependencies; condition
 `getLocale()` reads an explicit argument, sessionStorage, localStorage, `html.lang`, browser languages, then falls back to `zh-CN`. Both storage sources use the `locale` key with plain language strings; JSON and legacy cache formats are not parsed. Reading blocked storage is safe. The utility returns a language identifier; Calendar maps it to supported labels.
 
 ```js
-import { getLocale } from "litos-ui/utils";
+import { getLocale } from "utilane/browser";
 localStorage.setItem("locale", "en-US");
 const locale = getLocale();
 ```

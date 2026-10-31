@@ -9,9 +9,6 @@ import { regist, Tag, CloseIcon, Button } from "litos-ui";
 
 regist(Tag);
 regist(CloseIcon); // 需要 closeable 引入
-
-// 注册本页演示使用的附加组件
-regist([Button]);
 ```
 
 ## 演示
@@ -19,7 +16,9 @@ regist([Button]);
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { transition } from 'utilane/browser';
+  import { generateTagColor } from '../../src/components/utils';
 
+  let disposed = false;
   let $addBtn;
   let $tagContainer;
 
@@ -42,18 +41,24 @@ regist([Button]);
     });
   }
 
-  onMounted(() => {
-    nextTick(() => {
-      if (!import.meta.env.SSR) {
-        $addBtn = document.getElementById('btn-add');
-        $tagContainer = document.getElementById('tag-container');
-        $tagContainer.addEventListener('close', onClose);
-        $addBtn.addEventListener('click', handleAddTag);
-      }
-    });
+  onMounted(async () => {
+    if (import.meta.env.SSR) return;
+    await nextTick();
+    if (disposed) return;
+    const jade = document.querySelector('l-tag[data-custom-color="jade"]');
+    const blue = document.querySelector('l-tag[data-custom-color="blue"]');
+    const orange = document.querySelector('l-tag[data-custom-color="orange"]');
+    if (jade) jade.color = generateTagColor('#00AA7E');
+    if (blue) blue.setColor(generateTagColor('#1e9fff'));
+    if (orange) orange.color = generateTagColor('#FF7802');
+    $addBtn = document.getElementById('btn-add');
+    $tagContainer = document.getElementById('tag-container');
+    $tagContainer?.addEventListener('close', onClose);
+    $addBtn?.addEventListener('click', handleAddTag);
   });
 
   onUnmounted(() => {
+    disposed = true;
     $tagContainer?.removeEventListener('close', onClose);
     $addBtn?.removeEventListener('click', handleAddTag);
   });
@@ -61,7 +66,7 @@ regist([Button]);
 
 ### 基础用法
 
-由 `type` 属性来选择 `tag` 的类型。也可以通过 `color` 属性来自定义背景色。
+通过 `type` 属性选择标签类型。
 
 <ClientOnly>
 <l-code-preview>
@@ -71,7 +76,6 @@ regist([Button]);
   <l-tag type="info">标签</l-tag>
   <l-tag type="warning">标签</l-tag>
   <l-tag type="error">标签</l-tag>
-  <l-tag color="#409eff">标签</l-tag>
   <l-tag type="blue">标签</l-tag>
 </textarea>
 </l-code-preview>
@@ -87,6 +91,36 @@ regist([Button]);
 }
 ```
 
+### 自定义颜色
+
+通过 JavaScript `color` property 或 `setColor()` 设置颜色，配合 `generateTagColor()` 生成配色。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-tag data-custom-color="jade">翡翠绿</l-tag>
+  <l-tag data-custom-color="blue">蓝色</l-tag>
+  <l-tag data-custom-color="orange">橙色</l-tag>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-tag data-custom-color="jade">翡翠绿</l-tag>
+  <l-tag data-custom-color="blue">蓝色</l-tag>
+  <l-tag data-custom-color="orange">橙色</l-tag>
+</textarea>
+<textarea lang="js">
+import { generateTagColor } from "litos-ui/utils";
+const jade = document.querySelector('l-tag[data-custom-color="jade"]');
+const blue = document.querySelector('l-tag[data-custom-color="blue"]');
+const orange = document.querySelector('l-tag[data-custom-color="orange"]');
+jade.color = generateTagColor("#00AA7E");
+blue.setColor(generateTagColor("#1e9fff"));
+orange.color = generateTagColor("#FF7802");
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ### 可移除
 
 通过 `closeable` 属性来实现可移除的标签，然后监听 `close` 事件。
@@ -99,7 +133,6 @@ regist([Button]);
   <l-tag type="info" closeable>标签</l-tag>
   <l-tag type="warning" closeable>标签</l-tag>
   <l-tag type="error" closeable>标签</l-tag>
-  <l-tag color="#409eff" closeable>标签</l-tag>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -174,8 +207,14 @@ import "litos-ui/tag";
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
 | `type` | 类型 | `string` | `info`；可选值有: `primary`, `success`, `info`, `warning`, `error` |
-| `color` | 标签颜色 | `string` | - |
 | `closeable` | 是否可移除 | `boolean` | `false` |
+
+### Tag Properties
+
+<!-- prettier-ignore -->
+| 名称 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `color` | 自定义颜色变量对象；`undefined` 或 `{}` 清除自定义配色，保留其它内联样式；不支持 HTML `color` attribute | `TagColor \| undefined` | `undefined` |
 
 ### Tag Slots
 
@@ -197,7 +236,24 @@ import "litos-ui/tag";
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
-| - | - | - |
+| `setColor(value?)` | 替换颜色变量，与赋值 `color` 等价；省略参数或传入 `{}` 可重置，保留其它内联样式 | `(value?: TagColor) => void` |
+
+### 颜色生成工具
+
+```text
+generateTagColor(color: string): TagColor
+```
+
+从 `litos-ui/utils` 或总入口导入 `generateTagColor`。
+
+<!-- prettier-ignore -->
+| 参数 | 类型 | 说明 |
+| --- | --- | --- |
+| `color` | `string` | 基础颜色，例如 `"#00AA7E"`；空字符串或纯空白返回 `{}` |
+
+**返回值：** `TagColor` 对象，包含文字、边框颜色及对应的浅色背景。
+
+`TagColor` 是这三个 CSS 变量的可选字符串映射，允许只覆盖部分变量；可通过 `import type { TagColor } from "litos-ui/utils"` 或总入口引入。
 
 ### Tag CSS Variables
 

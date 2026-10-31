@@ -20,7 +20,6 @@ const ignoreFiles = new Set([
   "input/style.ts",
   "table/types.ts",
   "utils/signal_types.ts",
-  "utils/locale.ts",
 ]);
 for (const rawFilename of entryFiles) {
   const filename = rawFilename.replaceAll("\\", "/");

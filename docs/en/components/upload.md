@@ -553,7 +553,7 @@ The component uses `var()` fallback values, so you can override individual varia
 | `--l-upload-background` | Background color | `#ffffff` |
 | `--l-upload-dragover-background` | Background color while dragging over the component | `var(--l-primary-color-light5, #e6f2ff)` |
 | `--l-upload-text-color` | Text color | `var(--l-text-color, rgba(0, 0, 0, 0.88))` |
-| `--l-upload-text-secondary-color` | Secondary text color | `var(--l-text-secondary-color, rgba(0, 0, 0, 0.45))` |
+| `--l-upload-text-secondary-color` | Secondary text color | `var(--l-text-secondary-color, rgba(0, 0, 0, 0.65))` |
 | `--l-upload-progress-color` | Progress bar color | `var(--l-primary-color, #007bff)` |
 | `--l-upload-success-color` | Success text color | `var(--l-success-color, #52c41a)` |
 | `--l-upload-error-color` | Error text color | `var(--l-error-color, #f5222d)` |

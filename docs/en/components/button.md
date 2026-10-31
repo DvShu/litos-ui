@@ -12,6 +12,25 @@ regist(LoadingIcon);
 
 ## Basic Usage
 
+<script setup>
+import { onMounted, onUnmounted, nextTick } from "vue";
+import { generateButtonColor } from "../../../src/components/utils";
+
+let disposed = false;
+onMounted(async () => {
+  if (import.meta.env.SSR) return;
+  await nextTick();
+  if (disposed) return;
+  const solid = document.querySelector('l-button[data-custom-color="solid"]');
+  const ghost = document.querySelector('l-button[data-custom-color="ghost"]');
+  const text = document.querySelector('l-button[data-custom-color="text"]');
+  if (solid) solid.color = generateButtonColor("#00AA7E");
+  if (ghost) ghost.setColor(generateButtonColor("#1e9fff", false, true));
+  if (text) text.color = generateButtonColor("#FF7802", true);
+});
+onUnmounted(() => { disposed = true; });
+</script>
+
 ### Button Types
 
 Use `type` to choose `normal`, `normal-v2`, or `primary`. Enable `box-shadow` to show a shadow on hover.
@@ -145,14 +164,31 @@ Enable `ghost` for a transparent background, commonly used on colored surfaces.
 
 ### Custom Colors
 
-Set the string `color` attribute to customize the button color.
+Pass a color variable object through the JavaScript `color` property or `setColor()`, together with the `generateButtonColor(color, text = false, ghost = false)` utility function.
 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-button color="#2a9235">Primary</l-button>
-  <l-button color="#1e9fff" ghost>Primary</l-button>
+  <l-button data-custom-color="solid">Custom color</l-button>
+  <l-button data-custom-color="ghost" ghost>Ghost button</l-button>
+  <l-button data-custom-color="text" text>Text button</l-button>
 </textarea>
+<div class="source">
+<textarea lang="html">
+  <l-button data-custom-color="solid">Custom color</l-button>
+  <l-button data-custom-color="ghost" ghost>Ghost button</l-button>
+  <l-button data-custom-color="text" text>Text button</l-button>
+</textarea>
+<textarea lang="js">
+import { generateButtonColor } from "litos-ui/utils";
+const solid = document.querySelector('l-button[data-custom-color="solid"]');
+const ghost = document.querySelector('l-button[data-custom-color="ghost"]');
+const text = document.querySelector('l-button[data-custom-color="text"]');
+solid.color = generateButtonColor("#00AA7E");
+ghost.setColor(generateButtonColor("#1e9fff", false, true));
+text.color = generateButtonColor("#FF7802", true);
+</textarea>
+</div>
 </l-code-preview>
 </ClientOnly>
 
@@ -215,12 +251,46 @@ The built-in loading label is Chinese. Set `loading-text` to provide an English 
 | `shape` | Shape: default, round (rounded ends), or circle | `string` | `default` |
 | `html-type` | Native type attribute: button, submit, or reset | `string` | `button` |
 | `loading-text` | Text displayed while loading | `string` | `加载中……` |
-| `color` | Custom button color | `string` | - |
 | `text` | Text button | `boolean` | `false` |
 | `ghost` | Ghost button with a transparent background | `boolean` | `false` |
 | `size` | small, default, large | `string` | `default` |
 | `height` | Custom height | `string` | - |
 | `box-shadow` | Button shadow | `boolean` | `false` |
+
+### Button Properties
+
+<!-- prettier-ignore -->
+| Name | Description | Type | Default |
+| --- | --- | --- | --- |
+| `color` | Final custom color variable object; assignments take effect immediately and are preserved before mounting; `undefined` or `{}` clears custom colors | `ButtonColor \| undefined` | `undefined` |
+
+### Button Methods
+
+<!-- prettier-ignore -->
+| Name | Description | Parameters |
+| --- | --- | --- |
+| `setColor(color?)` | Replaces color variables, equivalent to assigning `color`; only clears previously set color variables without overwriting other inline styles | `ButtonColor`, optional |
+
+### Color Generation Utility
+
+```text
+generateButtonColor(color: string, text?: boolean, ghost?: boolean): ButtonColor
+```
+
+Generates nine CSS variables for normal, text, or ghost buttons from a base color (the text/background/border variables in the table below and their hover and active variants). The function does not modify buttons or the DOM; color adjustments run only when you explicitly call it.
+
+<!-- prettier-ignore -->
+| Parameter | Type | Description | Default |
+| --- | --- | --- | --- |
+| `color` | `string` | Required base color, using a color string supported by `adjust`, such as `"#00AA7E"`; an empty string returns an empty object | Not set |
+| `text` | `boolean` | Whether to generate text button colors; the background and border are transparent, and the text color changes on hover and active states | `false` |
+| `ghost` | `boolean` | Whether to generate ghost button colors; the background is transparent, and the text and border colors change on hover and active states | `false` |
+
+When both `text` and `ghost` are `true`, text button colors take precedence and the border is transparent. These parameters only control the generated result; they do not set the button’s `text` / `ghost` attributes. Keep the button attributes consistent with the generation parameters.
+
+**Returns:** `ButtonColor`, a new color variable object that can be assigned to `button.color` or passed to `button.setColor()`. A non-empty color generates nine variables; an empty string generates `{}`. The result is a static snapshot and is not automatically recalculated when the button’s attributes change.
+
+`ButtonColor` is a mapping of these CSS variables to optional string values and also supports overriding only some variables. Import the type with `import type { ButtonColor } from "litos-ui/utils"` or from the root entry.
 
 ### Button Slots
 

@@ -22,8 +22,9 @@
   --l-error-color-light5: #fbebed;
   --l-warning-color: #d99420;
   --l-warning-color-light5: #fbf4e9;
-  --l-text-color: #8c7c78;
-  --l-text-secondary-color: #f9f8f8;
+  --l-text-color: #51413d;
+  --l-text-secondary-color: #75605a;
+  --l-fill-secondary-color: #f9f8f8;
   /* 中性色 */
   --l-border-color: #e8dcd8;
   --l-disabled-color: #efe7e4;

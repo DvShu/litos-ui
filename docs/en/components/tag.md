@@ -9,9 +9,6 @@ import { regist, Tag, CloseIcon, Button } from "litos-ui";
 
 regist(Tag);
 regist(CloseIcon); // Required when closeable is enabled.
-
-// Register additional components used in this page’s demos.
-regist([Button]);
 ```
 
 ## Examples
@@ -19,7 +16,9 @@ regist([Button]);
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
   import { transition } from 'utilane/browser';
+  import { generateTagColor } from '../../../src/components/utils';
 
+  let disposed = false;
   let $addBtn;
   let $tagContainer;
 
@@ -42,18 +41,24 @@ regist([Button]);
     });
   }
 
-  onMounted(() => {
-    nextTick(() => {
-      if (!import.meta.env.SSR) {
-        $addBtn = document.getElementById('btn-add');
-        $tagContainer = document.getElementById('tag-container');
-        $tagContainer.addEventListener('close', onClose);
-        $addBtn.addEventListener('click', handleAddTag);
-      }
-    });
+  onMounted(async () => {
+    if (import.meta.env.SSR) return;
+    await nextTick();
+    if (disposed) return;
+    const jade = document.querySelector('l-tag[data-custom-color="jade"]');
+    const blue = document.querySelector('l-tag[data-custom-color="blue"]');
+    const orange = document.querySelector('l-tag[data-custom-color="orange"]');
+    if (jade) jade.color = generateTagColor('#00AA7E');
+    if (blue) blue.setColor(generateTagColor('#1e9fff'));
+    if (orange) orange.color = generateTagColor('#FF7802');
+    $addBtn = document.getElementById('btn-add');
+    $tagContainer = document.getElementById('tag-container');
+    $tagContainer?.addEventListener('close', onClose);
+    $addBtn?.addEventListener('click', handleAddTag);
   });
 
   onUnmounted(() => {
+    disposed = true;
     $tagContainer?.removeEventListener('close', onClose);
     $addBtn?.removeEventListener('click', handleAddTag);
   });
@@ -61,7 +66,7 @@ regist([Button]);
 
 ### Basic Usage
 
-Choose a tag style with `type`, or set `color` for a custom background.
+Choose a tag style with the `type` attribute.
 
 <ClientOnly>
 <l-code-preview>
@@ -71,7 +76,6 @@ Choose a tag style with `type`, or set `color` for a custom background.
   <l-tag type="info">Tag</l-tag>
   <l-tag type="warning">Tag</l-tag>
   <l-tag type="error">Tag</l-tag>
-  <l-tag color="#409eff">Tag</l-tag>
   <l-tag type="blue">Tag</l-tag>
 </textarea>
 </l-code-preview>
@@ -87,6 +91,36 @@ Choose a tag style with `type`, or set `color` for a custom background.
 }
 ```
 
+### Custom Colors
+
+Set colors through the JavaScript `color` property or `setColor()`, using `generateTagColor()` to generate the palette.
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-tag data-custom-color="jade">Jade</l-tag>
+  <l-tag data-custom-color="blue">Blue</l-tag>
+  <l-tag data-custom-color="orange">Orange</l-tag>
+</textarea>
+<div class="source">
+<textarea lang="html">
+  <l-tag data-custom-color="jade">Jade</l-tag>
+  <l-tag data-custom-color="blue">Blue</l-tag>
+  <l-tag data-custom-color="orange">Orange</l-tag>
+</textarea>
+<textarea lang="js">
+import { generateTagColor } from "litos-ui/utils";
+const jade = document.querySelector('l-tag[data-custom-color="jade"]');
+const blue = document.querySelector('l-tag[data-custom-color="blue"]');
+const orange = document.querySelector('l-tag[data-custom-color="orange"]');
+jade.color = generateTagColor("#00AA7E");
+blue.setColor(generateTagColor("#1e9fff"));
+orange.color = generateTagColor("#FF7802");
+</textarea>
+</div>
+</l-code-preview>
+</ClientOnly>
+
 ### Removable Tags
 
 Add `closeable` to show a close button, then handle the `close` event to remove the tag.
@@ -99,7 +133,6 @@ Add `closeable` to show a close button, then handle the `close` event to remove 
   <l-tag type="info" closeable>Tag</l-tag>
   <l-tag type="warning" closeable>Tag</l-tag>
   <l-tag type="error" closeable>Tag</l-tag>
-  <l-tag color="#409eff" closeable>Tag</l-tag>
 </textarea>
 </l-code-preview>
 </ClientOnly>
@@ -174,8 +207,14 @@ Element entries register themselves and their configured dependencies; condition
 | Name | Description | Type | Default |
 | --- | --- | --- | --- |
 | `type` | Type | `string` | `info`; Available values: `primary`, `success`, `info`, `warning`, `error` |
-| `color` | Tag color | `string` | - |
 | `closeable` | Whether to show the close button | `boolean` | `false` |
+
+### Tag Properties
+
+<!-- prettier-ignore -->
+| Name | Description | Type | Default |
+| --- | --- | --- | --- |
+| `color` | Custom color variable object; `undefined` or `{}` clears custom colors while preserving other inline styles; the HTML `color` attribute is not supported | `TagColor \| undefined` | `undefined` |
 
 ### Tag Slots
 
@@ -197,7 +236,24 @@ Element entries register themselves and their configured dependencies; condition
 <!-- prettier-ignore -->
 | Method | Description | Type |
 | --- | --- | --- |
-| - | - | - |
+| `setColor(value?)` | Replaces color variables, equivalent to assigning `color`; omit the argument or pass `{}` to reset while preserving other inline styles | `(value?: TagColor) => void` |
+
+### Color Generator
+
+```text
+generateTagColor(color: string): TagColor
+```
+
+Import `generateTagColor` from `litos-ui/utils` or the root entry.
+
+<!-- prettier-ignore -->
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `color` | `string` | Base color, such as `"#00AA7E"`; an empty or whitespace-only string returns `{}` |
+
+**Returns:** A `TagColor` object containing text and border colors with a matching light background.
+
+`TagColor` is an optional string mapping of these three CSS variables and allows partial overrides; import it with `import type { TagColor } from "litos-ui/utils"` or from the root entry.
 
 ### Tag CSS Variables
 

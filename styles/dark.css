@@ -1,6 +1,11 @@
 /* 暗黑模式 */
 :root.dark {
   --l-disabled-color: #6c6c6c;
+  /* 中性色 */
+  --l-text-color: rgba(255, 255, 255, 0.88);
+  --l-text-secondary-color: rgba(255, 255, 255, 0.65);
+  --l-fill-secondary-color: #262626;
+  --l-border-color: #434343;
   /* 表格配置 */
   --l-table-border-color: #444444;
   --l-table-th-bg: #2d2d2d;
@@ -19,8 +24,8 @@
   --l-upload-border-color: rgba(255, 255, 255, 0.2);
   --l-upload-border-hover-color: var(--l-primary-color-light1, #3399ff);
   --l-upload-background: #1e1e1e;
-  --l-upload-text-color: rgba(255, 255, 255, 0.88);
-  --l-upload-text-secondary-color: rgba(255, 255, 255, 0.45);
+  --l-upload-text-color: var(--l-text-color, rgba(255, 255, 255, 0.88));
+  --l-upload-text-secondary-color: var(--l-text-secondary-color, rgba(255, 255, 255, 0.65));
   --l-upload-disabled-color: rgba(255, 255, 255, 0.3);
   --l-upload-disabled-background: rgba(255, 255, 255, 0.04);
   --l-upload-disabled-border-color: rgba(255, 255, 255, 0.15);

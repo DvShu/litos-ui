@@ -40,7 +40,7 @@ For dark mode, also import `litos-ui/styles/dark.css` after the base variables, 
 
 ## Theme Variable Source
 
-All three files define colors with CSS variables. You can import them directly or copy and customize them. Warning colors use `--l-warning-color`; text colors use `--l-text-color` and `--l-text-secondary-color`.
+All three files define colors with CSS variables. You can import them directly or copy and customize them. Warning colors use `--l-warning-color`; text colors use `--l-text-color` and `--l-text-secondary-color`; subtle fill backgrounds use `--l-fill-secondary-color`.
 
 The shared source files below retain their original Chinese comments.
 

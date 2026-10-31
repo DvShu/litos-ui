@@ -1,7 +1,7 @@
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
 import { formatClass, addClass, removeClass, formatStyle, on, off, $one } from "utilane/browser";
-import { adjust } from "utilane";
+import type { ButtonColor } from "../utils";
 import animationSheet from "../styles/animation";
 import buttonSheet from "./style";
 
@@ -10,7 +10,7 @@ type ButtonState = {
   htmlType: "submit" | "reset" | "button";
   text: boolean;
   ghost: boolean;
-  color?: string;
+  color?: ButtonColor;
   height?: string;
   disabled: boolean;
   type: "normal" | "primary" | "normal-v2";
@@ -49,6 +49,29 @@ export default class Button extends BaseComponent<ButtonState> {
     this.setDisabled(value);
   }
 
+  /** 自定义颜色对象；不再读取 HTML color attribute。 */
+  get color(): ButtonColor | undefined {
+    return this._state.color;
+  }
+
+  set color(value: ButtonColor | undefined) {
+    this.setColor(value);
+  }
+
+  /** 替换颜色变量，传入 undefined 或空对象恢复默认配色。 */
+  setColor(value?: ButtonColor): void {
+    const previous = this._state.color;
+    this._state.color = value;
+    if (!this.$btn) return;
+    for (const key of Object.keys(previous || {})) {
+      this.$btn.style.removeProperty(key);
+    }
+    const cssText = formatStyle(value || {});
+    if (cssText) {
+      this.$btn.style.cssText += cssText;
+    }
+  }
+
   setLoading(loading: boolean) {
     if (this.$btn) {
       if (loading) {
@@ -74,7 +97,6 @@ export default class Button extends BaseComponent<ButtonState> {
   static get observedAttributes() {
     return [
       "loading",
-      "color",
       "text",
       "ghost",
       "disabled",
@@ -90,7 +112,6 @@ export default class Button extends BaseComponent<ButtonState> {
 
   protected attributeChanged(name: string, _oldValue: string, newValue: string): void {
     switch (name) {
-      case "color":
       case "shape":
       case "type":
       case "size":
@@ -125,14 +146,13 @@ export default class Button extends BaseComponent<ButtonState> {
       if (changedProps.has("disabled")) {
         this.setDisabled(this.disabled);
       }
-      if (changedProps.has("color") && this._state.color) {
-        this.$btn.style.cssText = this.applyColor(
-          this._state.color,
-          this._state.text,
-          this._state.ghost,
-        );
-      }
-      if (changedProps.has("type") || changedProps.has("shape") || changedProps.has("box-shadow")) {
+      if (
+        changedProps.has("type") ||
+        changedProps.has("shape") ||
+        changedProps.has("box-shadow") ||
+        changedProps.has("text") ||
+        changedProps.has("ghost")
+      ) {
         this.$btn.className = this._resetBtnClass();
       }
     }
@@ -185,15 +205,13 @@ export default class Button extends BaseComponent<ButtonState> {
   public render() {
     const $btn = document.createElement("button");
     const isLoading = this._state.loading;
-    const text = this._state.text;
-    const ghost = this._state.ghost;
     // class
     $btn.className = this._resetBtnClass();
     if (this.disabled || isLoading) {
       $btn.disabled = true;
     }
     $btn.type = this._state.htmlType as "button";
-    const btnStyle = this.applyColor(this._state.color || "", text, ghost);
+    const btnStyle = formatStyle(this._state.color || {});
     if (btnStyle) {
       $btn.style.cssText = btnStyle;
     }
@@ -215,24 +233,6 @@ export default class Button extends BaseComponent<ButtonState> {
       res.push("<slot></slot>");
     }
     return res.join("");
-  }
-
-  applyColor(color: string, text = false, ghost = false) {
-    if (!color) return "";
-    const lighten = adjust(color, 1, true);
-    const darken = adjust(color, 3, false);
-    const cssVars = {
-      "--l-btn-border-color": text ? "transparent" : color,
-      "--l-btn-text-color": ghost || text ? color : "#ffffff",
-      "--l-btn-hover-text-color": ghost || text ? lighten : "#ffffff",
-      "--l-btn-background": ghost || text ? "transparent" : color,
-      "--l-btn-active-text-color": ghost || text ? darken : "#ffffff",
-      "--l-btn-hover-border-color": text ? "transparent" : lighten,
-      "--l-btn-hover-background": ghost || text ? "transparent" : lighten,
-      "--l-btn-active-background": ghost || text ? "transparent" : darken,
-      "--l-btn-active-border-color": text ? "transparent" : darken,
-    };
-    return formatStyle(cssVars);
   }
 
   private _updateHeight() {

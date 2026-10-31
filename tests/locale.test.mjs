@@ -3,13 +3,38 @@ import { readFileSync } from "node:fs";
 import { stripTypeScriptTypes } from "node:module";
 import { test } from "node:test";
 import { runInNewContext } from "node:vm";
+import { getLocale as dependencyGetLocale } from "utilane/browser";
 
 const source = (path) => stripTypeScriptTypes(readFileSync(new URL(path, import.meta.url), "utf8"));
-const localeSource = source("../src/components/utils/locale.ts").replace(
-  "export function",
-  "function",
-);
-const resolve = (environment = {}) => runInNewContext(`${localeSource}; getLocale`, environment);
+const resolve =
+  (environment = {}) =>
+  (...args) => {
+    const descriptors = new Map();
+    for (const key of ["window", "document", "navigator"]) {
+      descriptors.set(key, Object.getOwnPropertyDescriptor(globalThis, key));
+      if (key in environment) {
+        Object.defineProperty(globalThis, key, { configurable: true, value: environment[key] });
+      } else {
+        delete globalThis[key];
+      }
+    }
+    try {
+      return dependencyGetLocale(...args);
+    } finally {
+      for (const [key, descriptor] of descriptors) {
+        if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+        else delete globalThis[key];
+      }
+    }
+  };
+
+test("Calendar imports the dependency helper directly without a local re-export", () => {
+  assert.match(
+    source("../src/components/calendar/index.ts"),
+    /import \{[^}]*getLocale[^}]*\} from "utilane\/browser"/,
+  );
+  assert.doesNotMatch(source("../src/components/utils/index.ts"), /getLocale|["']\.\/locale["']/);
+});
 const storage = (value) => ({
   getItem: (key) => {
     assert.equal(key, "locale");

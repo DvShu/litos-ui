@@ -40,7 +40,7 @@ import "litos-ui/styles/theme-jade.css";
 
 ## 主题变量源码
 
-三套文件均使用 CSS 变量定义颜色，可直接引用，也可复制后调整。警告颜色统一使用 `--l-warning-color`，文字颜色使用 `--l-text-color` 和 `--l-text-secondary-color`。
+三套文件均使用 CSS 变量定义颜色，可直接引用，也可复制后调整。警告颜色统一使用 `--l-warning-color`，文字颜色使用 `--l-text-color` 和 `--l-text-secondary-color`，浅色填充背景使用 `--l-fill-secondary-color`。
 
 ### 翡翠绿 · jade
 

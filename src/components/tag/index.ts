@@ -1,13 +1,33 @@
 import BaseComponent from "../base";
 import { parseAttrValue } from "../utils";
+import type { TagColor } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
-import { isBlank } from "utilane";
-import { adjust } from "utilane";
-import { $$, shouldEventNext, on, off, $one } from "utilane/browser";
+import { $$, shouldEventNext, on, off, $one, formatStyle } from "utilane/browser";
 
-export default class Tag extends BaseComponent {
+type TagState = { color?: TagColor };
+
+export default class Tag extends BaseComponent<TagState> {
   public static baseName = "tag";
+
+  get color(): TagColor | undefined {
+    return this._state.color;
+  }
+
+  set color(value: TagColor | undefined) {
+    this.setColor(value);
+  }
+
+  /** 替换颜色变量，传入 undefined 或空对象恢复默认配色。 */
+  setColor(value?: TagColor): void {
+    const previous = this._state.color;
+    this._state.color = value;
+    for (const key of Object.keys(previous || {})) {
+      this.style.removeProperty(key);
+    }
+    const cssText = formatStyle(value || {});
+    if (cssText) this.style.cssText += cssText;
+  }
 
   connectedCallback(): void {
     this.loadStyleText(css);
@@ -15,21 +35,18 @@ export default class Tag extends BaseComponent {
   }
 
   static get observedAttributes() {
-    return ["type", "color", "closeable"];
+    return ["type", "closeable"];
   }
 
-  attributeChangedCallback(name: string, oldValue: string, newValue: string) {
-    const v = newValue.trim();
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null) {
+    const v = newValue?.trim() ?? "";
     switch (name) {
       case "type":
-        this._toggleTypeClass(v);
+        this._toggleTypeClass(v || "info");
         break;
-      case "color":
-        this._toggleColorStyle(v);
-        break;
-      case "closable":
+      case "closeable":
         if (!this.rendered) return;
-        const isCloseable = parseAttrValue(v, false, "closeable");
+        const isCloseable = newValue !== null && parseAttrValue(v, false, "closeable");
         const $close = $one(".l-tag-close", this.root);
         if ($close) {
           if (isCloseable) return;
@@ -75,8 +92,7 @@ export default class Tag extends BaseComponent {
   };
 
   afterInit(): void {
-    this.classList.add(`l-tag--${this.getAttr("type", "info")}`);
-    this._toggleColorStyle();
+    this._toggleTypeClass(this.getAttr("type", "info") || "info");
     on(this.root, "click", this.#onActionTap);
   }
 
@@ -93,19 +109,6 @@ export default class Tag extends BaseComponent {
 
     if (!isFound) {
       this.classList.add(`l-tag--${type}`);
-    }
-  }
-
-  _toggleColorStyle(color?: string | null) {
-    if (!this.rendered) return;
-    if (isBlank(color)) {
-      this.style.removeProperty("--l-tag-color");
-      this.style.removeProperty("--l-tag-border-color");
-      this.style.removeProperty("--l-tag-background");
-    } else {
-      this.style.setProperty("--l-tag-color", color as string);
-      this.style.setProperty("--l-tag-border-color", color as string);
-      this.style.setProperty("--l-tag-background", adjust(color as string, 5, true));
     }
   }
 

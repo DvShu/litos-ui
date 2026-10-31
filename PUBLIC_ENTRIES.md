@@ -2451,7 +2451,7 @@ document.body.insertAdjacentHTML("beforeend", "<l-upload></l-upload>");
 | 待插件接入的全局 CSS | 无 |
 | 样式资源（含内联） | 无 |
 | 第三方实现依赖 | `utilane` |
-| 声明／具名导出 | `getLocale`、`initAttr`、`kebabToCamel`、`parseAttrValue`、`regist`、`setAttrs`、`stopSignal`、`tagAttr`、`tagAttrs`、`unitNumberStr`、`useId` |
+| 声明／具名导出 | `ButtonColor`、`TagColor`、`generateButtonColor`、`generateTagColor`、`initAttr`、`kebabToCamel`、`parseAttrValue`、`regist`、`setAttrs`、`stopSignal`、`tagAttr`、`tagAttrs`、`unitNumberStr`、`useId` |
 
 客户端消费示例：
 
