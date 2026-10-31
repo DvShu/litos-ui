@@ -1,6 +1,7 @@
 import { defineConfig } from "vitepress";
 import { zh } from "./locales/zh";
 import { en } from "./locales/en";
+import { generateBilingualLlms, llmsPagesPlugin } from "../../scripts/docs-llms.mjs";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -10,7 +11,15 @@ export default defineConfig({
   lastUpdated: true,
   cleanUrls: true,
   lang: "zh-CN",
+  vite: { plugins: [llmsPagesPlugin()] },
+  buildEnd: generateBilingualLlms,
+  transformHead({ pageData, siteData }) {
+    const page = pageData.relativePath;
+    if (page === "index.md" || page === "en/index.md") return [];
+    return [["link", { rel: "alternate", type: "text/markdown", href: `${siteData.base}${page}` }]];
+  },
   head: [
+    ["link", { rel: "describedby", href: "/litos-ui/llms.txt", type: "text/plain" }],
     [
       "link",
       {

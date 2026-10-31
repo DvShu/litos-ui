@@ -58,6 +58,7 @@
     "build": "vite build",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
+    "docs:llms:test": "node --test --test-isolation=none scripts/docs-llms.test.mjs",
     "docs:preview": "vitepress preview docs",
     "dts:build": "tsc -p tsconfig.build.json",
     "lib:build": "npm run build && npm run dts:build",
@@ -85,6 +86,7 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
     "vitepress": "^1.6.4",
+    "vitepress-plugin-llms": "1.14.0",
     "vue": "^3.5.44"
   },
   "packageManager": "pnpm@12.5.1"
