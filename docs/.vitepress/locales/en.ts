@@ -31,7 +31,7 @@ export const en: LocaleConfig<DefaultTheme.Config>[string] = {
             link: "/en/reset",
           },
           { text: "Utility Styles", link: "/en/css_util" },
-          { text: "Theming", link: "/en/theme" },
+          { text: "Preset Themes", link: "/en/theme" },
         ],
       },
       {

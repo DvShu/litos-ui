@@ -1,5 +1,6 @@
 /* 活力橙主题 · #FF7802，先引入 vars.css */
-:root {
+:root,
+:root[data-theme="tangerine"] {
   /* 主题色 */
   --l-primary-color: #ff7802;
   --l-primary-color-light1: #ff9335;

@@ -1,0 +1,47 @@
+/* 苹果主题 · #9E8D51；默认配色按引入顺序覆盖，data-theme 可显式选择。 */
+:root,
+:root[data-theme="apple"] {
+  --l-primary-color: #9e8d51;
+  --l-primary-color-light1: #b1a474;
+  --l-primary-color-light2: #c5bb97;
+  --l-primary-color-light3: #d8d1b9;
+  --l-primary-color-light4: #ece8dc;
+  --l-primary-color-light5: #f5f4ee;
+  --l-primary-color-dark1: #7e7141;
+  --l-primary-color-dark2: #5f5531;
+  --l-success-color: #52c41a;
+  --l-success-color-light1: #73d13d;
+  --l-success-color-light2: #95de64;
+  --l-success-color-light3: #b7eb8f;
+  --l-success-color-light4: #d9f7be;
+  --l-success-color-light5: #f6ffed;
+  --l-success-color-dark1: #389e0d;
+  --l-success-color-dark2: #317610;
+  --l-error-color: #f5222d;
+  --l-error-color-light1: #f74e57;
+  --l-error-color-light2: #f97a81;
+  --l-error-color-light3: #ffa39e;
+  --l-error-color-light4: #fdd3d5;
+  --l-error-color-light5: #fff1f0;
+  --l-error-color-dark1: #c41b24;
+  --l-error-color-dark2: #93141b;
+  /* 主色与默认警告色相近，使用深琥珀色保持警告语义。 */
+  --l-warning-color: #a65b00;
+  --l-warning-color-light1: #b87c33;
+  --l-warning-color-light2: #ca9d66;
+  --l-warning-color-light3: #dbbd99;
+  --l-warning-color-light4: #eddecc;
+  --l-warning-color-light5: #f6efe6;
+  --l-warning-color-dark1: #854900;
+  --l-warning-color-dark2: #643700;
+  --l-text-color: #433f30;
+  --l-text-secondary-color: #68614d;
+  --l-fill-secondary-color: #faf9f5;
+  --l-border-color: #e5e0cf;
+  --l-disabled-color: #ebe8de;
+}
+
+/* 暗黑模式下保持禁用状态的可辨识度。 */
+:root.dark {
+  --l-disabled-color: #6c6c6c;
+}

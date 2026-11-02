@@ -1,5 +1,6 @@
 /* 翡翠绿主题 · #00AA7E，先引入 vars.css */
-:root {
+:root,
+:root[data-theme="jade"] {
   /* 主题色 */
   --l-primary-color: #00aa7e;
   --l-primary-color-light1: #33bb98;

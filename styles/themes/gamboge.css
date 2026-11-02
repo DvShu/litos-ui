@@ -1,0 +1,15 @@
+/* 藤黄主题 · #FED110；未变化的颜色继承 vars.css。 */
+:root,
+:root[data-theme="gamboge"] {
+  --l-primary-color: #fed110;
+  --l-primary-color-light1: #feda40;
+  --l-primary-color-light2: #fee370;
+  --l-primary-color-light3: #ffed9f;
+  --l-primary-color-light4: #fff6cf;
+  --l-primary-color-light5: #fffae7;
+  --l-primary-color-dark1: #cba70d;
+  --l-primary-color-dark2: #987d0a;
+  --l-warning-color: #b86e00;
+  --l-warning-color-light5: #f8f1e6;
+  --l-primary-contrast-color: #332900;
+}

@@ -31,7 +31,7 @@ export const zh: LocaleConfig<DefaultTheme.Config>[string] = {
             link: "/reset",
           },
           { text: "工具样式", link: "/css_util" },
-          { text: "主题切换", link: "/theme" },
+          { text: "预置主题", link: "/theme" },
         ],
       },
       {

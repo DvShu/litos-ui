@@ -1,9 +1,12 @@
-:root {
+/* 显式选择时补回基础值：优先于其他主题的 :root，低于已选主题的属性选择器。 */
+:root,
+html:root:where([data-theme]) {
   /* button、input 元素高度 */
   --l-form-control-height: 40px;
   /** 禁用状态颜色 */
   --l-disabled-color: #e6e6e6;
   /* 主题(primary)颜色 - 明亮蓝系列 */
+  --l-primary-contrast-color: #ffffff;
   --l-primary-color: #007bff; /* 主色调：明亮蓝 */
   --l-primary-color-light1: #3399ff; /* 浅 1 */
   --l-primary-color-light2: #66b3ff; /* 浅 2 */
@@ -26,6 +29,7 @@
   --l-success-color-dark1: #389e0d;
   /* 表示警告(warning)的颜色 */
   --l-warning-color: #f90;
+  --l-warning-color-light5: #fff5e6;
   /* 文字颜色 */
   --l-text-color: rgba(0, 0, 0, 0.88);
   --l-text-secondary-color: rgba(0, 0, 0, 0.65);

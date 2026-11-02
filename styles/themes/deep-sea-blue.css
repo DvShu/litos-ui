@@ -1,0 +1,12 @@
+/* 深海蓝主题 · #1D3D79；其余颜色继承 vars.css。 */
+:root,
+:root[data-theme="deep-sea-blue"] {
+  --l-primary-color: #1d3d79;
+  --l-primary-color-light1: #4a6494;
+  --l-primary-color-light2: #778baf;
+  --l-primary-color-light3: #a5b1c9;
+  --l-primary-color-light4: #d2d8e4;
+  --l-primary-color-light5: #e8ecf2;
+  --l-primary-color-dark1: #173161;
+  --l-primary-color-dark2: #112549;
+}

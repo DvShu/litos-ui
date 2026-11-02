@@ -1,5 +1,6 @@
 import DefaultTheme from "vitepress/theme";
 import "./style.css";
+import "../../../styles/themes.css";
 import "../../../styles/vars.css";
 import "../../../styles/dark.css";
 import "../../../styles/message.css";

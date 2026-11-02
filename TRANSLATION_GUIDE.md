@@ -14,6 +14,7 @@
 ## 中文更新与统一翻译流程
 
 - 中文文档是英文文档的统一内容依据。先完成组件实现和中文文档核对；若中文说明与实际代码不符，先修正中文，再对照翻译，不在英文页单独维护另一套功能说明。
+- 新增主题是默认同步中英文的专项流程，遵循 `AGENTS.md` 的“新增主题的默认交付约定”，同次更新两份 `theme.md`、导入示例和主题卡片；此专项不改变普通组件的分步翻译约定。
 - 组件开发与统一翻译分步进行。日常开发先更新中文文档，并在下方登记英文待同步内容；用户会在组件开发完成后要求一次统一翻译，届时处理本次范围内的全部相关页面。用户当次明确要求同步翻译时，直接执行。
 - 新组件仍需按 AGENTS.md 接入英文页面和导航，未翻译时可保留中文副本并登记“新增”；已有英文译文保留，不用中文整页覆盖。未执行统一翻译时，不将英文翻译任务标记为完成。
 - 中文新增页面登记“新增”；对应英文页缺失段落、API、示例或限制时登记“遗漏”；中文修改或删除后英文仍保留旧说明时登记“过期”。每条记录写明中文路径、英文路径、类别及待同步段落或变更点；同一页面合并维护，中文再次变化时更新记录。
@@ -88,9 +89,12 @@
 
 ## 预置主题的统一名称
 
-- 翡翠绿：Jade；标识符 jade；主色 `#00AA7E`；文件 `theme-jade.css`。
-- 珊瑚红：Coral；标识符 coral；主色 `#FF6448`；文件 `theme-coral.css`。
-- 活力橙：Tangerine；标识符 tangerine；主色 `#FF7802`；文件 `theme-tangerine.css`。
+- 翡翠绿：Jade；标识符 jade；主色 `#00AA7E`；文件 `styles/themes/jade.css`。
+- 珊瑚红：Coral；标识符 coral；主色 `#FF6448`；文件 `styles/themes/coral.css`。
+- 活力橙：Tangerine；标识符 tangerine；主色 `#FF7802`；文件 `styles/themes/tangerine.css`。
+- 苹果：Apple；标识符 apple；主色 `#9E8D51`；文件 `styles/themes/apple.css`。
+- 深海蓝：Deep Sea Blue；标识符 deep-sea-blue；主色 `#1D3D79`；文件 `styles/themes/deep-sea-blue.css`。
+- 藤黄：Gamboge；标识符 gamboge；主色 `#FED110`；文件 `styles/themes/gamboge.css`。
 - 颜色标识符、文件名和实际颜色值不随翻译改变。
 
 ## 页面翻译验收
