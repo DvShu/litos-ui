@@ -8,6 +8,10 @@ import css from "./index.less?inline";
 
 export default class ColorPicker extends FormInner {
   public static baseName = "color-picker";
+
+  static get observedAttributes() {
+    return [...new Set(FormInner.observedAttributes)];
+  }
   public $picker?: HTMLInputElement;
   public _value = "#000000";
 
@@ -20,11 +24,14 @@ export default class ColorPicker extends FormInner {
     if (this.$picker) {
       this.$picker.value = value;
     }
+    this.syncNativeValue();
   }
   connectedCallback(): void {
     this.loadStyleText([inputCss, css]);
     super.connectedCallback();
     this.$picker = $one("input", this.root) as HTMLInputElement;
+    if (this._resetValue == null) this._resetValue = this.value;
+    this.syncNativeValue();
     on(this.$picker, "change", this._handleChange);
   }
 
@@ -40,7 +47,6 @@ export default class ColorPicker extends FormInner {
     setAttrs($picker, [
       ["value", this.value],
       ["disabled", this.isDisabled()],
-      ["name", this.getName()],
       ["type", "color"],
       ["class", "l-input l-color-picker"],
     ]);

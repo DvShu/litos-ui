@@ -36,6 +36,121 @@ export default class Input extends FormInner<InputState> {
   public parser?: (value: string) => string;
 
   $inner?: HTMLInputElement;
+  private labelObserver?: MutationObserver;
+  private userBadInput = false;
+  protected override get nativeBadInput(): boolean {
+    return this.userBadInput;
+  }
+
+  /** 外部同树 label 仍关联 FACE 宿主，文本复制给 Shadow DOM 内真正的编辑控件。 */
+  private labelText(source: Element): string {
+    const clone = source.cloneNode(true) as Element;
+    for (const decoration of clone.querySelectorAll('[aria-hidden="true"],[hidden],script,style'))
+      decoration.remove();
+    return clone.textContent?.trim() ?? "";
+  }
+
+  private syncAccessibleName = (): void => {
+    if (!this.$inner) return;
+    const root = this.getRootNode() as Document | ShadowRoot;
+    const references = (this.getAttribute("aria-labelledby") ?? "")
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((id) => root.getElementById?.(id))
+      .filter((node): node is HTMLElement => !!node);
+    const labels = Array.from(this.labels ?? []) as HTMLLabelElement[];
+    const item = this.closest("l-form-item");
+    const explicit = this.getAttribute("aria-label");
+    const sources: Element[] = references.length
+      ? references
+      : explicit !== null
+        ? []
+        : labels.length
+          ? labels
+          : item
+            ? [item]
+            : [];
+    const name = references.length
+      ? references
+          .map((node) => this.labelText(node))
+          .filter(Boolean)
+          .join(" ")
+      : explicit !== null
+        ? explicit
+        : labels.length
+          ? labels
+              .map((label) => this.labelText(label))
+              .filter(Boolean)
+              .join(" ")
+          : (item?.getAttribute("label") ?? "");
+    // 不把跨树 IDREF 直接复制到内部；aria-label 是 Safari 16.4 可用的文本桥接。
+    if (name) this.$inner.setAttribute("aria-label", name);
+    else this.$inner.removeAttribute("aria-label");
+    this.labelObserver?.disconnect();
+    this.labelObserver ??= new MutationObserver(this.syncAccessibleName);
+    // 限定在宿主的局部容器，捕获同容器 label 插入／for 改绑；不安装 document 级观察器。
+    if (this.parentElement)
+      this.labelObserver.observe(this.parentElement, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ["for", "id", "label", "aria-hidden", "hidden"],
+      });
+    for (const source of sources) {
+      this.labelObserver.observe(
+        source,
+        source === item
+          ? { attributes: true, attributeFilter: ["label"] }
+          : { childList: true, subtree: true, characterData: true },
+      );
+    }
+  };
+
+  private syncInputAttributes(): void {
+    if (!this.$inner) return;
+    this.$inner.type = this.getAttribute("type") || "text";
+    for (const attr of [
+      "pattern",
+      "min",
+      "max",
+      "step",
+      "minlength",
+      "maxlength",
+      "inputmode",
+      "autocomplete",
+    ]) {
+      const value = this.getAttribute(attr);
+      if (value === null) this.$inner.removeAttribute(attr);
+      else this.$inner.setAttribute(attr, value);
+    }
+    this.$inner.readOnly = this.readOnly;
+    this.$inner.disabled = this.isDisabled();
+    this.$inner.setAttribute("aria-required", String(this.contextRequired));
+    this.syncAccessibleName();
+  }
+
+  protected override configurationApplied(): void {
+    this.syncInputAttributes();
+  }
+
+  protected override attributeChanged(name: string, oldValue: string, newValue: string): void {
+    super.attributeChanged(name, oldValue, newValue);
+    this.syncInputAttributes();
+    if (name === "type" && this.$inner) this.setValue(this.$inner.value);
+    if (this.rendered && ["readonly", "clearable"].includes(name)) this.#renderClearable();
+  }
+
+  public override focus(options?: FocusOptions): void {
+    if (!this.isDisabled()) {
+      this.syncAccessibleName();
+      this.$inner?.focus(options);
+    }
+  }
+  public override blur(): void {
+    this.$inner?.blur();
+  }
 
   public constructor() {
     super();
@@ -51,12 +166,28 @@ export default class Input extends FormInner<InputState> {
     };
   }
 
+  public override get nativeValueEnabled(): boolean {
+    return true;
+  }
+
+  protected override serializeFormValue(): string {
+    return String(this.getValue() ?? "");
+  }
+
+  public override setValue(value: any): void {
+    this.userBadInput = false;
+    const native = this.$inner ?? this.ownerDocument.createElement("input");
+    native.type = this.getAttribute("type") || "text";
+    const text = String(value ?? "");
+    native.value = text;
+    // number/date 等类型由浏览器清洗非法值；仅当字符串改变时替换业务值，保留 0／false。
+    super.setValue(native.value === text ? value : native.value);
+    if (this.$inner) this.#renderClearable();
+    this.syncNativeValue();
+  }
+
   set value(value: any) {
     this.setValue(value);
-    if (this.$inner) {
-      this.$inner.value = value;
-      this.#renderClearable();
-    }
   }
 
   get value() {
@@ -74,31 +205,44 @@ export default class Input extends FormInner<InputState> {
 
   static get observedAttributes() {
     return [
-      "disabled",
-      "readonly",
-      "value",
-      "name",
-      "inner-block",
-      "error",
-      "clearable",
-      "maxlength",
-      "minlength",
-      "inputmode",
-      "type",
-      "placeholder",
-      "width",
-      "block",
+      ...new Set([
+        ...FormInner.observedAttributes,
+        "disabled",
+        "readonly",
+        "value",
+        "name",
+        "inner-block",
+        "error",
+        "clearable",
+        "maxlength",
+        "minlength",
+        "inputmode",
+        "type",
+        "placeholder",
+        "width",
+        "block",
+        "id",
+        "aria-label",
+        "aria-labelledby",
+        "autocomplete",
+      ]),
     ];
   }
 
   afterInit(): void {
     this.$inner = $one(".l-input__inner", this.root) as HTMLInputElement;
+    this.$inner.value = String(this.getValue() ?? "");
+    this.#renderClearable();
+    this.syncInputAttributes();
+    on(this.$inner, "focus", this.syncAccessibleName);
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
     this.style.cssText = formatStyle(this._getStyleObj()) + this.getAttr("style", "");
   }
 
   beforeDestroy(): void {
+    this.labelObserver?.disconnect();
+    off(this.$inner as HTMLInputElement, "focus", this.syncAccessibleName);
     off(this.$inner as HTMLInputElement, "input", this._input);
     off(this.$inner as HTMLInputElement, "change", this.#handleChange);
     const clear = $one(".l-clearable", this.root);
@@ -204,7 +348,6 @@ export default class Input extends FormInner<InputState> {
     const $inner = $$("input", {
       class: "l-input__inner",
       value: this.value,
-      name: this.getName(),
       placeholder: this._state.placeholder,
       part: "default",
       type: this._state.type,
@@ -264,11 +407,18 @@ export default class Input extends FormInner<InputState> {
       newEnd = newStart;
     }
     target.value = newValue;
-    target.setSelectionRange(newStart, newEnd);
+    if (["text", "search", "url", "tel", "password"].includes(target.type))
+      target.setSelectionRange(newStart, newEnd);
   }
 
   _input = (e: Event) => {
     const $target = e.target as HTMLInputElement;
+    if (this.readOnly || this.isDisabled()) {
+      $target.value = String(this.getValue() ?? "");
+      e.stopImmediatePropagation();
+      return;
+    }
+    const badInput = $target.validity.badInput;
     let oldValue = $target.value;
     let newValue = oldValue;
     if (this._state.allowInput != null) {
@@ -292,18 +442,28 @@ export default class Input extends FormInner<InputState> {
     }
 
     this.setValue(newValue);
+    this.userBadInput = badInput;
+    this.syncNativeValue();
     this.#renderClearable();
   };
 
   #renderClearable() {
     let $clearWrapper = $one(".l-clearable", this.root);
-    if (this._state.clearable && !this.readOnly && !this.isDisabled() && this.value?.length > 0) {
+    if (
+      this._state.clearable &&
+      !this.readOnly &&
+      !this.isDisabled() &&
+      String(this.value ?? "").length > 0
+    ) {
       if ($clearWrapper == null) {
         // 创建清除按钮
-        $clearWrapper = $$("span", {
+        $clearWrapper = $$("button", {
           class: "l-input__suffix l-clearable",
+          type: "button",
+          "aria-label": "清空输入",
+          part: "clear",
         });
-        const $clearIcon = $$("l-close-filled-icon");
+        const $clearIcon = $$("l-close-filled-icon", { "aria-hidden": "true" });
         $clearWrapper.appendChild($clearIcon);
         this.root.appendChild($clearWrapper);
         on($clearWrapper, "click", this.#handleClear);
@@ -320,9 +480,11 @@ export default class Input extends FormInner<InputState> {
   #handleClear = () => {
     if (this.readOnly || this.isDisabled()) return;
     this.value = "";
+    this.focus();
     this.dispatchEvent(
       new CustomEvent("input", {
         bubbles: true,
+        composed: true,
         detail: { value: this.value },
       }),
     );
@@ -412,10 +574,13 @@ export default class Input extends FormInner<InputState> {
   }
 
   protected validResult(msg?: string): void {
-    this._updateError(msg != null);
+    this.$inner?.setAttribute("aria-invalid", String(!!msg));
+    this._updateError(!!msg || !!this._state.error);
   }
 
   #handleChange = (e: Event) => {
+    e.stopPropagation();
+    if (this.readOnly || this.isDisabled()) return;
     const $target = e.target as HTMLInputElement;
     this.dispatchEvent(
       new CustomEvent("change", {

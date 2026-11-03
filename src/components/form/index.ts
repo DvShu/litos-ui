@@ -1,13 +1,13 @@
-import type { Signal } from "../utils/signal_types";
 import { formatClass, $one, on, off } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import { Validator } from "utilane";
 import type { SchemaType } from "utilane";
 //@ts-ignore
 import css from "./index.less?inline";
-import { signal } from "alien-signals";
-import type { FormSignal } from "./types";
 import BaseComponent from "../base";
+import FormInner from "./form_inner";
+import { FormOwner } from "./owner";
+import { createFormContextProvider, provideFormContext } from "./context";
 
 interface FormState {
   inline: boolean;
@@ -22,10 +22,65 @@ interface FormState {
 export default class Form extends BaseComponent<FormState> {
   public static baseName = "form";
   public validator: Validator;
-  private _data?: Record<string, any>;
-  public context: Signal<FormSignal>;
-  public errors: Signal<Record<string, string | undefined>>; // 验证错误
-  public resetCtx: Signal<number>;
+  private errorMessages: Record<string, string | undefined> = {};
+  private readonly nativeOwner = new FormOwner(this, () => this.fields());
+  private readonly fieldContext = createFormContextProvider();
+  private disposeContext?: () => void;
+  private readonly provider = {
+    getSnapshot: () => this.fieldContext.getSnapshot(),
+    registerField: (field: import("./context").FormContextField) => {
+      const unregister = this.fieldContext.registerField(field);
+      queueMicrotask(() => {
+        if (!this.isConnected) return;
+        this.nativeOwner.refresh();
+        if (this.fieldContext.getFields().includes(field)) {
+          const message = this.errorMessages[field.getSnapshot().name ?? ""];
+          this.fieldContext.notifyValidity(field, { valid: !message, message });
+        }
+      });
+      return unregister;
+    },
+  };
+  private listeningForm?: HTMLFormElement;
+
+  /** 当前原生表单；独立 l-form 使用辅助 form，已有原生祖先时复用。 */
+  public get nativeForm(): HTMLFormElement | undefined {
+    this.nativeOwner.refresh();
+    return this.nativeOwner.form;
+  }
+
+  private fields(): FormInner[] {
+    return Array.from(this.querySelectorAll<HTMLElement>("*")).filter(
+      (field): field is FormInner => field instanceof FormInner && field.closest("l-form") === this,
+    );
+  }
+
+  private nativeSubmit = (event: Event) => {
+    // 仅拦截原生 form 事件，库 submit 仍由 this.emit 发送。
+    if (event.target !== this.listeningForm) return;
+    event.preventDefault();
+    event.stopPropagation();
+    this.submit();
+  };
+
+  private nativeReset = (event: Event) => {
+    if (event.target !== this.listeningForm) return;
+    // 等全部 reset 监听器执行后再判断取消；原生字段回调由浏览器执行。
+    queueMicrotask(() => {
+      if (event.defaultPrevented || !this.isConnected) return;
+      this.clearValidate();
+    });
+  };
+
+  private listenNativeForm(): void {
+    const form = this.nativeForm;
+    if (form === this.listeningForm) return;
+    this.listeningForm?.removeEventListener("submit", this.nativeSubmit);
+    this.listeningForm?.removeEventListener("reset", this.nativeReset);
+    this.listeningForm = form;
+    form?.addEventListener("submit", this.nativeSubmit);
+    form?.addEventListener("reset", this.nativeReset);
+  }
 
   constructor() {
     super();
@@ -39,9 +94,6 @@ export default class Form extends BaseComponent<FormState> {
       emitError: false,
     };
     this.validator = new Validator([]);
-    this.context = signal({ innerBlock: false });
-    this.errors = signal({});
-    this.resetCtx = signal(0);
   }
 
   static get observedAttributes() {
@@ -53,6 +105,7 @@ export default class Form extends BaseComponent<FormState> {
       "label-width",
       "label-height",
       "emit-error",
+      "disabled",
     ];
   }
 
@@ -63,7 +116,16 @@ export default class Form extends BaseComponent<FormState> {
         break;
       case "inner-block":
         const isBlock = parseAttrValue(newValue, false, name);
-        this.context({ innerBlock: isBlock });
+        this.fieldContext.updateConfiguration({
+          innerBlock: isBlock,
+          disabled: parseAttrValue(this.getAttribute("disabled") ?? "", false, "disabled"),
+        });
+        break;
+      case "disabled":
+        this.fieldContext.updateConfiguration({
+          innerBlock: parseAttrValue(this.getAttribute("inner-block") ?? "", false, "inner-block"),
+          disabled: parseAttrValue(newValue, false, name),
+        });
         break;
       case "label-width":
       case "label-height":
@@ -79,7 +141,7 @@ export default class Form extends BaseComponent<FormState> {
 
   protected updateDOM(changedProps: Set<string>): void {
     if (changedProps.has("label-position") || changedProps.has("inline")) {
-      const $form = $one("form", this.root);
+      const $form = $one(".l-form", this.root);
       if ($form) {
         $form.className = formatClass([
           "l-form",
@@ -105,8 +167,11 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   connectedCallback(): void {
-    on(this, "form-context-request", this._provide);
+    this.disposeContext = provideFormContext(this, "form", this.provider);
     super.connectedCallback();
+    this.nativeOwner.start();
+    this.listenNativeForm();
+    for (const field of this.fields()) field.refreshFormContext();
   }
 
   afterInit(): void {
@@ -116,10 +181,16 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   disconnectedCallback(): void {
-    this.validator = undefined as any;
+    this.disposeContext?.();
+    this.disposeContext = undefined;
+    this.fieldContext.dispose();
+    this.listeningForm?.removeEventListener("submit", this.nativeSubmit);
+    this.listeningForm?.removeEventListener("reset", this.nativeReset);
+    this.listeningForm = undefined;
+    this.nativeOwner.stop();
     off(this, "form-rule-change", this.ruleChange);
     off(this, "form-value-change", this._valueChange);
-    off(this, "form-context-request", this._provide);
+
     off(this, "form-action", this._formAction);
     super.disconnectedCallback();
   }
@@ -140,12 +211,12 @@ export default class Form extends BaseComponent<FormState> {
     if (this._state.labelWidth) {
       this.style.setProperty("--l-form-label-width", this._state.labelWidth);
     }
-    return `<form class="${classStr}"><slot></slot></form>`;
+    return `<div class="${classStr}"><slot></slot></div>`;
   }
 
   public ruleChange = (e: CustomEvent) => {
     e.stopPropagation();
-    this.validator.addSchema(e.detail);
+    this.validator.setSchema(e.detail);
   };
 
   public addSchemas(schemas: SchemaType[]) {
@@ -164,14 +235,8 @@ export default class Form extends BaseComponent<FormState> {
     this.validator.addSchema(schema);
   }
 
-  private _provide(e: CustomEvent) {
-    const { context, callback } = e.detail;
-    if (context === "form-context-request") {
-      callback(this.context, this.errors, this.resetCtx);
-    }
-  }
-
   _formAction = (e: CustomEvent) => {
+    e.stopPropagation();
     if (e.detail === "submit") {
       this.submit();
     } else {
@@ -180,22 +245,10 @@ export default class Form extends BaseComponent<FormState> {
   };
 
   _valueChange = (e: CustomEvent) => {
-    const { name, value, valid } = e.detail;
-    if (!name) return;
-    if (this._data == null) {
-      this._data = {};
-    }
-    const needValid = Object.hasOwn(this._data, name);
-    this._data[name] = value;
-    if (!this._state.novalidate && needValid && valid) {
-      try {
-        const oldValue = this.errors();
-        oldValue[name] = undefined;
-        this.setValidateErrors({ ...oldValue });
-      } catch (err: any) {
-        this.setValidateErrors({ ...this.errors(), ...err.detail });
-      }
-    }
+    e.stopPropagation();
+    const { name, valid } = e.detail;
+    if (name && valid && this.errorMessages[name])
+      this.setErrors({ ...this.errorMessages, [name]: undefined });
   };
 
   public setValidateErrors(
@@ -207,50 +260,36 @@ export default class Form extends BaseComponent<FormState> {
         detail: { errors: errs, all },
       });
     } else {
-      this.errors(errs);
+      this.setErrors(errs);
     }
   }
 
   public async validateField(field: string | string[]) {
-    let isError = false;
-    let validResult: Record<string, any> = {};
-    if (this._data != null) {
-      if (Array.isArray(field)) {
-        for (let i = 0, len = field.length; i < len; i++) {
-          const f = field[i];
-          try {
-            validResult[f] = undefined;
-          } catch (e: any) {
-            validResult[f] = e.detail;
-            isError = true;
-            break;
-          }
-        }
-      } else {
-        try {
-          validResult[field] = undefined;
-        } catch (e: any) {
-          validResult[field] = e.detail;
-          isError = true;
-        }
-      }
-      if (isError) {
-        const e: any = new Error("validate field error");
-        e.detail = validResult;
-        return Promise.reject(e);
-      }
-      return Promise.resolve();
+    const names = Array.isArray(field) ? field : [field];
+    const result = await this.validate();
+    const errors = Object.fromEntries(
+      names.map((name) => [name, (result.errors as Record<string, string>)[name]]),
+    );
+    this.setErrors({ ...this.errorMessages, ...errors });
+    if (Object.values(errors).some(Boolean)) {
+      const error = new Error("validate field error") as Error & { detail: typeof errors };
+      error.detail = errors;
+      throw error;
     }
   }
 
+  /** 当前错误快照；普通数据，不再暴露 signal 调用接口。 */
+  public get validationErrors(): Readonly<Record<string, string | undefined>> {
+    return { ...this.errorMessages };
+  }
+
   public clearValidate() {
-    this.errors({});
+    this.setErrors({});
   }
 
   public reset() {
-    this.clearValidate();
-    const old = this.resetCtx();
-    this.resetCtx(old >= 100 ? 1 : old + 1);
+    this.listenNativeForm();
+    this.listeningForm?.reset();
   }
 
   public submit() {
@@ -269,7 +308,7 @@ export default class Form extends BaseComponent<FormState> {
               },
             });
           } else {
-            this.errors(valid.errors);
+            this.setErrors(valid.errors);
           }
         }
       });
@@ -281,7 +320,7 @@ export default class Form extends BaseComponent<FormState> {
    */
   public validate() {
     try {
-      this.validator.validate(this._data || {});
+      this.validator.validate(this.getData());
       return Promise.resolve({
         result: true,
         errors: {},
@@ -295,10 +334,20 @@ export default class Form extends BaseComponent<FormState> {
   }
 
   public getData() {
-    return { ...this._data };
+    const data: Record<string, any> = {};
+    for (const field of this.fields()) {
+      if (!field.grouped && field.name && field.form === this.nativeForm)
+        data[field.name] = field.getValue();
+    }
+    return data;
   }
 
   public setErrors(errorObj: Record<string, any>) {
-    this.errors(errorObj);
+    this.errorMessages = { ...errorObj };
+    for (const field of this.fieldContext.getFields()) {
+      const name = field.getSnapshot().name;
+      const message = name ? this.errorMessages[name] : undefined;
+      this.fieldContext.notifyValidity(field, { valid: !message, message });
+    }
   }
 }

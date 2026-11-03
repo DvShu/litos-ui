@@ -1,0 +1,241 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Form lifecycle gate</title>
+<pre id="result">pending</pre>
+<script type="module">
+  import { FormOwner } from "/owner.js";
+  import {
+    provideFormContext,
+    requestFormContext,
+    createFormContextProvider,
+    FORM_CONTEXT_EVENTS,
+    resolveFieldContext,
+  } from "/context.js";
+  const checks = [];
+  const check = (name, pass) => checks.push({ name, pass: !!pass });
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+  try {
+    class Field extends HTMLElement {
+      static formAssociated = true;
+      constructor() {
+        super();
+        this.internals = this.attachInternals();
+      }
+    }
+    customElements.define("owner-field", Field);
+    const managerByHost = new WeakMap();
+    class FormHost extends HTMLElement {
+      constructor() {
+        super();
+        this.attachShadow({ mode: "open" }).innerHTML = "<slot></slot>";
+      }
+      connectedCallback() {
+        const manager = new FormOwner(this, () => this.querySelectorAll("owner-field"));
+        managerByHost.set(this, manager);
+        manager.start();
+      }
+      disconnectedCallback() {
+        managerByHost.get(this)?.stop();
+      }
+    }
+    customElements.define("l-form", FormHost);
+    function host() {
+      const h = document.createElement("l-form");
+      document.body.append(h);
+      return h;
+    }
+    function field(h) {
+      const f = document.createElement("owner-field");
+      f.setAttribute("name", "x");
+      h.append(f);
+      f.internals.setFormValue("x");
+      return f;
+    }
+    const upgradeHost = host();
+    const pendingField = document.createElement("late-owner-field");
+    pendingField.setAttribute("name", "late");
+    upgradeHost.append(pendingField);
+    const upgradeManager = managerByHost.get(upgradeHost);
+    const lateManager = new FormOwner(upgradeHost, () =>
+      upgradeHost.querySelectorAll("late-owner-field"),
+    );
+    upgradeManager.stop();
+    lateManager.start();
+    class LateField extends HTMLElement {
+      static formAssociated = true;
+      constructor() {
+        super();
+        this.internals = this.attachInternals();
+      }
+    }
+    customElements.define("late-owner-field", LateField);
+    lateManager.refresh();
+    check("definition-after-association", pendingField.internals.form === lateManager.form);
+    const detachedHelper = lateManager.form;
+    detachedHelper.remove();
+    await tick();
+    check(
+      "framework-helper-recreated",
+      lateManager.form === detachedHelper && detachedHelper.parentNode === upgradeHost,
+    );
+    lateManager.stop();
+    upgradeHost.remove();
+    const a = host(),
+      f = field(a);
+    await tick();
+    const am = managerByHost.get(a),
+      first = am.form;
+    check("dynamic-associate", f.internals.form === first);
+    const manual = document.createElement("form");
+    manual.id = "application-form";
+    document.body.append(manual);
+    f.setAttribute("form", manual.id);
+    await tick();
+    check("explicit-form-wins", f.internals.form === manual);
+    am.stop();
+    check("explicit-preserved-on-stop", f.getAttribute("form") === manual.id);
+    am.start();
+    f.removeAttribute("form");
+    await tick();
+    check("explicit-removal-auto-associate", f.internals.form === am.form);
+    const collision = document.createElement("div");
+    collision.id = am.form.id;
+    a.prepend(collision);
+    await tick();
+    check("id-collision-renamed", am.form.id !== collision.id && f.internals.form === am.form);
+    const b = host();
+    b.append(f);
+    await tick();
+    check("cross-host-move", f.internals.form === managerByHost.get(b).form);
+    const bm = managerByHost.get(b),
+      old = bm.form;
+    b.remove();
+    await tick();
+    check("disconnect-cleans", !old.isConnected && !f.hasAttribute("form"));
+    document.body.append(b);
+    await tick();
+    check("reconnect", f.internals.form === managerByHost.get(b).form);
+    const foreign = document.createElement("owner-field");
+    foreign.setAttribute("form", "");
+    b.append(foreign);
+    await tick();
+    check(
+      "explicit-empty-preserved",
+      foreign.getAttribute("form") === "" && foreign.internals.form === null,
+    );
+    const wrapper = document.createElement("div");
+    const deep = field(wrapper);
+    b.append(wrapper);
+    await tick();
+    check("wrapped-field", deep.internals.form === managerByHost.get(b).form);
+    wrapper.remove();
+    await tick();
+    check("removed-field-restored", !deep.hasAttribute("form"));
+    const native = document.createElement("form");
+    document.body.append(native);
+    native.append(b);
+    await tick();
+    check(
+      "native-ancestor-reused",
+      managerByHost.get(b).form === native && f.internals.form === native,
+    );
+    check(
+      "no-nested-native-form",
+      b.querySelectorAll("form").length === 0 && !f.hasAttribute("form"),
+    );
+    const shadowApp = document.createElement("div");
+    document.body.append(shadowApp);
+    const root = shadowApp.attachShadow({ mode: "open" });
+    const sh = document.createElement("l-form");
+    root.append(sh);
+    const sf = field(sh);
+    await tick();
+    check("shadow-root-owner", sf.internals.form === managerByHost.get(sh).form);
+    const forbidden = document.createElement("div");
+    forbidden.setAttribute("data-nested-test", "");
+    a.append(forbidden);
+    let rejected = false;
+    try {
+      new FormOwner(forbidden, () => []).start();
+    } catch {
+      rejected = true;
+    }
+    check("nested-l-form-rejected", rejected);
+    forbidden.remove();
+    const replacement = document.createElement("owner-field");
+    replacement.setAttribute("name", "new");
+    b.replaceChildren(replacement);
+    await tick();
+    check(
+      "framework-replacement",
+      replacement.internals.form === native && !f.hasAttribute("form"),
+    );
+    const standalone = document.createElement("owner-field");
+    native.append(standalone);
+    check("standalone-native", standalone.internals.form === native);
+    // stop/start is idempotent and never removes application nodes.
+    const retained = Array.from(a.children).filter((n) => n !== am.form);
+    am.stop();
+    am.stop();
+    check(
+      "stop-preserves-user-dom",
+      retained.every((n) => n.parentNode === a),
+    );
+    check("helper-cleanup", a.querySelectorAll("form").length === 0);
+    const outer = document.createElement("div"),
+      innerHost = document.createElement("div");
+    document.body.append(outer);
+    outer.append(innerHost);
+    const child = document.createElement("div");
+    innerHost.attachShadow({ mode: "open" }).append(child);
+    const provider = createFormContextProvider({ innerBlock: true });
+    const disposeOuter = provideFormContext(outer, "form", {
+      ...provider,
+      getSnapshot: () => ({ innerBlock: false }),
+    });
+    const disposeInner = provideFormContext(innerHost, "form", provider);
+    check("composed-nearest-provider", requestFormContext(child, "form") === provider);
+    let updates = 0,
+      validities = 0;
+    child.addEventListener(FORM_CONTEXT_EVENTS.configuration, () => updates++);
+    child.addEventListener(FORM_CONTEXT_EVENTS.validity, () => validities++);
+    const registration = { target: child, getSnapshot: () => ({ value: "current" }) };
+    const unregister = provider.registerField(registration);
+    provider.updateConfiguration({ innerBlock: false });
+    provider.notifyValidity(registration, { valid: false, message: "error" });
+    check("direct-configuration-validity", updates === 1 && validities === 1);
+    unregister();
+    unregister();
+    check("unregister-idempotent", provider.getFields().length === 0);
+    provider.registerField(registration);
+    provider.dispose();
+    check("provider-clears-fields", provider.getFields().length === 0);
+    disposeInner();
+    check(
+      "provider-dispose-restores-outer",
+      requestFormContext(child, "form")?.getSnapshot().innerBlock === false,
+    );
+    disposeOuter();
+    check("all-providers-disposed", requestFormContext(child, "form") === undefined);
+    check(
+      "explicit-false-and-name",
+      resolveFieldContext(
+        { innerBlock: false, name: "" },
+        { item: { prop: "inherited", innerBlock: true } },
+      ).name === "" &&
+        resolveFieldContext({ innerBlock: false }, { form: { innerBlock: true } }).innerBlock ===
+          false,
+    );
+    document.querySelector("#result").textContent = JSON.stringify({
+      userAgent: navigator.userAgent,
+      checks,
+      pass: checks.every((c) => c.pass),
+    });
+  } catch (error) {
+    document.querySelector("#result").textContent = JSON.stringify({
+      pass: false,
+      error: String(error),
+      checks,
+    });
+  }
+</script>

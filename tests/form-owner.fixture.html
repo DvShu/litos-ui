@@ -1,0 +1,130 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Form owner migration gate</title>
+<body>
+  <pre id="result">pending</pre>
+  <script type="module">
+    import { assertFormPlatform } from "/scripts/form-platform.mjs";
+    const checks = [];
+    function check(name, condition) {
+      checks.push({ name, pass: !!condition });
+    }
+    try {
+      assertFormPlatform();
+      class Field extends HTMLElement {
+        static formAssociated = true;
+        constructor() {
+          super();
+          this.internals = this.attachInternals();
+          this.resets = 0;
+        }
+        formResetCallback() {
+          this.resets++;
+          this.internals.setFormValue("initial");
+        }
+      }
+      customElements.define("gate-field", Field);
+      class Item extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" }).innerHTML = "<div><slot></slot></div>";
+        }
+      }
+      customElements.define("gate-item", Item);
+      class Wrapper extends HTMLElement {
+        constructor() {
+          super();
+          this.attachShadow({ mode: "open" }).innerHTML = "<section><slot></slot></section>";
+        }
+      }
+      customElements.define("gate-form", Wrapper);
+      let serial = 0;
+      function sample(root) {
+        const host = document.createElement("gate-form");
+        const item = document.createElement("gate-item");
+        const wrap = document.createElement("div");
+        const field = document.createElement("gate-field");
+        field.setAttribute("name", "field");
+        wrap.append(field);
+        item.append(wrap);
+        host.append(item);
+        root.append(host);
+        const form = document.createElement("form");
+        form.id = `gate-${++serial}`;
+        form.hidden = true;
+        form.slot = "__l_form_owner";
+        host.append(form);
+        field.setAttribute("form", form.id);
+        field.internals.setFormValue("value", "state");
+        check(`owner-${serial}`, field.internals.form === form);
+        check(`data-${serial}`, new FormData(form).get("field") === "value");
+        check(`elements-${serial}`, Array.from(form.elements).includes(field));
+        check(
+          `helper-not-slotted-${serial}`,
+          !host.shadowRoot.querySelector("slot").assignedElements().includes(form),
+        );
+        check(
+          `user-dom-retained-${serial}`,
+          field.parentNode === wrap && wrap.parentNode === item && item.parentNode === host,
+        );
+        check(`visible-field-${serial}`, !field.closest("[hidden]"));
+        field.internals.setValidity({ customError: true }, "invalid");
+        check(`invalid-${serial}`, !form.checkValidity());
+        field.internals.setValidity({});
+        check(`valid-${serial}`, form.checkValidity());
+        form.reset();
+        check(
+          `reset-${serial}`,
+          field.resets === 1 && new FormData(form).get("field") === "initial",
+        );
+        return { host, form, field };
+      }
+      const first = sample(document.body);
+      const app = document.createElement("div");
+      document.body.append(app);
+      sample(app.attachShadow({ mode: "open" }));
+      const native = document.createElement("form");
+      const direct = document.createElement("gate-field");
+      direct.setAttribute("name", "direct");
+      native.append(direct);
+      document.body.append(native);
+      direct.internals.setFormValue("native");
+      check(
+        "native-ancestor-owner",
+        direct.internals.form === native && new FormData(native).get("direct") === "native",
+      );
+      const isolated = document.createElement("div");
+      document.body.append(isolated);
+      const inner = document.createElement("gate-field");
+      inner.setAttribute("form", first.form.id);
+      isolated.attachShadow({ mode: "open" }).append(inner);
+      check("no-cross-shadow-id", inner.internals.form === null);
+      const old = document.createElement("div");
+      document.body.append(old);
+      const shadow = old.attachShadow({ mode: "open" });
+      shadow.innerHTML = "<form><slot></slot></form>";
+      const slotted = document.createElement("gate-field");
+      old.append(slotted);
+      check("shadow-form-slot-not-owner", slotted.internals.form === null);
+      // Same-name entries are not collapsed; disabled fields are excluded by the UA.
+      const second = document.createElement("gate-field");
+      second.setAttribute("name", "direct");
+      native.append(second);
+      second.internals.setFormValue("second");
+      check(
+        "same-name-values",
+        new FormData(native).getAll("direct").join(",") === "native,second",
+      );
+      second.setAttribute("disabled", "");
+      check("disabled-excluded", new FormData(native).getAll("direct").length === 1);
+      const output = { userAgent: navigator.userAgent, checks, pass: checks.every((c) => c.pass) };
+      document.querySelector("#result").textContent = JSON.stringify(output);
+    } catch (error) {
+      document.querySelector("#result").textContent = JSON.stringify({
+        pass: false,
+        error: String(error),
+        checks,
+      });
+    }
+  </script>
+</body>

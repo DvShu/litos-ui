@@ -141,8 +141,10 @@ export default class Select extends FormInner<SelectState> {
   }
 
   public setValue(value: string | string[] | number): void {
-    let v: any[] = value as string[];
-    if (typeof value === "string") {
+    let v: any = value;
+    if (this._state.multiple && (value == null || value === "")) {
+      v = [];
+    } else if (typeof value === "string") {
       v = value.split(",");
     }
     if (this._state.multiple) {
@@ -157,6 +159,28 @@ export default class Select extends FormInner<SelectState> {
     super.setValue(v);
     this._updateSelectedLabels();
     this._reRenderLabels();
+    this._updatePopoverContent();
+    this.syncNativeValue();
+  }
+
+  protected get nativeValueMissing(): boolean {
+    return this.isEmpty();
+  }
+
+  protected serializeFormValue(): string | FormData {
+    if (!this._state.multiple) return String(this.getValue() ?? "");
+    const data = new FormData();
+    if (this.name) {
+      const values = this.getValue();
+      for (const value of Array.isArray(values)
+        ? values
+        : values == null || values === ""
+          ? []
+          : [values]) {
+        data.append(this.name, String(value ?? ""));
+      }
+    }
+    return data;
   }
 
   private _updateSelectedLabels() {
@@ -171,19 +195,22 @@ export default class Select extends FormInner<SelectState> {
 
   static get observedAttributes() {
     return [
-      "disabled",
-      "value",
-      "multiple",
-      "placeholder",
-      "collapse-tags",
-      "filterable",
-      "loading",
-      "label-field",
-      "value-field",
-      "width",
-      "clearable",
-      "remote",
-      "empty-text",
+      ...new Set([
+        ...FormInner.observedAttributes,
+        "disabled",
+        "value",
+        "multiple",
+        "placeholder",
+        "collapse-tags",
+        "filterable",
+        "loading",
+        "label-field",
+        "value-field",
+        "width",
+        "clearable",
+        "remote",
+        "empty-text",
+      ]),
     ];
   }
 
@@ -203,6 +230,9 @@ export default class Select extends FormInner<SelectState> {
         this._state.placeholder = newValue ?? "请选择";
         break;
       case "multiple":
+        this._state.multiple = parseAttrValue(newValue, false, name);
+        this.setValue(this.value ?? (this._state.multiple ? [] : ""));
+        break;
       case "clearable":
       case "filterable":
       case "collapse-tags":
@@ -246,6 +276,8 @@ export default class Select extends FormInner<SelectState> {
   public setOptions(options: SelectOption[] | undefined): void {
     this._options = options;
     this._backOptions = [...(options || [])];
+    this._updateSelectedLabels();
+    this._reRenderLabels();
     if (this._popover && this._state.expanded) {
       this._popover.updatePopoverContent();
     }
@@ -376,6 +408,7 @@ export default class Select extends FormInner<SelectState> {
   };
 
   private _togglePopover() {
+    if (this.isDisabled()) return;
     if (this._popover) {
       if (this._popover.isShow()) {
         this._popover.hide();
@@ -392,6 +425,8 @@ export default class Select extends FormInner<SelectState> {
   }
 
   private _onRootTap = (e: Event) => {
+    if (this.isDisabled()) return;
+    if (this.isDisabled()) return;
     e.stopPropagation();
     const [next, action, _target] = shouldEventNext(
       e,
@@ -409,7 +444,7 @@ export default class Select extends FormInner<SelectState> {
         // 删除多选标签
         const index = Number(action);
         this.selectedLabels.splice(index, 1);
-        (this._value as any[]).splice(index, 1);
+        this.setValue((this._value as any[]).filter((_, i) => i !== index));
         this._updatePopoverContent();
         this._reRenderLabels(); // 重新渲染标签
         if (this._searchEl) {
@@ -503,13 +538,13 @@ export default class Select extends FormInner<SelectState> {
           }
         },
         onPopoverAction: (action, target) => {
-          if (action && this._options) {
+          if (!this.isDisabled() && action && this._options) {
             const index = Number(action);
             const option = this._options[index];
             const value = option[this._state.valueField];
             const label = option[this._state.labelField];
-            let oldValue = this.value;
-            let oldLabels = this.selectedLabels;
+            let oldValue = Array.isArray(this.value) ? [...this.value] : this.value;
+            let oldLabels = [...this.selectedLabels];
             if (this._state.multiple === true) {
               // 多选
               if (!oldValue) {
@@ -542,7 +577,7 @@ export default class Select extends FormInner<SelectState> {
                 detail: { value: oldValue, labels: oldLabels }, // 兼容旧版本写法
               });
             }
-            this._value = oldValue;
+            super.setValue(oldValue);
             this.selectedLabels = oldLabels;
             const isSelect = this._isOptionSelect(value);
             if (!this._state.multiple) {
@@ -578,7 +613,7 @@ export default class Select extends FormInner<SelectState> {
     off(this, "mouseleave", this._onMouseLeave);
     off(this.root, "click", this._onRootTap);
     off(this, "click", this._onTap);
-    this._options = undefined;
+
     if (this._popover) {
       this._popover.destroy();
       this._popover = undefined;
@@ -651,6 +686,7 @@ export default class Select extends FormInner<SelectState> {
       this._popover.setOption("disabled", isDisabled);
     }
     if (isDisabled) {
+      this._popover?.hide();
       // 禁用
       this.classList.add("l-select--disabled");
     } else {

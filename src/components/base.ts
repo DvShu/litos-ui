@@ -1,4 +1,3 @@
-import type { Signal } from "./utils/signal_types";
 import { getAttr } from "utilane/browser";
 
 export default class BaseComponent<T = Record<string, any>> extends HTMLElement {
@@ -234,7 +233,7 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
     );
   }
 
-  emitInject(name: string, callback: (context: Signal<any>) => void) {
+  emitInject<Context>(name: string, callback: (context: Context) => void) {
     this.emit(name, {
       bubbles: true,
       composed: true,

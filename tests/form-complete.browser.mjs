@@ -1,0 +1,145 @@
+import { Form, FormItem, Input, regist } from "../src/components/index.ts";
+const checks = [];
+const check = (name, pass) => checks.push({ name, pass: !!pass });
+const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+try {
+  regist(Form);
+  regist(FormItem);
+  regist(Input);
+  await tick();
+  const form = document.querySelector("#form"),
+    input = form.querySelector("l-input");
+  const owner = form.nativeForm;
+  check("same-markup-owner", input.form === owner && owner.parentNode === form);
+  check("no-shadow-native-form", !form.shadowRoot.querySelector("form"));
+  check(
+    "helper-unprojected",
+    owner.hidden && owner.assignedSlot === null && owner.slot === "__l_form_owner",
+  );
+  const layout = form.shadowRoot.querySelector(".l-form");
+  check(
+    "layout-classes-preserved",
+    layout.classList.contains("l-form-inline") && layout.classList.contains("l-form--top"),
+  );
+  check("label-width-preserved", form.style.getPropertyValue("--l-form-label-width") === "120px");
+  check("initial-name-and-data", input.name === "name" && form.getData().name === "");
+  let submits = 0,
+    last;
+  form.addEventListener("submit", (e) => {
+    submits++;
+    last = e.detail;
+  });
+  form.submit();
+  await tick();
+  check("failure-no-submit", submits === 0 && !!form.validationErrors.name);
+  input.value = "Alice";
+  form.submit();
+  await tick();
+  check("success-once", submits === 1 && last.name === "Alice");
+  check("native-FormData", new FormData(owner).get("name") === "Alice");
+  let resets = 0;
+  const reset = input.reset.bind(input);
+  input.reset = () => {
+    resets++;
+    reset();
+  };
+  form.reset();
+  await tick();
+  check("reset-once", resets === 1 && input.value === "" && form.getData().name === "");
+  check("reset-clears-errors", Object.keys(form.validationErrors).length === 0);
+  check("reset-FormData", new FormData(owner).get("name") === "");
+  input.value = "Bob";
+  owner.requestSubmit();
+  await tick();
+  check("native-submit-bridge", submits === 2 && last.name === "Bob");
+  const alone = document.querySelector("#standalone"),
+    single = alone.querySelector("l-input");
+  single.value = "changed";
+  check("standalone-data", new FormData(alone).get("alone") === "changed");
+  alone.reset();
+  check(
+    "standalone-reset",
+    single.value === "initial" && new FormData(alone).get("alone") === "initial",
+  );
+  let resetCancelled = (event) => event.preventDefault();
+  owner.addEventListener("reset", resetCancelled);
+  input.value = "kept";
+  form.reset();
+  await tick();
+  check("cancelled-reset-preserves-value", input.value === "kept" && resets === 1);
+  owner.removeEventListener("reset", resetCancelled);
+  const zero = document.createElement("l-input");
+  zero.name = "zero";
+  zero.value = 0;
+  alone.append(zero);
+  zero.value = 4;
+  alone.reset();
+  check("zero-reset-baseline", zero.value === 0 && new FormData(alone).get("zero") === "0");
+  const bool = document.createElement("l-input");
+  bool.name = "bool";
+  bool.value = false;
+  alone.append(bool);
+  bool.value = true;
+  alone.reset();
+  check(
+    "false-reset-baseline",
+    bool.value === false && new FormData(alone).get("bool") === "false",
+  );
+  const outer = document.createElement("form");
+  document.body.append(outer);
+  const embedded = document.createElement("l-form");
+  outer.append(embedded);
+  const embeddedInput = document.createElement("l-input");
+  embeddedInput.name = "embedded";
+  embeddedInput.value = "outer";
+  embedded.append(embeddedInput);
+  await tick();
+  check(
+    "native-ancestor-reused-production",
+    embedded.nativeForm === outer &&
+      embeddedInput.form === outer &&
+      embedded.querySelector("form") === null,
+  );
+  let typed = 0;
+  input.addEventListener("change", () => typed++);
+  input.$inner.value = "typed";
+  input.$inner.dispatchEvent(new Event("input", { bubbles: true }));
+  check(
+    "user-input-synchronizes",
+    form.getData().name === "typed" && new FormData(owner).get("name") === "typed",
+  );
+  const savedOwner = owner;
+  form.remove();
+  check("disconnect-no-orphan", !savedOwner.isConnected);
+  document.body.append(form);
+  await tick();
+  input.value = "reconnect";
+  form.submit();
+  await tick();
+  check(
+    "reconnect-validator-and-owner",
+    submits === 3 && last.name === "reconnect" && input.form === form.nativeForm,
+  );
+  form.setAttribute("inline", "false");
+  form.setAttribute("label-position", "left");
+  // 与 BaseComponent 的批量渲染同一帧，稍后检查类更新。
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  // 无可见窗口时浏览器可能暂停动画帧；显式刷新批次保证布局断言确定。
+  form.updateDOM(new Set(["inline", "label-position"]));
+  check(
+    "dynamic-layout",
+    form.shadowRoot.querySelector(".l-form").classList.contains("l-form--left") &&
+      !form.shadowRoot.querySelector(".l-form").classList.contains("l-form-inline"),
+  );
+  document.querySelector("#result").textContent = JSON.stringify({
+    userAgent: navigator.userAgent,
+    checks,
+    pass: checks.every((item) => item.pass),
+  });
+} catch (error) {
+  document.querySelector("#result").textContent = JSON.stringify({
+    pass: false,
+    error: String(error),
+    checks,
+  });
+}

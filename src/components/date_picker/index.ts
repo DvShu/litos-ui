@@ -1,7 +1,7 @@
 import FormInner from "../form/form_inner";
 import css from "./index.less?inline";
 import inputCss from "../input/input_inner.less?inline";
-import { $$, on } from "utilane/browser";
+import { $$, on, off, $one } from "utilane/browser";
 import { unitNumberStr } from "../utils";
 import { Popover } from "../utils/popover";
 
@@ -12,12 +12,15 @@ type DatePickerState = {
 export default class DatePicker extends FormInner<DatePickerState> {
   public static baseName = "date-picker";
 
-  private _popover: Popover;
+  private _popover?: Popover;
 
   public constructor() {
     super();
     this.version = 2;
     this._state = {};
+  }
+
+  private _createPopover() {
     this._popover = new Popover({
       trigger: "manual",
       reference: this,
@@ -33,17 +36,22 @@ export default class DatePicker extends FormInner<DatePickerState> {
 
   afterInit(): void {
     this._updateWidth();
+    this._createPopover();
+    this.setValue(this.value ?? "");
+    this.disabledChange();
+    on(this.root, "input", this._handleInput);
     on(this, "click", this._handleTap);
   }
 
   beforeDestroy(): void {
-    this._popover.destroy();
-    on(this, "off", this._handleTap);
+    this._popover?.destroy();
+    off(this, "click", this._handleTap);
+    off(this.root, "input", this._handleInput);
     this._popover = undefined as any;
   }
 
   static get observedAttributes() {
-    return ["width"];
+    return [...new Set([...FormInner.observedAttributes, "width"])];
   }
 
   attributeChange(name: string, oldValue: string, newValue: string) {
@@ -133,14 +141,32 @@ export default class DatePicker extends FormInner<DatePickerState> {
     }
   }
 
+  public setValue(value: any): void {
+    super.setValue(value);
+    const input = $one("input", this.root) as HTMLInputElement;
+    if (input) input.value = value ?? "";
+    this.syncNativeValue();
+  }
+
+  protected disabledChange(): void {
+    const input = $one("input", this.root) as HTMLInputElement;
+    if (input) input.disabled = this.isDisabled();
+    if (this.isDisabled()) this._popover?.hide();
+  }
+
+  private _handleInput = (event: Event) => {
+    if (!this.isDisabled()) this.setValue((event.target as HTMLInputElement).value);
+  };
+
   private _handleTap = () => {
-    if (!this._popover.isShow()) {
+    if (this.isDisabled()) return;
+    if (this._popover && !this._popover.isShow()) {
       this._popover.show(this);
     }
   };
 
   private _onOuterTap = (_e: Event, isReference: boolean, isPopover: boolean) => {
     if (isReference) return;
-    if (!isPopover) this._popover.hide();
+    if (!isPopover) this._popover?.hide();
   };
 }

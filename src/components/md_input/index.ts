@@ -15,7 +15,7 @@ export default class MdInput extends FormInner {
   public label?: string;
 
   static get observedAttributes() {
-    return ["disabled"];
+    return [...new Set([...FormInner.observedAttributes, "disabled"])];
   }
 
   connectedCallback(): void {
@@ -23,6 +23,8 @@ export default class MdInput extends FormInner {
     this.loadStyleText(css);
     super.connectedCallback();
     this.#initEvents();
+    this.setValue(this.value ?? "");
+    this.disabledChange();
   }
 
   disconnectedCallback(): void {
@@ -43,7 +45,8 @@ export default class MdInput extends FormInner {
     const $inner = $$("input", {
       class: "l-md-input__inner",
       type: this.htmlType,
-      name: this.getName(),
+      value: this.value ?? "",
+      disabled: this.isDisabled(),
       inputmode: this.inputmode,
       id: innerId,
     });
@@ -64,8 +67,15 @@ export default class MdInput extends FormInner {
     super.setValue(value);
     const $inner = $one("input", this.root) as HTMLInputElement;
     if ($inner) {
-      $inner.value = value;
+      $inner.value = value ?? "";
     }
+    this.classList.toggle("l-has-value", !isBlank(value));
+    this.syncNativeValue();
+  }
+
+  protected disabledChange(): void {
+    const input = $one("input", this.root) as HTMLInputElement;
+    if (input) input.disabled = this.isDisabled();
   }
 
   #initEvents() {

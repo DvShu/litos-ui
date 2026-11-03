@@ -42,18 +42,21 @@ export default class InputNumber extends FormInner<InputNumberState> {
 
   static get observedAttributes() {
     return [
-      "disabled",
-      "value",
-      "name",
-      "inner-block",
-      "min",
-      "max",
-      "step",
-      "precision",
-      "placeholder",
-      "size",
-      "width",
-      "controls-disabled",
+      ...new Set([
+        ...FormInner.observedAttributes,
+        "disabled",
+        "value",
+        "name",
+        "inner-block",
+        "min",
+        "max",
+        "step",
+        "precision",
+        "placeholder",
+        "size",
+        "width",
+        "controls-disabled",
+      ]),
     ];
   }
 
@@ -62,16 +65,16 @@ export default class InputNumber extends FormInner<InputNumberState> {
       case "min":
       case "max":
       case "precision":
-        const v = Number(newValue);
+        const v = newValue == null || newValue === "" ? NaN : Number(newValue);
         this._state[name] = Number.isFinite(v) ? v : undefined;
         break;
       case "step":
         const v2 = Number(newValue);
-        this._state.step = Number.isFinite(v2) ? v2 : 1;
+        this._state.step = Number.isFinite(v2) && v2 > 0 ? v2 : 1;
         break;
       case "placeholder":
       case "size":
-        this._state[name] = newValue.trim() as never;
+        this._state[name] = (newValue ?? "").trim() as never;
         break;
       case "width":
         this._state.width = unitNumberStr(newValue) as string;
@@ -122,7 +125,6 @@ export default class InputNumber extends FormInner<InputNumberState> {
     const $input = $$("input", {
       class: "l-input-number__inner",
       value: this._formatValue(this.value),
-      name: this.getName(),
       placeholder: this._state.placeholder,
       part: "default",
       type: "text",
@@ -181,12 +183,17 @@ export default class InputNumber extends FormInner<InputNumberState> {
     this.$plusBtn = undefined;
   }
 
-  set value(value: any) {
-    this.setValue(value);
+  public setValue(value: any): void {
+    super.setValue(value);
     if (this.$input) {
       this.$input.value = this._formatValue(value);
     }
     this._updateBtnState();
+    this.syncNativeValue();
+  }
+
+  set value(value: any) {
+    this.setValue(value);
   }
 
   get value() {
@@ -202,6 +209,7 @@ export default class InputNumber extends FormInner<InputNumberState> {
     if (this.$input) this.$input.disabled = this.isDisabled();
     if (this.$minusBtn) this.$minusBtn.disabled = this.isDisabled();
     if (this.$plusBtn) this.$plusBtn.disabled = this.isDisabled();
+    this._updateBtnState();
   }
 
   focus() {
@@ -257,9 +265,9 @@ export default class InputNumber extends FormInner<InputNumberState> {
     if (raw === "-" || raw === "." || raw === "-.") {
       return;
     }
-    const num = Number(raw);
-    if (Number.isFinite(num)) {
-      this.setValue(num);
+    const num = raw === "" ? undefined : Number(raw);
+    if (num == null || Number.isFinite(num)) {
+      super.setValue(num);
       this.emit("input", {
         bubbles: true,
         detail: { value: num, name: this.getName() },
@@ -269,6 +277,10 @@ export default class InputNumber extends FormInner<InputNumberState> {
 
   private _handleChange = (e: Event) => {
     const $target = e.target as HTMLInputElement;
+    if ($target.value === "") {
+      this.value = undefined;
+      return;
+    }
     const num = Number($target.value);
     if (Number.isFinite(num)) {
       const clamped = this._clamp(num);
@@ -333,11 +345,11 @@ export default class InputNumber extends FormInner<InputNumberState> {
   private _updateBtnState() {
     const num = this._getCurrentNum();
     const { min, max } = this._state;
-    if (this.$minusBtn && min != null) {
-      this.$minusBtn.disabled = this.isDisabled() || num <= min;
+    if (this.$minusBtn) {
+      this.$minusBtn.disabled = this.isDisabled() || (min != null && num <= min);
     }
-    if (this.$plusBtn && max != null) {
-      this.$plusBtn.disabled = this.isDisabled() || num >= max;
+    if (this.$plusBtn) {
+      this.$plusBtn.disabled = this.isDisabled() || (max != null && num >= max);
     }
   }
 

@@ -1,0 +1,9 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Form 与真实 Input 闭环</title>
+<l-form id="form" label-width="120px" inline label-position="top"
+  ><l-form-item required label="姓名" prop="name"><l-input value=""></l-input></l-form-item
+></l-form>
+<form id="standalone"><l-input name="alone" value="initial"></l-input></form>
+<pre id="result">pending</pre>
+<script type="module" src="/form-inner.js"></script>

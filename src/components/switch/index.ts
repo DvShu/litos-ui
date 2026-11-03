@@ -1,6 +1,6 @@
 import { on, off, $one, addClass, removeClass } from "utilane/browser";
 import FormInner from "../form/form_inner";
-import { initAttr } from "../utils";
+import { initAttr, parseAttrValue } from "../utils";
 //@ts-ignore
 import css from "./index.less?inline";
 
@@ -8,6 +8,10 @@ type ActionRenderFn = (cfg: { checked: boolean }) => string | HTMLElement;
 
 export default class Switch extends FormInner {
   public static baseName = "switch";
+
+  static get observedAttributes() {
+    return [...new Set(FormInner.observedAttributes)];
+  }
 
   public actionRender?: ActionRenderFn;
   public checkedText?: string;
@@ -50,6 +54,7 @@ export default class Switch extends FormInner {
   };
 
   public setValue(value: boolean) {
+    value = typeof value === "string" ? parseAttrValue(value, false, "value") : Boolean(value);
     super.setValue(value);
     if (value) {
       addClass(this, "l-switch--checked");
@@ -61,6 +66,11 @@ export default class Switch extends FormInner {
       $text.textContent = this.value ? this.checkedText || "" : this.uncheckedText || "";
     }
     this.#renderAction();
+  }
+
+  protected disabledChange(): void {
+    this.classList.toggle("l-switch--disabled", this.isDisabled());
+    this.setAttribute("aria-disabled", String(this.isDisabled()));
   }
 
   public setActionRender(render: ActionRenderFn) {
@@ -85,6 +95,8 @@ export default class Switch extends FormInner {
         $action.innerHTML = '<slot name="checked-action"></slot>';
       } else if (!this.value && $uncheckedSlot) {
         $action.innerHTML = '<slot name="unchecked-action"></slot>';
+      } else {
+        $action.innerHTML = "";
       }
     }
   }

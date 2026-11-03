@@ -43,25 +43,41 @@ export default class DatePicker extends FormInner {
   }
 
   public setValue(v: string) {
-    super.setValue(v);
+    v = String(v ?? "");
     this.#dateValues = v.split(",");
+    super.setValue(v);
     if (this.rendered) {
       iterate(this.#inners, ($input, index) => {
-        $input.value = this.#dateValues[index];
+        $input.value = this.#dateValues[index] ?? "";
       });
     }
+    this.syncNativeValue();
+  }
+
+  /** 范围业务值仍是逗号串，原生日期约束分别校验两个端点。 */
+  protected get nativeConstraintValues(): readonly unknown[] {
+    return this._state.range
+      ? [this.#dateValues[0] ?? "", this.#dateValues[1] ?? ""]
+      : [this.#dateValues[0] ?? ""];
+  }
+
+  protected disabledChange(): void {
+    for (const input of this.#inners ?? []) input.disabled = this.isDisabled();
   }
 
   static get observedAttributes(): string[] {
     return [
-      ...FormInner.observedAttributes,
-      "range",
-      "delay",
-      "type",
-      "width",
-      "min",
-      "max",
-      "allow-empty",
+      ...new Set([
+        ...FormInner.observedAttributes,
+
+        "range",
+        "delay",
+        "type",
+        "width",
+        "min",
+        "max",
+        "allow-empty",
+      ]),
     ];
   }
 
@@ -110,9 +126,25 @@ export default class DatePicker extends FormInner {
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    if (changedProps.has("width")) {
-      this._updateWidth();
+    if (changedProps.has("width")) this._updateWidth();
+    if (changedProps.has("range")) {
+      this.beforeDestroy();
+      for (const node of this.root.querySelectorAll(".l-date-inner,.l-date-range-divider"))
+        node.remove();
+      this.root.appendChild(this.render());
+      this.afterInit();
     }
+    for (const input of this.#inners ?? []) {
+      input.type = this._state.type || "date";
+      for (const attr of ["min", "max", "step"] as const) {
+        const value = this.getAttribute(attr);
+        if (value == null) input.removeAttribute(attr);
+        else input.setAttribute(attr, value);
+      }
+      input.readOnly = this.hasAttribute("readonly") && this.getAttribute("readonly") !== "false";
+      input.disabled = this.isDisabled();
+    }
+    this.syncNativeValue();
   }
 
   private _updateWidth() {
@@ -141,7 +173,6 @@ export default class DatePicker extends FormInner {
     return $$("input", {
       type: this._state.type,
       class: `l-date-inner l-date-inner${index}`,
-      name: this.getName(),
       value: this.#dateValues[index],
       "l-datepicker": `${index}`,
       disabled: this.isDisabled() ? true : undefined,
@@ -155,8 +186,8 @@ export default class DatePicker extends FormInner {
     const index = Number($target.getAttribute("l-datepicker"));
     let value = $target.value;
     if (!value && !this._state.allowEmpty) {
-      value = this._resetValue || "";
-      value = value.split(",")[index];
+      value = this._resetValue ?? "";
+      value = String(value).split(",")[index] ?? "";
       $target.value = value;
     }
     this.#dateValues[index] = value;

@@ -58,6 +58,15 @@
 /* clearable */
 .l-clearable {
   cursor: pointer;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+
+  &:focus-visible {
+    outline: 2px solid var(--l-primary-color, #722ed1);
+    outline-offset: 2px;
+  }
 
   &:hover {
     color: #999999;

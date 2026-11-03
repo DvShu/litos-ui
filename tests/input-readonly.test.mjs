@@ -7,6 +7,36 @@ import { test } from "node:test";
 class NodeStub {
   children = [];
   listeners = new Map();
+  attrs = new Map();
+  type = "text";
+  _value = "";
+  get value() {
+    return this._value;
+  }
+  set value(value) {
+    // 这里只模拟字符串赋值；类型清洗与原生 validity 仍由浏览器测试覆盖。
+    this._value = String(value ?? "");
+  }
+  setAttribute(name, value) {
+    this.attrs.set(name, String(value));
+  }
+  getAttribute(name) {
+    return this.attrs.get(name) ?? null;
+  }
+  hasAttribute(name) {
+    return this.attrs.has(name);
+  }
+  removeAttribute(name) {
+    this.attrs.delete(name);
+  }
+  addEventListener(name, listener) {
+    this.listeners.set(name, listener);
+  }
+  removeEventListener(name) {
+    this.listeners.delete(name);
+  }
+  focus() {}
+  blur() {}
   constructor(tag, attrs = {}) {
     this.tag = tag;
     Object.assign(this, attrs);
@@ -30,12 +60,32 @@ class FormInner {
   attrs = new Map();
   _value = "";
   disabled = false;
+  contextRequired = false;
+  labels = [];
+  ownerDocument = { createElement: (tag) => new NodeStub(tag) };
+  getRootNode() {
+    return { getElementById: () => null };
+  }
+  closest() {
+    return null;
+  }
+  getAttribute(name) {
+    return this.attrs.get(name) ?? null;
+  }
+  hasAttribute(name) {
+    return this.attrs.has(name);
+  }
+  attributeChanged(name, oldValue, newValue) {
+    this.attributeChange(name, oldValue, newValue);
+  }
   getValue() {
     return this._value;
   }
   setValue(value) {
     this._value = value;
   }
+  // 此测试只隔离 readonly UI，原生同步由真实浏览器契约测试覆盖。
+  syncNativeValue() {}
   isDisabled() {
     return this.disabled;
   }
@@ -47,12 +97,12 @@ class FormInner {
   }
   setAttribute(name, value) {
     this.attrs.set(name, value);
-    this.attributeChange(name, null, value);
+    this.attributeChanged(name, null, value);
     this.updateDOM(new Set([name]));
   }
   removeAttribute(name) {
     this.attrs.delete(name);
-    this.attributeChange(name, null, null);
+    this.attributeChanged(name, null, null);
     this.updateDOM(new Set([name]));
   }
   dispatchEvent() {}
@@ -65,6 +115,10 @@ const Input = runInNewContext(
   source.replace("export default class Input", "class Input") + "; Input",
   {
     FormInner,
+    MutationObserver: class {
+      observe() {}
+      disconnect() {}
+    },
     inputSheet: sheet,
     document: { createDocumentFragment: () => new NodeStub("fragment") },
     $$: (tag, attrs) => new NodeStub(tag, attrs),

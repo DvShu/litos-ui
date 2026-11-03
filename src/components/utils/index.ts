@@ -1,4 +1,3 @@
-import type { SignalStop } from "./signal_types";
 import { adjust, isBlank, isNumeric } from "utilane";
 
 let seed = -1; // 用于构建多个id，避免重复
@@ -124,7 +123,8 @@ export function kebabToCamel(attr: string) {
   return attr.replace(/-(\w)/g, (match, p1) => p1.toUpperCase());
 }
 
-export function stopSignal(fn?: SignalStop) {
+/** 兼容非表单组件的旧清理入口；仅调用清理函数，不依赖 signal 类型或运行时。 */
+export function stopSignal(fn?: () => void) {
   if (fn) {
     fn();
   }

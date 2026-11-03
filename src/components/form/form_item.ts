@@ -1,20 +1,27 @@
-import type { Signal, SignalStop } from "../utils/signal_types";
 import { $one, addClass, removeClass, $$ } from "utilane/browser";
-import { kebabToCamel, parseAttrValue, stopSignal, unitNumberStr } from "../utils";
-import type { RuleType } from "utilane";
+import { kebabToCamel, unitNumberStr } from "../utils";
+import type { RuleType, SchemaType } from "utilane";
 //@ts-ignore
 import css from "./form_item.less?inline";
-import type { SchemaType } from "utilane";
-import ContextProvide from "../utils/context_provide";
-import { effect, signal } from "alien-signals";
-import type { FormItemSignal } from "./types";
+import BaseComponent from "../base";
+import {
+  createFormContextProvider,
+  FORM_CONTEXT_EVENTS,
+  provideFormContext,
+  readFormBooleanAttribute,
+  requestFormContext,
+} from "./context";
+import type { FormContextField, FormFieldValidity } from "./context";
 
 type FormItemState = {
   /** 标签文本 */
   label?: string;
-  labelPosition?: "left" | "right" | "top";
+  labelPosition: "left" | "right" | "top";
+  /** 显式错误；undefined 表示使用校验错误，空字符串表示显式隐藏。 */
   error?: string;
-  required: boolean;
+  innerBlock?: boolean;
+  required?: boolean;
+  disabled?: boolean;
   /** 内置验证规则 */
   verify?: string;
   /** 正则表达式 */
@@ -26,21 +33,22 @@ type FormItemState = {
   labelHeight?: string;
 };
 
-export default class FormItem extends ContextProvide<FormItemSignal, FormItemState> {
+export default class FormItem extends BaseComponent<FormItemState> {
   public static baseName = "form-item";
 
-  public formErrors?: Signal<Record<string, string>>; // 表单验证错误
-  private _errorSignalStop?: SignalStop;
+  private readonly itemContext = createFormContextProvider();
+  private disposeContext?: () => void;
+  private unregisterForm?: () => void;
+  private validationError?: string;
+  private readonly formField: FormContextField = {
+    target: this,
+    getSnapshot: () => ({ name: this._state.prop, value: undefined }),
+  };
 
   constructor() {
     super();
     this.version = 2;
-    this.contextEventName = "form-item-context-request";
-    this._state = {
-      labelPosition: "right",
-      required: false,
-    };
-    this.context = signal({ innerBlock: false });
+    this._state = { labelPosition: "right" };
   }
 
   static get observedAttributes() {
@@ -48,6 +56,7 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
       "error",
       "label",
       "required",
+      "disabled",
       "inner-block",
       "prop",
       "label-position",
@@ -59,122 +68,138 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     ];
   }
 
-  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
+  protected attributeChanged(name: string, _oldValue: string, newValue: string | null): void {
     switch (name) {
       case "error":
       case "label":
       case "verify":
       case "pattern":
       case "validity":
-        this._state[name] = newValue;
+        this._state[name] = newValue ?? undefined;
         break;
       case "label-position":
-        this._state.labelPosition = newValue as "left";
+        this._state.labelPosition = newValue === "left" || newValue === "top" ? newValue : "right";
         break;
-
       case "inner-block":
-        const isBlock = parseAttrValue(newValue, false, name);
-        this.context({ innerBlock: isBlock });
+        this._state.innerBlock = readFormBooleanAttribute(newValue);
         break;
       case "required":
-        const isRequired = parseAttrValue(newValue, false, name);
-        this._state.required = isRequired;
+      case "disabled":
+        this._state[name] = readFormBooleanAttribute(newValue);
         break;
       case "prop":
-        this._state.prop = newValue;
-        this.context({ ...this.context(), prop: newValue });
+        this._state.prop = newValue ?? undefined;
+        // 不让旧字段的校验错误泄漏到新名称；显式 error 不受影响。
+        this.validationError = undefined;
+        if (this.rendered) {
+          this.registerForm();
+          this._updateError();
+        }
         break;
       case "label-width":
       case "label-height":
-        this._state[kebabToCamel(name) as "labelWidth"] = unitNumberStr(newValue) as string;
+        this._state[kebabToCamel(name) as "labelWidth"] = newValue
+          ? (unitNumberStr(newValue) as string)
+          : undefined;
         break;
     }
+    if (["prop", "inner-block", "required", "disabled"].includes(name)) {
+      this.updateContext();
+    }
+    if (this.rendered && ["prop", "required", "verify", "pattern", "validity"].includes(name)) {
+      this._parseSchema();
+    }
   }
+
+  private updateContext(): void {
+    const { prop, innerBlock, required, disabled } = this._state;
+    this.itemContext.updateConfiguration({ prop, innerBlock, required, disabled });
+  }
+
+  private registerForm = (): void => {
+    this.unregisterForm?.();
+    this.unregisterForm = requestFormContext(this, "form")?.registerField(this.formField);
+  };
+
+  private receiveValidity = (event: Event): void => {
+    if (event.target !== this) return;
+    const { valid, message } = (event as CustomEvent<FormFieldValidity>).detail;
+    this.validationError = valid ? undefined : message;
+    this._updateError();
+  };
 
   protected updateDOM(changedProps: Set<string>): void {
-    // 新的按条件更新逻辑:
-    if (changedProps.has("required")) {
-      this._updateRequired();
-    }
-
-    if (changedProps.has("label")) {
-      this._updateLabel();
-    }
-    if (changedProps.has("error")) {
-      this._updateError();
-    }
-    if (changedProps.has("label-width")) {
-      if (this._state.labelWidth) {
-        this.style.setProperty("--l-form-label-width", this._state.labelWidth);
-      } else {
-        this.style.removeProperty("--l-form-label-width");
-      }
-    }
-    if (changedProps.has("label-height")) {
-      if (this._state.labelHeight) {
-        this.style.setProperty("--l-form-label-height", this._state.labelHeight);
-      } else {
-        this.style.removeProperty("--l-form-label-height");
-      }
+    if (changedProps.has("required")) this._updateRequired();
+    if (changedProps.has("label")) this._updateLabel();
+    if (changedProps.has("error")) this._updateError();
+    if (changedProps.has("label-position")) this.updateLabelPosition();
+    for (const name of ["label-width", "label-height"] as const) {
+      if (!changedProps.has(name)) continue;
+      const value = this._state[name === "label-width" ? "labelWidth" : "labelHeight"];
+      if (value) this.style.setProperty(`--l-form-${name}`, value);
+      else this.style.removeProperty(`--l-form-${name}`);
     }
   }
 
-  connectedCallback(): void {
-    super.connectedCallback();
+  afterInit(): void {
+    this.updateContext();
+    this.disposeContext = provideFormContext(this, "item", this.itemContext);
+    // 先定义的字段可能已挂载；提供者延迟升级时主动重关联，不依赖 DOM 变更。
+    for (const child of this.querySelectorAll<HTMLElement>("*")) {
+      const consumer = child as HTMLElement & { refreshFormContext?: () => void };
+      consumer.refreshFormContext?.();
+    }
+    this.addEventListener(FORM_CONTEXT_EVENTS.validity, this.receiveValidity);
+    this.addEventListener(FORM_CONTEXT_EVENTS.configuration, this.registerForm);
+    this.registerForm();
     this._updateRequired();
+    this._updateError();
     this._parseSchema();
-    this.emitInject("form-context-request", ((
-      _context: Signal<FormItemSignal>,
-      errors: Signal<Record<string, string>>,
-    ) => {
-      this.formErrors = errors;
-    }) as any);
-    this._errorSignalStop = effect(() => {
-      const name = this.context().prop;
-      const errors = this.formErrors ? this.formErrors() : null;
-      if (name && errors) {
-        this._state.error = errors[name];
-        this._updateError();
-      }
-    });
   }
 
   beforeDestroy(): void {
-    this._errorSignalStop = stopSignal(this._errorSignalStop);
+    this.removeEventListener(FORM_CONTEXT_EVENTS.validity, this.receiveValidity);
+    this.removeEventListener(FORM_CONTEXT_EVENTS.configuration, this.registerForm);
+    this.unregisterForm?.();
+    this.unregisterForm = undefined;
+    this.disposeContext?.();
+    this.disposeContext = undefined;
+    this.itemContext.dispose();
+    this.validationError = undefined;
   }
 
   public setRules(rules: { required?: boolean; rules?: RuleType[]; message?: string }) {
     const prop = this._state.prop;
-    if (prop) {
-      const schema = { ...rules, key: prop };
-      this._updateRules(schema);
-    }
+    if (prop) this._updateRules({ ...rules, key: prop });
   }
 
   render_v2() {
-    return {
-      template: this.render(),
-      style: [css],
-    };
+    return { template: this.render(), style: [css] };
+  }
+
+  private get errorMessage(): string | undefined {
+    return this._state.error ?? this.validationError;
+  }
+
+  private updateLabelPosition(): void {
+    for (const position of ["left", "right", "top"]) {
+      this.classList.toggle(`l-form-item--${position}`, position === this._state.labelPosition);
+    }
   }
 
   public render() {
-    this.classList.add(`l-form-item--${this._state.labelPosition}`);
+    this.updateLabelPosition();
     const fragment = document.createDocumentFragment();
     if (this._state.label != null) {
       fragment.appendChild(
-        $$("label", {
-          class: "l-form-item__label",
-          textContent: this._state.label,
-        }),
+        $$("label", { class: "l-form-item__label", textContent: this._state.label }),
       );
     }
     const $content = $$("div", { class: "l-form-item__content" });
-    const $slot = $$("slot");
-    $content.appendChild($slot);
-    if (this._state.error) {
+    $content.appendChild($$("slot"));
+    if (this.errorMessage) {
       $content.appendChild(
-        $$("div", { class: "l-form-item__error", textContent: this._state.error }),
+        $$("div", { class: "l-form-item__error", textContent: this.errorMessage }),
       );
     }
     fragment.appendChild($content);
@@ -182,59 +207,38 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
   }
 
   private _updateRequired() {
-    if (this._state.required) {
-      addClass(this, "is-required");
-    } else {
-      removeClass(this, "is-required");
-    }
+    if (this._state.required) addClass(this, "is-required");
+    else removeClass(this, "is-required");
   }
 
   private _parseSchema() {
-    const prop = this.context().prop;
+    const prop = this._state.prop;
     if (prop) {
-      let rules: any[] = [];
-      const verify = this._state.verify;
-      if (verify) {
-        rules = verify.split("|");
-      }
-      const pattern = this._state.pattern;
-      if (pattern) {
-        rules.push(new RegExp(pattern));
-      }
-      const schema = {
+      const rules: RuleType[] = this._state.verify ? this._state.verify.split("|") : [];
+      if (this._state.pattern) rules.push(new RegExp(this._state.pattern));
+      this._updateRules({
         key: prop,
         required: this._state.required,
         message: this._state.validity,
-        rules: rules,
-      };
-      this._updateRules(schema);
+        rules,
+      });
     }
   }
 
   private _updateError() {
-    if (this._state.error) {
-      addClass(this, "is-error");
-    } else {
-      removeClass(this, "is-error");
-    }
+    const message = this.errorMessage;
+    if (message) addClass(this, "is-error");
+    else removeClass(this, "is-error");
     if (!this.rendered) return;
     let $error = $one(".l-form-item__error", this.root);
     if ($error) {
-      if (this._state.error) {
-        $error.textContent = this._state.error;
-      } else {
-        $error.remove();
-      }
-    } else {
-      if (this._state.error) {
-        $error = document.createElement("div");
-        $error.className = "l-form-item__error";
-        $error.textContent = this._state.error;
-        const $parent = $one(".l-form-item__content", this.root);
-        if ($parent) {
-          $parent.appendChild($error);
-        }
-      }
+      if (message) $error.textContent = message;
+      else $error.remove();
+    } else if (message) {
+      $error = document.createElement("div");
+      $error.className = "l-form-item__error";
+      $error.textContent = message;
+      $one(".l-form-item__content", this.root)?.appendChild($error);
     }
   }
 
@@ -243,25 +247,19 @@ export default class FormItem extends ContextProvide<FormItemSignal, FormItemSta
     let $label = $one(".l-form-item__label", this.root);
     if ($label == null) {
       if (this._state.label != null) {
-        $label = document.createElement("div");
+        $label = document.createElement("label");
         $label.className = "l-form-item__label";
         $label.textContent = this._state.label;
         this.root.prepend($label);
       }
+    } else if (this._state.label != null) {
+      $label.textContent = this._state.label;
     } else {
-      if (this._state.label != null) {
-        $label.textContent = this._state.label;
-      } else {
-        $label.remove();
-      }
+      $label.remove();
     }
   }
 
   private _updateRules(schema: SchemaType) {
-    this.emit("form-rule-change", {
-      bubbles: true,
-      composed: true,
-      detail: schema,
-    });
+    this.emit("form-rule-change", { bubbles: true, composed: true, detail: schema });
   }
 }

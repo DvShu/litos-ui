@@ -10,6 +10,10 @@ type Option = { label: string; value: string };
 export default class SelectOri extends FormInner {
   public static baseName = "select-ori";
 
+  static get observedAttributes() {
+    return [...new Set(FormInner.observedAttributes)];
+  }
+
   private $select?: HTMLSelectElement;
 
   constructor() {
@@ -20,9 +24,12 @@ export default class SelectOri extends FormInner {
   connectedCallback(): void {
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
-    if (this.value) {
+    if (this.value != null) {
       this.$select.value = this.value;
+    } else {
+      this.setValue(this.$select.value);
     }
+    this.syncNativeValue();
     on(this.$select, "change", this._handleChange);
   }
 
@@ -43,10 +50,7 @@ export default class SelectOri extends FormInner {
 
   render() {
     const children = this.innerHTML.trim();
-    const attrs = tagAttrs([
-      ["name", this.getName()],
-      ["disabled", this.isDisabled()],
-    ]);
+    const attrs = tagAttrs([["disabled", this.isDisabled()]]);
     return `<select class="l-input__inner"${attrs}>${children}</select>`;
   }
 
@@ -62,6 +66,7 @@ export default class SelectOri extends FormInner {
       return `<option value="${option.value}">${option.label}</option>`;
     });
     this.$select.innerHTML = $children.join("");
+    this.setValue(this.value ?? this.$select.value);
   }
 
   public appendOptions(options: Option[]) {
@@ -75,6 +80,8 @@ export default class SelectOri extends FormInner {
       fragment.appendChild($option);
     }
     this.$select.appendChild(fragment);
+    this.setValue(this.value ?? this.$select.value);
+    this.setValue(this.value ?? this.$select.value);
   }
 
   public reset(): void {
@@ -84,7 +91,8 @@ export default class SelectOri extends FormInner {
 
   public setValue(value: any): void {
     super.setValue(value);
-    if (this.$select) this.$select.value = this.value;
+    if (this.$select) this.$select.value = this.value ?? "";
+    this.syncNativeValue();
   }
 
   private _handleChange = (e: Event) => {
