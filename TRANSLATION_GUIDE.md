@@ -23,6 +23,8 @@
 
 ### 翻译待同步记录
 
+- 中文：docs/components/dropdown.md；英文：docs/en/components/dropdown.md；类别：新增；待同步：当前英文站保留中文正文，待翻译 createDropdown 函数、reference／items 配置、回调、显式样式导入、销毁及演示。
+
 此处只记录已识别的待同步内容；无记录不代表全站译文已经校验或全部保持最新。本次仅建立维护流程，未开展全站翻译差异盘点。
 
 后续按以下格式逐页登记，解决后移除对应记录：
@@ -95,6 +97,7 @@
 - 苹果：Apple；标识符 apple；主色 `#9E8D51`；文件 `styles/themes/apple.css`。
 - 深海蓝：Deep Sea Blue；标识符 deep-sea-blue；主色 `#1D3D79`；文件 `styles/themes/deep-sea-blue.css`。
 - 藤黄：Gamboge；标识符 gamboge；主色 `#FED110`；文件 `styles/themes/gamboge.css`。
+- 莲子：Lotus Seed；标识符 lotus-seed；主色 `#E515AA`；文件 `styles/themes/lotus-seed.css`。
 - 颜色标识符、文件名和实际颜色值不随翻译改变。
 
 ## 页面翻译验收

@@ -16,6 +16,7 @@ import "../../../styles/tabs.css";
 import { add } from "../../../src/icons";
 import "../../../styles/modal_box.css";
 import "../../../styles/popover.css";
+import "../../../styles/dropdown.css";
 import "../../../styles/select.css";
 import "../../../styles/datepicker.css";
 

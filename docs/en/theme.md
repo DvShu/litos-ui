@@ -4,7 +4,7 @@ Switch themes by overriding the CSS variables defined in `styles/vars.css`. Comp
 
 ## Preset Themes
 
-Six preset themes are available: **Jade (jade, #00AA7E)**, **Coral (coral, #FF6448)**, **Tangerine (tangerine, #FF7802)**, **Apple (apple, #9E8D51)**, **Deep Sea Blue (deep-sea-blue, #1D3D79)**, and **Gamboge (gamboge, #FED110)**.
+Seven preset themes are available: **Jade (jade, #00AA7E)**, **Coral (coral, #FF6448)**, **Tangerine (tangerine, #FF7802)**, **Apple (apple, #9E8D51)**, **Deep Sea Blue (deep-sea-blue, #1D3D79)**, **Gamboge (gamboge, #FED110)**, and **Lotus Seed (lotus-seed, #E515AA)**.
 
 Each theme includes a primary color, color shades, status colors, and neutral colors. Control heights and border radii still use the base variables. Primary, success, error, and warning colors are configured independently; when colors are similar, the corresponding status color is adjusted to keep them distinct.
 
@@ -43,6 +43,7 @@ import "litos-ui/styles/themes/jade.css";
 // import "litos-ui/styles/themes/apple.css";
 // import "litos-ui/styles/themes/deep-sea-blue.css";
 // import "litos-ui/styles/themes/gamboge.css";
+// import "litos-ui/styles/themes/lotus-seed.css";
 ```
 
 You can also load the stylesheets directly in HTML, keeping the same order:
@@ -54,20 +55,20 @@ You can also load the stylesheets directly in HTML, keeping the same order:
 
 ## Selecting a Theme with data-theme
 
-Set `data-theme` on `html` to select a loaded `jade`, `coral`, `tangerine`, `apple`, `deep-sea-blue`, or `gamboge` theme. An explicit selection takes precedence over the base `:root` declarations regardless of their import order. Import the theme collection before the base variables to use the default blue when no theme is selected.
+Set `data-theme` on `html` to select a loaded `jade`, `coral`, `tangerine`, `apple`, `deep-sea-blue`, `gamboge`, or `lotus-seed` theme. An explicit selection takes precedence over the base `:root` declarations regardless of their import order. Import the theme collection before the base variables to use the default blue when no theme is selected.
 
 ```js
 import "litos-ui/styles/themes.css";
 import "litos-ui/styles/vars.css";
 
-// Select Gamboge, or use another loaded theme
-document.documentElement.dataset.theme = "gamboge";
+// Select Lotus Seed, or use another loaded theme
+document.documentElement.dataset.theme = "lotus-seed";
 
 // Clear the selection and restore the default colors
 document.documentElement.removeAttribute("data-theme");
 ```
 
-`themes.css` imports all six presets. You can also import only the `themes/<name>.css` files you need. When `data-theme` is absent or removed, matching variables follow import order: a theme imported after `vars.css` is applied automatically; importing `vars.css` last restores the default colors. Inline color variables on the root element override theme styles, so remove existing custom inline color variables before using presets.
+`themes.css` imports all seven presets. You can also import only the `themes/<name>.css` files you need. When `data-theme` is absent or removed, matching variables follow import order: a theme imported after `vars.css` is applied automatically; importing `vars.css` last restores the default colors. Inline color variables on the root element override theme styles, so remove existing custom inline color variables before using presets.
 
 For dark mode, also import `litos-ui/styles/dark.css` after the base variables, then toggle the `dark` class on the root element. This file only provides dark variable overrides; it does not switch modes automatically and is not implicitly loaded by `vars.css`.
 
@@ -103,6 +104,10 @@ The shared source files below retain their original Chinese comments.
 
 <<< ../../styles/themes/gamboge.css
 
+### Lotus Seed · lotus-seed
+
+<<< ../../styles/themes/lotus-seed.css
+
 > For custom theme switching, see the [Theme component](/en/components/theme). If you have used the color picker to set inline color variables on the root element, remove those inline variables first so that the preset theme styles can take effect.
 
 <script setup>
@@ -115,6 +120,7 @@ const presets = [
   { id: "apple", name: "Apple", color: "#9E8D51" },
   { id: "deep-sea-blue", name: "Deep Sea Blue", color: "#1D3D79" },
   { id: "gamboge", name: "Gamboge", color: "#FED110" },
+  { id: "lotus-seed", name: "Lotus Seed", color: "#E515AA" },
 ];
 const selected = ref("");
 let observer;

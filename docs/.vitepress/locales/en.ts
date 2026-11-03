@@ -222,6 +222,7 @@ export const en: LocaleConfig<DefaultTheme.Config>[string] = {
             text: "Menu",
             link: "/en/components/menu",
           },
+          { text: "Dropdown", link: "/en/components/dropdown" },
         ],
       },
       {

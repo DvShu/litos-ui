@@ -4,7 +4,7 @@
 
 ## 预置主题
 
-提供六套预置主题：**翡翠绿（jade，#00AA7E）**、**珊瑚红（coral，#FF6448）**、**活力橙（tangerine，#FF7802）**、**苹果（apple，#9E8D51）**、**深海蓝（deep-sea-blue，#1D3D79）**、**藤黄（gamboge，#FED110）**。
+提供七套预置主题：**翡翠绿（jade，#00AA7E）**、**珊瑚红（coral，#FF6448）**、**活力橙（tangerine，#FF7802）**、**苹果（apple，#9E8D51）**、**深海蓝（deep-sea-blue，#1D3D79）**、**藤黄（gamboge，#FED110）**、**莲子（lotus-seed，#E515AA）**。
 
 每套主题包含主色、色阶、状态色和中性色，控件高度、圆角仍沿用基础变量。主色与成功、错误、警告颜色独立配置，颜色接近时通过调整对应状态色保持区分。
 
@@ -43,6 +43,7 @@ import "litos-ui/styles/themes/jade.css";
 // import "litos-ui/styles/themes/apple.css";
 // import "litos-ui/styles/themes/deep-sea-blue.css";
 // import "litos-ui/styles/themes/gamboge.css";
+// import "litos-ui/styles/themes/lotus-seed.css";
 ```
 
 也可以直接通过 HTML 样式表引入，保持相同顺序：
@@ -54,20 +55,20 @@ import "litos-ui/styles/themes/jade.css";
 
 ## 通过 data-theme 手动选择
 
-通过 `html` 的 `data-theme` 选择已引入的 `jade`、`coral`、`tangerine`、`apple`、`deep-sea-blue` 或 `gamboge`，显式选择不受这些文件引入顺序影响。先引入主题集合、再引入基础变量，未选择时使用默认蓝色。
+通过 `html` 的 `data-theme` 选择已引入的 `jade`、`coral`、`tangerine`、`apple`、`deep-sea-blue`、`gamboge` 或 `lotus-seed`，显式选择不受这些文件引入顺序影响。先引入主题集合、再引入基础变量，未选择时使用默认蓝色。
 
 ```js
 import "litos-ui/styles/themes.css";
 import "litos-ui/styles/vars.css";
 
-// 选择藤黄，也可设置为其他已加载主题的标识
-document.documentElement.dataset.theme = "gamboge";
+// 选择莲子，也可设置为其他已加载主题的标识
+document.documentElement.dataset.theme = "lotus-seed";
 
 // 取消选择，恢复默认配色
 document.documentElement.removeAttribute("data-theme");
 ```
 
-`themes.css` 汇总引入六套主题，也可以只引入需要的 `themes/<name>.css`。未设置或移除 `data-theme` 时，同名变量由引入顺序决定：主题在 `vars.css` 之后引入则自动应用，反过来则使用默认配色。根元素上的内联颜色变量会优先于主题样式，使用前应移除已有的自定义内联颜色变量。
+`themes.css` 汇总引入七套主题，也可以只引入需要的 `themes/<name>.css`。未设置或移除 `data-theme` 时，同名变量由引入顺序决定：主题在 `vars.css` 之后引入则自动应用，反过来则使用默认配色。根元素上的内联颜色变量会优先于主题样式，使用前应移除已有的自定义内联颜色变量。
 
 需要暗黑模式时，在基础变量之后额外引入 `litos-ui/styles/dark.css`，再通过根元素的 `dark` 类切换。该文件只包含暗黑变量覆盖，不自动切换模式，也不由 `vars.css` 隐式加载。
 
@@ -101,6 +102,10 @@ document.documentElement.removeAttribute("data-theme");
 
 <<< ../styles/themes/gamboge.css
 
+### 莲子 · lotus-seed
+
+<<< ../styles/themes/lotus-seed.css
+
 > 自定义主题切换方式见 [Theme 主题切换组件](./components/theme)。如果曾通过颜色选择器设置根元素上的内联颜色变量，需要先移除对应内联变量，才能由预置主题样式接管。
 
 <script setup>
@@ -113,6 +118,7 @@ const presets = [
   { id: "apple", name: "苹果", color: "#9E8D51" },
   { id: "deep-sea-blue", name: "深海蓝", color: "#1D3D79" },
   { id: "gamboge", name: "藤黄", color: "#FED110" },
+  { id: "lotus-seed", name: "莲子", color: "#E515AA" },
 ];
 const selected = ref("");
 let observer;

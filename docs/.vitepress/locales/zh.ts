@@ -222,6 +222,7 @@ export const zh: LocaleConfig<DefaultTheme.Config>[string] = {
             text: "Menu 菜单",
             link: "/components/menu",
           },
+          { text: "Dropdown 下拉菜单", link: "/components/dropdown" },
         ],
       },
       {
