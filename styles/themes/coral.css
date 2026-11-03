@@ -1,5 +1,6 @@
 /* 珊瑚红主题 · #FF6448，先引入 vars.css */
-:root {
+:root,
+:root[data-theme="coral"] {
   /* 主题色 */
   --l-primary-color: #ff6448;
   --l-primary-color-light1: #ff836d;

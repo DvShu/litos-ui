@@ -125,3 +125,10 @@ export type {
 export { default as NotificationBox } from "./notification/notification_box";
 export { default as Notification } from "./notification";
 export type { NotificationOptions, NotificationType, NotificationPlacement } from "./notification";
+export { default as createDropdown } from "./dropdown";
+export type {
+  DropdownItem,
+  DropdownPlacement,
+  DropdownOptions,
+  DropdownInstance,
+} from "./dropdown";

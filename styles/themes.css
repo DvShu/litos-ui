@@ -1,0 +1,8 @@
+/* 预置主题集合；默认配色由引入顺序决定，data-theme 可显式选择。 */
+@import "./themes/jade.css";
+@import "./themes/coral.css";
+@import "./themes/tangerine.css";
+@import "./themes/apple.css";
+@import "./themes/deep-sea-blue.css";
+@import "./themes/gamboge.css";
+@import "./themes/lotus-seed.css";

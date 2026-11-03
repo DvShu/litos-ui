@@ -491,7 +491,7 @@ export class Popover {
   }
 
   _onMouseEnter = (e: Event) => {
-    const $target = e.target as HTMLElement;
+    const $target = e.currentTarget as HTMLElement;
     this._clearHideTimer();
     if (this.$reference == $target) return;
     this.show($target);
@@ -507,8 +507,8 @@ export class Popover {
 
   _onRefTap = (e: Event) => {
     this._destroyUpdater();
-    const $target = e.target as HTMLElement;
-    if (this.$reference) {
+    const $target = e.currentTarget as HTMLElement;
+    if (this.$reference === $target) {
       // 已经显示
       if (this.options.trigger === "focus") return;
       this.hide();
