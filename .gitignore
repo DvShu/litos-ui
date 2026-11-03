@@ -5,3 +5,4 @@ lib
 dist
 .mimocode
 docs/.vitepress/.temp
+.artifacts
