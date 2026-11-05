@@ -13,9 +13,10 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   protected readonly internals: ElementInternals;
   public _disabled = false;
   public _value: any = undefined;
-  public _resetValue?: any;
   protected _firstPushValue = true;
-  private defaultCaptured = false;
+  protected dirtyValue = false;
+  private applyingDefault = false;
+  private valueInitialized = false;
   private ownDisabled = false;
   private nativeDisabled = false;
   private contextDisabled = false;
@@ -106,22 +107,40 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   }
   public setValue(value: any): void {
     this._value = value;
-    if (!this.defaultCaptured && !this.restoring) {
-      this._resetValue = this.copyValue(value);
-      this.defaultCaptured = true;
-    }
+    if (!this.applyingDefault) this.dirtyValue = true;
     this.pushValueChange();
   }
   public getValue(): any {
     return this._value;
   }
-  /** 显式默认值是重置基线；修改它不伪造用户事件，也不覆盖当前编辑值。 */
+  /** 默认值来源于 value attribute；程序赋值／用户输入不再捕获为重置基线。 */
   public get defaultValue(): any {
-    return this.copyValue(this._resetValue);
+    return this.copyValue(this.parseDefaultValue(this.getAttribute("value")));
   }
   public set defaultValue(value: any) {
-    this._resetValue = this.copyValue(value);
-    this.defaultCaptured = true;
+    this.setAttribute("value", this.formatDefaultValue(value));
+  }
+  protected get intrinsicDefaultValue(): any {
+    return "";
+  }
+  protected parseDefaultValue(value: string | null): any {
+    return value === null ? this.intrinsicDefaultValue : value;
+  }
+  protected formatDefaultValue(value: any): string {
+    return String(value ?? "");
+  }
+  /** 默认同步走派生 setter 更新 UI，但不把控件标记为已编辑，也不伪造用户事件。 */
+  protected applyDefaultValue(): void {
+    if (this.dirtyValue) return;
+    const restoring = this.restoring;
+    this.restoring = true;
+    this.applyingDefault = true;
+    try {
+      this.value = this.copyValue(this.defaultValue);
+    } finally {
+      this.applyingDefault = false;
+      this.restoring = restoring;
+    }
   }
   protected copyValue(value: any): any {
     if (Array.isArray(value)) return value.map((item) => this.copyValue(item));
@@ -152,9 +171,8 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   }
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
     if (name === "value") {
-      // HTML value 的动态更改更新默认值；程序 value 赋值只更改当前值。
-      this.defaultValue = newValue ?? "";
-      this.value = newValue ?? "";
+      // 与原生文本输入一致：dirty 时只改变默认值，reset 后重新跟随默认属性。
+      this.applyDefaultValue();
     } else if (name === "name") {
       if (!this.reflectingName) this.name = newValue ?? undefined;
     } else if (name === "disabled") {
@@ -179,15 +197,15 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         (this as any)[key] = value;
       }
     }
+    if (!this.valueInitialized) {
+      this.applyDefaultValue();
+      this.valueInitialized = true;
+    }
     this.addEventListener(FORM_CONTEXT_EVENTS.configuration, this.configurationChanged);
     this.addEventListener(FORM_CONTEXT_EVENTS.validity, this.validityChanged);
     this.bindContexts();
     super.connectedCallback();
     this.connecting = false;
-    if (!this.defaultCaptured) {
-      this._resetValue = this.copyValue(this.getValue() ?? "");
-      this.defaultCaptured = true;
-    }
     this.refreshConfiguration();
     this.syncNativeValue();
   }
@@ -455,10 +473,10 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   public reset(): void {
     this.restoring = true;
     try {
-      this.value = this.copyValue(this._resetValue ?? "");
+      this.dirtyValue = false;
+      this.applyDefaultValue();
       this.businessError = "";
-      this.manualValidity = {};
-      this.manualMessage = "";
+      // reset 只清业务错误；手动 setValidity 的状态及消息需由调用方显式清除。
       this.validResult();
       this.syncNativeValue();
     } finally {

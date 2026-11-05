@@ -154,11 +154,6 @@ regist([FormItem, Form]);
 
 ### 基础用法
 
-```js
-import { Space, Button, Input, regist } from "litos-ui";
-regist([Space, Button, Input]);
-```
-
 基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [utilane/validator](https://github.com/DvShu/utilane#readme)
 
 <ClientOnly>
@@ -187,6 +182,8 @@ regist([Space, Button, Input]);
 
 > 1. 如果想要实现按钮之间的间隔，需要引入 `Space` 组件
 > 2. 当 `Button` 在 `Form` 里面时，如果 `Button` 的 `html-type` 属性为 `reset`、`submit` 时会自动触发表单的重置、提交。
+
+重置会恢复字段的默认值，不会把第一次程序赋值当作默认值。文本字段使用 `value` attribute 或 `defaultValue` 设置默认值；数组等复合字段通过对应控件的 `defaultValue` 设置。修改当前值后，默认值更新不会覆盖编辑内容，下一次重置才应用。
 
 ### 自定义验证
 

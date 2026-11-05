@@ -55,8 +55,8 @@ try {
   input.setAttribute("value", "attribute");
   check(
     "all-assignments-sync",
-    new FormData(a.nativeForm).get("inherited") === "attribute" &&
-      input.$inner.value === "attribute" &&
+    new FormData(a.nativeForm).get("inherited") === "method" &&
+      input.$inner.value === "method" &&
       userEvents === 0,
   );
   input.name = "explicit";
@@ -65,7 +65,7 @@ try {
   input.removeAttribute("name");
   check(
     "name-removal-inherits-current",
-    input.name === "changed" && new FormData(a.nativeForm).get("changed") === "attribute",
+    input.name === "changed" && new FormData(a.nativeForm).get("changed") === "method",
   );
   item.setAttribute("inner-block", "true");
   input.setAttribute("inner-block", "false");
@@ -109,11 +109,11 @@ try {
   input.value = "edit";
   a.reset();
   await tick();
-  check("default-zero-reset", input.value === 0 && input.$inner.value === "0");
+  check("default-zero-reset", input.value === "0" && input.$inner.value === "0");
   input.defaultValue = false;
   input.value = "edit";
   input.reset();
-  check("default-false-reset", input.value === false);
+  check("default-false-reset", input.value === "false");
   input.setAttribute("value", "new-default");
   input.value = "edit";
   input.reset();

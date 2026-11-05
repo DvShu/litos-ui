@@ -1,8 +1,7 @@
 import { $one, addClass, removeClass, $$ } from "utilane/browser";
 import { kebabToCamel, unitNumberStr } from "../utils";
 import type { RuleType, SchemaType } from "utilane";
-//@ts-ignore
-import css from "./form_item.less?inline";
+import formItemSheet from "./form_item_style";
 import BaseComponent from "../base";
 import {
   createFormContextProvider,
@@ -174,7 +173,7 @@ export default class FormItem extends BaseComponent<FormItemState> {
   }
 
   render_v2() {
-    return { template: this.render(), style: [css] };
+    return { template: this.render(), styleSheets: [formItemSheet] };
   }
 
   private get errorMessage(): string | undefined {

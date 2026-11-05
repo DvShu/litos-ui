@@ -8,6 +8,8 @@ import { isBlank, random } from "utilane";
 export default class MdInput extends FormInner {
   public static baseName = "md-input";
 
+  protected _ignoreInitAttrs = ["value"];
+
   /** 是否显示四周边框 */
   public outline = false;
   public htmlType: "text" | "number" | "password" | "tel" = "text";
@@ -23,7 +25,7 @@ export default class MdInput extends FormInner {
     this.loadStyleText(css);
     super.connectedCallback();
     this.#initEvents();
-    this.setValue(this.value ?? "");
+    this.syncNativeValue();
     this.disabledChange();
   }
 

@@ -31,8 +31,42 @@ class Field extends EventTarget {
   }
   setValue(value) {
     this._value = value;
-    this._resetValue ??= value;
+    if (!this.applyingDefault) this.dirtyValue = true;
     this.syncNativeValue();
+  }
+  get intrinsicDefaultValue() {
+    return "";
+  }
+  get defaultValue() {
+    return this.getAttribute("value") ?? this.intrinsicDefaultValue;
+  }
+  set defaultValue(value) {
+    this.setAttribute("value", value);
+  }
+  applyDefaultValue() {
+    if (this.dirtyValue) return;
+    this.applyingDefault = true;
+    try {
+      this.value = this.defaultValue;
+    } finally {
+      this.applyingDefault = false;
+    }
+  }
+  setAttribute(name, value) {
+    const oldValue = this.getAttribute(name);
+    this.attrs.set(name, String(value));
+    if (name === "value") this.applyDefaultValue();
+    else this.attributeChange(name, oldValue, String(value));
+  }
+  removeAttribute(name) {
+    const oldValue = this.getAttribute(name);
+    this.attrs.delete(name);
+    if (name === "value") this.applyDefaultValue();
+    else this.attributeChange(name, oldValue, null);
+  }
+  toggleAttribute(name, force) {
+    if (force) this.setAttribute(name, "");
+    else this.removeAttribute(name);
   }
   getName() {
     return this.name;
@@ -55,11 +89,13 @@ class Field extends EventTarget {
   syncNativeValidity() {}
   refreshConfiguration() {}
   connectedCallback() {
+    this.applyDefaultValue();
     this.afterInit();
   }
   loadStyleText() {}
   reset() {
-    this.value = this._resetValue;
+    this.dirtyValue = false;
+    this.applyDefaultValue();
   }
   formStateRestoreCallback(state) {
     this.value = JSON.parse(state).value;
@@ -121,18 +157,47 @@ test("standalone check submits checked token, keeps empty token and deterministi
   assert.equal(check.emitted.length, 1);
 });
 
-test("checked baseline follows initial property and later checked attribute; reset retains indeterminate UI", () => {
+test("checked defaults reflect attributes while property edits dirty only current checkedness", () => {
   const check = new Check();
   check.setChecked(true);
+  check.reset();
+  assert.equal(check.getChecked(), false);
+  assert.equal(check.defaultChecked, false);
+  check.defaultChecked = true;
+  assert.equal(check.getChecked(), true);
   check.setChecked(false);
+  check.defaultChecked = false;
+  check.setAttribute("checked", "false");
+  assert.equal(check.defaultChecked, true);
+  assert.equal(check.getChecked(), false);
   check._state.indeterminate = true;
   check.reset();
   assert.equal(check.getChecked(), true);
   assert.equal(check.classes.has("is-indeterminate"), true);
-  check.attributeChange("checked", "", null);
-  check.setChecked(true);
-  check.reset();
+  check.removeAttribute("checked");
   assert.equal(check.getChecked(), false);
+});
+
+test("missing value defaults to on; default synchronization remains clean and reset clears dirty", () => {
+  const check = new Check();
+  check._inputType = "checkbox";
+  check.connectedCallback();
+  check.defaultChecked = true;
+  assert.equal(check.value, "on");
+  assert.equal(check.submitted, "on");
+  check.defaultValue = "first";
+  check.defaultValue = "next";
+  assert.equal(check.value, "next");
+  check.value = "edited";
+  check.defaultValue = "reset";
+  assert.equal(check.value, "edited");
+  check.reset();
+  assert.equal(check.value, "reset");
+  check.removeAttribute("value");
+  assert.equal(check.value, "on");
+  check.defaultValue = "";
+  assert.equal(check.submitted, "");
+  check.beforeDestroy();
 });
 
 test("state serialization restores checked, value and indeterminate without user change", () => {
@@ -208,7 +273,7 @@ test("group accepts only nearest Check changes and encodes tokens without consum
   let stopped = 0;
   const event = { composedPath: () => [check], stopImmediatePropagation: () => stopped++ };
   outer._handleChange(event);
-  assert.equal(outer.value, undefined);
+  assert.equal(outer.value, "");
   inner._handleChange(event);
   assert.equal(inner.value, "a%26b%25");
   assert.equal(stopped, 1);
@@ -217,7 +282,7 @@ test("group accepts only nearest Check changes and encodes tokens without consum
   inner._handleChange(event);
   assert.equal(inner.value, "");
   outer._handleChange({ composedPath: () => [inner] });
-  assert.equal(outer.value, undefined);
+  assert.equal(outer.value, "");
   inner.beforeDestroy();
   outer.beforeDestroy();
 });
@@ -260,4 +325,29 @@ test("independent radio coordination is scoped by owner/name and does not affect
   first.beforeDestroy();
   second.beforeDestroy();
   other.beforeDestroy();
+});
+test("group configuration synchronizes checkedness without dirtying member defaults", () => {
+  const group = new Group(),
+    check = new Check();
+  check._inputType = "checkbox";
+  group.connectedCallback();
+  check.parent = group;
+  check.connectedCallback();
+  group.defaultValue = "on";
+  check.refreshConfiguration();
+  assert.equal(check.getChecked(), true);
+  assert.equal(check.dirtyChecked, false);
+  check.defaultChecked = true;
+  assert.equal(check.dirtyChecked, false);
+  check._doChangeAction();
+  assert.equal(check.dirtyChecked, true);
+  group.defaultValue = "";
+  check.reset();
+  assert.equal(check.dirtyChecked, false);
+  check.parent = undefined;
+  check.refreshConfiguration();
+  check.defaultChecked = false;
+  assert.equal(check.getChecked(), false);
+  check.beforeDestroy();
+  group.beforeDestroy();
 });

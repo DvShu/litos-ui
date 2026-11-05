@@ -14,8 +14,7 @@ const standaloneRadios = new Set<Check>();
 
 export default class Check extends FormInner<CheckState> {
   private _checked = false;
-  private _defaultChecked = false;
-  private _checkedBaseline = false;
+  private dirtyChecked = false;
   private _groupProvider?: FormContextProvider;
   _inputType: "radio" | "checkbox" = "radio";
   $input?: HTMLInputElement;
@@ -36,12 +35,26 @@ export default class Check extends FormInner<CheckState> {
     return !!this._groupProvider;
   }
 
+  protected get intrinsicDefaultValue(): string {
+    return "on";
+  }
+
+  public get defaultChecked(): boolean {
+    return this.hasAttribute("checked");
+  }
+
+  public set defaultChecked(value: boolean) {
+    this.toggleAttribute("checked", !!value);
+  }
+
   setChecked(isChecked: boolean) {
+    this.dirtyChecked = true;
+    this.applyChecked(isChecked);
+  }
+
+  /** Default and group synchronization must not dirty the checked property. */
+  private applyChecked(isChecked: boolean): void {
     this._checked = !!isChecked;
-    if (!this._checkedBaseline) {
-      this._defaultChecked = this._checked;
-      this._checkedBaseline = true;
-    }
     if (this._checked && !this.grouped && this._inputType === "radio") {
       this.uncheckPeers();
     }
@@ -70,22 +83,26 @@ export default class Check extends FormInner<CheckState> {
   }
 
   connectedCallback(): void {
+    if (Object.prototype.hasOwnProperty.call(this, "defaultChecked")) {
+      const value = this.defaultChecked;
+      delete (this as any).defaultChecked;
+      this.defaultChecked = value;
+    }
     this._groupProvider = requestFormContext(this, "group");
     this.addEventListener(FORM_CONTEXT_EVENTS.configuration, this._updateGroup);
     standaloneRadios.add(this);
     super.connectedCallback();
-    this._checkedBaseline = true;
     this._updateGroup();
     this.disabledChange();
     this._updateIndeterminate();
-    this.setChecked(this.getChecked());
+    this.applyChecked(this.getChecked());
   }
 
   protected refreshConfiguration(): void {
     if (this.isConnected) this._groupProvider = requestFormContext(this, "group");
     super.refreshConfiguration();
     if (this._groupProvider)
-      this.setChecked((this._groupProvider.getSnapshot().values ?? []).includes(this.token));
+      this.applyChecked((this._groupProvider.getSnapshot().values ?? []).includes(this.token));
     if (this.getChecked() && !this.grouped && this._inputType === "radio") this.uncheckPeers();
   }
 
@@ -133,9 +150,8 @@ export default class Check extends FormInner<CheckState> {
   protected attributeChange(name: string, _oldValue: string, newValue: string): void {
     switch (name) {
       case "checked":
-        this._defaultChecked = parseAttrValue(newValue, false, "checked");
-        this._checkedBaseline = true;
-        this.setChecked(this._defaultChecked);
+        // Like native boolean attributes, checked="false" is still present.
+        if (!this.dirtyChecked) this.applyChecked(this.defaultChecked);
         break;
       case "button":
         this._state.button = parseAttrValue(newValue, false, name);
@@ -180,7 +196,7 @@ export default class Check extends FormInner<CheckState> {
   protected serializeFormState(): string {
     return JSON.stringify({
       version: 1,
-      value: this.value ?? "",
+      value: this.value ?? "on",
       checked: this.getChecked(),
       indeterminate: !!this._state.indeterminate,
     });
@@ -205,8 +221,10 @@ export default class Check extends FormInner<CheckState> {
 
   public reset(): void {
     super.reset();
+    this.dirtyChecked = false;
     if (this.grouped) this._updateGroup();
-    else this.setChecked(this._defaultChecked);
+    else this.applyChecked(this.defaultChecked);
+    // Native form.reset() leaves indeterminate unchanged.
     this._updateIndeterminate();
   }
 
@@ -233,7 +251,7 @@ export default class Check extends FormInner<CheckState> {
     if (this.isConnected) this._groupProvider = requestFormContext(this, "group");
     if (this._groupProvider) {
       const snapshot = this._groupProvider.getSnapshot();
-      this.setChecked((snapshot.values ?? []).includes(this.token));
+      this.applyChecked((snapshot.values ?? []).includes(this.token));
     }
     this.disabledChange();
   };
@@ -251,7 +269,7 @@ export default class Check extends FormInner<CheckState> {
         peer.getName() === name &&
         peer.getChecked()
       ) {
-        peer.setChecked(false);
+        peer.applyChecked(false);
       }
     }
   }

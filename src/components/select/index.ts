@@ -140,7 +140,19 @@ export default class Select extends FormInner<SelectState> {
     }
   }
 
-  public setValue(value: string | string[] | number): void {
+  protected get intrinsicDefaultValue(): string | string[] {
+    return this._state.multiple ? [] : "";
+  }
+
+  protected parseDefaultValue(value: string | null): string | string[] {
+    return value === null ? this.intrinsicDefaultValue : this.normalizeValue(value);
+  }
+
+  protected formatDefaultValue(value: any): string {
+    return Array.isArray(value) ? value.join(",") : String(value ?? "");
+  }
+
+  private normalizeValue(value: any): any {
     let v: any = value;
     if (this._state.multiple && (value == null || value === "")) {
       v = [];
@@ -156,7 +168,11 @@ export default class Select extends FormInner<SelectState> {
         v = v[0];
       }
     }
-    super.setValue(v);
+    return v;
+  }
+
+  public setValue(value: string | string[] | number): void {
+    super.setValue(this.normalizeValue(value));
     this._updateSelectedLabels();
     this._reRenderLabels();
     this._updatePopoverContent();
@@ -231,7 +247,11 @@ export default class Select extends FormInner<SelectState> {
         break;
       case "multiple":
         this._state.multiple = parseAttrValue(newValue, false, name);
-        this.setValue(this.value ?? (this._state.multiple ? [] : ""));
+        if (!this.dirtyValue) this.applyDefaultValue();
+        else {
+          // Changing selection mode normalizes the live value, not its reset baseline.
+          this.setValue(this.value ?? this.intrinsicDefaultValue);
+        }
         break;
       case "clearable":
       case "filterable":

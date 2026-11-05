@@ -154,7 +154,7 @@ try {
   form.reset();
   check(
     "reset-zero-no-events",
-    host.value === 0 && inner.value === "0" && inputs === 2 && changes === 1,
+    host.value === "0" && inner.value === "0" && inputs === 2 && changes === 1,
   );
   const lib = document.querySelector("#library"),
     libInput = lib.querySelector("l-input"),
@@ -170,6 +170,28 @@ try {
   await tick();
   check("item-dynamic-label", libInput.$inner.getAttribute("aria-label") === "新账号");
   const sheet = host.shadowRoot.adoptedStyleSheets[0];
+  check(
+    "instances-share-one-constructed-sheet",
+    sheet instanceof CSSStyleSheet &&
+      host.shadowRoot.adoptedStyleSheets.length === 1 &&
+      libInput.shadowRoot.adoptedStyleSheets.length === 1 &&
+      libInput.shadowRoot.adoptedStyleSheets[0] === sheet,
+  );
+  check(
+    "no-instance-style-tags",
+    !host.shadowRoot.querySelector("style") && !libInput.shadowRoot.querySelector("style"),
+  );
+  const rules = Array.from(sheet.cssRules, (rule) => rule.cssText).join("\n");
+  check(
+    "sheet-includes-host-and-inner-rules",
+    rules.includes(":host") && rules.includes(".l-input__inner"),
+  );
+  check(
+    "constructed-sheet-applied",
+    getComputedStyle(host).display === "inline-flex" &&
+      getComputedStyle(host.$inner).borderTopWidth === "0px" &&
+      getComputedStyle(host.$inner).boxSizing === "border-box",
+  );
   host.remove();
   form.append(host);
   await tick();
@@ -180,6 +202,64 @@ try {
     "remount-one-listener-and-shared-sheet",
     inputs === 3 && host.value === "edit" && host.shadowRoot.adoptedStyleSheets[0] === sheet,
   );
+  const native = document.createElement("input");
+  const custom = document.createElement("l-input");
+  const resetForm = document.createElement("form");
+  resetForm.append(native, custom);
+  document.body.append(resetForm);
+  await tick();
+  const equal = (name) =>
+    check(
+      name,
+      native.value === custom.value &&
+        native.defaultValue === custom.defaultValue &&
+        custom.$inner.value === native.value,
+    );
+  equal("native-default-empty");
+  native.value = "first";
+  custom.value = "first";
+  resetForm.reset();
+  equal("first-property-is-not-default");
+  native.defaultValue = "base";
+  custom.defaultValue = "base";
+  equal("clean-default-updates-current");
+  native.value = "edit";
+  custom.value = "edit";
+  native.defaultValue = "next";
+  custom.defaultValue = "next";
+  equal("dirty-default-preserves-edit");
+  check("default-value-reflects-attribute", custom.getAttribute("value") === "next");
+  native.setAttribute("value", "attribute");
+  custom.setAttribute("value", "attribute");
+  equal("dirty-attribute-preserves-edit");
+  resetForm.reset();
+  equal("native-reset-uses-current-default");
+  native.setAttribute("value", "clean");
+  custom.setAttribute("value", "clean");
+  equal("reset-clears-dirty");
+  native.value = "edit2";
+  custom.value = "edit2";
+  native.removeAttribute("value");
+  custom.removeAttribute("value");
+  equal("dirty-attribute-removal-preserves-edit");
+  resetForm.reset();
+  equal("removed-default-resets-empty");
+  native.value = "kept";
+  custom.value = "kept";
+  resetForm.addEventListener("reset", (event) => event.preventDefault(), { once: true });
+  resetForm.reset();
+  equal("cancelled-reset-retains-dirty-value");
+  native.defaultValue = "later";
+  custom.defaultValue = "later";
+  equal("cancelled-reset-retains-dirty-flag");
+  custom.remove();
+  resetForm.append(custom);
+  await tick();
+  equal("remount-does-not-reset-dirty-value");
+  resetForm.reset();
+  equal("remount-reset-matches-native");
+  check("reset-cache-property-removed", !("_resetValue" in custom));
+  resetForm.remove();
   check("no-browser-errors", errors.length === 0);
   document.querySelector("#result").textContent = JSON.stringify({
     userAgent: navigator.userAgent,

@@ -70,20 +70,20 @@ try {
   owner.removeEventListener("reset", resetCancelled);
   const zero = document.createElement("l-input");
   zero.name = "zero";
-  zero.value = 0;
+  zero.defaultValue = 0;
   alone.append(zero);
   zero.value = 4;
   alone.reset();
-  check("zero-reset-baseline", zero.value === 0 && new FormData(alone).get("zero") === "0");
+  check("zero-reset-baseline", zero.value === "0" && new FormData(alone).get("zero") === "0");
   const bool = document.createElement("l-input");
   bool.name = "bool";
-  bool.value = false;
+  bool.defaultValue = false;
   alone.append(bool);
   bool.value = true;
   alone.reset();
   check(
     "false-reset-baseline",
-    bool.value === false && new FormData(alone).get("bool") === "false",
+    bool.value === "false" && new FormData(alone).get("bool") === "false",
   );
   const outer = document.createElement("form");
   document.body.append(outer);
@@ -108,11 +108,46 @@ try {
     "user-input-synchronizes",
     form.getData().name === "typed" && new FormData(owner).get("name") === "typed",
   );
+  const item = form.querySelector("l-form-item");
+  const formSheet = form.shadowRoot.adoptedStyleSheets[0];
+  const itemSheet = item.shadowRoot.adoptedStyleSheets[0];
+  const peerItem = document.createElement("l-form-item");
+  embedded.append(peerItem);
+  await tick();
+  check(
+    "form-shares-constructed-sheet",
+    formSheet instanceof CSSStyleSheet &&
+      form.shadowRoot.adoptedStyleSheets.length === 1 &&
+      embedded.shadowRoot.adoptedStyleSheets[0] === formSheet,
+  );
+  check(
+    "item-shares-separate-constructed-sheet",
+    itemSheet instanceof CSSStyleSheet &&
+      item.shadowRoot.adoptedStyleSheets.length === 1 &&
+      peerItem.shadowRoot.adoptedStyleSheets[0] === itemSheet &&
+      itemSheet !== formSheet,
+  );
+  check(
+    "no-instance-style-elements",
+    !form.shadowRoot.querySelector("style") && !item.shadowRoot.querySelector("style"),
+  );
+  check(
+    "constructed-sheets-have-rules",
+    formSheet.cssRules.length > 0 && itemSheet.cssRules.length > 0,
+  );
+  peerItem.remove();
   const savedOwner = owner;
   form.remove();
   check("disconnect-no-orphan", !savedOwner.isConnected);
   document.body.append(form);
   await tick();
+  check(
+    "remount-reuses-form-item-sheets",
+    form.shadowRoot.adoptedStyleSheets[0] === formSheet &&
+      item.shadowRoot.adoptedStyleSheets[0] === itemSheet &&
+      !form.shadowRoot.querySelector("style") &&
+      !item.shadowRoot.querySelector("style"),
+  );
   input.value = "reconnect";
   form.submit();
   await tick();
@@ -131,6 +166,64 @@ try {
     form.shadowRoot.querySelector(".l-form").classList.contains("l-form--left") &&
       !form.shadowRoot.querySelector(".l-form").classList.contains("l-form-inline"),
   );
+  const multi = document.createElement("l-form");
+  multi.innerHTML =
+    '<l-form-item required label="姓名" prop="name"><l-input></l-input></l-form-item><l-form-item required label="密码" prop="password"><l-input type="password"></l-input></l-form-item><l-form-item required label="确认密码" prop="confirmPassword"><l-input type="password"></l-input></l-form-item>';
+  document.body.append(multi);
+  await tick();
+  const allInvalid = await multi.validate();
+  check(
+    "validate-collects-all-field-errors",
+    !allInvalid.result && Object.keys(allInvalid.errors).length === 3,
+  );
+  let multiSubmits = 0;
+  multi.addEventListener("submit", () => multiSubmits++);
+  multi.submit();
+  await tick();
+  check(
+    "one-submit-shows-all-field-errors",
+    multiSubmits === 0 &&
+      ["name", "password", "confirmPassword"].every((key) => !!multi.validationErrors[key]) &&
+      Array.from(multi.querySelectorAll("l-form-item")).every((item) =>
+        item.shadowRoot.textContent.includes(multi.validationErrors[item.getAttribute("prop")]),
+      ),
+  );
+  multi.querySelector("l-input").value = "Alice";
+  multi.submit();
+  await tick();
+  check(
+    "resubmit-preserves-all-remaining-errors",
+    !multi.validationErrors.name &&
+      !!multi.validationErrors.password &&
+      !!multi.validationErrors.confirmPassword &&
+      multiSubmits === 0,
+  );
+  const manualField = multi.querySelector("l-input");
+  manualField.defaultValue = "reset-default";
+  manualField.value = "edited";
+  manualField.setValidity({ customError: true }, "手动校验错误");
+  multi.setErrors({ name: "业务错误" });
+  multi.reset();
+  await tick();
+  check(
+    "reset-clears-business-errors-preserves-manual-validity",
+    Object.keys(multi.validationErrors).length === 0 &&
+      manualField.value === "reset-default" &&
+      manualField.validity.customError &&
+      manualField.validationMessage === "手动校验错误" &&
+      !manualField.checkValidity(),
+  );
+  check(
+    "reset-clears-business-error-display",
+    !manualField.classList.contains("is-error") &&
+      !multi.querySelector("l-form-item").shadowRoot.textContent.includes("业务错误"),
+  );
+  manualField.setValidity();
+  check("manual-validity-explicit-clear", manualField.checkValidity());
+  manualField.setValidity({ customError: true }, "独立重置保留");
+  manualField.reset();
+  check("field-reset-preserves-manual-validity", manualField.validationMessage === "独立重置保留");
+  multi.remove();
   document.querySelector("#result").textContent = JSON.stringify({
     userAgent: navigator.userAgent,
     checks,

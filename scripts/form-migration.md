@@ -227,3 +227,17 @@ FORM_TEST_CASE=input 执行 scripts/check-form-owner.mjs：Chrome 156 tests/inpu
 新增 tests/form-no-signals.test.mjs：真实构建 Form／FormItem 及 13 个控件按需入口，检查解析模块图、外部导入、产物和源文件类型依赖。alien-signals 不能被改成 external 掩盖，也不允许重新引入 resetCtx／旧注入事件。执行 node --test tests/form-no-signals.test.mjs 即可独立检查。
 
 边界：整个项目的 package.json 和 Vite external 仍保留 alien-signals，因为 Collapse 尚未迁移。全量总入口加载所有导出时仍可能加载 Collapse 的信号依赖；这不代表 Form 有依赖。测试表单无信号边界应使用表单按需入口；要让全量总入口也完全没有 alien-signals，还需完成 Collapse 迁移后再删除包依赖和公共 Signal 类型。此次不自动勾选 Collapse 任务。
+
+## 11. 统一默认值／dirty／reset（取代此前首次赋值捕获契约）
+
+生产源码已移除 _resetValue、defaultCaptured 和 checked 首次赋值捕获。FormInner.defaultValue 读写宿主 value attribute，经 parseDefaultValue／formatDefaultValue 转换；无 attribute 时由 intrinsicDefaultValue 明确缺省。setValue/property/用户编辑标记 dirtyValue，value attribute 或 defaultValue 修改仅在 clean 时同步当前值。reset 清 dirty 再应用最新默认值；卸载重挂载保留 dirty 与当前值，浏览器 restore 恢复当前状态也不改默认值。没有把旧缓存重命名为另一个默认快照。
+
+文本 Input 与原生文本 input 对照：首次 property 不作为默认、clean 默认同步、dirty 默认不覆盖、attribute 移除、取消 reset、重挂载均验证；defaultValue 是字符串，defaultValue=0／false 分别反射为 "0"／"false"，当前 value property 仍保留既有合法业务值兼容。类型切换清洗当前值不应额外把 clean 变 dirty。
+
+派生控件显式定义默认来源：Select 多选为字符串数组，沿用现有逗号 attribute 格式（不支持 token 内逗号或任意对象／数值类型无损往返）；Switch 转布尔、无 attribute 为 false；ColorPicker 无 attribute 为 #000000；SelectOri 无宿主 value 时按 options 的 defaultSelected／原生首个可选项，options 更新及重挂载不捕获 live selection；日期范围沿用逗号端点格式。渲染／initAttr 不再将 value attribute 重放为程序编辑，避免挂载意外 dirty 或覆盖预设 property。
+
+Check.defaultChecked 直接反射 checked 布尔 attribute（checked="false" 依原生存在语义仍是 true），property/用户勾选只改变 live checked 并置 dirtyChecked。配置／组同步不 dirty；reset恢复当前 defaultChecked 并清 dirtyChecked，indeterminate 与原生一样不由 reset 清除。无 value 时 token 默认 on；组默认由组 value attribute 决定，组成员不独立重复收值。
+
+reset 清除库业务错误及其展示，但保留 setValidity 手动设置的 flags／message，调用方需要显式 setValidity() 清除；required 等内容约束仍按恢复后的值重算。此规则同时适用于独立字段 reset 和原生 formResetCallback；取消原生 reset 不改变这些状态。浏览器状态恢复回调的既有错误处理策略不在此次 reset 修改范围。
+
+验证入口：FORM_TEST_CASE=input 为文本原生对照；FORM_TEST_CASE=defaults 为复合默认值与 Check 原生对照；native／complete 为原表单回归。中文 Input/Form 使用说明已更新，英文待同步已登记。

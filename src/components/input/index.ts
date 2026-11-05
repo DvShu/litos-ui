@@ -138,7 +138,11 @@ export default class Input extends FormInner<InputState> {
   protected override attributeChanged(name: string, oldValue: string, newValue: string): void {
     super.attributeChanged(name, oldValue, newValue);
     this.syncInputAttributes();
-    if (name === "type" && this.$inner) this.setValue(this.$inner.value);
+    if (name === "type" && this.$inner) {
+      const dirty = this.dirtyValue;
+      this.setValue(this.$inner.value);
+      this.dirtyValue = dirty;
+    }
     if (this.rendered && ["readonly", "clearable"].includes(name)) this.#renderClearable();
   }
 

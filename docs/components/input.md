@@ -188,7 +188,7 @@ import "litos-ui/input";
 <!-- prettier-ignore -->
 | 名称 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 输入值，可通过实例 value 属性读写 | `string` | - |
+| `value` | 默认输入值；修改后仅在当前值未编辑时同步 | `string` | - |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `readonly` | 是否只读；可通过实例 readOnly 属性动态读写 | `boolean` | `false` |
 | `name` | 表单字段名 | `string` | - |
@@ -201,6 +201,16 @@ import "litos-ui/input";
 | `maxlength` | 最大输入长度 | `number` | - |
 | `minlength` | 最小输入长度 | `number` | - |
 | `error` | 错误状态标记；存在该属性即显示错误状态，恢复时移除属性 | `string` | 未设置 |
+
+### Input Properties
+
+<!-- prettier-ignore -->
+| 名称 | 说明 | 类型 |
+| --- | --- | --- |
+| `value` | 当前值；程序赋值与用户输入均不改变默认值 | `string` |
+| `defaultValue` | 默认值，与宿主 `value` attribute 同步 | `string` |
+
+通过 `value` attribute 或 `defaultValue` 设置重置默认值。修改过当前值后，再修改默认值不会覆盖当前编辑内容；表单重置时恢复最新默认值，并重新允许默认值变化同步当前值。第一次给实例 `value` 赋值不再自动成为默认值。
 
 ### Input Methods
 

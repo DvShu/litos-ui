@@ -13,7 +13,7 @@ if (!executable)
   );
 const testCase = process.env.FORM_TEST_CASE;
 let inputBundle;
-if (["inner", "complete", "native", "input"].includes(testCase)) {
+if (["inner", "complete", "native", "input", "defaults"].includes(testCase)) {
   const { build } = await import("vite");
   const result = await build({
     configFile: false,
@@ -24,13 +24,15 @@ if (["inner", "complete", "native", "input"].includes(testCase)) {
       target: "es2022",
       lib: {
         entry:
-          testCase === "input"
-            ? "tests/input-complete.browser.mjs"
-            : testCase === "native"
-              ? "tests/form-native.browser.mjs"
-              : testCase === "complete"
-                ? "tests/form-complete.browser.mjs"
-                : "tests/form-inner.browser.mjs",
+          testCase === "defaults"
+            ? "tests/form-defaults.browser.mjs"
+            : testCase === "input"
+              ? "tests/input-complete.browser.mjs"
+              : testCase === "native"
+                ? "tests/form-native.browser.mjs"
+                : testCase === "complete"
+                  ? "tests/form-complete.browser.mjs"
+                  : "tests/form-inner.browser.mjs",
         formats: ["es"],
       },
     },
@@ -47,6 +49,7 @@ const routes = new Map([
   ["/context.js", ["src/components/form/context.ts", "text/javascript"]],
   ["/lifecycle", ["tests/form-lifecycle.fixture.html", "text/html"]],
   ["/inner", ["tests/form-inner.fixture.html", "text/html"]],
+  ["/defaults", ["tests/form-defaults.fixture.html", "text/html"]],
   ["/input", ["tests/input-complete.fixture.html", "text/html"]],
   ["/native", ["tests/form-native.fixture.html", "text/html"]],
   ["/complete", ["tests/form-complete.fixture.html", "text/html"]],
@@ -85,7 +88,7 @@ try {
       "--dump-dom",
       "--virtual-time-budget=3000",
       "--timeout=15000",
-      `http://127.0.0.1:${server.address().port}${testCase === "input" ? "/input" : testCase === "native" ? "/native" : testCase === "complete" ? "/complete" : testCase === "inner" ? "/inner" : testCase === "lifecycle" ? "/lifecycle" : "/"}`,
+      `http://127.0.0.1:${server.address().port}${testCase === "defaults" ? "/defaults" : testCase === "input" ? "/input" : testCase === "native" ? "/native" : testCase === "complete" ? "/complete" : testCase === "inner" ? "/inner" : testCase === "lifecycle" ? "/lifecycle" : "/"}`,
     ],
     { stdio: ["ignore", "pipe", "pipe"] },
   );

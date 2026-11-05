@@ -23,6 +23,9 @@
 
 ### 翻译待同步记录
 
+- 中文：docs/components/input.md；英文：docs/en/components/input.md；类别：过期；待同步：value attribute／value property／defaultValue 分离及 dirty／reset 默认值语义，不再首次赋值捕获默认值。
+- 中文：docs/components/form.md；英文：docs/en/components/form.md；类别：遗漏／过期；待同步：基础用法移除重复引用代码，新增默认值与重置说明。
+
 - 中文：docs/components/dropdown.md；英文：docs/en/components/dropdown.md；类别：新增；待同步：当前英文站保留中文正文，待翻译 createDropdown 函数、reference／items 配置、回调、显式样式导入、销毁及演示。
 
 此处只记录已识别的待同步内容；无记录不代表全站译文已经校验或全部保持最新。本次仅建立维护流程，未开展全站翻译差异盘点。

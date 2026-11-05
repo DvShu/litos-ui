@@ -186,7 +186,7 @@ export default class DatePicker extends FormInner {
     const index = Number($target.getAttribute("l-datepicker"));
     let value = $target.value;
     if (!value && !this._state.allowEmpty) {
-      value = this._resetValue ?? "";
+      value = this.defaultValue;
       value = String(value).split(",")[index] ?? "";
       $target.value = value;
     }

@@ -37,7 +37,7 @@ export default class DatePicker extends FormInner<DatePickerState> {
   afterInit(): void {
     this._updateWidth();
     this._createPopover();
-    this.setValue(this.value ?? "");
+    this.syncNativeValue();
     this.disabledChange();
     on(this.root, "input", this._handleInput);
     on(this, "click", this._handleTap);
@@ -71,7 +71,11 @@ export default class DatePicker extends FormInner<DatePickerState> {
   render_v2() {
     const fragment = document.createDocumentFragment();
     // input
-    const $input = $$("input", { class: "l-input__inner", placeholder: "请选择日期" });
+    const $input = $$("input", {
+      class: "l-input__inner",
+      placeholder: "请选择日期",
+      value: this.value ?? "",
+    });
     fragment.appendChild($input);
     // icon
     const $icon = $$("l-calendar-icon", { class: "icon" });

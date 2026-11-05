@@ -2,8 +2,7 @@ import { formatClass, $one, on, off } from "utilane/browser";
 import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
 import { Validator } from "utilane";
 import type { SchemaType } from "utilane";
-//@ts-ignore
-import css from "./index.less?inline";
+import formSheet from "./style";
 import BaseComponent from "../base";
 import FormInner from "./form_inner";
 import { FormOwner } from "./owner";
@@ -197,7 +196,7 @@ export default class Form extends BaseComponent<FormState> {
 
   render_v2() {
     return {
-      style: [css],
+      styleSheets: [formSheet],
       template: this.render(),
     };
   }
@@ -320,7 +319,8 @@ export default class Form extends BaseComponent<FormState> {
    */
   public validate() {
     try {
-      this.validator.validate(this.getData());
+      // Validator 默认遇到首个字段错误即停止；整表校验需收集所有字段错误。
+      this.validator.validate(this.getData(), true);
       return Promise.resolve({
         result: true,
         errors: {},

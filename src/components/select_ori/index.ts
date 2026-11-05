@@ -5,7 +5,7 @@ import { $one, off, on } from "utilane/browser";
 import inputcss from "../input/input_inner.less?inline";
 import css from "./index.less?inline";
 
-type Option = { label: string; value: string };
+type Option = { label: string; value: string; defaultSelected?: boolean };
 
 export default class SelectOri extends FormInner {
   public static baseName = "select-ori";
@@ -15,25 +15,32 @@ export default class SelectOri extends FormInner {
   }
 
   private $select?: HTMLSelectElement;
+  private optionsMarkup?: string;
 
   constructor() {
     super();
     this.version = 2;
   }
 
+  protected get intrinsicDefaultValue(): string {
+    // Reconstruct from defaultSelected attributes, not the live selected state.
+    // Native single-select chooses the last explicit default, otherwise the
+    // first enabled option. A fresh select also handles disabled optgroups.
+    const select = document.createElement("select");
+    select.innerHTML = this.$select?.innerHTML ?? this.optionsMarkup ?? this.innerHTML;
+    return select.value;
+  }
+
   connectedCallback(): void {
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
-    if (this.value != null) {
-      this.$select.value = this.value;
-    } else {
-      this.setValue(this.$select.value);
-    }
+    this.$select.value = this.value ?? "";
     this.syncNativeValue();
     on(this.$select, "change", this._handleChange);
   }
 
   disconnectedCallback(): void {
+    this.optionsMarkup = this.$select?.innerHTML ?? this.optionsMarkup;
     super.disconnectedCallback();
     if (this.$select) {
       off(this.$select, "change", this._handleChange);
@@ -49,7 +56,7 @@ export default class SelectOri extends FormInner {
   }
 
   render() {
-    const children = this.innerHTML.trim();
+    const children = this.optionsMarkup ?? this.innerHTML.trim();
     const attrs = tagAttrs([["disabled", this.isDisabled()]]);
     return `<select class="l-input__inner"${attrs}>${children}</select>`;
   }
@@ -60,33 +67,31 @@ export default class SelectOri extends FormInner {
     }
   }
 
+  private createOption(option: Option): HTMLOptionElement {
+    const element = document.createElement("option");
+    element.value = option.value;
+    element.textContent = option.label;
+    element.defaultSelected = option.defaultSelected ?? false;
+    return element;
+  }
+
+  private syncOptionsValue(): void {
+    if (!this.$select) return;
+    if (!this.dirtyValue) this.applyDefaultValue();
+    else this.$select.value = this.value ?? "";
+    this.syncNativeValue();
+  }
+
   public setOptions(options: Option[]) {
     if (!this.$select) return;
-    const $children = options.map((option) => {
-      return `<option value="${option.value}">${option.label}</option>`;
-    });
-    this.$select.innerHTML = $children.join("");
-    this.setValue(this.value ?? this.$select.value);
+    this.$select.replaceChildren(...options.map((option) => this.createOption(option)));
+    this.syncOptionsValue();
   }
 
   public appendOptions(options: Option[]) {
     if (!this.$select) return;
-    const fragment = document.createDocumentFragment();
-    for (let i = 0, len = options.length; i < len; i++) {
-      const option = options[i];
-      const $option = document.createElement("option");
-      $option.value = option.value;
-      $option.innerHTML = option.label;
-      fragment.appendChild($option);
-    }
-    this.$select.appendChild(fragment);
-    this.setValue(this.value ?? this.$select.value);
-    this.setValue(this.value ?? this.$select.value);
-  }
-
-  public reset(): void {
-    super.reset();
-    if (this.$select) this.$select.value = this.value;
+    this.$select.append(...options.map((option) => this.createOption(option)));
+    this.syncOptionsValue();
   }
 
   public setValue(value: any): void {

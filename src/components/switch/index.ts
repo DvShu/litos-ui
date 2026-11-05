@@ -13,6 +13,22 @@ export default class Switch extends FormInner {
     return [...new Set(FormInner.observedAttributes)];
   }
 
+  protected _ignoreInitAttrs = ["value"];
+
+  protected get intrinsicDefaultValue(): boolean {
+    return false;
+  }
+
+  protected parseDefaultValue(value: string | null): boolean {
+    return value === null ? this.intrinsicDefaultValue : parseAttrValue(value, false, "value");
+  }
+
+  protected formatDefaultValue(value: any): string {
+    return String(
+      typeof value === "string" ? parseAttrValue(value, false, "value") : Boolean(value),
+    );
+  }
+
   public actionRender?: ActionRenderFn;
   public checkedText?: string;
   public uncheckedText?: string;

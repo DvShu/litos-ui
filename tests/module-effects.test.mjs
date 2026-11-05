@@ -22,6 +22,8 @@ const sharedSheets = [
   "button/style.ts",
   "dialog/dialog_container_style.ts",
   "icon/icon_style.ts",
+  "form/style.ts",
+  "form/form_item_style.ts",
   "input/style.ts",
   "input_number/style.ts",
   "notification/style.ts",

@@ -1,6 +1,6 @@
 import { $one, on, off } from "utilane/browser";
 import FormInner from "../form/form_inner";
-import { initAttr, setAttrs } from "../utils";
+import { setAttrs } from "../utils";
 //@ts-ignore
 import inputCss from "../input/index.less?inline";
 //@ts-ignore
@@ -13,11 +13,8 @@ export default class ColorPicker extends FormInner {
     return [...new Set(FormInner.observedAttributes)];
   }
   public $picker?: HTMLInputElement;
-  public _value = "#000000";
-
-  constructor() {
-    super();
-    initAttr(this);
+  protected get intrinsicDefaultValue(): string {
+    return "#000000";
   }
   public setValue(value: any): void {
     super.setValue(value);
@@ -30,7 +27,6 @@ export default class ColorPicker extends FormInner {
     this.loadStyleText([inputCss, css]);
     super.connectedCallback();
     this.$picker = $one("input", this.root) as HTMLInputElement;
-    if (this._resetValue == null) this._resetValue = this.value;
     this.syncNativeValue();
     on(this.$picker, "change", this._handleChange);
   }
