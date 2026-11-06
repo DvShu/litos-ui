@@ -1,8 +1,9 @@
-import { Form, FormItem, Input, regist } from "../src/components/index.ts";
+import { Button, Form, FormItem, Input, regist } from "../src/components/index.ts";
 const checks = [];
 const check = (name, pass) => checks.push({ name, pass: !!pass });
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 try {
+  regist(Button);
   regist(Form);
   regist(FormItem);
   regist(Input);
@@ -16,6 +17,7 @@ try {
     "helper-unprojected",
     owner.hidden && owner.assignedSlot === null && owner.slot === "__l_form_owner",
   );
+  check("helper-skips-native-submit-validation", owner.noValidate);
   const layout = form.shadowRoot.querySelector(".l-form");
   check(
     "layout-classes-preserved",
@@ -224,6 +226,182 @@ try {
   manualField.reset();
   check("field-reset-preserves-manual-validity", manualField.validationMessage === "独立重置保留");
   multi.remove();
+
+  const actions = document.createElement("form");
+  actions.id = "button-native-form";
+  actions.innerHTML = `
+    <l-input name="user" required></l-input>
+    <l-button html-type="submit"><b>Save</b></l-button>
+    <l-button html-type="reset">Reset</l-button>
+  `;
+  document.body.append(actions);
+  const [save, resetButton] = actions.querySelectorAll("l-button");
+  const field = actions.querySelector("l-input");
+  const native = save.shadowRoot.querySelector("button");
+  const label = save.querySelector("b");
+  let actionsSubmitted = 0;
+  let submitter;
+  actions.addEventListener("submit", (event) => {
+    event.preventDefault();
+    actionsSubmitted++;
+    submitter = event.submitter;
+  });
+  check(
+    "native-button-shadow-dom",
+    save.form === actions && native.form === null && label.parentElement === save,
+  );
+  const pageStyles = document.head.appendChild(document.createElement("style"));
+  pageStyles.textContent = ".l-btn { padding: 0; }";
+  check("button-owns-appearance", getComputedStyle(native).paddingInlineStart === "15px");
+  pageStyles.textContent += "l-button::part(default) { padding-inline: 23px; }";
+  check("button-part-can-be-styled", getComputedStyle(native).paddingInlineStart === "23px");
+  pageStyles.remove();
+  save.click();
+  await tick();
+  check("native-button-constraint-validation", actionsSubmitted === 0);
+  field.value = "Alice";
+  save.addEventListener("click", (event) => event.preventDefault(), { once: true });
+  save.click();
+  await tick();
+  check("cancelled-button-click-does-not-submit", actionsSubmitted === 0);
+  save.click();
+  await tick();
+  check("shadow-button-submits-native-form", actionsSubmitted === 1 && submitter === null);
+  const enter = (input, isComposing = false) =>
+    input.$inner.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true, isComposing }),
+    );
+  enter(field, true);
+  await tick();
+  check("enter-preserves-ime-composition", actionsSubmitted === 1);
+  enter(field);
+  await tick();
+  check("shadow-input-enter-activates-library-button", actionsSubmitted === 2);
+  save.setLoading(true);
+  save.disabled = false;
+  enter(field);
+  save.click();
+  await tick();
+  check("loading-blocks-enter-and-click", actionsSubmitted === 2 && native.disabled);
+  save.setLoading(false);
+  save.setAttribute("html-type", "reset");
+  save.click();
+  await tick();
+  check("dynamic-button-type-resets", field.value === "" && actionsSubmitted === 2);
+  save.removeAttribute("html-type");
+  check("removed-button-type-is-safe", native.type === "button");
+  field.value = "Bob";
+  resetButton.click();
+  await tick();
+  check("native-reset-button-restores-field", field.value === "");
+  save.setAttribute("html-type", "submit");
+  save.setAttribute("form", actions.id);
+  document.body.append(save);
+  check(
+    "explicit-button-form-survives-remount",
+    save.form === actions && save.querySelector("b") === label,
+  );
+  save.textContent = "Save again";
+  await tick();
+  check(
+    "button-content-update-keeps-native-control",
+    save.form === actions &&
+      save.$btn.querySelector("slot").assignedNodes()[0]?.textContent === "Save again",
+  );
+  field.value = "explicit";
+  save.click();
+  await tick();
+  check("explicit-button-submits-its-form", actionsSubmitted === 3);
+
+  const libraryActions = document.createElement("l-form");
+  libraryActions.innerHTML =
+    '<l-form-item prop="field" required><l-input></l-input></l-form-item><l-button html-type="submit">Save</l-button><l-button html-type="reset">Reset</l-button>';
+  document.body.append(libraryActions);
+  const [librarySave, libraryReset] = libraryActions.querySelectorAll("l-button");
+  const libraryField = libraryActions.querySelector("l-input");
+  const libraryOwner = libraryActions.nativeForm;
+  check(
+    "shadow-buttons-associated-with-auxiliary-form",
+    librarySave.form === libraryOwner &&
+      libraryReset.form === libraryOwner &&
+      Array.from(libraryOwner.elements).includes(librarySave),
+  );
+  let nativeRequests = 0;
+  let librarySubmitter;
+  libraryOwner.addEventListener("submit", (event) => {
+    nativeRequests++;
+    librarySubmitter = event.submitter;
+  });
+  let librarySubmits = 0;
+  libraryActions.addEventListener("submit", (event) => {
+    if (event.target === libraryActions) librarySubmits++;
+  });
+  librarySave.click();
+  await tick();
+  check(
+    "library-submit-displays-business-errors",
+    nativeRequests === 1 &&
+      librarySubmitter === null &&
+      librarySubmits === 0 &&
+      !!libraryActions.validationErrors.field,
+  );
+  libraryField.value = "fixed";
+  enter(libraryField);
+  await tick();
+  check(
+    "library-enter-submits-once",
+    nativeRequests === 2 && librarySubmits === 1 && libraryOwner.querySelector("button") === null,
+  );
+  librarySave.disabled = true;
+  enter(libraryField);
+  await tick();
+  check("disabled-library-submit-blocks-enter", librarySubmits === 1);
+  libraryReset.click();
+  await tick();
+  check(
+    "library-reset-uses-native-owner",
+    libraryField.value === "" && !Object.keys(libraryActions.validationErrors).length,
+  );
+  libraryOwner.requestSubmit();
+  await tick();
+  check(
+    "auxiliary-direct-submit-runs-library-validation",
+    nativeRequests === 3 && librarySubmits === 1 && !!libraryActions.validationErrors.field,
+  );
+
+  const lateButton = document.createElement("l-button");
+  lateButton.setAttribute("html-type", "submit");
+  lateButton.setAttribute("form", actions.id);
+  libraryActions.append(lateButton);
+  await tick();
+  check("explicit-native-form-wins", lateButton.form === actions);
+  lateButton.removeAttribute("form");
+  await tick();
+  check("implicit-button-owner-restored", lateButton.form === libraryOwner);
+  embedded.append(lateButton);
+  await tick();
+  check(
+    "moved-button-reuses-native-ancestor",
+    lateButton.form === outer && !lateButton.hasAttribute("form"),
+  );
+  let embeddedSubmits = 0;
+  embedded.addEventListener("submit", (event) => {
+    if (event.target === embedded) embeddedSubmits++;
+  });
+  const requiredNative = document.createElement("input");
+  requiredNative.required = true;
+  outer.append(requiredNative);
+  lateButton.click();
+  await tick();
+  check("embedded-button-respects-native-validation", embeddedSubmits === 0 && !outer.noValidate);
+  outer.noValidate = true;
+  lateButton.click();
+  await tick();
+  check(
+    "embedded-button-respects-authored-novalidate",
+    embeddedSubmits === 1 && outer.noValidate && !outer.querySelector("button"),
+  );
+
   document.querySelector("#result").textContent = JSON.stringify({
     userAgent: navigator.userAgent,
     checks,

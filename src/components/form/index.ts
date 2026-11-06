@@ -22,7 +22,10 @@ export default class Form extends BaseComponent<FormState> {
   public static baseName = "form";
   public validator: Validator;
   private errorMessages: Record<string, string | undefined> = {};
-  private readonly nativeOwner = new FormOwner(this, () => this.fields());
+  private readonly nativeOwner = new FormOwner(this, () => [
+    ...this.fields(),
+    ...this.querySelectorAll<HTMLElement>("button, l-button"),
+  ]);
   private readonly fieldContext = createFormContextProvider();
   private disposeContext?: () => void;
   private readonly provider = {
@@ -176,7 +179,6 @@ export default class Form extends BaseComponent<FormState> {
   afterInit(): void {
     on(this, "form-rule-change", this.ruleChange);
     on(this, "form-value-change", this._valueChange);
-    on(this, "form-action", this._formAction);
   }
 
   disconnectedCallback(): void {
@@ -190,7 +192,6 @@ export default class Form extends BaseComponent<FormState> {
     off(this, "form-rule-change", this.ruleChange);
     off(this, "form-value-change", this._valueChange);
 
-    off(this, "form-action", this._formAction);
     super.disconnectedCallback();
   }
 
@@ -233,15 +234,6 @@ export default class Form extends BaseComponent<FormState> {
   public addSchema(schema: SchemaType) {
     this.validator.addSchema(schema);
   }
-
-  _formAction = (e: CustomEvent) => {
-    e.stopPropagation();
-    if (e.detail === "submit") {
-      this.submit();
-    } else {
-      this.reset();
-    }
-  };
 
   _valueChange = (e: CustomEvent) => {
     e.stopPropagation();
@@ -335,9 +327,9 @@ export default class Form extends BaseComponent<FormState> {
 
   public getData() {
     const data: Record<string, any> = {};
+    const form = this.nativeForm;
     for (const field of this.fields()) {
-      if (!field.grouped && field.name && field.form === this.nativeForm)
-        data[field.name] = field.getValue();
+      if (!field.grouped && field.name && field.form === form) data[field.name] = field.getValue();
     }
     return data;
   }

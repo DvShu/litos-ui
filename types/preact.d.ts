@@ -2,6 +2,8 @@ import type { HTMLAttributes } from "preact";
 
 interface ButtonProps extends HTMLAttributes<HTMLDivElement> {
   type?: "primary" | "default" | "link";
+  "html-type"?: "button" | "submit" | "reset";
+  form?: string;
   block?: boolean;
   disabled?: boolean;
   loading?: boolean;

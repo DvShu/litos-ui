@@ -130,6 +130,7 @@ export class FormOwner {
         if (!this.auxiliary) {
           this.auxiliary = this.host.ownerDocument.createElement("form");
           this.auxiliary.hidden = true;
+          this.auxiliary.noValidate = true;
           this.auxiliary.slot = "__l_form_owner";
         }
         owner = this.auxiliary;

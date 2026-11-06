@@ -16,7 +16,7 @@ regist([FormItem, Form]);
   import { onMounted, nextTick, onUnmounted } from 'vue';
   import { $one, on, off } from 'utilane/browser';
 
-  let $form, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
+  let $form, $nativeForm, $customSubmitBtn, $positionRadio, $i18nForm, $langCheck;
   let lang = 'zh';
   let errors = {};
   const i18n = {
@@ -45,6 +45,12 @@ regist([FormItem, Form]);
   function handleFormSubmit(event) {
     const $target = event.target;
     console.log($target.getData());
+  }
+
+  function handleNativeSubmit(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    form.querySelector('output').value = `已提交 ${new FormData(form).get('username')}`;
   }
 
   function handleCustomClick() {
@@ -98,6 +104,8 @@ regist([FormItem, Form]);
       if (!import.meta.env.SSR) {
         $form = $one('#lform');
         on($form, 'submit', handleFormSubmit);
+        $nativeForm = $one('#nativeButtonForm');
+        on($nativeForm, 'submit', handleNativeSubmit);
 
         // 自定义验证
         $customSubmitBtn = $one('#customSubmit');
@@ -134,6 +142,9 @@ regist([FormItem, Form]);
     if (!import.meta.env.SSR) {
       if ($form) {
         off($form, 'submit', handleFormSubmit);
+      }
+      if ($nativeForm) {
+        off($nativeForm, 'submit', handleNativeSubmit);
       }
       if ($customSubmitBtn) {
         off($customSubmitBtn, 'click', handleCustomClick);
@@ -184,6 +195,27 @@ regist([FormItem, Form]);
 > 2. 当 `Button` 在 `Form` 里面时，如果 `Button` 的 `html-type` 属性为 `reset`、`submit` 时会自动触发表单的重置、提交。
 
 重置会恢复字段的默认值，不会把第一次程序赋值当作默认值。文本字段使用 `value` attribute 或 `defaultValue` 设置默认值；数组等复合字段通过对应控件的 `defaultValue` 设置。修改当前值后，默认值更新不会覆盖编辑内容，下一次重置才应用。
+
+在单行 `l-input` 内按 Enter，可激活表单的第一个提交按钮。
+
+### 原生表单
+
+`l-button` 在原生 `<form>` 中支持点击提交和重置。使用单行 `l-input` 时，也可以按 Enter 激活提交按钮。
+
+当 `l-form` 放在原生 `<form>` 内时，浏览器先执行外层表单的原生约束校验，再执行 `l-form` 的业务校验。要跳过原生校验，在外层 `<form>` 上设置 `novalidate`。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <form id="nativeButtonForm">
+    <l-input name="username" placeholder="用户名" aria-label="用户名" required></l-input>
+    <l-button html-type="submit" type="primary">提交</l-button>
+    <l-button html-type="reset">重置</l-button>
+    <output aria-live="polite"></output>
+  </form>
+</textarea>
+</l-code-preview>
+</ClientOnly>
 
 ### 自定义验证
 
@@ -503,7 +535,7 @@ import "litos-ui/form";
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `label-width` | 表单域标签的宽度, 可以传 `auto` | `string` | `80px` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
-| `novalidate` | 是否在提交时禁用表单验证 | `boolean` | `false` |
+| `novalidate` | 提交时是否跳过 `l-form` 的业务校验 | `boolean` | `false` |
 
 Form 和 FormItem 当前没有提供统一 disabled 属性，禁用状态应配置在具体输入控件上。
 

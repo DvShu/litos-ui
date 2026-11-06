@@ -1,6 +1,7 @@
 import { $one, on, off, formatStyle, addClass, $$, $, removeClass } from "utilane/browser";
 import { parseAttrValue, unitNumberStr } from "../utils";
 import FormInner from "../form/form_inner";
+import type Button from "../button";
 import inputSheet from "./style";
 
 interface InputState {
@@ -239,6 +240,7 @@ export default class Input extends FormInner<InputState> {
     this.#renderClearable();
     this.syncInputAttributes();
     on(this.$inner, "focus", this.syncAccessibleName);
+    this.$inner.addEventListener("keydown", this.#submitOnEnter);
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
     this.style.cssText = formatStyle(this._getStyleObj()) + this.getAttr("style", "");
@@ -247,11 +249,46 @@ export default class Input extends FormInner<InputState> {
   beforeDestroy(): void {
     this.labelObserver?.disconnect();
     off(this.$inner as HTMLInputElement, "focus", this.syncAccessibleName);
+    this.$inner?.removeEventListener("keydown", this.#submitOnEnter);
     off(this.$inner as HTMLInputElement, "input", this._input);
     off(this.$inner as HTMLInputElement, "change", this.#handleChange);
     const clear = $one(".l-clearable", this.root);
     if (clear) off(clear, "click", this.#handleClear);
   }
+
+  #submitOnEnter = (event: KeyboardEvent): void => {
+    const input = this.$inner;
+    const form = this.form;
+    if (
+      !input ||
+      !form ||
+      input.form ||
+      this.isDisabled() ||
+      event.defaultPrevented ||
+      event.key !== "Enter" ||
+      event.isComposing ||
+      event.keyCode === 229 ||
+      event.repeat ||
+      !["text", "search", "tel", "url", "email", "password", "number"].includes(input.type)
+    )
+      return;
+
+    const root = form.getRootNode() as Document | ShadowRoot;
+    const submitter = Array.from(
+      root.querySelectorAll<HTMLButtonElement | HTMLInputElement | Button>(
+        'button, input, l-button[html-type="submit"]',
+      ),
+    ).find((control) => {
+      if (control.form !== form) return false;
+      if (control instanceof HTMLButtonElement || control instanceof HTMLInputElement) {
+        return control.type === "submit" || control.type === "image";
+      }
+      return true;
+    });
+    if (!submitter) return;
+    event.preventDefault();
+    submitter.click();
+  };
 
   protected attributeChange(name: string, oldValue: string, newValue: string): void {
     switch (name) {

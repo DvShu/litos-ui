@@ -1,9 +1,10 @@
-import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
+import { parseAttrValue, unitNumberStr } from "../utils";
 import BaseComponent from "../base";
-import { formatClass, addClass, removeClass, formatStyle, on, off, $one } from "utilane/browser";
+import { formatClass, formatStyle } from "utilane/browser";
 import type { ButtonColor } from "../utils";
-import animationSheet from "../styles/animation";
 import buttonSheet from "./style";
+
+const accessibleAttributes = ["aria-label", "aria-labelledby", "aria-describedby"];
 
 type ButtonState = {
   loading: boolean;
@@ -22,10 +23,15 @@ type ButtonState = {
 
 export default class Button extends BaseComponent<ButtonState> {
   public static baseName = "button";
+  public static formAssociated = true;
   $btn?: HTMLButtonElement;
+  private readonly internals?: ElementInternals;
+  private readonly pendingActions = new Set<number>();
+  private formDisabled = false;
 
   constructor() {
     super();
+    this.internals = this.attachInternals?.();
     this.version = 2;
     this._state = {
       loading: false,
@@ -39,6 +45,10 @@ export default class Button extends BaseComponent<ButtonState> {
       size: "default",
       boxShadow: "box-shadow-none",
     };
+  }
+
+  get form(): HTMLFormElement | null {
+    return this.internals?.form ?? null;
   }
 
   get disabled() {
@@ -73,24 +83,15 @@ export default class Button extends BaseComponent<ButtonState> {
   }
 
   setLoading(loading: boolean) {
-    if (this.$btn) {
-      if (loading) {
-        addClass(this.$btn, "l-btn-loading");
-        this.$btn.disabled = true;
-        this.$btn.innerHTML = this.loadingBody();
-      } else {
-        removeClass(this.$btn, "l-btn-loading");
-        this.$btn.disabled = this.disabled;
-        this.$btn.innerHTML = "<slot></slot>";
-      }
-    }
+    this._state.loading = loading;
+    this.syncDisabled();
+    this.updateLoading();
   }
 
   setDisabled(value: boolean) {
     this._state.disabled = value;
-    if (this.$btn) {
-      this.$btn.disabled = value;
-    }
+    if (this.hasAttribute("disabled") !== value) this.toggleAttribute("disabled", value);
+    this.syncDisabled();
   }
 
   // 初始化属性观察器
@@ -107,6 +108,7 @@ export default class Button extends BaseComponent<ButtonState> {
       "loading-text",
       "size",
       "box-shadow",
+      ...accessibleAttributes,
     ];
   }
 
@@ -122,39 +124,36 @@ export default class Button extends BaseComponent<ButtonState> {
         break;
       case "text":
       case "ghost":
-      case "disabled":
-      case "loading":
         this._state[name] = parseAttrValue(newValue, false, name);
         break;
+      case "disabled":
+        this.setDisabled(parseAttrValue(newValue, false, name));
+        break;
+      case "loading":
+        this._state[name] = parseAttrValue(newValue, false, name);
+        this.syncDisabled();
+        break;
       case "html-type":
+        this._state.htmlType = newValue === "submit" || newValue === "reset" ? newValue : "button";
+        if (this.$btn) this.$btn.type = this._state.htmlType;
+        break;
       case "loading-text":
-        this._state[kebabToCamel(name) as "htmlType"] = newValue as "button";
+        this._state.loadingText = newValue ?? "加载中……";
         break;
       case "box-shadow":
         const bs = parseAttrValue(newValue, false, "box-shadow");
         this._state.boxShadow = `box-shadow${bs ? "" : "-none"}`;
         break;
+      default:
+        this.syncAccessibleAttribute(name);
+        break;
     }
   }
 
   protected updateDOM(changedProps: Set<string>): void {
-    // loading 和 disabled 更新
-    if (this.$btn) {
-      if (changedProps.has("loading")) {
-        this.setLoading(this._state.loading);
-      }
-      if (changedProps.has("disabled")) {
-        this.setDisabled(this.disabled);
-      }
-      if (
-        changedProps.has("type") ||
-        changedProps.has("shape") ||
-        changedProps.has("box-shadow") ||
-        changedProps.has("text") ||
-        changedProps.has("ghost")
-      ) {
-        this.$btn.className = this._resetBtnClass();
-      }
+    if (this.$btn) this.$btn.className = this._resetBtnClass();
+    if (changedProps.has("loading") || changedProps.has("loading-text")) {
+      this.updateLoading();
     }
 
     if (changedProps.has("height")) {
@@ -162,20 +161,10 @@ export default class Button extends BaseComponent<ButtonState> {
     }
   }
 
-  connectedCallback(): void {
-    this.className = `l-btn-${this._state.size || "default"} ${this.className}`;
-    super.connectedCallback();
-    if (this.isFormButton()) {
-      on(this, "click", this._handleClick);
-    }
-    this._updateHeight();
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    if (this.isFormButton()) {
-      off(this, "click", this._handleClick);
-    }
+  beforeDestroy(): void {
+    this.removeEventListener("click", this.handleFormClick);
+    for (const action of this.pendingActions) window.clearTimeout(action);
+    this.pendingActions.clear();
     this.$btn = undefined;
   }
 
@@ -191,49 +180,99 @@ export default class Button extends BaseComponent<ButtonState> {
   render_v2() {
     this._changedProperties.clear();
     return {
-      styleSheets: [buttonSheet, animationSheet],
+      styleSheets: [buttonSheet],
       template: this.render(),
     };
   }
 
   afterInit(): void {
-    if (!this.$btn) {
-      this.$btn = $one(".l-btn", this.root) as HTMLButtonElement;
-    }
+    this.classList.add(`l-btn-${this._state.size || "default"}`);
+    this.$btn = this.root.querySelector("button") ?? undefined;
+    for (const name of accessibleAttributes) this.syncAccessibleAttribute(name);
+    this.updateLoading();
+    this._updateHeight();
+    this.addEventListener("click", this.handleFormClick);
   }
 
   public render() {
-    const $btn = document.createElement("button");
-    const isLoading = this._state.loading;
-    // class
+    const $btn = this.ownerDocument.createElement("button");
     $btn.className = this._resetBtnClass();
-    if (this.disabled || isLoading) {
-      $btn.disabled = true;
-    }
-    $btn.type = this._state.htmlType as "button";
+    $btn.disabled = this.disabled || this._state.loading || this.formDisabled;
+    $btn.type = this.getHtmlType();
+    $btn.setAttribute("part", "default");
     const btnStyle = formatStyle(this._state.color || {});
     if (btnStyle) {
       $btn.style.cssText = btnStyle;
     }
-    if (isLoading) {
-      $btn.innerHTML = this.loadingBody();
-    } else {
-      $btn.innerHTML = "<slot></slot>";
-    }
-    $btn.setAttribute("part", "default");
     return $btn;
   }
 
-  loadingBody() {
-    const loadingText = this._state.loadingText;
-    const res = ['<l-loading-icon class="l-rotate-anim"></l-loading-icon>'];
-    if (loadingText) {
-      res.push(`<span>${loadingText}</span>`);
-    } else {
-      res.push("<slot></slot>");
+  override click(): void {
+    if (!this.$btn) {
+      super.click();
+      return;
     }
-    return res.join("");
+    this.$btn.click();
   }
+
+  override focus(options?: FocusOptions): void {
+    this.$btn?.focus(options);
+  }
+
+  override blur(): void {
+    this.$btn?.blur();
+  }
+
+  public formDisabledCallback(disabled: boolean): void {
+    this.formDisabled = disabled;
+    this.syncDisabled();
+  }
+
+  private syncDisabled(): void {
+    if (this.$btn) this.$btn.disabled = this.disabled || this._state.loading || this.formDisabled;
+  }
+
+  private syncAccessibleAttribute(name: string): void {
+    const button = this.$btn;
+    if (!button) return;
+    const value = this.getAttribute(name);
+    if (value === null) button.removeAttribute(name);
+    else button.setAttribute(name, value);
+  }
+
+  private updateLoading(): void {
+    const button = this.$btn;
+    if (!button) return;
+    const { loading, loadingText } = this._state;
+    button.classList.toggle("l-btn-loading", loading);
+    const label = this.ownerDocument.createElement(loading && loadingText ? "span" : "slot");
+    if (loading) {
+      const icon = this.ownerDocument.createElement("l-loading-icon");
+      icon.className = "l-btn-spinner";
+      icon.setAttribute("aria-hidden", "true");
+      if (loadingText) label.textContent = loadingText;
+      button.replaceChildren(icon, label);
+    } else {
+      button.replaceChildren(label);
+    }
+  }
+
+  private handleFormClick = (event: MouseEvent): void => {
+    const button = this.$btn;
+    const type = this.getHtmlType();
+    if (!button || button.disabled || type === "button" || event.defaultPrevented) return;
+
+    // Wait for the click to finish bubbling so consumers can cancel the form action.
+    const action = window.setTimeout(() => {
+      this.pendingActions.delete(action);
+      if (event.defaultPrevented || this.$btn !== button || button.disabled) return;
+      const form = this.form;
+      if (!form) return;
+      if (type === "submit") HTMLFormElement.prototype.requestSubmit.call(form);
+      else HTMLFormElement.prototype.reset.call(form);
+    }, 0);
+    this.pendingActions.add(action);
+  };
 
   private _updateHeight() {
     if (this._state.height) {
@@ -254,14 +293,4 @@ export default class Button extends BaseComponent<ButtonState> {
       this._state.loading ? "l-btn-loading" : "",
     ]);
   }
-
-  private _handleClick = () => {
-    if (this._state.htmlType === "reset" || this._state.htmlType === "submit") {
-      this.emit("form-action", {
-        bubbles: true,
-        composed: true,
-        detail: this._state.htmlType,
-      });
-    }
-  };
 }

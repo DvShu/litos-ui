@@ -54,6 +54,14 @@ class NodeStub {
   style = new StyleStub();
   attrs = new Map();
   className = "";
+  classList = { add() {}, toggle() {} };
+  ownerDocument = { createElement: () => new NodeStub() };
+  replaceChildren() {}
+  addEventListener() {}
+  removeEventListener() {}
+  getAttribute(name) {
+    return this.attrs.get(name) ?? null;
+  }
   setAttribute(name, value) {
     const previous = this.attrs.get(name) ?? null;
     this.attrs.set(name, value);
@@ -74,10 +82,12 @@ class NodeStub {
 class BaseComponent extends NodeStub {
   _changedProperties = new Set();
   connectedCallback() {
-    this.root = this.render_v2().template;
+    const template = this.render_v2().template;
+    this.root = { querySelector: () => template };
     this.afterInit();
   }
   disconnectedCallback() {
+    this.beforeDestroy();
     this.root = undefined;
   }
 }
@@ -89,19 +99,11 @@ const Button = runInNewContext(
   {
     BaseComponent,
     buttonSheet: {},
-    animationSheet: {},
-    document: { createElement: () => new NodeStub() },
-    $one: (_selector, root) => root,
     formatStyle,
     formatClass: (value) => value.filter(Boolean).join(" "),
     parseAttrValue: (value, fallback, key) =>
       value == null ? fallback : ["", "true", "1", "on", key].includes(value),
-    kebabToCamel: (value) => value.replace(/-(\w)/g, (_match, letter) => letter.toUpperCase()),
     unitNumberStr: (value) => value,
-    on() {},
-    off() {},
-    addClass() {},
-    removeClass() {},
   },
 );
 const plain = (value) => ({ ...value });

@@ -24,7 +24,6 @@
   height: var(--l-btn-height);
   text-indent: 0;
   box-sizing: border-box;
-  border-radius: var(--l-border-radius, 3px);
 }
 
 /* 使按钮适合其父宽度，100% */
@@ -45,20 +44,19 @@
   font-size: 16px;
 }
 
-/* 默认按钮，按钮的基础样式 */
+/* 原生按钮的基础样式 */
 .l-btn {
   width: 100%;
   display: inline-flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  outline: none;
   box-sizing: border-box;
   vertical-align: middle;
   padding: var(--l-btn-padding);
   line-height: 1;
   height: 100%;
-  border-radius: inherit;
+  border-radius: var(--l-border-radius, 3px);
   color: var(--l-btn-text-color);
   background: var(--l-btn-background);
   border: 1px solid var(--l-btn-border-color);
@@ -78,6 +76,11 @@
 }
 .l-btn-box-shadow:hover {
   box-shadow: 0 4px 12px var(--l-primary-color-light4);
+}
+
+.l-btn:focus-visible {
+  outline: 2px solid var(--l-primary-color, #722ed1);
+  outline-offset: 2px;
 }
 
 .l-btn:active {
@@ -178,14 +181,25 @@
   padding: 0;
 }
 
-.l-btn:not(.l-btn-text) + .l-btn {
-  margin-left: 10px;
-}
-
 html.dark {
   .l-btn:disabled {
     --l-btn-disabled-background: rgba(255, 255, 255, 0.08);
     --l-btn-disabled-color: rgba(255, 255, 255, 0.3);
     --l-btn-disabled-border-color: rgba(255, 255, 255, 0.3);
+  }
+}
+.l-btn > .l-btn-spinner {
+  animation: l-btn-spin 1.5s infinite linear;
+}
+
+@keyframes l-btn-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .l-btn > .l-btn-spinner {
+    animation: none;
   }
 }

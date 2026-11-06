@@ -194,7 +194,7 @@ text.color = generateButtonColor("#FF7802", true);
 
 ### 扩展type
 
-通过给 `type` 设置一个非预设的值，然后定义 `l-button[type="x"]::part(default)` 的样式。
+通过给 `type` 设置一个非预设的值，用 `l-button[type="x"]::part(default)` 自定义外观。
 
 <ClientOnly>
 <l-code-preview>
@@ -225,6 +225,12 @@ text.color = generateButtonColor("#FF7802", true);
 </div>
 </l-code-preview>
 </ClientOnly>
+
+### 表单按钮
+
+在 `<l-form>` 或原生 `<form>` 内设置 `html-type="submit"` 或 `html-type="reset"`。原生表单中的按钮也可通过 `form` 指向同一 DOM 树里的表单 ID。参见[原生表单演示](/components/form#原生表单)。
+
+在原生表单里，点击 `l-button` 可提交，但它不会成为原生 `<input>` 的默认回车提交按钮。要保留这个行为，可使用原生 `<button type="submit">`。
 
 ## 按需入口
 
