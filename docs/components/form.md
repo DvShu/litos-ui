@@ -84,12 +84,9 @@ regist([FormItem, Form]);
   }
 
   function handleI18nError(event) {
-    const detail = event.detail;
-    const errs = detail.errors;
-    if (detail.all === true) {
-      errors = errs;
-    }
-    setI18nErrors(errs);
+    const { errors: nextErrors, all } = event.detail;
+    errors = all === true ? nextErrors : { ...errors, ...nextErrors };
+    setI18nErrors();
   }
 
   function handleLangChange(e) {
@@ -166,6 +163,8 @@ regist([FormItem, Form]);
 ### 基础用法
 
 基本的表单数据域控制展示，包含布局、初始化、验证、重置、提交。数据验证采用 [utilane/validator](https://github.com/DvShu/utilane#readme)
+
+编辑 `l-input` 时会校验当前字段及依赖它的字段，提交时会校验整个表单。
 
 <ClientOnly>
 <l-code-preview>
@@ -374,12 +373,9 @@ regist([Radio, RadioGroup]);
   }
   //-
   function handleI18nError(event) {
-    const detail = event.detail;
-    const errs = detail.errors;
-    if (detail.all === true) {
-      errors = errs;
-    }
-    setI18nErrors(errs);
+    const { errors: nextErrors, all } = event.detail;
+    errors = all === true ? nextErrors : { ...errors, ...nextErrors };
+    setI18nErrors();
   }
   //-
   function handleLangChange(e) {
@@ -535,7 +531,7 @@ import "litos-ui/form";
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `label-width` | 表单域标签的宽度, 可以传 `auto` | `string` | `80px` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
-| `novalidate` | 提交时是否跳过 `l-form` 的业务校验 | `boolean` | `false` |
+| `novalidate` | 是否跳过输入和提交时的自动业务校验 | `boolean` | `false` |
 
 Form 和 FormItem 当前没有提供统一 disabled 属性，禁用状态应配置在具体输入控件上。
 
@@ -552,7 +548,7 @@ Form 和 FormItem 当前没有提供统一 disabled 属性，禁用状态应配�
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
 | `submit` | 表单提交事件，detail 为表单数据 | `(e: CustomEvent): void` |
-| `validate-error` | emit-error 开启时上报校验错误，detail 包含 errors 和 all | `(e: CustomEvent): void` |
+| `validate-error` | `emit-error` 开启时上报校验结果。`detail.all` 为 `true` 时替换整表错误，为字段名数组时合并 `detail.errors`，值为 `undefined` 的字段已通过 | `(e: CustomEvent): void` |
 
 ### Form Methods
 

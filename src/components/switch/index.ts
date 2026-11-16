@@ -37,7 +37,6 @@ export default class Switch extends FormInner {
     initAttr(this);
     this.loadStyleText(css);
     super.connectedCallback();
-    this.pushValueChange();
     this.#renderAction();
     on(this, "click", this.#click);
   }

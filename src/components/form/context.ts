@@ -58,12 +58,19 @@ export interface FormContextProvider {
   getSnapshot(): Readonly<FormContextSnapshot>;
   /** 字段挂载时登记，返回可重复调用的注销函数；移动／断开前由调用方执行注销。 */
   registerField(field: FormContextField): () => void;
+  fieldNameChanged?(field: FormContextField, name: string | undefined): void;
+  fieldValidityCleared?(field: FormContextField): void;
+  /** 用户编辑完成后，由表单按当前值校验该字段及依赖它的字段。 */
+  validateInput?(field: FormContextField): void;
 }
 
 /** createFormContextProvider 的返回接口；供宿主更新配置、通知错误并在销毁时清理登记。 */
 export interface ManagedFormContextProvider extends FormContextProvider {
+  registerField(field: FormContextField, initializeValidity?: () => void): () => boolean;
   /** 宿主读取当前字段列表的副本，不向外暴露内部 Set。 */
   getFields(): readonly FormContextField[];
+  getFieldsByName(name: string): readonly FormContextField[];
+  updateFieldName(field: FormContextField, name: string | undefined): boolean;
   /** 宿主属性变化时整体替换配置并通知字段，使已移除的配置恢复继承。 */
   updateConfiguration(snapshot: Readonly<FormContextSnapshot>): void;
   /** 校验协调方调用；仅向当前仍登记的字段发送有效性通知，不执行校验规则。 */
@@ -82,36 +89,70 @@ export function createFormContextProvider(
   initialSnapshot: Readonly<FormContextSnapshot> = {},
 ): ManagedFormContextProvider {
   let snapshot = { ...initialSnapshot };
-  const fields = new Set<FormContextField>();
   // 登记令牌保证旧注销函数不会删除同一字段的新一轮登记。
-  const registrations = new Map<FormContextField, object>();
+  const registrations = new Map<FormContextField, { name?: string; validityNotified: boolean }>();
+  let fieldsByName: Map<string, Set<FormContextField>> | undefined;
+
+  function removeFieldName(field: FormContextField, name: string | undefined): void {
+    if (!name || !fieldsByName) return;
+    const fields = fieldsByName.get(name);
+    fields?.delete(field);
+    if (fields?.size === 0) fieldsByName.delete(name);
+  }
+
   return {
     getSnapshot: () => ({ ...snapshot }),
-    getFields: () => [...fields],
-    registerField(field) {
-      const token = {};
-      fields.add(field);
+    getFields: () => [...registrations.keys()],
+    getFieldsByName: (name) => [...(fieldsByName?.get(name) ?? [])],
+    registerField(field, initializeValidity) {
+      const token = { name: registrations.get(field)?.name, validityNotified: false };
       registrations.set(field, token);
+      if (initializeValidity) {
+        queueMicrotask(() => {
+          if (registrations.get(field) === token && !token.validityNotified) initializeValidity();
+        });
+      }
       return () => {
-        if (registrations.get(field) !== token) return;
-        registrations.delete(field);
-        fields.delete(field);
+        if (registrations.get(field) !== token) return false;
+        removeFieldName(field, token.name);
+        return registrations.delete(field);
       };
+    },
+    updateFieldName(field, name) {
+      const token = registrations.get(field);
+      const nextName = name || undefined;
+      if (!token || token.name === nextName) return false;
+
+      removeFieldName(field, token.name);
+      token.name = nextName;
+      if (nextName) {
+        fieldsByName ??= new Map();
+        let fields = fieldsByName.get(nextName);
+        if (!fields) {
+          fields = new Set();
+          fieldsByName.set(nextName, fields);
+        }
+        fields.add(field);
+      }
+      return true;
     },
     updateConfiguration(nextSnapshot) {
       snapshot = { ...nextSnapshot };
       // 固定本轮接收者；回调中新登记的字段等下一轮更新，已注销的字段跳过。
-      const recipients = Array.from(fields);
+      const recipients = [...registrations.keys()];
       for (const field of recipients) {
-        if (fields.has(field)) notifyFormConfiguration(field.target, snapshot);
+        if (registrations.has(field)) notifyFormConfiguration(field.target, snapshot);
       }
     },
     notifyValidity(field, validity) {
-      if (fields.has(field)) notifyFormValidity(field.target, validity);
+      const token = registrations.get(field);
+      if (!token) return;
+      token.validityNotified = true;
+      notifyFormValidity(field.target, validity);
     },
     dispose() {
-      fields.clear();
       registrations.clear();
+      fieldsByName?.clear();
     },
   };
 }

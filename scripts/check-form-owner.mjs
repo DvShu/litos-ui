@@ -68,9 +68,7 @@ const server = createServer(async (req, res) => {
   try {
     res.setHeader("Content-Type", `${route[1]}; charset=utf-8`);
     const source = await readFile(route[0], "utf8");
-    res.end(
-      route[0].endsWith(".ts") ? stripTypeScriptTypes(source, { mode: "transform" }) : source,
-    );
+    res.end(route[0].endsWith(".ts") ? stripTypeScriptTypes(source) : source);
   } catch {
     res.writeHead(500).end();
   }

@@ -25,13 +25,11 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   private effectiveName?: string;
   private reflectingName = false;
   private reflectingDisabled = false;
-  private restoring = false;
   private connecting = false;
   private unregister: (() => void)[] = [];
   protected groupContext?: FormContextProvider;
   private formContext?: FormContextProvider;
   private itemContext?: FormContextProvider;
-  private businessError = "";
   private manualValidity: ValidityStateFlags = {};
   private manualMessage = "";
   protected readonly contextField: FormContextField = {
@@ -108,7 +106,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   public setValue(value: any): void {
     this._value = value;
     if (!this.applyingDefault) this.dirtyValue = true;
-    this.pushValueChange();
+    this.syncNativeValue();
   }
   public getValue(): any {
     return this._value;
@@ -132,14 +130,11 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   /** 默认同步走派生 setter 更新 UI，但不把控件标记为已编辑，也不伪造用户事件。 */
   protected applyDefaultValue(): void {
     if (this.dirtyValue) return;
-    const restoring = this.restoring;
-    this.restoring = true;
     this.applyingDefault = true;
     try {
       this.value = this.copyValue(this.defaultValue);
     } finally {
       this.applyingDefault = false;
-      this.restoring = restoring;
     }
   }
   protected copyValue(value: any): any {
@@ -226,6 +221,10 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     this.bindContexts();
   }
 
+  protected validateInput(): void {
+    this.formContext?.validateInput?.(this.contextField);
+  }
+
   private bindContexts(): void {
     this.unbindContexts();
     if (!this.isConnected) return;
@@ -242,9 +241,8 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   };
   private validityChanged = (event: Event): void => {
     const validity = (event as CustomEvent<FormFieldValidity>).detail;
-    this.businessError = validity.valid ? "" : validity.message || "校验失败";
-    this.validResult(this.businessError || undefined);
-    this.syncNativeValidity();
+    // 业务提示保留到重新校验，避免旧错误阻止浏览器派发下一次 submit。
+    this.validResult(validity.valid ? undefined : validity.message || "校验失败");
   };
   protected refreshConfiguration(): void {
     const result = resolveFieldContext(
@@ -260,6 +258,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         group: this.groupContext?.getSnapshot(),
       },
     );
+    const nameChanged = this.effectiveName !== result.name;
     this.effectiveName = result.name;
     this.reflectingName = true;
     try {
@@ -279,6 +278,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     this.innerBlockChange(result.innerBlock);
     this.applyDisabled();
     this.syncNativeValue();
+    if (nameChanged) this.formContext?.fieldNameChanged?.(this.contextField, result.name);
   }
 
   public isDisabled(): boolean {
@@ -357,17 +357,14 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     try {
       const decoded = JSON.parse(state);
       if (decoded?.version !== 1 || !Object.hasOwn(decoded, "value")) return;
-      this.restoring = true;
       this.value = decoded.value;
-      this.businessError = "";
       this.manualValidity = {};
       this.manualMessage = "";
       this.validResult();
+      this.formContext?.fieldValidityCleared?.(this.contextField);
       this.syncNativeValue();
     } catch {
       /* 不认识的浏览器状态不覆盖当前值。 */
-    } finally {
-      this.restoring = false;
     }
   }
 
@@ -451,36 +448,17 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
       }
       Object.assign(flags, this.manualValidity);
       if (Object.values(this.manualValidity).some(Boolean)) message = this.manualMessage;
-      if (this.businessError) {
-        flags.customError = true;
-        message = this.businessError;
-      }
     }
     const invalid = Object.values(flags).some(Boolean);
     // 某些复合控件没有可聚焦锚点，不能把非后代元素传给 setValidity。
     this.internals.setValidity(flags, invalid ? message || "请检查字段值" : "", anchor);
   }
-  protected pushValueChange(): void {
-    this.syncNativeValue();
-    if (this.name && !this.restoring) {
-      this.emit("form-value-change", {
-        bubbles: true,
-        composed: true,
-        detail: { name: this.name, value: this.getValue(), valid: true },
-      });
-    }
-  }
   public reset(): void {
-    this.restoring = true;
-    try {
-      this.dirtyValue = false;
-      this.applyDefaultValue();
-      this.businessError = "";
-      // reset 只清业务错误；手动 setValidity 的状态及消息需由调用方显式清除。
-      this.validResult();
-      this.syncNativeValue();
-    } finally {
-      this.restoring = false;
-    }
+    this.dirtyValue = false;
+    this.applyDefaultValue();
+    // reset 只清业务错误；手动 setValidity 的状态及消息需由调用方显式清除。
+    this.validResult();
+    this.formContext?.fieldValidityCleared?.(this.contextField);
+    this.syncNativeValue();
   }
 }

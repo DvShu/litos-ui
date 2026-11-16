@@ -1,7 +1,13 @@
 import { Button, Form, FormItem, Input, regist } from "../src/components/index.ts";
+import { FORM_CONTEXT_EVENTS } from "../src/components/form/context.ts";
+import { Validator } from "utilane";
 const checks = [];
 const check = (name, pass) => checks.push({ name, pass: !!pass });
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+const typeValue = (input, value) => {
+  input.$inner.value = value;
+  input.$inner.dispatchEvent(new InputEvent("input", { bubbles: true, composed: true }));
+};
 try {
   regist(Button);
   regist(Form);
@@ -9,7 +15,8 @@ try {
   regist(Input);
   await tick();
   const form = document.querySelector("#form"),
-    input = form.querySelector("l-input");
+    input = form.querySelector("l-input"),
+    item = form.querySelector("l-form-item");
   const owner = form.nativeForm;
   check("same-markup-owner", input.form === owner && owner.parentNode === form);
   check("no-shadow-native-form", !form.shadowRoot.querySelector("form"));
@@ -25,19 +32,51 @@ try {
   );
   check("label-width-preserved", form.style.getPropertyValue("--l-form-label-width") === "120px");
   check("initial-name-and-data", input.name === "name" && form.getData().name === "");
+  const errorText = () => item.shadowRoot.querySelector(".l-form-item__error")?.textContent;
   let submits = 0,
-    last;
+    last,
+    errorsClearedOnSubmit;
   form.addEventListener("submit", (e) => {
     submits++;
     last = e.detail;
+    errorsClearedOnSubmit =
+      Object.keys(form.validationErrors).length === 0 &&
+      !errorText() &&
+      !input.classList.contains("is-error");
   });
   form.submit();
   await tick();
-  check("failure-no-submit", submits === 0 && !!form.validationErrors.name);
+  const requiredError = form.validationErrors.name;
+  check("failure-no-submit", submits === 0 && !!requiredError && errorText() === requiredError);
+  const validateKey = form.validator.validateKey.bind(form.validator);
+  const validatedValues = [];
+  form.validator.validateKey = (name, value, data) => {
+    validatedValues.push(value);
+    return validateKey(name, value, data);
+  };
+  input.setAttribute("clearable", "");
+  typeValue(input, "Alice");
+  check(
+    "valid-input-clears-previous-error-immediately",
+    !form.validationErrors.name && !errorText() && !input.classList.contains("is-error"),
+  );
+  input.shadowRoot.querySelector(".l-clearable").click();
+  check(
+    "clear-button-validates-once",
+    errorText() === requiredError && input.classList.contains("is-error"),
+  );
+  typeValue(input, "Alice");
+  check(
+    "one-validation-per-edit-without-submit",
+    submits === 0 && JSON.stringify(validatedValues) === JSON.stringify(["Alice", "", "Alice"]),
+  );
+  form.setErrors({ name: "旧提示" });
   input.value = "Alice";
+  check("programmatic-value-skips-live-validation", validatedValues.length === 3 && !!errorText());
   form.submit();
   await tick();
   check("success-once", submits === 1 && last.name === "Alice");
+  check("success-clears-errors-before-submit-event", errorsClearedOnSubmit);
   check("native-FormData", new FormData(owner).get("name") === "Alice");
   let resets = 0;
   const reset = input.reset.bind(input);
@@ -104,13 +143,11 @@ try {
   );
   let typed = 0;
   input.addEventListener("change", () => typed++);
-  input.$inner.value = "typed";
-  input.$inner.dispatchEvent(new Event("input", { bubbles: true }));
+  typeValue(input, "typed");
   check(
     "user-input-synchronizes",
     form.getData().name === "typed" && new FormData(owner).get("name") === "typed",
   );
-  const item = form.querySelector("l-form-item");
   const formSheet = form.shadowRoot.adoptedStyleSheets[0];
   const itemSheet = item.shadowRoot.adoptedStyleSheets[0];
   const peerItem = document.createElement("l-form-item");
@@ -173,6 +210,11 @@ try {
     '<l-form-item required label="姓名" prop="name"><l-input></l-input></l-form-item><l-form-item required label="密码" prop="password"><l-input type="password"></l-input></l-form-item><l-form-item required label="确认密码" prop="confirmPassword"><l-input type="password"></l-input></l-form-item>';
   document.body.append(multi);
   await tick();
+  typeValue(multi.querySelector("l-input"), "");
+  check(
+    "input-does-not-show-unrelated-required-errors",
+    !!multi.validationErrors.name && Object.keys(multi.validationErrors).length === 1,
+  );
   const allInvalid = await multi.validate();
   check(
     "validate-collects-all-field-errors",
@@ -225,6 +267,25 @@ try {
   manualField.setValidity({ customError: true }, "独立重置保留");
   manualField.reset();
   check("field-reset-preserves-manual-validity", manualField.validationMessage === "独立重置保留");
+  multi.setAttribute("emit-error", "");
+  const inputResults = [];
+  multi.addEventListener("validate-error", ({ detail }) => inputResults.push(detail));
+  typeValue(manualField, "");
+  typeValue(manualField, "Alice");
+  check(
+    "emit-error-reports-field-failure-and-success",
+    inputResults.length === 2 &&
+      inputResults.every(
+        ({ all }) => Array.isArray(all) && all.length === 1 && all[0] === "name",
+      ) &&
+      !!inputResults[0].errors.name &&
+      Object.hasOwn(inputResults[1].errors, "name") &&
+      inputResults[1].errors.name === undefined &&
+      !manualField.classList.contains("is-error"),
+  );
+  multi.setAttribute("novalidate", "");
+  typeValue(manualField, "");
+  check("novalidate-skips-input-validation", inputResults.length === 2);
   multi.remove();
 
   const actions = document.createElement("form");
@@ -400,6 +461,266 @@ try {
   check(
     "embedded-button-respects-authored-novalidate",
     embeddedSubmits === 1 && outer.noValidate && !outer.querySelector("button"),
+  );
+  outer.noValidate = false;
+  requiredNative.remove();
+  const confirmation = document.createElement("l-form-item");
+  confirmation.setAttribute("prop", "confirmation");
+  confirmation.setAttribute("verify", "same:embedded");
+  confirmation.innerHTML = '<l-input value="confirmed"></l-input>';
+  embedded.append(confirmation);
+  await tick();
+  lateButton.click();
+  await tick();
+  check(
+    "embedded-business-error-preserves-native-validity",
+    embeddedSubmits === 1 && !!embedded.validationErrors.confirmation && outer.checkValidity(),
+  );
+  typeValue(embeddedInput, "confirmed");
+  check(
+    "related-field-edit-revalidates-confirmation",
+    embeddedSubmits === 1 &&
+      !embedded.validationErrors.confirmation &&
+      !confirmation.classList.contains("is-error"),
+  );
+  lateButton.click();
+  await tick();
+  check(
+    "embedded-corrected-resubmit-clears-business-error",
+    embeddedSubmits === 2 &&
+      Object.keys(embedded.validationErrors).length === 0 &&
+      !confirmation.classList.contains("is-error"),
+  );
+
+  const alternate = document.createElement("l-input");
+  alternate.name = "alternate";
+  embedded.append(alternate);
+  const validatedFields = [];
+  const validateEmbeddedKey = embedded.validator.validateKey.bind(embedded.validator);
+  embedded.validator.validateKey = (key, value, data) => {
+    validatedFields.push(key);
+    return validateEmbeddedKey(key, value, data);
+  };
+  const fieldsValidatedBy = (input) => {
+    validatedFields.length = 0;
+    typeValue(input, "confirmed");
+    return validatedFields.join(",");
+  };
+
+  const rules = embedded.validator.rules;
+  let ruleTableScans = 0;
+  embedded.validator.rules = new Proxy(rules, {
+    ownKeys(target) {
+      ruleTableScans++;
+      return Reflect.ownKeys(target);
+    },
+  });
+  check(
+    "input-looks-up-dependents-without-scanning-the-rule-table",
+    fieldsValidatedBy(embeddedInput) === "confirmation" && ruleTableScans === 0,
+  );
+  embedded.validator.rules = rules;
+  embedded.setSchema({ key: "confirmation", rules: ["same:alternate"] });
+  check(
+    "replacing-schema-updates-index",
+    fieldsValidatedBy(embeddedInput) === "" && fieldsValidatedBy(alternate) === "confirmation",
+  );
+  embedded.addSchemas([
+    { key: "confirmation", rules: ["same:embedded"] },
+    { key: "confirmation", rules: ["same:embedded"] },
+  ]);
+  check(
+    "adding-rules-keeps-previous-dependencies-and-deduplicates-new-ones",
+    fieldsValidatedBy(embeddedInput) === "confirmation" &&
+      fieldsValidatedBy(alternate) === "confirmation",
+  );
+  embedded.setSchemas([
+    { key: "confirmation", rules: ["same:embedded"] },
+    { key: "confirmation", rules: ["same:alternate"] },
+  ]);
+  check(
+    "replacing-all-schemas-indexes-only-the-last-update-per-key",
+    fieldsValidatedBy(embeddedInput) === "" && fieldsValidatedBy(alternate) === "confirmation",
+  );
+  embedded.validator.removeSchema("confirmation");
+  check("removing-schema-through-validator-clears-index", fieldsValidatedBy(alternate) === "");
+
+  const siblingForm = document.createElement("l-form");
+  siblingForm.innerHTML = '<l-input name="embedded" value="sibling"></l-input>';
+  outer.append(siblingForm);
+  embedded.setSchema({ key: "confirmation", rules: ["same:embedded"] });
+  embedded.setErrors({ confirmation: "旧提示" });
+  typeValue(embeddedInput, "confirmed");
+  check(
+    "shared-native-owner-keeps-each-l-form-data-scoped",
+    siblingForm.nativeForm === outer &&
+      siblingForm.getData().embedded === "sibling" &&
+      embedded.getData().embedded === "confirmed" &&
+      !embedded.validationErrors.confirmation,
+  );
+
+  embedded.validator = new Validator([{ key: "confirmation", rules: ["same:embedded"] }]);
+  const validateExternalKey = embedded.validator.validateKey.bind(embedded.validator);
+  let externalData;
+  embedded.validator.validateKey = (key, value, data) => {
+    externalData = data;
+    return validateExternalKey(key, value, data);
+  };
+  typeValue(embeddedInput, "mismatch");
+  check(
+    "replacement-validator-keeps-full-data-and-cross-field-validation",
+    !!embedded.validationErrors.confirmation && externalData?.alternate === "confirmed",
+  );
+
+  const selectiveForm = document.createElement("l-form");
+  selectiveForm.innerHTML = `
+    <l-input name="source" value="first"></l-input>
+    <l-input name="source" value="match"></l-input>
+    <l-input name="confirmation" value="match"></l-input>
+    <l-input name="baseline" value="match"></l-input>
+    <l-input name="unrelated" id="confirmation" value="id-only"></l-input>
+    <l-input name="elements" value="shadows-form-elements"></l-input>
+  `;
+  document.body.append(selectiveForm);
+  selectiveForm.setSchema({ key: "confirmation", rules: ["same:source", "same:baseline"] });
+  await tick();
+
+  const firstSource = selectiveForm.querySelector('l-input[name="source"]');
+  const unrelated = selectiveForm.querySelector('l-input[name="unrelated"]');
+  let unrelatedReads = 0;
+  const getUnrelatedValue = unrelated.getValue.bind(unrelated);
+  unrelated.getValue = () => {
+    unrelatedReads++;
+    return getUnrelatedValue();
+  };
+  let domScans = 0;
+  const queryFields = selectiveForm.querySelectorAll.bind(selectiveForm);
+  selectiveForm.querySelectorAll = (selector) => {
+    if (selector === "*" || selector === "button, l-button") domScans++;
+    return queryFields(selector);
+  };
+  selectiveForm.setErrors({ confirmation: "旧提示" });
+  typeValue(firstSource, "edited");
+  check(
+    "input-reads-only-related-fields-without-refreshing-ownership",
+    !selectiveForm.validationErrors.confirmation && unrelatedReads === 0 && domScans === 0,
+  );
+  typeValue(selectiveForm.querySelector('l-input[name="baseline"]'), "different");
+  check("input-reads-all-comparison-fields", !!selectiveForm.validationErrors.confirmation);
+
+  const fullData = selectiveForm.getData();
+  check(
+    "get-data-uses-native-collection-and-preserves-last-same-name-value",
+    fullData.source === "match" &&
+      fullData.unrelated === "id-only" &&
+      fullData.elements === "shadows-form-elements" &&
+      unrelatedReads === 1 &&
+      domScans === 0,
+  );
+  const appended = document.createElement("l-input");
+  appended.name = "appended";
+  appended.value = "immediate";
+  selectiveForm.append(appended);
+  check(
+    "get-data-synchronizes-pending-association-after-append",
+    selectiveForm.getData().appended === "immediate" && appended.form === selectiveForm.nativeForm,
+  );
+  appended.remove();
+  selectiveForm.append(firstSource);
+  check(
+    "get-data-follows-current-dom-order-and-excludes-removed-fields",
+    selectiveForm.getData().source === "edited" &&
+      !Object.hasOwn(selectiveForm.getData(), "appended"),
+  );
+
+  const upgraded = document.createElement("l-delayed-input");
+  upgraded.setAttribute("name", "delayed");
+  upgraded.setAttribute("value", "upgraded");
+  selectiveForm.append(upgraded);
+  await tick();
+  customElements.define("l-delayed-input", class extends Input {});
+  check(
+    "get-data-synchronizes-in-place-field-upgrade",
+    selectiveForm.getData().delayed === "upgraded" && upgraded.form === selectiveForm.nativeForm,
+  );
+
+  const notificationForm = document.createElement("l-form");
+  notificationForm.setErrors({ first: "旧提示", second: "其它提示", renamed: "改名提示" });
+  notificationForm.innerHTML = `
+    <l-form-item prop="first" required><l-input></l-input></l-form-item>
+    <l-form-item prop="second"><l-input></l-input></l-form-item>
+  `;
+  const [firstItem, secondItem] = notificationForm.querySelectorAll("l-form-item");
+  const [firstInput, secondInput] = notificationForm.querySelectorAll("l-input");
+  const notifications = [];
+  for (const field of [firstItem, firstInput, secondItem, secondInput]) {
+    field.addEventListener(FORM_CONTEXT_EVENTS.validity, () => notifications.push(field));
+  }
+  const notified = (...fields) => {
+    const received = notifications.splice(0);
+    return received.length === fields.length && fields.every((field) => received.includes(field));
+  };
+  document.body.append(notificationForm);
+  await tick();
+  check(
+    "registered-fields-receive-current-error-once",
+    notified(firstItem, firstInput, secondItem, secondInput) &&
+      firstItem.shadowRoot.textContent.includes("旧提示") &&
+      firstInput.$inner.getAttribute("aria-invalid") === "true",
+  );
+  notificationForm.setErrors({ first: "新提示", second: "其它提示", renamed: "改名提示" });
+  check("bulk-errors-notify-only-changed-fields", notified(firstItem, firstInput));
+  notificationForm.setErrors(notificationForm.validationErrors);
+  check("unchanged-bulk-errors-do-not-notify", notified());
+  typeValue(firstInput, "valid");
+  check(
+    "input-clears-only-the-edited-fields-error",
+    notified(firstItem, firstInput) && secondInput.classList.contains("is-error"),
+  );
+  typeValue(firstInput, "still valid");
+  check("unchanged-input-error-does-not-notify", notified());
+  typeValue(firstInput, "");
+  check("invalid-input-notifies-item-and-control", notified(firstItem, firstInput));
+  firstInput.reset();
+  check("local-reset-clears-its-own-indicator", !firstInput.classList.contains("is-error"));
+  typeValue(firstInput, "");
+  check(
+    "unchanged-error-restores-only-locally-reset-indicator",
+    notified(firstInput) && firstInput.classList.contains("is-error"),
+  );
+  firstInput.reset();
+  notificationForm.setErrors(notificationForm.validationErrors);
+  check(
+    "unchanged-bulk-errors-restore-only-locally-reset-indicator",
+    notified(firstInput) && firstInput.classList.contains("is-error"),
+  );
+  firstInput.setAttribute("error", "显式样式");
+  firstInput.removeAttribute("error");
+  firstInput.updateDOM(new Set(["error"]));
+  check(
+    "removing-explicit-error-keeps-current-business-indicator",
+    firstInput.classList.contains("is-error"),
+  );
+  firstItem.setAttribute("prop", "renamed");
+  await tick();
+  check(
+    "renaming-inherited-field-reindexes-item-and-control",
+    firstInput.name === "renamed" &&
+      notified(firstItem, firstInput) &&
+      firstItem.shadowRoot.textContent.includes("改名提示"),
+  );
+  notificationForm.setErrors({ first: "不再关联", second: "其它提示", renamed: "改名提示" });
+  check("old-name-no-longer-notifies-renamed-fields", notified());
+  firstInput.name = "explicit";
+  check(
+    "changing-input-name-clears-its-previous-indicator",
+    notified(firstInput) && !firstInput.classList.contains("is-error"),
+  );
+  firstItem.remove();
+  notificationForm.clearValidate();
+  check(
+    "clear-errors-notifies-only-mounted-fields-with-errors",
+    notified(secondItem, secondInput) && !secondInput.classList.contains("is-error"),
   );
 
   document.querySelector("#result").textContent = JSON.stringify({

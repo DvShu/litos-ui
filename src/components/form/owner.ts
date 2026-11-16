@@ -35,6 +35,7 @@ export class FormOwner {
   private active = false;
   /** refresh 重入保护；属性不同才写入，避免观察器循环更新。 */
   private refreshing = false;
+  private refreshScheduled = false;
   /** 对外 form getter 的当前结果，可为辅助 form 或应用原生祖先 form。 */
   private current?: HTMLFormElement;
 
@@ -86,6 +87,20 @@ export class FormOwner {
     }
   }
 
+  /** 自定义控件可能在原位置升级，子树观察器收不到这类变化。 */
+  scheduleRefresh(): void {
+    if (this.refreshScheduled) return;
+    this.refreshScheduled = true;
+    queueMicrotask(() => this.refreshPending());
+  }
+
+  /** 同步读取或提交时，先处理本轮尚未交给观察器的结构变化。 */
+  refreshPending(): void {
+    if (!this.active || this.refreshing) return;
+    const changes = this.observer?.takeRecords();
+    if (this.refreshScheduled || changes?.length) this.refresh();
+  }
+
   /**
    * 内部由 refresh、跨管理器移交和 stop 调用，释放一项由本管理器写入的关联。
    * 仅在属性仍等于本次写入值时移除；用户显式更改后的值不回滚。
@@ -107,6 +122,7 @@ export class FormOwner {
    */
   refresh(): void {
     if (!this.active || this.refreshing) return;
+    this.refreshScheduled = false;
     this.refreshing = true;
     try {
       if (!this.host.isConnected) {
@@ -207,6 +223,7 @@ export class FormOwner {
    */
   stop(): void {
     this.active = false;
+    this.refreshScheduled = false;
     this.observer?.disconnect();
     this.observer = undefined;
     for (const field of this.managed.keys()) this.release(field);

@@ -329,7 +329,9 @@ export default class Input extends FormInner<InputState> {
     }
 
     if (changedProps.has("error")) {
-      this._updateError(this._state.error != null);
+      this._updateError(
+        this._state.error != null || this.$inner?.getAttribute("aria-invalid") === "true",
+      );
     }
 
     if (changedProps.has("maxlength")) {
@@ -486,6 +488,7 @@ export default class Input extends FormInner<InputState> {
     this.userBadInput = badInput;
     this.syncNativeValue();
     this.#renderClearable();
+    this.validateInput();
   };
 
   #renderClearable() {
@@ -521,6 +524,7 @@ export default class Input extends FormInner<InputState> {
   #handleClear = () => {
     if (this.readOnly || this.isDisabled()) return;
     this.value = "";
+    this.validateInput();
     this.focus();
     this.dispatchEvent(
       new CustomEvent("input", {

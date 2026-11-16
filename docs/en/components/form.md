@@ -78,12 +78,9 @@ regist([FormItem, Form]);
   }
 
   function handleI18nError(event) {
-    const detail = event.detail;
-    const errs = detail.errors;
-    if (detail.all === true) {
-      errors = errs;
-    }
-    setI18nErrors(errs);
+    const { errors: nextErrors, all } = event.detail;
+    errors = all === true ? nextErrors : { ...errors, ...nextErrors };
+    setI18nErrors();
   }
 
   function handleLangChange(e) {
@@ -347,12 +344,9 @@ Configure custom validation rules with `setSchemas()` to provide localized messa
   }
   //-
   function handleI18nError(event) {
-    const detail = event.detail;
-    const errs = detail.errors;
-    if (detail.all === true) {
-      errors = errs;
-    }
-    setI18nErrors(errs);
+    const { errors: nextErrors, all } = event.detail;
+    errors = all === true ? nextErrors : { ...errors, ...nextErrors };
+    setI18nErrors();
   }
   //-
   function handleLangChange(e) {

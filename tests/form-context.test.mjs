@@ -196,9 +196,14 @@ test("minimal provider deduplicates fields, replaces configuration, notifies and
   target.addEventListener(FORM_CONTEXT_EVENTS.validity, () => validityCalls++);
   const field = { target, getSnapshot: () => ({ value: 1 }) };
   const staleUnregister = p.registerField(field);
+  assert.equal(p.updateFieldName(field, "original"), true);
   const unregister = p.registerField(field);
   staleUnregister();
   assert.equal(p.getFields().length, 1);
+  assert.deepEqual(p.getFieldsByName("original"), [field]);
+  assert.equal(p.updateFieldName(field, "updated"), true);
+  assert.deepEqual(p.getFieldsByName("original"), []);
+  assert.deepEqual(p.getFieldsByName("updated"), [field]);
   p.getFields().pop();
   assert.equal(p.getFields().length, 1);
   const snapshot = p.getSnapshot();
@@ -211,6 +216,7 @@ test("minimal provider deduplicates fields, replaces configuration, notifies and
   p.notifyValidity(field, { valid: false });
   assert.equal(validityCalls, 1);
   unregister();
+  assert.deepEqual(p.getFieldsByName("updated"), []);
   unregister();
   p.updateConfiguration({});
   p.notifyValidity(field, { valid: true });
