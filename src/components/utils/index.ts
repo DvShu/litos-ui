@@ -27,10 +27,18 @@ export function regist(component: any | any[], name?: string) {
 export function useId() {
   return `l-${++seed}`;
 }
-export function parseAttrValue(value: string, defaultValue?: string): string;
-export function parseAttrValue(value: string, defaultValue?: boolean, key?: string): boolean;
-export function parseAttrValue(value: string, defaultValue?: number): number;
-export function parseAttrValue(value: string, defaultValue: any, key?: string): any {
+export function parseAttrValue(value: string | null | undefined, defaultValue?: string): string;
+export function parseAttrValue(
+  value: string | null | undefined,
+  defaultValue?: boolean,
+  key?: string,
+): boolean;
+export function parseAttrValue(value: string | null | undefined, defaultValue?: number): number;
+export function parseAttrValue(
+  value: string | null | undefined,
+  defaultValue: any,
+  key?: string,
+): any {
   if (value == null) return defaultValue;
   const type = typeof defaultValue;
   switch (type) {

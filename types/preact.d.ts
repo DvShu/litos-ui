@@ -75,6 +75,7 @@ interface QrcodeProps extends HTMLAttributes<HTMLElement> {
 }
 
 type FormProps = HTMLAttributes<HTMLElement> & {
+  disabled?: boolean;
   /** 表单内的输入元素是否铺满剩余宽度 */
   "inner-block"?: boolean;
   /** 标签的位置; 默认: left */

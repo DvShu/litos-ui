@@ -531,9 +531,17 @@ import "litos-ui/form";
 | `label-position` | 标签的位置 | `left`、`right`、`top` | `right` |
 | `label-width` | 表单域标签的宽度, 可以传 `auto` | `string` | `80px` |
 | `inner-block` | 表单内的输入元素是否铺满剩余宽度 | `boolean` | `false` |
+| `disabled` | 是否禁用表单内的控件 | `boolean` | `false` |
 | `novalidate` | 是否跳过输入和提交时的自动业务校验 | `boolean` | `false` |
 
-Form 和 FormItem 当前没有提供统一 disabled 属性，禁用状态应配置在具体输入控件上。
+在 `l-form-item` 上设置 `disabled`，可以单独禁用该表单项下的控件。
+
+### Form Properties
+
+<!-- prettier-ignore -->
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `disabled` | 读取或设置表单的禁用状态，赋值时同步更新 `disabled` HTML 属性 | `boolean` | `false` |
 
 ### Form Slots
 

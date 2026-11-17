@@ -47,6 +47,10 @@ try {
   await tick();
   check("late-providers-and-owner", input.form === a.nativeForm && input.name === "inherited");
   check("initial-value-submitted", new FormData(a.nativeForm).get("inherited") === "initial");
+  check(
+    "initial-inner-block-keeps-input-editable",
+    input.classList.contains("is-block") && !input.$inner.disabled,
+  );
   let userEvents = 0;
   input.addEventListener("input", () => userEvents++);
   input.addEventListener("change", () => userEvents++);
@@ -69,7 +73,7 @@ try {
   );
   item.setAttribute("inner-block", "true");
   input.setAttribute("inner-block", "false");
-  check("false-layout-override", !input.classList.contains("l-input--block"));
+  check("false-layout-override", !input.classList.contains("is-block"));
   input.removeAttribute("inner-block");
   input.setAttribute("required", "");
   input.value = "";
@@ -178,15 +182,44 @@ try {
   b.removeAttribute("disabled");
   input.removeAttribute("form");
   await tick();
+  check("form-disabled-property-default", b.disabled === false);
   b.setAttribute("disabled", "");
   check(
     "context-disabled",
-    input.isDisabled() &&
+    b.disabled === true &&
+      input.isDisabled() &&
       !new FormData(b.nativeForm).has(input.name) &&
       Object.hasOwn(b.getData(), input.name),
   );
   b.removeAttribute("disabled");
-  check("context-disabled-clear", !input.isDisabled());
+  check("context-disabled-clear", b.disabled === false && !input.isDisabled());
+  check("clearing-disabled-preserves-default-layout", !input.classList.contains("is-block"));
+  b.setAttribute("inner-block", "");
+  check(
+    "inner-block-does-not-disable-input",
+    input.classList.contains("is-block") && !input.$inner.disabled,
+  );
+  b.setAttribute("disabled", "");
+  check("explicit-disabled-coexists-with-inner-block", input.$inner.disabled);
+  b.removeAttribute("inner-block");
+  check(
+    "removing-inner-block-preserves-explicit-disabled",
+    !input.classList.contains("is-block") && input.$inner.disabled,
+  );
+  b.removeAttribute("disabled");
+  check("removing-disabled-reenables-input", !input.$inner.disabled);
+  b.setAttribute("disabled", "false");
+  check("form-disabled-false-attribute", b.disabled === false && !input.$inner.disabled);
+  b.disabled = true;
+  check(
+    "form-disabled-property-enables-disabled-attribute",
+    b.disabled === true && b.getAttribute("disabled") === "" && input.$inner.disabled,
+  );
+  b.disabled = false;
+  check(
+    "form-disabled-property-removes-disabled-attribute",
+    b.disabled === false && !b.hasAttribute("disabled") && !input.$inner.disabled,
+  );
   const group = document.createElement("l-checkbox-group");
   group.name = "choices";
   group.value = "a&b";

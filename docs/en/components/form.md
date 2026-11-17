@@ -504,7 +504,7 @@ Element entries register built-in dependencies. Service and utility APIs still r
 | `inner-block` | Whether controls fill the remaining width | `boolean` | `false` |
 | `novalidate` | Whether to disable validation on submission | `boolean` | `false` |
 
-Form and FormItem do not provide a shared disabled attribute. Configure disabled on each input control.
+Set `disabled` on `l-form` or `l-form-item` to disable its form controls. `inner-block` only controls layout.
 
 ### Form Slots
 

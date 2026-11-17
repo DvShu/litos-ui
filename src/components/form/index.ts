@@ -85,6 +85,8 @@ class FormValidator extends Validator {
 
 interface FormState {
   inline: boolean;
+  innerBlock: boolean;
+  disabled: boolean;
   labelPosition: "left" | "right" | "top";
   labelWidth: string;
   labelHeight?: string;
@@ -133,6 +135,15 @@ export default class Form extends BaseComponent<FormState> {
     return this.nativeOwner.form;
   }
 
+  public get disabled(): boolean {
+    return this._state.disabled;
+  }
+
+  public set disabled(value: boolean) {
+    if (value) this.setAttribute("disabled", "");
+    else this.removeAttribute("disabled");
+  }
+
   private fields(): FormInner[] {
     return Array.from(this.querySelectorAll<HTMLElement>("*")).filter(
       (field): field is FormInner => field instanceof FormInner && field.closest("l-form") === this,
@@ -172,6 +183,8 @@ export default class Form extends BaseComponent<FormState> {
     this._state = {
       /** 是否行内表单 */
       inline: false,
+      innerBlock: false,
+      disabled: false,
       labelPosition: "right",
       labelWidth: "80px",
       novalidate: false,
@@ -193,22 +206,17 @@ export default class Form extends BaseComponent<FormState> {
     ];
   }
 
-  protected attributeChanged(name: string, oldValue: string, newValue: string): void {
+  protected attributeChanged(name: string, oldValue: string, newValue: string | null): void {
     switch (name) {
       case "label-position":
         this._state.labelPosition = newValue as "left";
         break;
       case "inner-block":
-        const isBlock = parseAttrValue(newValue, false, name);
-        this.fieldContext.updateConfiguration({
-          innerBlock: isBlock,
-          disabled: parseAttrValue(this.getAttribute("disabled") ?? "", false, "disabled"),
-        });
-        break;
       case "disabled":
+        this._state[kebabToCamel(name) as "disabled"] = parseAttrValue(newValue, false, name);
         this.fieldContext.updateConfiguration({
-          innerBlock: parseAttrValue(this.getAttribute("inner-block") ?? "", false, "inner-block"),
-          disabled: parseAttrValue(newValue, false, name),
+          innerBlock: this._state.innerBlock,
+          disabled: this._state.disabled,
         });
         break;
       case "label-width":
