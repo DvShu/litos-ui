@@ -65,6 +65,7 @@ export default class Switch extends FormInner {
   #click = (_e: Event) => {
     if (this.isDisabled()) return;
     this.setValue(!this.value);
+    this.validateInput();
     this.emit("change");
   };
 

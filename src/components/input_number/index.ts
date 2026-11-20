@@ -64,9 +64,14 @@ export default class InputNumber extends FormInner<InputNumberState> {
     switch (name) {
       case "min":
       case "max":
+        this._state[name] = this._parseNumber(newValue);
+        break;
       case "precision":
-        const v = newValue == null || newValue === "" ? NaN : Number(newValue);
-        this._state[name] = Number.isFinite(v) ? v : undefined;
+        const precision = this._parseNumber(newValue);
+        this._state.precision =
+          precision != null && Number.isInteger(precision) && precision >= 0 && precision <= 100
+            ? precision
+            : undefined;
         break;
       case "step":
         const v2 = Number(newValue);
@@ -95,7 +100,11 @@ export default class InputNumber extends FormInner<InputNumberState> {
     if (changedProps.has("controls-disabled")) {
       this._updateControls();
     }
-    if (changedProps.has("step") || changedProps.has("min") || changedProps.has("max")) {
+    if (changedProps.has("precision") && this.$input) {
+      this.$input.value = this._formatValue(this.value);
+      this.$input.inputMode = this._state.precision != null ? "decimal" : "numeric";
+    }
+    if (["step", "min", "max", "readonly"].some((name) => changedProps.has(name))) {
       this._updateBtnState();
     }
   }
@@ -183,10 +192,29 @@ export default class InputNumber extends FormInner<InputNumberState> {
     this.$plusBtn = undefined;
   }
 
+  protected get intrinsicDefaultValue(): undefined {
+    return undefined;
+  }
+
+  protected parseDefaultValue(value: string | null): number | undefined {
+    return this._parseNumber(value);
+  }
+
+  protected serializeFormValue(): string {
+    return String(this._parseNumber(this.value) ?? "");
+  }
+
+  protected get nativeConstraintValues(): readonly unknown[] {
+    return [this._parseNumber(this.value)];
+  }
+
   public setValue(value: any): void {
-    super.setValue(value);
+    const number = this._parseNumber(value);
+    // Keep valid numeric strings accepted by the existing programmatic setter.
+    const current = number != null && typeof value === "string" ? value.trim() : number;
+    super.setValue(current);
     if (this.$input) {
-      this.$input.value = this._formatValue(value);
+      this.$input.value = this._formatValue(current);
     }
     this._updateBtnState();
     this.syncNativeValue();
@@ -219,18 +247,27 @@ export default class InputNumber extends FormInner<InputNumberState> {
   /** 将值限制在 min/max 范围内并格式化精度 */
   private _clamp(value: number): number {
     const { min, max, precision } = this._state;
+    if (precision != null) value = Number(value.toFixed(precision));
     if (min != null && value < min) value = min;
     if (max != null && value > max) value = max;
-    if (precision != null) {
-      value = parseFloat(value.toFixed(precision));
-    }
     return value;
   }
 
+  private _parseNumber(value: unknown): number | undefined {
+    if (
+      typeof value === "string" &&
+      !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value.trim())
+    ) {
+      return undefined;
+    }
+    if (typeof value !== "number" && typeof value !== "string") return undefined;
+    const number = Number(value);
+    return Number.isFinite(number) ? number : undefined;
+  }
+
   private _formatValue(value: any): string {
-    if (value == null || value === "") return "";
-    const num = Number(value);
-    if (isNaN(num)) return "";
+    const num = this._parseNumber(value);
+    if (num == null) return "";
     const { precision } = this._state;
     if (precision != null) {
       return num.toFixed(precision);
@@ -239,78 +276,61 @@ export default class InputNumber extends FormInner<InputNumberState> {
   }
 
   private _getCurrentNum(): number {
-    const raw = this.$input?.value ?? this.value;
-    if (raw == null || raw === "") return 0;
-    const num = Number(raw);
-    return isNaN(num) ? 0 : num;
+    return this._parseNumber(this.$input?.value ?? this.value) ?? 0;
   }
 
   private _commitValue(num: number) {
     const clamped = this._clamp(num);
     this.value = clamped;
-    if (this.$input) {
-      this.$input.value = this._formatValue(clamped);
-    }
+    this.validateInput();
     this.emit("input", {
       bubbles: true,
+      composed: true,
       detail: { value: clamped, name: this.getName() },
     });
     this._updateBtnState();
   }
 
   private _handleInput = (e: Event) => {
+    e.stopPropagation();
     const $target = e.target as HTMLInputElement;
-    let raw = $target.value;
-    // 允许用户正在输入负号或末尾小数点
-    if (raw === "-" || raw === "." || raw === "-.") {
-      return;
-    }
-    const num = raw === "" ? undefined : Number(raw);
-    if (num == null || Number.isFinite(num)) {
+    const raw = $target.value;
+    const num = this._parseNumber(raw);
+    if (num != null || raw.trim() === "") {
       super.setValue(num);
+      this._updateBtnState();
+      this.validateInput();
       this.emit("input", {
         bubbles: true,
+        composed: true,
         detail: { value: num, name: this.getName() },
       });
     }
   };
 
   private _handleChange = (e: Event) => {
+    e.stopPropagation();
     const $target = e.target as HTMLInputElement;
-    if ($target.value === "") {
-      this.value = undefined;
-      return;
-    }
-    const num = Number($target.value);
-    if (Number.isFinite(num)) {
-      const clamped = this._clamp(num);
-      this.value = clamped;
-      if (this.$input) {
-        this.$input.value = this._formatValue(clamped);
-      }
-      this.emit("change", { detail: { value: clamped, name: this.getName() } });
-    }
+    const num = this._parseNumber($target.value);
+    const previous = this.value;
+    this.value = num == null ? undefined : this._clamp(num);
+    if (!Object.is(previous, this.value)) this.validateInput();
+    if (num != null) this.emit("change", { detail: { value: this.value, name: this.getName() } });
   };
 
   private _handleBlur = () => {
     // 失焦时格式化当前输入值
     if (this.$input) {
-      const raw = this.$input.value;
-      const num = parseFloat(raw);
-      if (Number.isFinite(num)) {
-        const clamped = this._clamp(num);
-        this.value = clamped;
-        this.$input.value = this._formatValue(clamped);
-      } else {
-        this.value = undefined;
-        this.$input.value = "";
-      }
+      const num = this._parseNumber(this.$input.value);
+      const previous = this.value;
+      this.value = num == null ? undefined : this._clamp(num);
+      if (!Object.is(previous, this.value)) this.validateInput();
     }
   };
 
   private _handleKeydown = (e: Event) => {
     const ke = e as KeyboardEvent;
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.$input?.readOnly) return;
     if (ke.key === "ArrowUp") {
       ke.preventDefault();
       this._stepUp();
@@ -321,35 +341,46 @@ export default class InputNumber extends FormInner<InputNumberState> {
   };
 
   private _handleMinus = () => {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.$input?.readOnly) return;
     this._stepDown();
     this.focus();
   };
 
   private _handlePlus = () => {
-    if (this.isDisabled()) return;
+    if (this.isDisabled() || this.$input?.readOnly) return;
     this._stepUp();
     this.focus();
   };
 
   private _stepUp() {
-    const current = this._getCurrentNum();
-    this._commitValue(current + this._state.step);
+    this._step(1);
   }
 
   private _stepDown() {
+    this._step(-1);
+  }
+
+  private _step(direction: number) {
     const current = this._getCurrentNum();
-    this._commitValue(current - this._state.step);
+    const step = this._state.step;
+    const decimalPlaces = (number: number) => {
+      const [mantissa, exponent = "0"] = String(number).split("e");
+      return (mantissa.split(".")[1]?.length ?? 0) - Number(exponent);
+    };
+    const places = Math.max(0, decimalPlaces(current), decimalPlaces(step));
+    const next = current + direction * step;
+    if (Number.isFinite(next)) this._commitValue(Number(next.toFixed(Math.min(places, 100))));
   }
 
   private _updateBtnState() {
     const num = this._getCurrentNum();
     const { min, max } = this._state;
+    const disabled = this.isDisabled() || !!this.$input?.readOnly;
     if (this.$minusBtn) {
-      this.$minusBtn.disabled = this.isDisabled() || (min != null && num <= min);
+      this.$minusBtn.disabled = disabled || (min != null && num <= min);
     }
     if (this.$plusBtn) {
-      this.$plusBtn.disabled = this.isDisabled() || (max != null && num >= max);
+      this.$plusBtn.disabled = disabled || (max != null && num >= max);
     }
   }
 
@@ -382,6 +413,7 @@ export default class InputNumber extends FormInner<InputNumberState> {
   }
 
   protected validResult(msg?: string): void {
+    super.validResult(msg);
     if (msg != null) {
       addClass(this, "is-error");
     } else {

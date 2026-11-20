@@ -226,6 +226,14 @@ Set a custom `type` and style `l-button[type="x"]::part(default)`.
 </l-code-preview>
 </ClientOnly>
 
+### Form Buttons
+
+Set `html-type="submit"` or `html-type="reset"` inside an `<l-form>` or a native `<form>`. A button can also use `form` to reference a native form by ID in the same DOM tree. See the [native form example](/en/components/form#native-forms).
+
+Set `formnovalidate` on a submit button to skip browser constraint validation for that submission. Use `novalidate` on `l-form` to control its business validation.
+
+Clicking `l-button` can submit a native form. Use a native `<button type="submit">` if Enter in a native `<input>` should activate the default submit button.
+
 ## On-demand entry
 
 ```js
@@ -250,6 +258,7 @@ The built-in loading label is Chinese. Set `loading-text` to provide an English 
 | `block` | Whether the button fills its parent’s width (100%) | `boolean` | `false` |
 | `shape` | Shape: default, round (rounded ends), or circle | `string` | `default` |
 | `html-type` | Native type attribute: button, submit, or reset | `string` | `button` |
+| `formnovalidate` | Skips browser constraint validation on submission | `boolean` | `false` |
 | `loading-text` | Text displayed while loading | `string` | `加载中……` |
 | `text` | Text button | `boolean` | `false` |
 | `ghost` | Ghost button with a transparent background | `boolean` | `false` |

@@ -72,7 +72,7 @@ regist(DatePickerOri);
 </l-code-preview>
 </ClientOnly>
 
-> 注意使用 `month`、`week` 时需要考虑兼容性
+> `month` 和 `week` 的选择界面取决于浏览器。iOS／iPadOS 从 18.2 开始支持原生 `week` 选择器。[WebKit 发布说明](https://webkit.org/blog/16301/webkit-features-in-safari-18-2/#html)
 
 ### 限定日期范围
 
@@ -89,6 +89,8 @@ regist(DatePickerOri);
 ### 范围选择器
 
 通过 `range` 属性开启范围选择。
+
+区间的 `value` 和原生表单提交值用逗号分隔。只填一端时保留逗号，例如 `2025-04-01,`。两端都为空时值为 `""`。开始日限制结束日的最小值，结束日限制开始日的最大值。
 
 <ClientOnly>
 <l-code-preview>
@@ -122,13 +124,15 @@ import "litos-ui/date-picker-ori";
 | `allow-empty` | 是否允许空值, 设置为 `false` 时如果为空会赋值初始值 | `boolean` | `true` |
 | `disabled` | 是否禁用 | `boolean` | `false` |
 | `width` | 宽度 | `string` | `-` |
-| `delay` | 触发 `change` 事件时延时, 在范围选择时有效；为了性能考虑, 立即改变一个日期后，会延迟 `300ms` 通知, 以响应其它选择器, `0` - 立即触发 | `number` | `300` |
+| `delay` | 区间 `change` 的延时，单位为毫秒。设为 `0` 时在下一轮定时器任务中派发 | `number` | `300` |
 
 ### DatePickerOri Events
 
 <!-- prettier-ignore -->
 | 事件名 | 说明 | 回调参数 |
 | --- | --- | --- |
-| `change` | 日期改变时触发, 通过 `event.detail` 可以获取到当前值 | `(event: CustomEvent)` |
+| `change` | 日期改变时触发，`detail` 包含 `value`、`dateStr` 和 `dates`。事件的 `bubbles` 和 `composed` 均为 `false` | `(event: CustomEvent)` |
+
+区间事件的 `dateStr` 固定包含起点和终点，空端点为 `""`，在 `dates` 中对应 `Invalid Date`。`time` 的日期取 UTC 的 1970-01-01，`week` 取该周周一的 UTC 零点。
 
 初始 `datetime-local` 值使用原生输入框要求的格式，例如 `2025-05-02T17:00`。

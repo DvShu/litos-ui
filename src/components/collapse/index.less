@@ -1,10 +1,33 @@
 :host {
+  --_l-collapse-gap-attribute: initial;
+  --_l-collapse-radius-attribute: initial;
   --l-collapse-border-color: var(--l-border-color, #dedede);
-  --l-collapse-border-radius: 0px;
+  --l-collapse-border-radius: var(--_l-collapse-radius-attribute, 0px);
+  --l-collapse-gap: var(--_l-collapse-gap-attribute, 0px);
+  --l-collapse-header-direction: row;
+  --l-collapse-header-justify: flex-start;
+  --l-collapse-frame-width: 0px;
+  --l-collapse-header-padding: 10px 0;
+  --l-collapse-content-padding: 0 0 15px;
+  --l-collapse-item-background: transparent;
+  --l-collapse-content-background: transparent;
+  --l-collapse-spaced-border-width: 0px;
+  --l-collapse-spaced-radius: initial;
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--l-collapse-gap, 0px);
   box-sizing: border-box;
+}
+:host(.l-collapse-background) {
+  --l-collapse-frame-width: 1px;
+  --l-collapse-header-padding: 10px 15px;
+  --l-collapse-content-padding: 15px;
+  --l-collapse-item-background: var(--_l-collapse-header-fill, rgba(0, 0, 0, 0.02));
+  --l-collapse-content-background: var(--_l-collapse-panel-fill, #fff);
+}
+:host(.l-collapse-spaced) {
+  --l-collapse-spaced-border-width: var(--l-collapse-frame-width);
+  --l-collapse-spaced-radius: var(--l-collapse-border-radius);
 }
 /* 网格模式 */
 :host(.l-collapse-grid) {

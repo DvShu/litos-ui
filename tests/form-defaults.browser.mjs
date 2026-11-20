@@ -53,6 +53,40 @@ try {
   check("select-native-reset-latest-default", equal(multi.value, ["c"]));
   multi.removeAttribute("value");
   check("select-multiple-missing-default", equal(multi.value, []) && equal(multi.defaultValue, []));
+  multi.setOptions([{ label: "Empty option", value: "" }, ...multi.options]);
+  multi.setAttribute("value", "");
+  check(
+    "select-empty-value-attribute-still-means-no-selection",
+    equal(multi.value, []) && !new FormData(form).has("multi"),
+  );
+  multi.defaultValue = [""];
+  check(
+    "select-default-empty-option-applies-to-a-clean-field",
+    equal(multi.defaultValue, [""]) &&
+      equal(multi.value, [""]) &&
+      multi.selectedLabels[0] === "Empty option" &&
+      equal(new FormData(form).getAll("multi"), [""]),
+  );
+  multi.value = ["a"];
+  multi.defaultValue = [""];
+  check("select-default-empty-option-preserves-live-edit", equal(multi.value, ["a"]));
+  form.reset();
+  check(
+    "select-reset-restores-a-single-empty-option",
+    equal(multi.value, [""]) && equal(new FormData(form).getAll("multi"), [""]),
+  );
+  multi.setAttribute("value", "");
+  check(
+    "select-rewriting-empty-value-attribute-replaces-empty-option-default",
+    equal(multi.defaultValue, []) && equal(multi.value, []) && !new FormData(form).has("multi"),
+  );
+  multi.defaultValue = [""];
+  multi.defaultValue = [];
+  check(
+    "select-empty-default-array-clears-the-empty-option-default",
+    equal(multi.defaultValue, []) && equal(multi.value, []) && !new FormData(form).has("multi"),
+  );
+  multi.removeAttribute("value");
   multi.removeAttribute("multiple");
   check("select-mode-change-stays-clean", multi.value === "");
   multi.setAttribute("value", "a");
@@ -213,6 +247,73 @@ try {
       Array.from(group.querySelectorAll("l-checkbox")).every((child) => !child.checked),
   );
   range.remove();
+
+  const material = create("l-md-input", { name: "material", "html-type": "password" });
+  form.append(material);
+  const editor = () => material.shadowRoot.querySelector("input");
+  material.autocomplete = "current-password";
+  check(
+    "md-autocomplete-property-configures-editor",
+    material.getAttribute("autocomplete") === "current-password" &&
+      editor().autocomplete === "current-password",
+  );
+  material.setAttribute("autocomplete", "off");
+  check(
+    "md-autocomplete-attribute-configures-property",
+    material.autocomplete === "off" && editor().autocomplete === "off",
+  );
+  material.removeAttribute("autocomplete");
+  check(
+    "md-autocomplete-removal",
+    material.autocomplete === "" && !editor().hasAttribute("autocomplete"),
+  );
+  material.value = "current secret";
+  material.formStateRestoreCallback(JSON.stringify({ version: 1, value: "old secret" }), "restore");
+  check(
+    "md-password-rejects-history-state",
+    material.value === "current secret" && editor().value === "current secret",
+  );
+  material.formStateRestoreCallback("filled secret", "autocomplete");
+  check(
+    "md-password-accepts-autocomplete-text",
+    material.value === "filled secret" && new FormData(form).get("material") === "filled secret",
+  );
+  material.htmlType = "text";
+  check(
+    "md-type-property-dynamically-reflects",
+    material.getAttribute("html-type") === "text" && editor().type === "text",
+  );
+  material.setAttribute("html-type", "password");
+  check(
+    "md-type-attribute-dynamically-updates",
+    material.htmlType === "password" && editor().type === "password",
+  );
+  material.autocomplete = "new-password";
+  material.remove();
+  form.append(material);
+  check(
+    "md-autocomplete-and-type-survive-remount",
+    editor().autocomplete === "new-password" && editor().type === "password",
+  );
+  material.remove();
+  const lateMaterial = create("test-autocomplete-md-input", {
+    autocomplete: "off",
+    "html-type": "text",
+  });
+  lateMaterial.autocomplete = "current-password";
+  lateMaterial.htmlType = "password";
+  form.append(lateMaterial);
+  customElements.define("test-autocomplete-md-input", class extends MdInput {});
+  const lateEditor = lateMaterial.shadowRoot.querySelector("input");
+  check(
+    "md-configuration-before-upgrade-wins",
+    lateMaterial.autocomplete === "current-password" &&
+      lateEditor.autocomplete === "current-password" &&
+      lateEditor.type === "password" &&
+      !Object.hasOwn(lateMaterial, "autocomplete") &&
+      !Object.hasOwn(lateMaterial, "htmlType"),
+  );
+  lateMaterial.remove();
   document.querySelector("#result").textContent = JSON.stringify({
     userAgent: navigator.userAgent,
     checks,

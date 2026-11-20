@@ -415,6 +415,10 @@ Element entries register built-in dependencies. Service and utility APIs still r
 
 ## API
 
+### Using Upload with Forms
+
+Read upload progress, pending `raw` files, and results through `fileList` or the upload events. Both `l-form.getData()` and native `FormData` omit the file list. Resetting the form leaves the list intact. To save attachments with a submission, read entries with `status` set to `success` or use the data from the `success` event.
+
 ### Upload Attributes
 
 <!-- prettier-ignore -->

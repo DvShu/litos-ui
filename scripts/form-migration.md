@@ -58,12 +58,12 @@
 - submit(): void：校验通过发一次库 submit，detail 为 getData 快照；novalidate 跳过提交前规则检查，不影响显式 validate。现有异步调度不改成 Promise 返回 API。
 - reset(): void：恢复默认业务值并清展示，默认值不能使用 || 丢失 0／false。不新增一个不存在的公共 reset 自定义事件。
 - validate(): Promise<{result:boolean,errors:Record<string,any>}>：业务校验失败 resolve result=false，不改成 reject；显式调用不因 novalidate 跳过。不默认等同 reportValidity 或触发原生气泡 UI。
-- validateField(field:string|string[]): Promise<void>：成功 resolve undefined，失败 reject Error，detail 为字段错误映射；目前方法未执行规则，后续补齐，不保持伪通过。
+- validateField(field:string|string[]): Promise<void>：只执行指定字段的规则，成功 resolve undefined，失败 reject Error，detail 为字段错误映射。
 - clearValidate(): void：清错误展示及提交／触碰标记；底层真实约束仍可无效。
 - setErrors(errorObj): void：保持直接设置展示错误，不受 emit-error 控制。后续提交重新执行规则；不得无期限阻塞而不定义清除策略。
 - setValidateErrors(errs,all=true): void：emit-error 为真时发 validate-error {errors,all}，否则更新展示。all 保留 string|string[]|boolean 类型。
 - addSchema、addSchemas、setSchema、setSchemas：SchemaType 参数和 void 返回不变，继续委托 Validator 的 add/set 含义，不擅自重定义为全量替换。
-- FormItem.setRules({required?,rules?,message?}): void：按 prop 关联；动态改 prop／规则注销需在 T343 实现。
+- FormItem.setRules({required?,rules?,message?}): void：按当前 prop 注册规则，更改 prop 时迁移，移除时注销，重挂载恢复。
 
 ### 内部与外部事件边界
 
@@ -85,7 +85,7 @@
 
 ### 业务快照
 
-getData 包含当前属于该 l-form 且有非空逻辑 name 的库字段，包含 disabled 和独立未选中 Check 的业务值，以兼容旧数据模型；不包含组内辅助子项、弹层输入和无名字段。独立 Checkbox／Radio 的业务 value 是 token，不是 checked。Group 是一个逻辑字段。
+getData 包含当前属于该 l-form 且有非空逻辑 name 的库字段和原生数据控件。它保留 disabled 字段及独立未选中 Check 的业务值，排除组内辅助子项、弹层输入和无名字段。独立 Checkbox／Radio 的业务 value 保留 token。Group 是一个逻辑字段。
 
 只读取已关联字段的当前值，不持续维护第二份 _data。原生控件按实际类型读取 value／checked 等明确适配；关联在外的字段必须通过所有权协议纳入，不能全局查询猜测。注册表保存引用／适配方法，不复制每次值。新旧默认初始化差异在各控件迁移时固定。
 
@@ -93,7 +93,7 @@ getData 包含当前属于该 l-form 且有非空逻辑 name 的库字段，包�
 
 - 字符串：原样提交，包括空字符串；state 用带版本／控件类型的字符串编码保存默认外的当前 UI 状态。
 - 数值：业务值保留控件实际 number|string 语义；提交有限值的十进制字符串，空输入保持空字符串而非 0；非法数值按控件校验拒绝，不提交 NaN／Infinity 字面量。
-- 布尔：普通布尔业务值保留；Switch 用户交互得到 boolean 时提交 "true"／"false"，历史程序赋值保留字符串时按该字符串提交；不强制改成复选框“关闭即排除”。原生 checkbox 未选中时 setFormValue(null)；checked 和 token 分别保存。
+- 布尔：普通布尔业务值保留；Switch 用户交互得到 boolean 时提交 "true"／"false"，历史程序赋值保留字符串时按该字符串提交；不强制改成复选框“关闭即排除”。未选中的 Checkbox 省略提交条目，checked 和 token 分别保存。
 - null／undefined：业务快照保留该值（属性存在），原生提交用 null 排除；state 以类型标记区分缺失与空值，不隐式变成 "null"／"undefined"。
 - 日期：不新增统一 Date 类型转换；DatePickerOri 等继续用各自现有业务字符串，提交同样明确格式。真实 Date 扩展值只允许控件显式序列化，不隐式受本机时区影响。
 - 数组：已有多选业务类型不改变；Select 等确有数组值时，用 FormData 同名重复条目提交；空数组不产生条目。CheckboxGroup 当前业务 value 为 & 编码字符串（change.detail.value 为数组），保持两种 API 的区别，提交适配解码为同名多值，不改变公开 value。
@@ -195,7 +195,7 @@ reset() 调用当前 nativeForm.reset()。Input 的原生 formResetCallback 仅�
 
 ### 禁用、默认值与恢复
 
-- own disabled 单独保存并反射宿主属性；fieldset 回调的有效禁用与 Form／FormItem／Group 配置禁用叠加。内部输入及交互随有效状态禁用，上级恢复不清除自身禁用。上下文禁用不反写自身属性，以 null 提交且清空有效约束；原生自身／fieldset 禁用还由浏览器排除提交／校验。
+- own disabled 单独保存并反射宿主属性；fieldset 回调的有效禁用与 Form／FormItem／Group 配置禁用叠加。内部输入及交互随有效状态禁用，上级恢复不清除自身禁用。上下文禁用不反写自身属性，省略提交条目并清空有效约束；原生自身／fieldset 禁用还由浏览器排除提交／校验。
 - defaultValue 明确设置重置基线，首次程序值建立基线，动态 value attribute 更新默认和当前值；之后 property 只更新当前值。普通数组／对象默认值复制，保留 0／false／空串。原生 formResetCallback 和程序 reset 不发送用户事件、不广播上下文；取消原生 reset 不改变值，错误恢复与当前约束重算分离。Check 额外保存 checked 默认状态；indeterminate 作为 UI 状态恢复，不当作业务提交值。
 - serializeFormState 使用版本化 JSON 字符串，提交 value 和恢复 state 分离；formStateRestoreCallback 接收 restore／autocomplete 模式，恢复业务值、UI 和原生提交。Check 另外编码 checked／indeterminate，Select 数组原样编码。默认支持可 JSON 表达的库字段状态，未知版本／非法字符串不覆盖当前值；不承诺 File、FormData、循环对象等任意对象恢复。
 - 本轮在真实 Chromium DOM 中显式调用恢复回调验证两种模式；没有验证浏览器历史导航、密码管理器或系统自动填充自动触发回调。Safari／iOS／iPadOS 16.4 和 Firefox 仍未实机测试，不把处理函数验证当成最低设备兼容或自动填充保证。
@@ -241,3 +241,432 @@ Check.defaultChecked 直接反射 checked 布尔 attribute（checked="false" 依
 reset 清除库业务错误及其展示，但保留 setValidity 手动设置的 flags／message，调用方需要显式 setValidity() 清除；required 等内容约束仍按恢复后的值重算。此规则同时适用于独立字段 reset 和原生 formResetCallback；取消原生 reset 不改变这些状态。浏览器状态恢复回调的既有错误处理策略不在此次 reset 修改范围。
 
 验证入口：FORM_TEST_CASE=input 为文本原生对照；FORM_TEST_CASE=defaults 为复合默认值与 Check 原生对照；native／complete 为原表单回归。中文 Input/Form 使用说明已更新，英文待同步已登记。
+
+## 12. T334–T339 控件表单验收
+
+- MdInput 的业务值和提交值均为文本。InputNumber 从 attribute 恢复数字默认值，用户输入使用数字，兼容程序传入的有效数字字符串。清空后业务值为 `undefined`，提交空字符串。原生提交及约束统一使用解析后的数字，失焦与确认使用同一解析规则，步进按十进制精度消除常见浮点尾差。
+- SelectOri 支持挂载前配置选项，原生表单仅提交已选且可用的原生选项。Select 用户点选、删除标签和清空先同步 `value`、标签及提交值，再发送一次 `{ value, labels }`。多选使用同名条目，业务数组保留元素类型及顺序。搜索框没有 name 或外部 form owner。
+- CheckGroup 接收成员登记和状态变更，保留组业务值。仅有禁用项对应某个值时，原生提交省略该值。组仍是唯一提交者，组内选项只改变选中状态。独立 Radio 按 form owner 和 name 互斥，未选中项不进入 FormData。覆盖组后升级、成员重挂载、半选及上下级禁用。
+- Switch 的关闭值为 `false`，原生提交 `"false"`，开启提交 `"true"`。`required` 要求开启。ColorPicker 将业务值和提交值统一成小写六位十六进制；无效值使用 `#000000`。内部原生颜色输入不独立提交。
+- DatePickerOri 使用原生日期字段的值格式，区间用一个逗号分隔字符串提交。区间两端按宿主 min／max 与对端日期收紧可选边界，反向区间无效，重置清除待发 change。DatePicker 现有文本字段和日历面板验证了单条提交及重挂载，无新增日历选取能力。
+- Upload 继续通过 `fileList` 和事件管理待传 File、进度和上传结果。`l-form.getData()`、原生 `FormData` 与表单重置不管理该列表。HTTP 上传仍使用自身的 multipart 请求，表单业务可另行读取已上传结果。
+
+Windows Chrome 158 的 `native` 123 项、`defaults` 51 项及 `complete` 100 项通过。Check、Select、无 Signal 依赖及 Upload 相关 Node 用例共 164 项通过。
+
+通过 Pixel 9 模拟器上的 Android 17 和 Chrome 155.0.8059.39 单独点按原生日期选择器。单日期从 `2026-11-17` 改为 `2026-11-21`，区间结束日从 `2026-11-25` 改为 `2026-11-20`。系统日历将早于区间开始日 `2026-11-17` 的日期标为不可选，两个选择都同步到输入框、change 事件及原生 FormData。iOS／iPadOS 及 Firefox 的平台验收见 T348。
+
+## 13. T343 业务校验与原生有效性
+
+- 业务校验结果写入字段的 `validity.customError`，与原生约束和手动 `setValidity()` 合并。重置清理旧业务结果和提示。`clearValidate()` 清理提示，保留实际有效性。已参与校验的值被程序修改时，相关字段的旧业务有效性失效，下一次原生提交可重新进入业务校验。
+- `validateField()` 只执行指定字段的规则，跨字段比较仍读取依赖字段的当前值。用户编辑时校验当前字段和依赖它的字段；原生 `checkValidity()` 同步读取有效性状态。`novalidate` 跳过自动业务校验，显式调用 `validate()` 和 `validateField()` 仍执行。
+- FormItem 的已注册规则按实例管理。属性修改、`setRules()`、改名、移除和重新挂载更新来源；同名规则可来自多个表单项或 Form 的公开注册方法。移除表单项只移除其贡献。`addSchema()` 保持追加，`setSchema()` 保持替换当前字段规则。
+- 自定义规则沿用 utilane 的同步布尔契约。返回 Promise 时该字段报错并阻止业务提交，其他字段继续校验。
+
+Windows Chrome 158 的 `complete` 124 项、`native` 123 项、`defaults` 51 项、`inner` 16 项、`input` 52 项及 FormItem 专项 20 项通过。覆盖异步规则安全失败、改值后重新提交、显式规则与同名表单项各自注销。另有相关 Node 测试 24 项通过。
+
+## 14. T341 表单业务快照
+
+- `getData()` 从当前 `form.elements` 同步取值。独立 `l-form` 的辅助表单接收同树内通过 `form` 属性显式关联的外置字段。复用外层原生表单时，仍按字段最近的 `l-form` 隔离。动态改名、关联变更和移除在下一次读取时生效。
+- 已关联的原生 input、select 和 textarea 使用各自的 DOM 状态。复选框为布尔值、单选框仅取选中 token、多选 select 为字符串数组，文件为 `File`、`File[]` 或 `null`。库字段保持原业务类型和引用语义。按 DOM 顺序取同名字段的最后一个值，`__proto__` 按普通自有属性写入快照。多值字段的业务数组保留原形状。
+- 快照读取与事件派发独立，程序赋值后立即可读。整表和指定字段的校验使用同一字段归属与取值规则，表单内部原生控件的 `input` 进入既有的字段及依赖重验流程。
+
+Windows Chrome 158 的 `complete` 134 项、`native` 123 项和 `lifecycle` 28 项通过，另有上下文和无 Signal 依赖测试共 11 项通过。专项复现验证了外置库字段及原生字段进入快照，并确认 `__proto__` 保留字段值与原对象原型。
+
+## 15. T342 表单提交与校验边界
+
+- 独立 `l-form` 的辅助表单使用 `novalidate`。复用外层 `<form>` 时，由外层表单和实际提交按钮决定是否执行浏览器约束校验。`l-form[novalidate]` 控制该层的自动业务校验。
+- `l-button` 通过临时原生按钮调用 `requestSubmit()`，传递 `formnovalidate`、`name` 和 `value`，调用结束后移除按钮。共用外层表单时，一次有明确归属的提交只交给发起的 `l-form`，外层按钮由外层表单处理。单个 `l-form` 仍支持在 `nativeForm` 上无参调用 `requestSubmit()`。
+- 原生提交通过 `preventDefault()` 取消后，库不再派发业务提交。`l-input` 的 Enter 可以在冒泡阶段取消，未取消时使用该层归属的提交按钮。
+
+Windows Chrome 158 的 `complete` 145 项、`native` 123 项、`input` 52 项和 `lifecycle` 28 项通过。Safari 从 16 起支持 [`requestSubmit()`](https://webkit.org/blog/12824/news-from-wwdc-webkit-features-in-safari-16-beta/)，本轮未运行 iOS／iPadOS 16.4 实机验证。
+
+## 16. T344 表单项的标签与错误关联
+
+- 单控件行可把标签用于原生字段及具有单个原生输入控件的库字段。点击标签直接聚焦编辑控件，不合成点击。多控件行和没有单一输入目标的复合控件使用分组语义，各字段保留自己的名称。
+- 有明确目标的错误通过同树 `aria-describedby` 关联到字段，并保留用户提供的描述。无唯一目标的错误关联到整组。必填星号作为装饰排除在名称外，控件仍保留必填状态。每条错误使用一处描述关联。[W3C 表单通知指南](https://www.w3.org/WAI/tutorials/forms/notifications/)
+- Windows Chrome 158 的 FormItem 专项 39 项、Input 52 项、提交 145 项、原生表单 123 项及生命周期 28 项通过。另检查真实无障碍树中的动态名称、必填状态、分组及错误描述，并验证实际点击标签只聚焦字段。iOS／iPadOS 16.4 VoiceOver 实机验证见 T348。
+
+## 17. T345 错误展示与重置
+
+- `clearValidate()` 清除提示和交互状态。已计算的业务有效性、原生约束和手动 `setValidity()` 继续由各自来源维护。再次报告无效时，表单项显示对应字段的错误。
+- 表单在所属 DOM 树捕获 `invalid`，仅处理当前归属的字段。失焦或报告无效后，提示随字段有效性更新。库字段用独立的有效性变化事件通知状态变化。开启 `emit-error` 时，原生约束提示和恢复通过 `validate-error` 报告。
+- 原生事件和 `l-form.reset()` 共用浏览器的重置流程。取消时保留原状态，成功时只清除重置开始前的错误。使用原生原型方法调用 `reset()`，支持名为 `reset` 的字段。
+
+Windows Chrome 158 的提交 163 项、原生表单 123 项、默认值 51 项、Input 52 项、生命周期 28 项和 FormItem 39 项通过。上下文及无 Signal 依赖检查共 11 项通过。
+
+## 18. T346 表单布局与旧上报状态清理
+
+- Input 使用同一规则计算铺满状态。本地 `block` 和解析后的 `inner-block` 任一启用即可铺满。改变本地属性、表单项或表单配置时，都会重新计算。表单项的显式 `left`、`right` 和 `top` 生效，移除或清空 `label-position` 时恢复继承。
+- 删除旧值上报标记及构造参数。CheckGroup 保持默认焦点委托，Select 继续显式关闭焦点委托。源码、JavaScript 产物和声明均已检查。生产按需入口及总入口具名导入表单模块的构建产物均无 `alien-signals`，Collapse 的依赖及公开兼容类型保留。
+- Windows Chrome 158 的 480 项浏览器检查及 21 项 Node 回归通过。浏览器测试覆盖本地与继承的铺满设置、标签布局切换、`prop` 到 `name` 的更新和组状态同步。
+
+## 19. T347 浏览器回归与报告
+
+- 生产组件回归覆盖独立 `l-form`、两个外层原生表单和重新创建的内部辅助表单之间的迁移。每次迁移核对字段归属及用户节点，验证旧 owner 的提交和重置与当前表单解耦，并检查同一 owner 上反复挂载后原生提交和重置各触发一次。取消重置保留字段值与提示。
+- 设置 `FORM_TEST_BROWSER` 后，通过 `node scripts/check-form-owner.mjs` 运行套件。`FORM_TEST_CASE` 支持 `owner`、`lifecycle`、`inner`、`complete`、`native`、`input`、`defaults`，未设置时运行 `owner`。各套件写入独立的 `.artifacts/form-<套件>-result.json`。未知或空的套件名在启动浏览器前返回失败。
+- Windows Chrome 158 的套件共 465 项，加上 FormItem 专项 47 项，共 512 项通过。Node 测试 25 项通过。运行 `defaults` 后，`owner` 报告的内容保持一致。最低设备和其它浏览器的验收见 T348。
+
+## 20. T357 无信号依赖消费门禁
+
+- 组件依赖由使用者显式导入／注册；消费示例手动准备 Radio、RadioGroup、FormItem 和所需图标。单独导入 Theme 不自动注册其依赖属于现有使用约定，不作为本项失败。
+- `node scripts/check-form-signals.mjs` 要求设置 `FORM_TEST_BROWSER`，先重建库与声明，再执行源码边界、真实 tarball 解包后的独立消费构建和浏览器回归。未设置浏览器时直接失败；单独运行 `tests/entries.test.mjs` 时标为跳过的浏览器用例不算完整门禁通过。
+
+```powershell
+$env:FORM_TEST_BROWSER = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+node scripts/check-form-signals.mjs
+```
+
+- 源码检查包含 Theme 和全部表单相关入口，递归构建第三方依赖，不把 utilane external 后忽略其依赖。发布产物另检查 18 个按需入口及共享 chunk；11 组独立消费分别覆盖 Form、FormItem、Input、两种 Group、表单组合、Theme 和总入口具名导入。按需图和最终产物均无 `alien-signals`；总入口具名导入允许构建器解析尚未裁剪的 Collapse，但最终 bundle 不得保留 signal 模块。
+- 全量注册作为阳性对照，仍保留 Collapse 的 signal 运行时。包内依赖声明和公开 `Signal`／`SignalStop` 类型兼容导出保留，类型入口实测可用；类型导出不会生成运行时引用。本项不代表 T360 全库卸载门禁完成。
+- Group 随成员登记直接处理最近组的子项变化，阻止其向组冒泡后再发送组事件，避免外部监听器因添加时机或重挂载顺序收到子项与组的两份变化；子项自身监听器仍正常执行，成员注销和组卸载时清理内部监听。Theme 阻止内部控件的 change 外传，仅发送主题字符串；已经卸载或重挂载的旧异步切换不再补发事件。
+- 2026-11-18，Windows Chrome 158.0.8127.37 的真实消费浏览器 38 项通过，覆盖文本／图标 Theme、下拉和开关风格、禁用、键盘、挂载前监听、子项自身监听、反复重挂载、嵌套组、程序赋值和表单组合。控制台无异常。新增浏览器回归已先在修复前确认失败，再在修复后通过。
+- 完整门禁 7 项、相关 Node 回归 30 项通过；原生表单 123 项、完整流程 172 项、默认值 51 项回归通过。`pnpm lint`、`pnpm fmt:check`、`pnpm lib:build`、`pnpm docs:build` 通过，文档构建保留体积提示。入口文件检查改为比较源码与 tarball 的完整文件列表，不再写死 91；源码模块回归使用与构建相同的 TS 转换，支持参数属性。本项未执行 iOS／iPadOS 16.4 或其他浏览器验收，T348 保持独立。
+
+## 21. T348 兼容性与浏览器恢复验收
+
+2026-11-18，用户将本项调整为：iOS／iPadOS 16.4、Safari、Firefox 和 VoiceOver 只做源码、API／ARIA 与产物兼容审查；触摸只查相关 API／原生交互入口，不要求真机操作。浏览器自动恢复和自动填充仍需实际触发。本节取代此前 T348 的设备实测前提，不改变其他任务的验收范围。
+
+- 核心 API 的静态判断通过。ElementInternals 的提交、有效性、form／labels 等能力由 Safari 16.4、Firefox 98 提供；构造 CSSStyleSheet、replaceSync 和 adoptedStyleSheets 由 Safari 16.4、Firefox 101 提供，requestSubmit 在 Safari 16 已可用。源码未依赖更晚的 CustomStateSet、跨树 ARIA 引用或 referenceTarget。参考 [ElementInternals 兼容数据](https://raw.githubusercontent.com/mdn/browser-compat-data/main/api/ElementInternals.json)、[样式表兼容数据](https://raw.githubusercontent.com/mdn/browser-compat-data/main/api/CSSStyleSheet.json)和 [Safari 16.4 发布说明](https://webkit.org/blog/13966/webkit-features-in-safari-16-4/)。
+- 对当前按需入口的实际递归依赖图共 72 个 JavaScript 模块，比较 Oxc 的 esnext 与 safari16.4 转换结果，无额外语法转换差异或解析错误。这是当前产物的静态结果，不等于将现有 esnext 构建配置改成了长期最低版本门禁。28 项 API／类型兼容记录位于本机 `.artifacts/t348-compat-result.json`。
+- 名称和错误采用内部原生控件、aria-label／aria-required／aria-invalid，以及同一 ShadowRoot 内的 aria-describedby；未依赖新式跨树引用，隐藏描述被明确引用的做法符合[可访问名称与描述规范](https://w3c.github.io/accname/#computation-steps)。标签点击同步调用 focus，避免把移动端聚焦依赖放到异步用户激活之外。本项只给出代码符合性判断，不宣称 VoiceOver 实际播报结果。
+- 表单的主要触控入口为原生 input／button 和 click／input／change；选择、勾选、开关、步进及文件选择有点击入口，不要求为普通点击再绑定 touchstart。[click 支持触摸激活](https://developer.mozilla.org/en-US/docs/Web/API/Element/click_event)。拖放、hover 辅助 UI 不据此宣称已做触摸体验验收。
+- 原生日期类型按用户确认的既定设计保留：DatePickerOri 直接把 type 交给原生 input，不新增自定义选择器回退。week 在 iOS／iPadOS 16.4 不受支持，兼容数据记录从 18.2 起支持；macOS Safari／桌面 Firefox 也没有 week 原生选择器。month 在 iOS 可用，但 macOS Safari／桌面 Firefox 缺少对应原生 UI。回退为 text 时，依赖原生类型的格式和 min／max 约束不能视为已经覆盖。参考 [week](https://github.com/mdn/browser-compat-data/blob/main/html/elements/input/week.json) 和 [month](https://raw.githubusercontent.com/mdn/browser-compat-data/main/html/elements/input/month.json) 兼容数据。这是已接受的原生能力边界，不作为本次修复项。
+
+实际恢复／填充使用隔离临时配置的 Chrome 158.0.8127.37 与虚构数据，运行脚本为本机 `.artifacts/t348-state-audit.mjs`；没有读取用户保存的地址或凭据，也没有手动调用恢复回调来冒充自动行为：
+
+- 正常启用往返缓存时，离开后返回得到 pageshow.persisted=true，页面 DOM 和字段值被保留，恢复回调为 0 次，这是缓存保留路径。
+- 关闭往返缓存以强制重新创建文档时，离开后通过历史返回得到 back_forward 导航，浏览器自动调用了 15 次 restore 回调。文本、独立勾选、组、数字、开关、原生选择、颜色、日期及辅助 form 字段的界面值、业务值和 FormData 均与离开前一致。结果在 `.artifacts/t348-state-result.json`，缓存路径在 `.artifacts/t348-bfcache-result.json`。
+- 通过 Chrome 官方开发协议 Autofill.trigger 调用真实地址填充引擎；普通原生输入作为阳性对照，随后填充 l-input 内部的 5 个原生输入。姓名、邮箱、街道和邮编均进入原生 autofill 状态，界面、业务值和 FormData 同步，每个字段只有一条提交记录。没有直接给目标字段赋值来代替填充。宿主自定义元素作为填充目标返回 Field not found，未观察到 autocomplete 模式的 FACE 回调；已通过的是内部原生输入路径，不是宿主回调或密码管理器集成。Safari 16.4 的 FACE autocomplete 也不能承诺支持，见 [WebKit 的恢复说明](https://webkit.org/blog/13711/elementinternals-and-form-associated-custom-elements/)。
+
+首次校验发现密码进入恢复 state，现已修复并完成负向验收：Input 的 password、MdInput 的 html-type=password 显式将恢复 state 设为 null，提交值仍保留；文本字段运行时改成密码字段也清除可保存的 state。旧历史密码 state 不再重放，浏览器提供的 autocomplete 文本仍可更新界面和提交值。往返缓存保留活页面由浏览器负责，不通过清空密码破坏已有页面状态。
+
+Input 和 MdInput 均提供 autocomplete attribute／property，支持动态修改、移除、组件定义前赋值和重挂载；MdInput 的 htmlType property 同步 html-type 和内部输入类型。autocomplete 模式可接收纯文本，并保留已有版本化状态的兼容处理；不由代码伪造浏览器的宿主回调。Preact 对应类型和中文示例已更新，T033／T034 依翻译约定重新打开并登记待同步内容。
+
+可重复验收命令如下，脚本会创建隔离的临时浏览器配置，不读取用户保存的信息：
+
+```powershell
+$env:FORM_TEST_BROWSER = "C:/Program Files/Google/Chrome/Application/chrome.exe"
+node scripts/check-form-state.mjs
+```
+
+- 正式 fixture 覆盖原生 form、l-form 辅助 owner、Input／MdInput 静态和动态密码字段、普通字段和组。加入 Form 级配置后，强制重建文档的恢复路径与正常往返缓存路径当前各 44 项通过，报告分别为 `.artifacts/form-state-restore-result.json` 和 `.artifacts/form-state-bfcache-result.json`。密码未进入恢复 state，仍正常提交；重新创建文档后密码为空，缓存返回保留活页面。
+- 两条路径都用 Chrome 的真实 Autofill 引擎验证 Input 和 MdInput 各 5 个配置字段，包含原生输入阳性对照、autofill 状态、可信 input 事件、业务值与单条 FormData。直接调用回调的用例只验证原始文本、旧状态格式及拒绝密码历史状态的处理逻辑，不计作真实填充或自动恢复证据。宿主 autocomplete 回调的触发仍受浏览器支持限制。
+- Chrome 158.0.8127.37 的 Input 63 项、默认值 60 项、原生表单 123 项、完整流程 172 项、公共层 16 项，以及 38 项实际包消费浏览器回归通过；相关 Node 回归 33 项、打包与类型门禁 7 项通过。实际 tarball 验证包含 autocomplete 类属性和 Preact JSX，72 个发布依赖模块重新静态核对 Safari 16.4 语法无额外转换差异。
+- `pnpm lint`、`pnpm fmt:check`、`pnpm lib:build`、`pnpm docs:build` 通过。docs:dev 的 `/litos-ui/components/input` 和 `/litos-ui/components/md_input` 已实际打开，演示字段的 autocomplete 和类型正确透传，控制台无错误。T348 按调整后的范围完成，不将此结论描述为 Safari／Firefox／VoiceOver 的真机实测或宿主原生自动填充回调保证。
+
+### Form 级 autocomplete 补充
+
+Form 现在提供 autocomplete attribute／property，接受 on／off；未设置时沿用原生祖先 form 的默认配置。FormInner 中的 Input、MdInput、InputNumber、Select 的过滤输入、SelectOri、Check、颜色和日期输入统一使用表单默认值，字段显式配置优先，移除字段配置后恢复继承。直接写在 l-form 内的原生 input／textarea／select 同样继承，修改配置不改变字段值、默认值或发出用户输入事件。开关、文件选择等没有原生自动填充能力的控件不因此获得填充能力。
+
+- `FORM_TEST_CASE=autocomplete` 的浏览器回归 40 项通过，报告为 `.artifacts/form-autocomplete-result.json`；覆盖各类控件、日期区间重建、原生字段、同值显式覆盖、属性移除、定义前赋值、动态加入、跨表单移动、移出、卸载重挂载和共享原生表单隔离。只写自身拥有的辅助 form 配置，不修改共享原生祖先 form。
+- 恢复／填充用例新增 3 个未配置字段提示的控件，仅由 Form 的 on 默认值驱动真实 Autofill；另 10 个显式配置字段在 Form 默认 off 时仍保留各自提示，业务值、界面和单条 FormData 一致。两条路径各 44 项通过。
+- Input 63 项、默认值 60 项、原生表单 123 项、完整流程 172 项、公共层 16 项、实际包消费浏览器 38 项、Node 回归 33 项、包消费与无 signal 门禁 7 项均通过。发布类型验证增加 Form、继承该属性的 InputNumber 及 Form 的 Preact JSX；18 个表单相关入口的当前递归图 76 个 JavaScript 模块经 Oxc 静态比较无 Safari 16.4 额外语法转换，报告为 `.artifacts/t348-form-syntax.json`。
+- lint、格式、库构建和文档构建通过。实际打开 `/litos-ui/components/form` 并操作默认值选择器，姓名与电话从 on 跟随切到 off，邮箱仍为 email，控制台无错误。中文 Form／Input／MdInput 文档已更新，英文差异登记在 TRANSLATION_GUIDE.md，T042 重新打开，T033／T034 保持待同步。
+
+## 22. T349 API 文档补齐
+
+2026-11-18 按用户后续范围处理：只补齐审计第 4 项的 API 遗漏，不新增全字段演示；兼容及关联边界说明、动态字段演示和业务值／提交值对照等第 1～3 项暂缓。T349 保持未勾选，不将暂缓项描述为已经完成。
+
+- Form 文档补齐 label-height／emit-error、nativeForm／validationErrors／validator、reset／submit／setValidateErrors 和四个 Schema 方法，注明追加与替换的区别，并提供 SchemaType 字段表。FormItem 补齐 disabled／标签尺寸和 setRules 方法表。
+- 新增通用表单控件 API 表，集中说明字段名、显式 form、默认值、禁用、约束、填充配置、原生有效性和重置等已有能力。Radio／Checkbox 补充 checked／defaultChecked，Group 补齐 name／disabled／required／gap／form，并链接通用 API；Form CSS 变量表替换原有空占位。
+- 与源码及已有声明核对：Form 9 个配置属性、5 个公开属性和 12 个业务方法，FormItem 12 个属性及 setRules；通用控件 14 个非全局属性、10 个公开属性、9 个方法，两种 Group 各 6 个属性及勾选控件的选中属性均有对应文档。相关三页共 26 个表格的紧凑格式、忽略标记和单元格结构通过检查。15 项静态核对结果见本机 `.artifacts/t349-api-result.json`。
+- `pnpm lint`、`pnpm fmt:check`、`pnpm docs:build` 通过。构建页面包含新增 API 表和公共锚点，Radio／Checkbox 链接正确；llms 内容由构建自动更新，未手改生成物。本次只修改文档和维护记录，未修改运行时代码，未新增行为测试。
+- 英文现有正文保留，差异合并登记在 TRANSLATION_GUIDE.md；T036／T037 重新打开，T042 保持待同步，不提前完成 T350。
+
+## 23. T351 构建与发布校验
+
+2026-11-18 在 Windows NT 10.0.26300、Node 26.1.0、pnpm 12.5.1、npm 11.13.0、TypeScript 7.0.2、Preact 11.2.0 和 Chrome 158.0.8127.37 下验证。初次验收发现发布包的 Preact 声明缺项和 Theme 快速切换异常。修复与复验结果见下文。
+
+```powershell
+pnpm lint
+pnpm fmt:check
+pnpm lib:build
+pnpm docs:build
+npm pack --dry-run --json --ignore-scripts
+
+$env:FORM_TEST_BROWSER = 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+node --experimental-vm-modules --test --test-concurrency=1 `
+  tests/entries.test.mjs tests/module-effects.test.mjs tests/form-no-signals.test.mjs `
+  tests/form-context.test.mjs tests/form-platform.test.mjs tests/form-owner-runner.test.mjs `
+  tests/form-item.test.mjs tests/check-form.test.mjs tests/input-readonly.test.mjs `
+  tests/styles-tree-shaking.test.mjs tests/select-text.test.mjs tests/button-docs.test.mjs `
+  tests/upload-docs.test.mjs scripts/docs-llms.test.mjs
+
+foreach ($case in @('owner', 'lifecycle', 'inner', 'complete', 'native', 'input', 'defaults', 'autocomplete')) {
+  $env:FORM_TEST_CASE = $case
+  node scripts/check-form-owner.mjs
+}
+node scripts/check-form-state.mjs
+```
+
+- lint、格式、组件库及声明构建、双语文档构建通过。文档构建有资源分块体积提示，构建仍成功。
+- 库构建后用 `npm pack --dry-run --json --ignore-scripts` 核对 497 个文件、92 个按需 JavaScript 入口及其声明。正式 `npm pack --json --ignore-scripts` 生成的 litos-ui-0.23.1.tgz 与预览文件列表一致。总入口、公共声明、Preact 声明、所需 CSS 和实际依赖的内部模块均包含。表单内部模块未生成独立注册入口。
+- 在临时 npm 项目运行 `npm install --offline --ignore-scripts --no-audit --no-fund <tarballs>`，实际安装库 tarball 和本地依赖版本打成的四个 tarball。使用 TypeScript 的 `strict`、`noUncheckedSideEffectImports`、`jsx: react-jsx`、`jsxImportSource: preact` 验证总入口、按需类及基础 TSX。Vite 生产构建保留显式注册和 CSS `sideEffects`，同一入口混用总入口与按需入口时排除 Collapse、Upload 和 alien-signals。共享样式的实例复用和未使用样式裁剪通过现有用例。
+- 在已安装包中逐项验证 Preact 属性，23 个已支持属性缺少声明。`l-form` 缺 `inline`、`emit-error`、`label-height`。`l-form-item` 缺 `disabled`、`label-position`、`label-width`、`label-height`、`inner-block`、`error`、`verify`。两个 Group 各缺 `name`、`disabled`、`required`、`form`。`l-input` 缺 `form`、`required`、`disabled`，`l-md-input` 缺 `form`、`required`。其中 FormItem 的 `disabled` 和 Group 的 `name` 在直接编写 TSX 标签时也报错。
+- 相关 Node 测试并行首轮 81／82，失败项是打包消费的 Theme 回归。串行复测 82／82，包含实际 Chrome 的 38 项打包消费和 47 项 FormItem 验证。另用已构建的 Theme 入口复现，同一轮连续触发两次切换得到两次 `change("dark")`，并出现未处理的 `AbortError: Transition was skipped. New ViewTransition started`。
+- 八套表单浏览器场景最终各自通过，共 525 项。并行首轮的日期区间重建断言失败，独立运行 autocomplete 三次均为 40／40。该断言以固定等待读取按动画帧更新的编辑器，现有证据显示有时序不稳定，尚未确认产品功能回归。真实浏览器历史恢复和自动填充两条路径均为 44／44。本轮运行环境为本机 Chromium。
+
+### Theme 连续切换修复
+
+Theme 内部 SelectOri、Switch、RadioGroup 和 Radio 的 `change` 留在 Theme 的 Shadow DOM。主题实际变化时，由 Theme 发出一次携带主题字符串的 `change`。同一文档在过渡开始前合并连续请求，按最后的选择应用主题，已开始的动画无需因新的选择而重新启动。
+
+实际包的 Chrome 消费回归 45 项通过。覆盖快速连点、同一选项重复触发、外部捕获监听只收到 Theme 事件以及卸载重挂载，控制台无错误。`node --test --test-concurrency=1 tests/entries.test.mjs tests/form-no-signals.test.mjs` 的 7 项门禁通过。按用户要求保留现有 Preact 声明。
+
+### T351 复验结论
+
+- 在上述环境重新运行 lint、格式检查、库与声明构建、双语文档构建，全部通过。文档构建仍有分块体积提示。
+- 重新核对 `npm pack --dry-run --json --ignore-scripts` 与实际 tarball 的文件清单。497 个文件和 92 个按需入口通过核对。独立临时项目离线安装库及所需依赖后，总入口和按需入口、现有 Preact TSX 用法与生产构建通过。显式注册和 CSS 保留，未使用的组件及表单图中的 alien-signals 被裁剪。已知 Preact 属性声明缺项按用户确认保留。
+- 串行 Node 测试 82／82，包含 Chrome 的 45 项打包消费回归和 47 项 FormItem 回归。八套表单浏览器场景 525／525，历史恢复和自动填充两条路径各 44／44。日期区间重建用例本轮通过，另在 Chrome 等待实际动画帧后验证 24 次单值和区间互切，确认每次新创建的输入均继承当时的 Form 配置。
+
+T351 按当前确认范围验收通过。
+
+## 24. T352 文档预览校验
+
+- 2026-11-18，在没有 `lib/` 的临时源码副本启动 `docs:dev`，再运行 `docs:build` 和 `docs:preview`。Chrome 中实测中英文 Form 入口往返、既有 `l-form` 必填校验和重置、原生 `form` 的按钮与 Enter 提交和重置、自定义错误、标签对齐和自动填充提示切换。Input 解析、InputNumber 步进和 CheckboxGroup 选择可操作。两个预览均核对了默认蓝、翡翠绿、珊瑚红、活力橙及暗黑切换，所查页面的控制台无警告或错误。
+- 动态新增和移除字段通过。改名前，`getData()` 与 `FormData` 均各自只包含一份字段数据，`submit` 只发出一次并带有正确的 `detail`。以 `value` attribute 设置的默认值可用重置按钮恢复。
+- 两种预览均观察到，Vue `v-if` 插入的必填 `l-form-item` 把 `prop` 从 `extra` 改成 `renamed` 时，继承字段名的 `l-input`、`getData()` 和 `FormData` 仍使用 `extra`。填写过的字段触发新名的必填错误，提交被拦截。用户确认按每行 `prop` 固定的用法验收，运行时改名暂不视为缺陷。
+- 文档构建成功并生成中英文各 49 页。双语索引、全文和 Form 页面 Markdown 均包含本轮相关更新，核对了原生表单、统一自动填充、通用控件 API 和 `validateField()`。`scripts/docs-llms.test.mjs` 通过 10 项。构建有资源分块体积提示。
+
+T352 按用户确认的范围验收通过。
+
+## 25. T359 发布前验收汇总
+
+- 在当前源码副本复跑 Windows Chrome 158 的 8 套表单回归，525 项全部通过。覆盖原有写法、归属与重挂载、业务校验与错误展示、`getData()`／`FormData`、提交及重置。T352 已实测中英文开发与构建预览，按每行 `prop` 固定的用法验收，动态增删通过。
+- 当前源码的无信号依赖门禁通过。下表四种表单按需组合均移除 `alien-signals` 的传递运行时依赖。全量注册仍因 Collapse 保留该依赖，符合 T360 的条件。
+- 用户确认 T359 的 iOS 16.4 验收仅核对核心表单 API 兼容性，实测暂缓。沿用 [T348 的 API 兼容性核对](#21-t348-兼容性与浏览器恢复验收)。Chrome 的历史恢复与自动填充两套实测各通过 44 项。
+- T350 已同步 13 个表单相关英文页面，翻译清单无本轮表单待同步项。T349 暂缓的文档扩展、T351 已接受的 Preact 声明缺项、T348 已接受的原生日期选择器平台边界及 T352 运行时改名边界均按原范围保留。
+
+### 迁移前后体积对比
+
+基线取表单迁移提交 `4df0291` 的父提交 `314e057`，与当前工作区源码分别构建。两份源码使用同一组已锁定的依赖和构建工具，包括 Node 26.1.0、Vite 8.3.8 和 utilane 1.2.0。消费端沿用 `tests/entries.test.mjs` 的 ES 库模式和 `minify: true`，统计所有 JavaScript chunk 拼接后的字节数及其 gzip 体积。独立全局 CSS 未计入下表。
+
+<!-- prettier-ignore -->
+| 消费场景 | 原始字节数（迁移前 → 当前） | gzip 字节数（迁移前 → 当前） | gzip 增量 |
+| --- | --- | --- | --- |
+| Form + FormItem | 26,860 → 72,575 | 7,666 → 18,155 | +10,489 B |
+| Input | 21,815 → 36,765 | 6,590 → 10,127 | +3,537 B |
+| Form + FormItem + Input | 37,361 → 83,658 | 10,173 → 21,196 | +11,023 B |
+| 表单控件组合 | 102,061 → 162,462 | 24,255 → 38,508 | +14,253 B |
+| 总入口全量注册 | 335,687 → 408,079 | 83,254 → 101,812 | +18,558 B |
+
+组合场景包含 Form／FormItem、Input／MdInput／InputNumber、两种 Select、Radio／Checkbox 及其 Group、Switch、ColorPicker、DatePickerOri 和 Button。完整模块图和场景入口见本机 `.artifacts/t359-size-report.json`。
+
+增加的模块主要包括原生表单归属、有效性和业务规则、值序列化与恢复、自动填充及无障碍处理。模块图显示，仅使用 Form／FormItem 时，对 `FormInner` 的实例判定也会保留该基类，这是可能进一步裁剪的路径。全量对比还包含两个版本之间的非表单改动。
+
+T359 按用户确认的范围验收完成。
+
+## 26. T379 Check 与 CheckGroup 现状盘点
+
+- 对照迁移前提交 `314e057`。旧 `CheckGroup.values` 是可调用的 `Signal<string[]>`。子项通过冒泡的 `check-context-request` 取得 signal，再由 `effect()` 根据 token 更新选中状态。旧 `FormInner` 另用 `form-context-request`／`form-item-context-request` 获取字段配置、错误与重置 signal。组在插槽所在的 ShadowRoot 监听子项 `change`，更新组的 `value` 并发出组事件。旧组提供者没有截断向外的上下文请求，源码无法确认嵌套组有隔离保证。
+- 当前 `Radio`、`Checkbox` 继承 `Check`，`RadioGroup`、`CheckboxGroup` 继承 `CheckGroup`，两个基类均继承 `FormInner`。`values` 现为已解码的 `string[]`，按值整体更新。`FormInner` 分别请求 Form、FormItem 和最近 Group，并登记字段、接收定向配置和处理原生表单关联。内部 `input` 负责焦点、激活和选中表现，表单提交由宿主的 ElementInternals 负责。独立选项按自身 `checked` 提交，分组提交由组负责。
+- Chrome 验证了两种组的直属选项、普通 HTML 包装、同类嵌套组及独立选项。内层选择只更新最近的组，外层状态保持。子项监听可收到带 `value`、`name`、`checked` 的事件，组在子项处处理后发出自己的 `change`。组的普通监听可收到冒泡的内层组事件，捕获监听可先观察到子项事件。单选组 `detail.value` 为字符串，多选组为字符串数组。程序赋值样例更新选择且没有触发用户 `change`。
+- 中英文 Radio／Checkbox 文档的基础用法、组示例和事件参数与上述常规用法相符。两种 Group 的发布入口实测只注册组本身，组成员按既定约定显式导入。双语示例已显式导入，但通用文字仍说会注册内建依赖。Theme 的 radio 模式使用 Shadow DOM 内部的 RadioGroup，实际消费测试确认外部只收到 Theme 的 `change`。站内 `CustomTheme` 在源码中通过组的 `value` 初始化，并在组事件中读取目标的 `value`。
+- 四个派生类均有总入口导出和独立按需入口。TypeScript 7.0.2 按仓库的 Bundler 解析方式核对了实际生成声明。`getChecked()`、`setChecked()`、`defaultChecked` 和两种 Group 的 `values: string[]` 均可用，旧 `values()` 调用已无对应签名。`Radio`／`Checkbox` 的 `checked` property 在运行时可读写，两套类声明均缺少它。Preact JSX 有 `checked`，两种 Group 的 `name`、`disabled`、`required`、`form` 声明仍缺，沿用 T351 已确认的处理范围。
+- 构建与声明生成成功。Check、上下文、无信号和发布包套件共 27 项通过，其中发布包的 Theme／Group Chrome 回归包含 45 项。此外，Windows Chrome 158.0.8127.37 对上述归属、事件和属性做了 18 项独立核对，控制台无异常。T379 的盘点完成。
+
+## 27. T380 Check 状态和值事件契约
+
+在 Windows Chrome 158.0.8127.37 下用相同样例对照迁移前提交 `314e057` 与当前源码，各运行 9 个场景。当前源码的 Check 单元测试 10 项、Chrome 原生表单 123 项及默认值回归 60 项通过。对照数据见本机 `.artifacts/t380-contract-report.json`。
+
+### 当前用法与明确的迁移差异
+
+- 独立项以 `checked` property 表示当前选中状态，`checked` attribute 或 `defaultChecked` 提供重置默认值。迁移前独立项同时设置 `value` 和 `checked` 时，空组 effect 会覆盖选中状态，当前已修复。组初始化及同步以组 `value` 为准，子项的 `checked` attribute 不覆盖组选择。程序控制组选择使用 `group.value`，`value` attribute 作为默认值。用户操作更新当前值，保留默认值；此前组交互还会写回 attribute。
+- RadioGroup 的常规 `value` 和 `change.detail.value` 是单个字符串。CheckboxGroup 的 `value` 保留逐项编码后用 `&` 拼接的字符串格式，`change.detail.value` 保留解码后的字符串数组。普通赋值、默认值更新、重置与结构变化均未发出用户 `change`。一次实际选择触发一次所属组事件。重新点选已选 Radio 不再重复发出 `change`。子项 `detail` 继续包含 `value`、`name`、`checked`，其中 `checked` 现报告该次操作的结果，旧组子项曾报告操作前的状态。
+- 多选编码现可往返 `a&b`、`100%` 和中文。迁移前用户选择时直接拼接字符串，会拆开带 `&` 的值，并可能因未转义的 `%` 抛出 `URIError`。当前旧字符串中的非法转义片段按原文读取，解码后相同的 token 只提交一次。RadioGroup 的值为单个原始字符串，包含 `&` 时原样保留。
+- 未设置选项 `value` 时使用 `on`。程序赋值的 `0`、`false` 保留为组件的业务值，匹配、选项事件和原生提交采用字符串 `"0"`、`"false"`。`null`／`undefined` 的组选值表示无选择。独立选项可提交显式空字符串，与未选中时省略条目相区别。
+- 移除或改动已选项的值时，组保留配置的选中 token。改值后的选项按当前组值重算，移入另一组时使用目标组的值；原 token 的选项重新插入时可恢复选中。将已选项移到组外时，当前选中状态保留。浏览器对照中，这些结构变更均未发出组 `change`。
+
+### 修复前的实测边界
+
+- 组值 `""` 表示未选中，与只有一个空 token 共用表示。单独点选空值项会发出组事件，但该项不会保持选中；多选还有其他项时空 token 可以共存，移除最后一个非空 token 后空选项随之清除。重复选项值共享选中状态与一个提交 token，RadioGroup 中两个相同值也会同时显示为选中。
+- 直接写组内子项的 `checked` 或调用 `setChecked()` 能改变该项界面，但不会更新组 `value` 或提交数据。下一次应用组配置时，选中状态重新按组值计算。
+- 删除、改值或跨组移动可让原组没有匹配的可见选项。当前代码仍保留并提交组配置中的原 token，`required` 也仍通过。这个结果与保留配置以等待迟到选项是两个验收点，后续动态关联和提交校验分别由 T385、T388 跟踪。
+
+T380 的状态、事件和兼容差异已记录。
+
+### 空选项、组状态和提交修复
+
+- 单选组以 `null` 表示无选择，空字符串可匹配空值选项。旧版恢复状态中的空字符串仍按无选择读入。多选组用 `&` 表示仅选择一个空值项，空字符串仍表示无选择，普通值保持既有编码。同值单选项只保留一个具体的选中项。
+- 分组时由组 `value` 决定成员的选中状态。直接写入组内选项的 `checked` 或调用 `setChecked()` 不影响界面、组值和提交数据。用户操作由组更新选中状态并发送 `change`。程序修改组 `value` 保持静默。独立选项仍可设置 `checked`。
+- 组保留配置值供重新插入的选项匹配。原生 `FormData` 和必填校验只匹配当前关联且可用的选项。`l-form` 的 `getData()`、业务校验及提交快照也过滤无匹配的组值，仍可读取已禁用的匹配选项。
+- Chrome 158 的原生表单回归 151 项通过，含空值、同值单选、程序赋值、移除／改值／移动／重插和 `l-form` 提交。其余表单回归、恢复与往返缓存各 44 项、相关 Node 与发布包测试 27 项、lint、格式、组件库及文档构建均通过。日期自动填充原用例的固定时间等待有时序波动，等待实际渲染帧后 63 项通过，包含 12 次单日期和区间互切。中英文同步状态见翻译指南。
+- 2026-11-19 按用户确认恢复组 `value` 对选中状态的控制。Chrome 原生表单、默认值和完整流程共 385 项通过，覆盖两种组内的直接 `checked` 赋值、组值赋值、点击、空值、重复值及失效值过滤。Node 与发布包测试 27 项、lint、格式、库及文档构建通过。文档构建仍有既有的分块体积提示。
+
+## 28. T381 选项提交责任与体积基线
+
+### 提交和校验责任
+
+- 独立项通过宿主的 `ElementInternals.setFormValue()` 按自身 `name` 提交。选中时提交选项值，省略 `value` 时使用 `on`。未选中或禁用时省略条目。独立项按自身约束检查有效性，重置按 `checked` attribute／`defaultChecked` 恢复。内部 `input` 负责交互，没有提交名称。
+- 组统一以自身 `name` 提交和校验。单选组提交一条，多选组按选中值分别提交同名条目。组内选项声明的 `name` 和 `required` 属性无额外提交条目和必填错误。子项自身禁用状态和组／`fieldset` 的禁用状态叠加。原生 `reset()` 按组的 `value` attribute／`defaultValue` 恢复选择，无额外 `change`。实测组必填只发出一次组 `invalid`，`l-form` 中 `FormItem.prop` 给组提供名称，自定义规则也只执行一次。
+- 独立 Radio 的相同非空 `name` 和相同原生 form owner 构成互斥范围。无 owner 时，互斥范围是同一 DOM 根中的同名独立项。内部 Radio 分属不同 ShadowRoot，宿主显式协调选中状态。Chrome 验证了同表单互斥、跨表单隔离、无 owner 的跨 ShadowRoot 隔离及跨 form 移动后的新组互斥。
+
+### 修复前校验发现
+
+- 在 HTML 中将 `required` 写在 `name` 前，独立 Radio、Checkbox 和两种组的 `name` 会被移除，已选值未进入原生 `FormData`。两种组的对照样例只交换这两个属性的顺序，`name` 写在前面时可提交。受影响样例的选中状态及 form owner 正常。
+- 同名独立 Radio 已有选中项时，移除、改名或跨 form 移动该选中项，会留下旧表单的必填有效状态。`FormData` 已排除旧值，原生 `form.checkValidity()` 仍返回 `true`。移除和改名路径中，读取留在原表单的必填 Radio 的 `validity` 后，整表才返回无效。原生 `input type="radio"` 对照在移除后立即返回无效。
+- 2026-11-19，修复前 Chrome 158.0.8127.37 专项校验 36 项通过 29 项，7 个失败用例对应上述两类问题，控制台无异常。原生表单常规回归 153 项、默认值回归 60 项，Check、上下文和平台单元测试 23 项均通过。
+
+### 修复与复验
+
+- `FormInner` 在同步有效名称前读取当前 DOM 属性。组件写入的继承名称与外部写入的显式名称分别处理。Chrome 新增用例覆盖 `required` 先于 `name` 的四种选项／组，以及定义后升级的独立选项。
+- 独立 Radio 记录当前所属的同名组。移除、改名和更换 form owner 时，刷新旧组成员的有效性，并按新组范围协调互斥。Chrome 在读取字段有效性前直接检查旧表单，验证原生 `form.checkValidity()` 立即失效。重新插入及恢复原名后立即生效。
+- 2026-11-19，8 套 Chrome 表单回归 567 项通过。自动历史恢复与 BFCache 各 44 项通过。相关单元与发布包套件 30 项通过，包含 Theme 和无信号依赖检查。lint、格式、库与声明构建、文档构建通过。T381 校验通过。
+
+### 消费体积基线
+
+沿用 T359 的同条件测法。迁移前取 `314e057`，当前取工作区源码，两侧使用 Node 26.1.0、Vite 8.3.8、utilane 1.2.0 和相同锁定依赖。各自构建库后，消费端使用独立 ES 库模式、`configFile: false`、`minify: true`，计量拼接后的 JavaScript chunk 及 gzip 字节数。两种分组场景均显式导入对应组和成员。Theme 取文本单选模式，显式导入 `theme`、`radio`、`radio-group`。独立全局 CSS 不计入。
+
+<!-- prettier-ignore -->
+| 消费场景 | 原始字节（迁移前 → 当前） | gzip 字节（迁移前 → 当前） | 模块数（迁移前 → 当前） |
+| --- | --- | --- | --- |
+| Radio | 19,159 → 34,244 | 5,614 → 9,054 | 11 → 11 |
+| Checkbox | 19,728 → 34,834 | 5,712 → 9,152 | 11 → 11 |
+| Radio + RadioGroup | 22,595 → 41,809 | 6,501 → 10,891 | 16 → 16 |
+| Checkbox + CheckboxGroup | 23,119 → 42,354 | 6,596 → 10,994 | 16 → 16 |
+| Theme 文本单选 | 26,968 → 47,489 | 7,895 → 12,597 | 19 → 19 |
+
+迁移前五个消费场景均保留 `alien-signals` 的 `esm/index.mjs` 与 `esm/system.mjs`。修复后五个场景均无这两个模块，模块图包含 `form/context.js` 与 `form/accessibility.js`。完整模块图和修复前专项浏览器结果见本机 `.artifacts/t381-bundle-baseline.json`、`.artifacts/t381-browser-report.json`。
+
+## 29. T382 组归属与隔离校验
+
+- Chrome 158.0.8127.37 实测了两种组的默认 slot。直属选项和普通 `div` 包装均正常投影及更新组值。嵌套同类型组时，只更新最近的组。独立项按自身名称提交。移除并重挂载组后，一次用户操作只触发一次组变化。
+- 两种定义顺序均通过。成员先升级时，稍后定义的同类型组会接管已经挂载、经包装的成员。组先升级时，晚定义的成员会读取组的当前值并重放定义前写入的值。源码通过局部上下文请求确定归属，组挂载时一次扫描已存在的后代以处理晚定义，移除时清理成员监听和登记。
+- 混合类型失败。组请求由最近的 `group` 上下文接收，提供者未区分 Radio、Checkbox。Radio 放入 CheckboxGroup 时会改写多选组，Checkbox 放入 RadioGroup 时会替换单选值。外层存在同类型组时，中间的异型组仍会截获请求，实际事件和 `FormData` 都归到异型组。
+- 默认 slot 分配边界失败。直属选项指定不存在的 `slot="missing"` 后，`assignedElements()` 为空，两种组仍登记该选项，使用其值提交并判定必填有效。移除该 `slot` 属性后，实际投影和同类型组选中、提交均正常。
+- 2026-11-19，T382 首轮专项用例 28 项通过 22 项，失败集中在上述两类场景，控制台无异常。现有原生表单 165 项、所有权生命周期 28 项、Check／上下文单元测试 20 项通过。完整专项观察见本机 `.artifacts/t382-browser-report.json`。
+
+### 默认插槽复验
+
+- 用户确认异型组和不存在的插槽名均属使用错误。本轮以 Chrome 158.0.8127.37 复跑 22 项正常用法，全部通过。覆盖显式 `slot=""` 的直属选项、普通包装、同类型嵌套、独立提交、重挂载和两种定义顺序。Check／上下文单元测试 20 项通过。
+- 复验确认 `slot="missing"` 时两种组的默认 slot 均无分配元素，组仍收值并通过必填校验。删除无效插槽名后正常投影、选中和提交均通过。T382 按用户确认的范围验收完成。复验详情见本机 `.artifacts/t382-recheck-report.json`。
+
+## 30. T383 组选中状态与事件验收
+
+- 两种组以普通 `string[]` 保存解析后的选中值，使用组上下文同步成员 `checked`。多选重复 token 在原生 `FormData` 中只提交一次，保留顺序。实测 `&`、`%`、中文及旧非法转义片段的解析，验证仅选中空 token 时的 `&` 编码，以及空字符串清空多选。
+- 连续赋相同的组值、重置、重新挂载和组内成员的 `checked` 赋值均保持静默。选中状态和提交值同步一致。组件通过定向配置应用成员状态，用户点击也保留初始 `value` attribute 作为重置默认值。
+- 一次实际切换只发出一次组 `change`，事件到达组监听器时已可读取更新后的 `FormData`。`l-form` 校验规则执行一次。单选组和多选组分别提供字符串与字符串数组，再点已选 Radio 保持静默。成员监听器和捕获阶段保留 T379 记录的事件边界。重挂载后组监听次数保持正常。
+- Chrome 158.0.8127.37 专项 22 项、Check／上下文单元测试 20 项通过，控制台无异常。专项记录见本机 `.artifacts/t383-browser-report.json`。T383 校验通过。
+
+## 31. T384 Check 无信号验收
+
+- 源码核对确认 Check、CheckGroup 及 `FormInner`、FormItem、Form 的继承和协作链路已清理组 `effect`、停止句柄、旧组注入事件及 `alien-signals` 引用。成员通过普通上下文读取组配置和选中状态，用户操作交组处理。独立项的选中与提交无需组实例。
+- 对照 `314e057` 的 `Signal<string[]>`，实际生成的总入口与两种 Group 按需入口声明均公开 `values: string[]`。类型复验确认普通数组读取可用，旧 `values()` 和 `values([...])` 调用不再兼容。程序修改组选择使用 `value`，独立项的 `getChecked()`、`setChecked()` 类型保持可用。
+- 在隔离目录重新构建实际发布包并运行 `scripts/check-form-signals.mjs`，7 项通过。检查 18 个表单相关按需入口及其共享 chunk、独立消费组合和总入口具名消费的最终 bundle，覆盖 Radio、Checkbox、两种组及 Theme。全量注册的阳性对照仍包含 Collapse 的 `alien-signals`，总入口保留 `Signal`／`SignalStop` 类型导出。
+- Check／上下文单元测试 20 项通过，包含独立选项。打包消费在 Chrome 158.0.8127.37 中 45 项通过，覆盖组和 Theme 的事件及重挂载，控制台无异常。结果见本机 `.artifacts/t384-consumer-report.json`。T384 校验通过。
+
+## 32. T385 组选项动态行为校验
+
+- 两种组的动态新增、移除和重插通过。新项读取组当前值，选项移走后原组保留配置值并立即停止提交该项，重插可恢复选择。跨组移动后，新组独立同步提交和事件，原组无残留关联。重挂载后每次切换只发一次组 `change`。
+- 选项在同一包装节点内改 `value` attribute 或 property 后，选中和提交即时更新。编辑过的选项改 `value` attribute 时只改变默认值。组内选项改 `name` 后仍由组提交，修改组 `name` 后业务数据和 `FormData` 均使用新名。不同值选项重排通过。两种组沿用各自固定的选择模式，公开文档无动态 `multiple` 配置。
+- 同一轮连续七次激活 `a&b`、`100%` 和中文选项，每次组事件与提交一致。多选组同值项共享选中状态，每个 token 只提交一次，排序后状态保持。单选组同值项始终只有一个被勾选。
+- 单选组有两个同值项时，点击选中第二项后，用 `insertBefore()` 把它移动到第一项前，会把勾选切到另一个项。组 `value` 和 `FormData` 保持原值，排序未发出 `change`。单独重排未选中的同值项时选择保持。原生 Radio 在相同排序操作下保留原选中项。
+- Chrome 158.0.8127.37 首轮专项 34 项通过 33 项，失败项为同值 Radio 重排后的选中项保持，控制台无异常。用户确认同组 Radio 的 `value` 应唯一，重复值属于使用错误。按确认的范围，33 项 Chrome 用例和 20 项 Check／上下文单元测试均通过。专项观察见本机 `.artifacts/t385-browser-report.json`。T385 验收完成。
+
+## 33. T386 Check 禁用状态与半选校验
+
+- CheckboxGroup 和 RadioGroup 的自身禁用、组禁用及 `fieldset` 禁用组合通过。解除组或 `fieldset` 禁用后，选项自身禁用仍生效。只有选项被 `fieldset` 禁用时，组即时排除该值并重算必填，解除禁用后恢复提交。禁用的选项不响应点击或 Enter，不发出 `change`。
+- 两种组的 `gap` 继承与覆盖、按钮模式、可见标签及主题色通过。半选自身不增加 `FormData` 条目，仍由实际勾选状态决定是否提交。
+- 给 Checkbox 设置 `indeterminate` 后，内部输入和浏览器无障碍树初始分别为 `true` 和 `mixed`。聚焦后按空格，勾选成功并只提交一条，但内部 `input.indeterminate` 变为 `false`，无障碍树显示已勾选，宿主属性和半选样式状态仍保留。另一个独立复现是同时处于勾选和半选状态时，对勾样式覆盖了半选横线。
+- 仅通过默认插槽提供 Checkbox 的可见文本时，内部原生输入在浏览器无障碍树中的名称为空。通过 `label` 属性提供的名称可读取。
+- 首轮 Chrome 158.0.8127.37 专项 70 项通过 67 项，失败项为半选键盘同步、图标优先级和插槽无障碍名称。首轮结果见本机 `.artifacts/t386-browser-report.json`。
+- 修复后，原生激活按组件配置保留 `indeterminate`，半选横线优先于对勾，默认插槽文字可作为无障碍名称并随内容更新。显式提供的名称仍优先。复测真实空格键时，独立和组内 Checkbox 各只产生一次对应的变更事件，`FormData` 仍只读取勾选值。
+- Chrome 专项复验 10 项、原生表单 175 项、默认值与重置 60 项、表单行 47 项、Check／上下文单元测试 20 项全部通过，浏览器控制台无异常。复验见本机 `.artifacts/t386-fix-browser-report.json`。T386 验收完成。
+
+## 34. T387 Check 键盘与焦点校验
+
+- Chrome 158.0.8127.37 实测 Checkbox Space、内部标签和图标点击均只切换一次。外部同树 `label for`、包裹标签和 FormItem 标签转发正常。禁用项跳过 Tab 并拦截点击。Radio Space 正常选中，同组和同表单同名独立项的互斥均生效。
+- RadioGroup 的四个方向键均未移动焦点或切换选项。Tab 从第一个可用项开始逐项进入，即使组已有选中项；Shift+Tab 也逐项经过组内选项。未选中组同样有多个 Tab 停靠点。独立同名 Radio 也缺少跨 ShadowRoot 的方向键协调。原生同名 Radio 对照组的焦点、方向键换选和提交正常。[WAI 单选组键盘模式](https://www.w3.org/WAI/ARIA/apg/patterns/radio/)、[HTML 原生单选分组条件](https://html.spec.whatwg.org/multipage/input.html#radio-button-group)
+- Tab 能聚焦内部 Checkbox，但焦点轮廓只落在零尺寸且透明的原生输入上，宿主、标签和图标没有可见焦点变化。RadioGroup 即使有 `aria-label`，在 Chrome 无障碍树中仍是 `generic`，缺少 `radiogroup` 语义。[WAI 单选组无障碍模式](https://www.w3.org/WAI/ARIA/apg/patterns/radio/#wai-aria-roles-states-and-properties)
+- 在捕获阶段取消 Space 触发的 `click` 时，浏览器回滚内部输入的勾选，但宿主已发送 `change`、更新勾选样式和 `FormData`，两处状态不一致。[HTML 输入激活与取消规则](https://html.spec.whatwg.org/multipage/input.html#the-input-element)
+- 单个 Check 在无障碍树中仅暴露一个原生 `checkbox`／`radio`。插槽、`label` 属性、外部标签、同树 `aria-labelledby` 及 FormItem 标签的命名验证通过。跨树 ID 无法解析时，仍使用插槽文字。代码通过 `ElementInternals.labels` 和同树查询提取文本，再写入内部原生输入的 `aria-label`，符合 Safari 16.4 的 API 范围。触摸只核对共用的 `click` 激活入口，Safari、Firefox、VoiceOver 和触摸设备未实测。[Safari 16.4 Web Components 支持](https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#web-components)、[HTML 标签关联规则](https://html.spec.whatwg.org/multipage/forms.html#the-label-element)
+- 首轮 Chrome 专项 47 项通过 35 项，原生表单回归 175 项及 Check／上下文单元测试 20 项通过，控制台无异常。首轮结果见本机 `.artifacts/t387-browser-report.json`。
+- 修复后，RadioGroup 和同表单同名的独立 Radio 采用相同的 Tab 策略。选中且可用的项优先进入 Tab 顺序，无可用选中项时使用第一个可用项。方向键按顺序移动、跳过禁用项并循环。每次换选只发出一次对应的公开 `change`，`FormData` 只有一条选中值。Check 聚焦时显示外框，RadioGroup 使用 `ElementInternals.role` 提供默认 `radiogroup` 语义。该 API 的 Safari 支持从 16.4 起。[ElementInternals 角色兼容数据](https://github.com/mdn/browser-compat-data/blob/main/api/ElementInternals.json)
+- 内部输入在原生 `change` 后同步宿主选中、半选和提交值。捕获或冒泡阶段取消 Space 触发的原生 `click` 时，宿主状态和 `FormData` 保持原值。正常的 Space、标签点击仍各触发一次切换。
+- Chrome 专项复验 26 项、原生表单回归 187 项和 Check／上下文单元测试 20 项全部通过，控制台无异常。复验结果见本机 `.artifacts/t387-fix-browser-report.json`。T387 验收完成。
+
+## 35. T388 Check 原生表单与恢复校验
+
+- Chrome 158.0.8127.37 实测独立 Check 和两种组的原生提交、组与子项提交隔离、同名多值、`0`／`false`／空字符串、半选、动态增删和禁用均符合 T336。独立同名 Radio 按 form owner 隔离并互斥。必填组缺少可用选项时只从组发出一次 `invalid`，FormItem 能展示提示，`emit-error` 对普通选项的必填失败和恢复各上报一次。
+- 原生 `reset()` 和 `l-form.reset()` 使用最新默认值，组和成员各只执行一次重置回调，未发用户事件。取消重置不调用这些回调。禁用往返缓存后执行真实历史返回，浏览器为 10 个 Check 和组各调用一次 `restore`。两种 form owner 的 `FormData`、半选、空字符串选中与无选中状态均恢复，未重复发出用户事件。恢复 state 是带版本的 JSON 字符串，符合 Safari 16.4 的字符串能力范围。[WebKit 恢复 API 说明](https://webkit.org/blog/13711/elementinternals-and-form-associated-custom-elements/)
+- 独立 Checkbox／Radio 放在必填 FormItem 中时，未勾选仍会通过 `l-form.validate()`，`l-form.submit()` 会发出包含非空 token 的 `submit`，而原生 `checkValidity()` 返回 `false` 且 `FormData` 无该项。业务必填直接读取 `getData()` 保留的 token。
+- 选中空字符串时，独立 Checkbox／Radio 和 RadioGroup 都能生成正确的空字符串 `FormData`，但 FormItem 的业务必填仍报错并拦截 `l-form.submit()`。RadioGroup 的原生 `valueMissing` 为 `false`。独立项在点击触发业务校验后还被设置业务 `customError`。CheckboxGroup 的空选项编码 `&` 在该场景通过。
+- `Check.formStateRestoreCallback()` 收到 `version: 1` 且带 `checked`、但缺少 `value` 的对象时，只忽略恢复值，仍应用 `checked` 和 `indeterminate`。实测原本未选中的半选项被勾选并提交旧 token。
+- Safari 16.4 对应的 WebKit 源码存在 `setFormValue(null, state)` 不清除旧提交值的问题。修复前，未选中和上下文禁用路径以 `null` 清除，因此已提交过的选项在目标版本上可能残留旧值。此项为源码和上游缺陷核对。[对应 WebKit 源码](https://github.com/WebKit/WebKit/blob/WebKit-7615.1.26.11.23/Source/WebCore/html/FormAssociatedCustomElement.cpp#L91-L97)、[WebKit 缺陷 258870](https://bugs.webkit.org/show_bug.cgi?id=258870)
+- 首轮 Chrome 专项 67 项通过 58 项，其中真实历史恢复 7 项全通过。既有表单回归 419 项、Check／上下文与无信号入口检查 21 项全部通过，浏览器控制台无异常。首轮结果见本机 `.artifacts/t388-browser-report.json`。
+- 修复后，可用的 Check 和两种组的业务 `required` 按选中状态判断。可用的空字符串选项通过必填，其余自定义规则仍读取原值。组启用时，未选中任何选项或仅选中禁用项均无法通过必填。`emit-error` 对必填失败和选中空值后的恢复各发一次。缺少 `value` 或半选类型错误的恢复记录在改动字段前整体忽略。
+- 无提交条目时，用空 `FormData` 覆盖旧提交值，并保留单独的字符串恢复状态。Safari 16.4 的源码会保存传入的 `FormData` 并只追加其中的条目。Chrome 模拟旧版忽略 `null` 的行为时，清除和恢复提交值均通过。Safari／iOS 沿用源码核对范围。[对应 WebKit 源码](https://github.com/WebKit/WebKit/blob/WebKit-7615.1.26.11.23/Source/WebCore/html/FormAssociatedCustomElement.cpp)
+- Chrome 原生表单回归 211 项（新增 24 项）、默认值 60 项、完整流程 172 项、真实历史恢复 6 项及 Node 检查 21 项全部通过。库构建和 lint 通过。复验见本机 `.artifacts/t388-fix-browser-report.json`。T388 验收完成。
+
+## 36. T389 Check 浏览器自动回归
+
+- [浏览器夹具](../tests/check-browser.fixture.mjs) 只显式载入 Checkbox、Radio、两种组、FormItem 和 Form 六个按需入口。检查初始值、特殊值序列化、嵌套组隔离、跨组移动和重挂载、销毁后旧输入的监听清理、禁用与 `fieldset` 首个 `legend` 例外。覆盖独立项、各组、原生 `form` 和 `l-form` 辅助表单的 `FormData`、必填提示和原生重置回调。跨原生 form 移动同名 Radio 后，提交与互斥切换到新的 form owner。
+- [浏览器测试](../tests/check-browser.test.mjs) 通过真实 Chromium 键盘输入验证 Tab、Shift+Tab、Space 与四个方向键，覆盖可见焦点、半选同步、取消原生激活后的回滚，以及成功切换只发一次 `change`。执行 `npm run lib:build`，将 `FORM_TEST_BROWSER` 指向 Chrome 或 Edge，再执行 `node --test tests/check-browser.test.mjs`。
+- Chrome 158.0.8127.37 按需入口专项 30 项、原生表单 211 项、默认值 60 项、所有权生命周期 28 项、浏览器历史恢复与往返缓存各 44 项全部通过。Node 检查 21 项通过。T389 验收完成。
+
+## 37. T390 Check 发布包与消费体积校验
+
+- 重新构建库和声明。源码、四个 Check 按需入口的传递依赖、发布产物的共享 chunk 及消费端模块图均无 `alien-signals` 运行时代码。包的 `dependencies` 仍声明 `alien-signals`。源图与发布包门禁 8 项通过。
+- 实际 `npm pack` 生成 `litos-ui-0.23.1.tgz`，含 497 个文件。临时 npm 项目离线安装 tarball 与锁定版本的依赖。Chrome 158.0.8127.37 中，两种组单独导入的注册边界 3 项、总入口与按需入口混用 7 项、Theme 和 Form 消费回归 45 项全部通过。两种组按既定约定显式导入成员。四个组件的总入口和按需入口解析为同一构造函数，重复调用 `regist()` 后注册身份保持一致。
+- TypeScript 7.0.2 严格消费测试通过两种组的 `values: string[]`、独立项的 `getChecked()`／`setChecked()`／`defaultChecked` 及现有 Preact 写法。首轮 Chrome 验证独立项的 `checked` 运行时可读写，发布声明缺漏使两种组件经总入口或按需入口导入时均报 TS2339。T379 已记录这项类声明缺漏，Preact 沿用 T351 已确认范围。
+
+### 消费体积复测
+
+沿用 T381 的 Node 26.1.0、Vite 8.3.8、utilane 1.2.0 和锁定依赖。重新构建 `314e057` 与当前源码，使用独立 ES 库模式、`configFile: false` 和 `minify: true`，统计拼接后的 JavaScript 与 gzip 字节数。迁移前重建的原始体积较 T381 存档少 19～44 字节，差额与生成的模块路径注释长度一致，gzip 相差 2～3 字节。T381 的当前源码列作为下表基线。
+
+<!-- prettier-ignore -->
+| 消费场景 | 迁移前复测（原始／gzip） | T381 基线（原始／gzip） | 当前（原始／gzip） | 较 T381 增加（原始／gzip） |
+| --- | --- | --- | --- | --- |
+| Radio | 19,140／5,612 | 34,244／9,054 | 36,758／9,806 | 2,514／752 |
+| Checkbox | 19,709／5,709 | 34,834／9,152 | 37,369／9,925 | 2,535／773 |
+| Radio + RadioGroup | 22,565／6,499 | 41,809／10,891 | 44,722／11,682 | 2,913／791 |
+| Checkbox + CheckboxGroup | 23,089／6,593 | 42,354／10,994 | 45,252／11,783 | 2,898／789 |
+| Theme 文本单选 | 26,924／7,892 | 47,489／12,597 | 50,402／13,453 | 2,913／856 |
+
+五个场景的保留模块数仍为 11、11、16、16、19。迁移前对照均含 signal 运行时代码，当前五个场景均通过排除检查。构建与消费结果见本机 `.artifacts/t390-audit-report.json`。
+
+在 Check 基类补充 `checked: boolean` 声明，发布包自动化检查覆盖两个组件从总入口和按需入口读写该属性，并校验字符串赋值会被拒绝。重新构建后，在临时项目离线安装实际 tarball，四种导入的严格类型检查通过。安装包中的 Check JavaScript 校验和与首轮一致。发布包门禁 8 项、Chrome 消费回归 45 项、Check／上下文单元测试 20 项及 lint 均通过。复验见本机 `.artifacts/t390-type-recheck.json`。T390 验收完成。
+
+## 38. T391 Check 平台与主题校验
+
+- Windows 26H2（构建 26300.9974）上的 Chrome 158.0.8127.37 和 Edge 157.0.4341.60 各通过 25 项按需入口浏览器检查。实测 Tab、Shift+Tab、空格、方向键、可见焦点、跳过禁用项、动态移除与重新插入、原生重置和提交。Chromium 无障碍树验证选项名称、`radiogroup`、选中、半选、禁用和 FormItem 错误描述，选择有效值后错误描述清除。
+- 两个浏览器均检查默认、翡翠绿、珊瑚红、活力橙及其暗黑状态。计算样式确认 Checkbox 半选横线、Radio 选中圆点、按钮选中背景、禁用色、焦点轮廓及组间距均取得预期值。浏览器控制台无异常。结果见本机 `.artifacts/t391-browser-report.json`。
+- Chrome 按需入口回归 30 项通过。关闭往返缓存后，真实历史返回触发独立 Checkbox、CheckboxGroup 和 RadioGroup 的 `restore` 回调。开启往返缓存时观察到 `pageshow.persisted`。两套状态／自动填充回归各 44 项通过，真实恢复与缓存回用分别记录在 `.artifacts/form-state-restore-result.json` 和 `.artifacts/form-state-bfcache-result.json`。
+- 核对了 `ElementInternals`、`role`、焦点委托、`composedPath()`、可构造样式表及同树 ARIA 引用。Check 的核心调用符合 Safari 16.4 和 Firefox 140 的 API 范围。旧版 WebKit 取消提交沿用 T388 的空 `FormData` 清除方案。检查六个按需入口实际解析的 33 个 JavaScript 模块，Oxc 对 Safari 16.4 和 Firefox 140 的目标转换均无额外语法转换差异。[WebKit Safari 16.4 发布说明](https://webkit.org/blog/13966/webkit-features-in-safari-16-4/#web-components)、[ElementInternals 兼容数据](https://github.com/mdn/browser-compat-data/blob/main/api/ElementInternals.json)、[ShadowRoot 兼容数据](https://github.com/mdn/browser-compat-data/blob/main/api/ShadowRoot.json)
+- 触摸沿用 API 核对范围。可见选项有 `cursor: pointer` 并通过 `click` 激活，事件路径判断使用 `composedPath()`，无 `pointerType` 限制。[Apple Safari 触摸与点击事件说明](https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariWebContent/HandlingEvents/HandlingEvents.html)
+- 用户确认 iOS／iPadOS 16.4、桌面 Safari、Firefox、VoiceOver 和实际触摸由其手动核对，并授权将 T391 标记为完成。本轮实测结果来自 Chromium。
+
+## 39. T392 Check 文档与 llms 校验
+
+- Radio 页已有独立、禁用、普通组和按钮组演示。普通组还缺少通过 `value` 动态选择和清空的操作，以及 `change.detail.value` 的实时反馈。API 需说明同组 Radio 的 `value` 应唯一，并补充两种组用于读取解码结果的 `values: string[]`。Checkbox 已有可操作的全选／半选／清空演示，点击成员时收到字符串数组，程序设置组值时保持静默。
+- Radio、Checkbox 页的按需入口段落写着会注册内建依赖。两段示例已显式导入成员和组，说明应与示例及 T390 的实际发布包结果一致。
+- Form 页的原生提交演示使用 `l-input`，通用 API 已区分 Check 的 `checked` 与选项 `value`。还缺少 Check 业务数据和原生提交的对照。实测未勾选的独立 Checkbox 仍在 `getData()` 中保留选项值，原生 `FormData` 省略该字段。CheckboxGroup 的业务值保留已选禁用成员，原生提交按组名逐条写入已选可用成员。无匹配时 `getData()` 仍保留组字段，RadioGroup 为 `null`，CheckboxGroup 为空字符串。匹配空值选项时原生提交空字符串，CheckboxGroup 的业务值为 `&`。
+- 隔离输出的文档构建通过，llms 单元测试 10 项通过。两个语言索引各收录 49 页，Radio、Checkbox、Form 的六份生成 Markdown 均进入对应语言的全文，保留演示源码、API 和 Form 链接。Checkbox 中间状态的 HTML 与 TypeScript 各收录一次。Form 现有原生提交演示的生成片段只有 HTML，页面脚本中的结果反馈未进入该片段。
+- Chrome 158.0.8127.37 验证中英文共六个构建预览页，独立项、禁用、组选中、Checkbox 半选联动以及 Form 现有提交和标签位置演示通过。另用同一构建验证四种 Check 提交场景，控制台无异常。结果见本机 `.artifacts/t392-audit-report.json`。
+- Radio、Checkbox 已登记英文待同步，保留现有译文。相关中文 Form 内容补齐后须一起登记。T392 校验未通过，保持未勾选。
+
+### 修复与复验
+
+- 按用户确认暂缓第 1 项的 RadioGroup 动态值、事件演示及相关 API 补充。Radio、Checkbox、Form 与按需导入指南改为显式导入用到的组件，包括组成员与功能所需图标。示例逐个导入所用元素。
+- Form 新增同一表单的 `getData()`／`FormData` 提交对照、数据规则表和源码。Radio、Checkbox 文档说明组值无匹配时的快照与原生提交行为，并链接到该示例。原生表单演示也补齐可复制的反馈脚本。更新四页英文待同步记录，重新打开 T042。
+- Chrome 158.0.8127.37 复验中英文六个预览页。新演示点击提交验证初始值、用户改选、组值无匹配三种结果，另通过四种提交边界检查，控制台无异常。双语文档构建和 llms 测试 10 项通过，生成的 Form 页面与中文全文同时收录两个提交示例的 HTML 和 JavaScript。结果见本机 `.artifacts/t392-fix-report.json`。T392 按确认范围完成。
+
+## 40. T393 Check 发布前校验
+
+- `pnpm lint`、`pnpm fmt:check`、`pnpm lib:build`、`pnpm docs:build` 均通过，格式检查覆盖 475 个文件。文档构建保留大 chunk 提示，中英文 llms 各收录 49 页。`npm pack --dry-run --ignore-scripts` 检查了已构建的 497 个包文件及目标入口的 JS 和声明。首次执行 pnpm 触发自动重装，默认缓存缺少锁定版本。已使用本机缓存按原锁文件离线恢复 263 个包，复跑时指定对应的缓存和依赖校验配置。
+- T336 的 Check 按需入口交互 30 项及实际 tarball 中的 Theme／Group／Form 消费 45 项通过。FormItem 浏览器回归 47 项通过。表单所有权、动态关联、原生提交、重置、默认值和自动填充配置八套场景最终通过 613 项。`recreated-date-editors-inherit` 在并行运行时复现 T351 记录的时序失败，改为独立执行后三次均通过 40 项。真实历史恢复与往返缓存／自动填充两套场景各通过 44 项。
+- T356 的源码传递图、独立按需包、共享 chunk 与全量注册 bundle 未引入 `alien-signals` 运行时代码。严格类型检查通过，独立项的 `checked`、`defaultChecked`、`getChecked()` 和 `setChecked()` 可用，组的 `values` 以 `string[]` 读取，旧 `values()` 方法调用已失效。兼容类型导出及包依赖保留，T360 状态保持未勾选。
+- 与 T390 相同条件下，Radio、Checkbox、Radio＋Group、Checkbox＋Group、Theme 文本单选五个场景的原始／gzip 体积和模块数均一致。相对 T381，原始体积增加 2,512～2,913 字节，gzip 增加 752～856 字节。34 个按需依赖模块用 Safari 16.4 和 Firefox 140 目标静态转换，输出无额外语法转换。最低版 API、触摸和 VoiceOver 沿用 T391 约定的核对范围。本轮浏览器实测为 Windows Chrome 158.0.8127.37。
+- Chrome 操作中英文 Radio、Checkbox、Form 和 Theme 共八页构建预览，控制台无异常。Theme 按钮、下拉、开关、文本单选和图标单选各自切换时只发出一次公开 `change`，来源为 `l-theme`。中英文 Theme 页均可复现同页选中状态不同步。文本单选切到深色后，图标和自定义单选仍显示浅色已选。此时直接点击已选的浅色，页面继续保持深色。先在同一组切到其他选项，再点击浅色可以恢复。
+- 全库 Node 测试带 `--experimental-vm-modules` 运行，288 项通过，1 个测试文件失败。`tests/neutral-colors.test.mjs` 以 `:root {` 匹配变量，当前 `styles/vars.css` 的 `:root` 与带 `data-theme` 的选择器共用声明，导致测试在收集用例前报错。用 HEAD 的测试与样式单独复现，失败属于既有测试问题。
+- T336、T356 原状态保留。Theme 同页演示问题仍待处理，T393 校验未通过。报告见本机 `.artifacts/t393-docs-report.json` 和 `.artifacts/t393-bundle-report.json`。
+
+### 修复与复验
+
+- Theme 按钮、下拉、开关、文本单选、图标单选和文档自定义单选同步到当前页面主题。状态同步保持静默，只有发起用户操作的 `l-theme` 发出一次公开 `change`。发布包回归覆盖互相切换、无根类属性时切到自动、外部主题变更和移除重挂载。自定义演示按其源码示例记忆选择，在无 View Transition API 时直接切换。
+- 颜色回归测试按选择器列表读取变量并使用 `styles/themes/` 路径，Tag 背景变量和四套配色的明暗对比度共 9 项通过。全库回归 297 项通过，发布包浏览器场景 52 项、八套表单流程 613 项、恢复与自动填充两套各 44 项通过。
+- Chrome 158.0.8127.37 复验中英文八个预览页，交替使用文本、图标和自定义单选均能直接切回上一主题。无 View Transition API 的自定义演示回退通过，控制台无异常。lint、格式、库与声明构建、文档构建及 499 文件的打包预检通过。
+- 四个 Check 消费场景与 T390 的体积和模块数一致。Theme 文本单选为 51,304 字节／gzip 13,689 字节，较 T390 增加 902／236 字节。35 个按需依赖模块静态核对 Safari 16.4 与 Firefox 140，无额外语法转换。包内共享主题模块无单独注册入口，构建和消费图均无 `alien-signals` 运行时引用。T393 验收完成。复验数据见本机 `.artifacts/t393-fix-docs-report.json` 和 `.artifacts/t393-fix-bundle-report.json`。
+
+## 41. 移除旧上下文接口
+
+T360 卸载 `alien-signals` 后，已移除旧的 `ContextProvide` 深层入口，以及总入口的 `Signal` 和 `SignalStop` 类型导出。直接使用这些旧导入的项目需要更新自己的代码。

@@ -1,16 +1,17 @@
 // @ts-ignore
 import css from "./index.less?inline";
 import FormInner from "../form/form_inner";
-import { $$, $, on, off, iterate } from "utilane/browser";
+import { $$, $, on, off } from "utilane/browser";
 import { parse } from "utilane";
-import { kebabToCamel, parseAttrValue, unitNumberStr } from "../utils";
+import { parseAttrValue, unitNumberStr } from "../utils";
+import { readFormBooleanAttribute } from "../form/context";
 
 type DateInputType = "date" | "datetime-local" | "time" | "month" | "week";
 
 type DatePickerOriState = {
   /** 是否显示日期范围选择 */
   range: boolean;
-  /** 范围选择器时，为了性能考虑, 立即改变一个日期后，会延迟 300ms 通知, 以响应其它选择器, 0 - 立即触发 */
+  /** 区间 change 的延时，0 表示在下一个定时器任务派发。 */
   delay: number;
   type: DateInputType;
   width?: string;
@@ -23,11 +24,12 @@ type DatePickerOriState = {
 export default class DatePicker extends FormInner {
   public static baseName = "date-picker-ori";
 
-  #inners!: HTMLInputElement[];
+  #inners: HTMLInputElement[] = [];
   #dateValues: string[];
+  #reversedRange = false;
   #t?: number;
   // 至上一次触发change后，是否有更改
-  #isUpdated;
+  #isUpdated = false;
   _state: DatePickerOriState;
 
   public constructor() {
@@ -39,19 +41,43 @@ export default class DatePicker extends FormInner {
       allowEmpty: true,
     };
     this.#dateValues = [];
-    this.#isUpdated = false;
   }
 
-  public setValue(v: string) {
-    v = String(v ?? "");
-    this.#dateValues = v.split(",");
-    super.setValue(v);
-    if (this.rendered) {
-      iterate(this.#inners, ($input, index) => {
-        $input.value = this.#dateValues[index] ?? "";
-      });
-    }
-    this.syncNativeValue();
+  protected parseDefaultValue(value: string | null): string {
+    return this.#formatDateValues(this.#readDateValues(value).dates);
+  }
+
+  #createDateProbe(): HTMLInputElement {
+    const probe = this.ownerDocument.createElement("input");
+    probe.type = this.getAttribute("type") || this._state.type;
+    return probe;
+  }
+
+  #readDateValues(value: string | null | undefined) {
+    const [first, last = ""] = String(value ?? "").split(",", 2);
+    const probe = this.#createDateProbe();
+    probe.value = first;
+    const start = probe.value;
+    const range = parseAttrValue(this.getAttribute("range"), false, "range");
+    if (!range) return { dates: [start], reversed: false };
+
+    const startNumber = probe.valueAsNumber;
+    probe.value = last;
+    return { dates: [start, probe.value], reversed: startNumber > probe.valueAsNumber };
+  }
+
+  #formatDateValues(dates: readonly string[]): string {
+    return dates.some(Boolean) ? dates.join(",") : "";
+  }
+
+  public setValue(value: string | null | undefined): void {
+    const { dates, reversed } = this.#readDateValues(value);
+    this.#clearTimer();
+    this.#isUpdated = false;
+    this.#dateValues = dates;
+    this.#reversedRange = reversed;
+    this.#syncInputs();
+    super.setValue(this.#formatDateValues(dates));
   }
 
   /** 范围业务值仍是逗号串，原生日期约束分别校验两个端点。 */
@@ -59,6 +85,10 @@ export default class DatePicker extends FormInner {
     return this._state.range
       ? [this.#dateValues[0] ?? "", this.#dateValues[1] ?? ""]
       : [this.#dateValues[0] ?? ""];
+  }
+
+  protected get nativeBadInput(): boolean {
+    return this.#reversedRange;
   }
 
   protected disabledChange(): void {
@@ -94,27 +124,34 @@ export default class DatePicker extends FormInner {
       on(this.#inners, "focus", this.#handleFocus);
       on(this.#inners, "blur", this.#handleBlur);
     }
+    this.#syncInputs();
   }
 
   beforeDestroy(): void {
     off(this.#inners, "change", this.#change);
-    if (this._state.range) {
-      off(this.#inners, "focus", this.#handleFocus);
-      off(this.#inners, "blur", this.#handleBlur);
-    }
+    off(this.#inners, "focus", this.#handleFocus);
+    off(this.#inners, "blur", this.#handleBlur);
     this.#clearTimer();
+    this.#isUpdated = false;
+    this.#inners = [];
   }
 
   protected attributeChange(name: string, oldValue: string, newValue: string): void {
     switch (name) {
       case "type":
+        this._state.type = (newValue || "date") as DateInputType;
+        this.#refreshValueFormat();
+        break;
       case "min":
       case "max":
         this._state[name] = newValue as any;
         break;
       case "range":
+        this._state.range = parseAttrValue(newValue, false, name);
+        this.#refreshValueFormat();
+        break;
       case "allow-empty":
-        this._state[kebabToCamel(name) as "range"] = parseAttrValue(newValue, false, name) as any;
+        this._state.allowEmpty = parseAttrValue(newValue, true, name);
         break;
       case "delay":
         this._state.delay = parseAttrValue(newValue, 300);
@@ -127,24 +164,41 @@ export default class DatePicker extends FormInner {
 
   protected updateDOM(changedProps: Set<string>): void {
     if (changedProps.has("width")) this._updateWidth();
-    if (changedProps.has("range")) {
+    if (changedProps.has("range") && this.#inners.length !== (this._state.range ? 2 : 1)) {
       this.beforeDestroy();
       for (const node of this.root.querySelectorAll(".l-date-inner,.l-date-range-divider"))
         node.remove();
       this.root.appendChild(this.render());
       this.afterInit();
     }
-    for (const input of this.#inners ?? []) {
+    this.#syncInputs();
+    this.syncNativeValue();
+  }
+
+  #refreshValueFormat(): void {
+    if (this.dirtyValue) this.setValue(this.value);
+    else this.applyDefaultValue();
+  }
+
+  #syncInputs(): void {
+    for (const [index, input] of this.#inners.entries()) {
       input.type = this._state.type || "date";
+      const value = this.#dateValues[index] ?? "";
+      if (input.value !== value) input.value = value;
       for (const attr of ["min", "max", "step"] as const) {
         const value = this.getAttribute(attr);
         if (value == null) input.removeAttribute(attr);
         else input.setAttribute(attr, value);
       }
-      input.readOnly = this.hasAttribute("readonly") && this.getAttribute("readonly") !== "false";
+      input.readOnly = readFormBooleanAttribute(this.getAttribute("readonly")) ?? false;
       input.disabled = this.isDisabled();
     }
-    this.syncNativeValue();
+    const [first, last] = this.#inners;
+    if (first && last) {
+      // Intersect the range endpoint bounds with the host's configured limits.
+      if (last.value && (!first.max || last.value < first.max)) first.max = last.value;
+      if (first.value && (!last.min || first.value > last.min)) last.min = first.value;
+    }
   }
 
   private _updateWidth() {
@@ -183,37 +237,34 @@ export default class DatePicker extends FormInner {
 
   #change = (e: Event) => {
     const $target = e.target as HTMLInputElement;
+    if (this.isDisabled() || $target.readOnly) return;
     const index = Number($target.getAttribute("l-datepicker"));
+    if (index >= this.#dateValues.length) return;
     let value = $target.value;
     if (!value && !this._state.allowEmpty) {
       value = this.defaultValue;
       value = String(value).split(",")[index] ?? "";
       $target.value = value;
     }
-    this.#dateValues[index] = value;
-    const newValue = this.#dateValues.join(",");
-    if (newValue !== this._value) {
-      this.setValue(this.#dateValues.join(","));
-      this.#isUpdated = true;
-    }
-
-    if (index === 0 && this.#inners.length > 1) {
-      this.#inners[1].min = value;
-    } else if (index === 1) {
-      this.#inners[0].max = value;
-    }
-
-    if (this._state.range) {
-      this.#timerEmitChange();
-    } else {
-      this.#emitChange();
+    const dates = [...this.#dateValues];
+    dates[index] = value;
+    const newValue = this.#formatDateValues(this.#readDateValues(dates.join(",")).dates);
+    if (newValue !== this.value) {
+      this.setValue(newValue);
+      this.validateInput();
+      if (this._state.range) {
+        this.#isUpdated = true;
+        this.#timerEmitChange();
+      } else {
+        this.#emitChange();
+      }
     }
   };
 
   #clearTimer() {
-    if (this.#t !== -1) {
+    if (this.#t !== undefined) {
       clearTimeout(this.#t);
-      this.#t = -1;
+      this.#t = undefined;
     }
   }
 
@@ -221,8 +272,9 @@ export default class DatePicker extends FormInner {
     if (this.#isUpdated) {
       this.#clearTimer();
       this.#t = setTimeout(() => {
-        this.#emitChange();
+        this.#t = undefined;
         this.#isUpdated = false;
+        this.#emitChange();
       }, this._state.delay) as any;
     }
   }
@@ -235,13 +287,23 @@ export default class DatePicker extends FormInner {
     this.#timerEmitChange();
   };
 
+  #eventDates(): Date[] {
+    const type = this._state.type.toLowerCase();
+    if (type !== "time" && type !== "week") return this.#dateValues.map((value) => parse(value));
+    const probe = this.#createDateProbe();
+    return this.#dateValues.map((value) => {
+      probe.value = value;
+      return probe.valueAsDate ?? parse(value);
+    });
+  }
+
   #emitChange() {
     this.dispatchEvent(
       new CustomEvent("change", {
         detail: {
           value: this.getValue(),
-          dateStr: this.#dateValues,
-          dates: this.#dateValues.map((dateStr) => parse(dateStr)),
+          dateStr: [...this.#dateValues],
+          dates: this.#eventDates(),
         },
       }),
     );

@@ -5,7 +5,7 @@ import { $one, off, on } from "utilane/browser";
 import inputcss from "../input/input_inner.less?inline";
 import css from "./index.less?inline";
 
-type Option = { label: string; value: string; defaultSelected?: boolean };
+type Option = { label: string; value: string; defaultSelected?: boolean; disabled?: boolean };
 
 export default class SelectOri extends FormInner {
   public static baseName = "select-ori";
@@ -16,6 +16,7 @@ export default class SelectOri extends FormInner {
 
   private $select?: HTMLSelectElement;
   private optionsMarkup?: string;
+  private requestedValue = "";
 
   constructor() {
     super();
@@ -31,11 +32,16 @@ export default class SelectOri extends FormInner {
     return select.value;
   }
 
+  protected serializeFormValue(): string | null {
+    const option = this.$select?.selectedOptions[0];
+    if (!option || option.disabled || option.closest("optgroup")?.disabled) return null;
+    return option.value;
+  }
+
   connectedCallback(): void {
     super.connectedCallback();
     this.$select = $one("select", this.root) as HTMLSelectElement;
-    this.$select.value = this.value ?? "";
-    this.syncNativeValue();
+    this.syncOptionsValue();
     on(this.$select, "change", this._handleChange);
   }
 
@@ -72,37 +78,45 @@ export default class SelectOri extends FormInner {
     element.value = option.value;
     element.textContent = option.label;
     element.defaultSelected = option.defaultSelected ?? false;
+    element.disabled = option.disabled ?? false;
     return element;
   }
 
   private syncOptionsValue(): void {
     if (!this.$select) return;
     if (!this.dirtyValue) this.applyDefaultValue();
-    else this.$select.value = this.value ?? "";
-    this.syncNativeValue();
+    else this.setValue(this.requestedValue);
   }
 
   public setOptions(options: Option[]) {
-    if (!this.$select) return;
-    this.$select.replaceChildren(...options.map((option) => this.createOption(option)));
+    const select = this.$select ?? this.ownerDocument.createElement("select");
+    select.replaceChildren(...options.map((option) => this.createOption(option)));
+    this.optionsMarkup = select.innerHTML;
     this.syncOptionsValue();
   }
 
   public appendOptions(options: Option[]) {
-    if (!this.$select) return;
-    this.$select.append(...options.map((option) => this.createOption(option)));
+    const select = this.$select ?? this.ownerDocument.createElement("select");
+    if (!this.$select) select.innerHTML = this.optionsMarkup ?? this.innerHTML;
+    select.append(...options.map((option) => this.createOption(option)));
+    this.optionsMarkup = select.innerHTML;
     this.syncOptionsValue();
   }
 
   public setValue(value: any): void {
-    super.setValue(value);
-    if (this.$select) this.$select.value = this.value ?? "";
-    this.syncNativeValue();
+    const text = String(value ?? "");
+    // Keep the requested value available for options loaded after the assignment.
+    this.requestedValue = text;
+    if (this.$select) this.$select.value = text;
+    super.setValue(this.$select?.value ?? text);
   }
 
   private _handleChange = (e: Event) => {
+    e.stopPropagation();
     const value = (e.target as HTMLSelectElement).value;
+    this.requestedValue = value;
     super.setValue(value);
+    this.validateInput();
     this.emit("change", { detail: value });
   };
 }

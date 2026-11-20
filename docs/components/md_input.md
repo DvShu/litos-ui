@@ -29,6 +29,21 @@ regist(MdInput);
 </l-code-preview>
 </ClientOnly>
 
+### 自动填充
+
+用 `autocomplete` 提供浏览器填充提示，配合 `html-type="password"` 标识密码输入。未单独设置时继承 [Form](./form) 的默认配置，移除后恢复继承。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-md-input label="邮箱" name="email" autocomplete="email"></l-md-input>
+  <l-md-input label="设置密码" name="password" html-type="password" autocomplete="new-password"></l-md-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+是否提供自动填充由浏览器决定，`off` 不强制禁用密码管理器。
+
 ## 按需入口
 
 ```js
@@ -40,9 +55,9 @@ import "litos-ui/md-input";
 
 ## API
 
-### MdInput 初始化属性
+### MdInput Attributes
 
-除 disabled 外，下列属性主要在连接组件时读取。当前实现未提供所有属性的动态重绘能力；不要将初始化配置等同于完整的受控表单行为。
+`label`、`outline` 和 `inputmode` 在组件挂载时读取。`value`、`name`、`disabled`、`html-type` 和 `autocomplete` 支持运行时更新。
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
@@ -51,9 +66,22 @@ import "litos-ui/md-input";
 | `outline` | 是否显示四周边框 | `boolean` | `false` |
 | `html-type` | 原生输入类型，可选 text、number、password、tel | `string` | `text` |
 | `inputmode` | 原生输入模式 | `string` | - |
+| `autocomplete` | 原生自动填充提示，如 on、off、email、current-password、new-password 或 section-* 组合 | `string` | 未设置 |
 | `name` | 表单字段名 | `string` | - |
+| `value` | 初始值，表单重置时恢复此值 | `string` | `""` |
+| `disabled` | 是否禁用 | `boolean` | `false` |
 
-当前实现尚未完整同步初始 value 与原生输入框，也未将 disabled 状态传递到内部 input，不应作为这些行为已经可用的示例。此处仅说明现有实现，组件功能完善需另行处理。
+`value` property 和原生表单提交值都是字符串。清空后提交空字符串。`html-type="number"` 时，无效的数字赋值也按空字符串处理。
+
+密码正常参与提交，也可按 `autocomplete` 提示填充，但不写入表单历史恢复状态。这不控制浏览器的页面往返缓存或密码管理器。
+
+### MdInput Properties
+
+<!-- prettier-ignore -->
+| 名称 | 说明 | 类型 |
+| --- | --- | --- |
+| `autocomplete` | 与同名 attribute 同步；设为 `""` 移除配置 | `string` |
+| `htmlType` | 与 `html-type` attribute 同步；移除 attribute 后恢复 text | `"text" \| "number" \| "password" \| "tel"` |
 
 ### 事件与方法
 

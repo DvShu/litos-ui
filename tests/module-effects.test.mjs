@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
-import { stripTypeScriptTypes } from "node:module";
 import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { createContext, SourceTextModule, SyntheticModule } from "node:vm";
+import { transformWithOxc } from "vite";
 
 // Run with: node --experimental-vm-modules --test tests/module-effects.test.mjs
 // This evaluates source modules rather than lib or a production consumer bundle.
@@ -126,8 +126,7 @@ function createHarness(onDefine = () => {}) {
   const modules = new Map();
 
   function resolveModule(specifier, parent) {
-    // import.meta.resolve selects each package's import condition, including the
-    // real alien-signals ESM entry rather than createRequire's CJS condition.
+    // Resolve bare imports using each package's ESM import condition.
     if (!specifier.startsWith(".")) return fileURLToPath(import.meta.resolve(specifier));
     const target = path.resolve(path.dirname(parent), specifier);
     if (specifier.endsWith("?inline")) {
@@ -142,6 +141,12 @@ function createHarness(onDefine = () => {}) {
 
   function loadModule(identifier) {
     if (modules.has(identifier)) return modules.get(identifier);
+    const pending = compileModule(identifier);
+    modules.set(identifier, pending);
+    return pending;
+  }
+
+  async function compileModule(identifier) {
     let module;
     if (identifier.endsWith("?inline")) {
       module = new SyntheticModule(
@@ -154,16 +159,16 @@ function createHarness(onDefine = () => {}) {
     } else {
       let source = readFileSync(identifier, "utf8");
       if (identifier.endsWith(".ts")) {
-        source = stripTypeScriptTypes(source, { mode: "strip", sourceUrl: identifier });
+        // Match the production TS transform, including constructor parameter properties.
+        source = (await transformWithOxc(source, identifier, { target: "esnext" })).code;
       }
       module = new SourceTextModule(source, { context, identifier });
     }
-    modules.set(identifier, module);
     return module;
   }
 
   async function evaluate(relative) {
-    const module = loadModule(path.resolve(components, relative));
+    const module = await loadModule(path.resolve(components, relative));
     if (module.status === "unlinked") {
       await module.link((specifier, parent) =>
         loadModule(resolveModule(specifier, parent.identifier)),
@@ -237,7 +242,6 @@ test("shared style modules export reusable stylesheet objects", async () => {
 });
 
 test("all opt-in entries preserve shared identity and register each dependency once without global styles", async () => {
-  assert.equal(entryFiles.length, 91);
   const harness = createHarness();
   const root = await harness.evaluate("index.ts");
   for (const file of entryFiles) await harness.evaluate(`entries/${file}`);

@@ -6,14 +6,44 @@ import path from "node:path";
 import { spawn } from "node:child_process";
 import { stripTypeScriptTypes } from "node:module";
 
+const suites = {
+  autocomplete: {
+    fixture: "tests/form-autocomplete.fixture.html",
+    entry: "tests/form-autocomplete.browser.mjs",
+  },
+  owner: { fixture: "tests/form-owner.fixture.html" },
+  lifecycle: { fixture: "tests/form-lifecycle.fixture.html" },
+  inner: { fixture: "tests/form-inner.fixture.html", entry: "tests/form-inner.browser.mjs" },
+  complete: {
+    fixture: "tests/form-complete.fixture.html",
+    entry: "tests/form-complete.browser.mjs",
+  },
+  native: { fixture: "tests/form-native.fixture.html", entry: "tests/form-native.browser.mjs" },
+  input: {
+    fixture: "tests/input-complete.fixture.html",
+    entry: "tests/input-complete.browser.mjs",
+  },
+  defaults: {
+    fixture: "tests/form-defaults.fixture.html",
+    entry: "tests/form-defaults.browser.mjs",
+  },
+};
+const testCase = process.env.FORM_TEST_CASE ?? "owner";
+if (!Object.hasOwn(suites, testCase)) {
+  throw new Error(
+    `Unknown FORM_TEST_CASE ${JSON.stringify(testCase)}. Choose from ${Object.keys(suites).join(", ")}.`,
+  );
+}
+const { fixture, entry } = suites[testCase];
+const pagePath = testCase === "owner" ? "/" : `/${testCase}`;
+
 const executable = process.env.FORM_TEST_BROWSER;
 if (!executable)
   throw new Error(
     "Set FORM_TEST_BROWSER to a Chromium/Edge executable; this is not an iOS compatibility test.",
   );
-const testCase = process.env.FORM_TEST_CASE;
 let inputBundle;
-if (["inner", "complete", "native", "input", "defaults"].includes(testCase)) {
+if (entry) {
   const { build } = await import("vite");
   const result = await build({
     configFile: false,
@@ -23,16 +53,7 @@ if (["inner", "complete", "native", "input", "defaults"].includes(testCase)) {
       minify: false,
       target: "es2022",
       lib: {
-        entry:
-          testCase === "defaults"
-            ? "tests/form-defaults.browser.mjs"
-            : testCase === "input"
-              ? "tests/input-complete.browser.mjs"
-              : testCase === "native"
-                ? "tests/form-native.browser.mjs"
-                : testCase === "complete"
-                  ? "tests/form-complete.browser.mjs"
-                  : "tests/form-inner.browser.mjs",
+        entry,
         formats: ["es"],
       },
     },
@@ -40,19 +61,13 @@ if (["inner", "complete", "native", "input", "defaults"].includes(testCase)) {
   inputBundle = (Array.isArray(result) ? result[0] : result).output.find(
     (item) => item.type === "chunk" && item.isEntry,
   )?.code;
-  if (!inputBundle) throw new Error("Missing Input browser bundle");
+  if (!inputBundle) throw new Error(`Missing browser bundle for ${testCase}`);
 }
 const routes = new Map([
-  ["/", ["tests/form-owner.fixture.html", "text/html"]],
+  [pagePath, [fixture, "text/html"]],
   ["/scripts/form-platform.mjs", ["scripts/form-platform.mjs", "text/javascript"]],
   ["/owner.js", ["src/components/form/owner.ts", "text/javascript"]],
   ["/context.js", ["src/components/form/context.ts", "text/javascript"]],
-  ["/lifecycle", ["tests/form-lifecycle.fixture.html", "text/html"]],
-  ["/inner", ["tests/form-inner.fixture.html", "text/html"]],
-  ["/defaults", ["tests/form-defaults.fixture.html", "text/html"]],
-  ["/input", ["tests/input-complete.fixture.html", "text/html"]],
-  ["/native", ["tests/form-native.fixture.html", "text/html"]],
-  ["/complete", ["tests/form-complete.fixture.html", "text/html"]],
 ]);
 const server = createServer(async (req, res) => {
   if (req.url === "/form-inner.js" && inputBundle) {
@@ -86,7 +101,7 @@ try {
       "--dump-dom",
       "--virtual-time-budget=3000",
       "--timeout=15000",
-      `http://127.0.0.1:${server.address().port}${testCase === "defaults" ? "/defaults" : testCase === "input" ? "/input" : testCase === "native" ? "/native" : testCase === "complete" ? "/complete" : testCase === "inner" ? "/inner" : testCase === "lifecycle" ? "/lifecycle" : "/"}`,
+      `http://127.0.0.1:${server.address().port}${pagePath}`,
     ],
     { stdio: ["ignore", "pipe", "pipe"] },
   );
@@ -114,10 +129,10 @@ try {
       .replaceAll("&amp;", "&"),
   );
   await mkdir(".artifacts", { recursive: true });
-  const resultName = ["inner", "complete", "lifecycle", "native", "input"].includes(testCase)
-    ? `form-${testCase}-result`
-    : "form-owner-result";
-  await writeFile(`.artifacts/${resultName}.json`, JSON.stringify(result, null, 2) + "\n");
+  await writeFile(
+    `.artifacts/form-${testCase}-result.json`,
+    JSON.stringify(result, null, 2) + "\n",
+  );
   console.log(JSON.stringify(result, null, 2));
   if (!result.pass) process.exitCode = 1;
 } finally {

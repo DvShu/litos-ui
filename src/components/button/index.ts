@@ -3,6 +3,7 @@ import BaseComponent from "../base";
 import { formatClass, formatStyle } from "utilane/browser";
 import type { ButtonColor } from "../utils";
 import buttonSheet from "./style";
+import { requestSubmitFromButton } from "../form/owner";
 
 const accessibleAttributes = ["aria-label", "aria-labelledby", "aria-describedby"];
 
@@ -161,6 +162,16 @@ export default class Button extends BaseComponent<ButtonState> {
     }
   }
 
+  override connectedCallback(): void {
+    // Apply a property assigned before registration through the component setter.
+    if (Object.hasOwn(this, "disabled")) {
+      const disabled = this.disabled;
+      Reflect.deleteProperty(this, "disabled");
+      this.disabled = disabled;
+    }
+    super.connectedCallback();
+  }
+
   beforeDestroy(): void {
     this.removeEventListener("click", this.handleFormClick);
     for (const action of this.pendingActions) window.clearTimeout(action);
@@ -265,10 +276,16 @@ export default class Button extends BaseComponent<ButtonState> {
     // Wait for the click to finish bubbling so consumers can cancel the form action.
     const action = window.setTimeout(() => {
       this.pendingActions.delete(action);
-      if (event.defaultPrevented || this.$btn !== button || button.disabled) return;
+      if (
+        event.defaultPrevented ||
+        this.$btn !== button ||
+        button.disabled ||
+        type !== this.getHtmlType()
+      )
+        return;
       const form = this.form;
       if (!form) return;
-      if (type === "submit") HTMLFormElement.prototype.requestSubmit.call(form);
+      if (type === "submit") requestSubmitFromButton(form, this);
       else HTMLFormElement.prototype.reset.call(form);
     }, 0);
     this.pendingActions.add(action);

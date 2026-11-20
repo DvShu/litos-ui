@@ -32,6 +32,11 @@
   cursor: default;
   color: var(--l-text-color, #999);
 }
+.l-select-option--disabled {
+  --l-select-option-hover-background: transparent;
+  color: var(--l-disabled-color, #999);
+  cursor: not-allowed;
+}
 .l-select-option--selected {
   color: var(--l-primary-color-light1, #9254de);
 }

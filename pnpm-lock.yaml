@@ -166,9 +166,6 @@ importers:
 
   .:
     dependencies:
-      alien-signals:
-        specifier: ^3.2.1
-        version: 3.2.1
       qrcode-generator-es:
         specifier: ^2.1.3
         version: 2.1.3
@@ -1305,9 +1302,6 @@ packages:
   algoliasearch@5.64.0:
     resolution: {integrity: sha512-18v+iAJErDZZKuOXLd9RHcd2m0THXpqtH5pSvOYCMCpDcXkdoVc+yj6H6dGTYOLJyB02lvEJNzYCSWeq0BPrTg==}
     engines: {node: '>= 14.0.0'}
-
-  alien-signals@3.2.1:
-    resolution: {integrity: sha512-I8FjmltrfnDFoZedi5CG8DghVYNhzb/Ijluz7tCSJH0xpd0484Kowhbb1XDYOxfJpU1p5wnM2X54dA+IfGyD1g==}
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -2928,8 +2922,6 @@ snapshots:
       '@algolia/requester-browser-xhr': 5.64.0
       '@algolia/requester-fetch': 5.64.0
       '@algolia/requester-node-http': 5.64.0
-
-  alien-signals@3.2.1: {}
 
   ansi-regex@5.0.1: {}
 

@@ -6,5 +6,6 @@ export default class RadioGroup extends CheckGroup {
   constructor() {
     super();
     this.multiple = false;
+    this.internals.role = "radiogroup";
   }
 }

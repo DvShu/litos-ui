@@ -1,5 +1,4 @@
 export * from "./utils";
-export type { Signal, SignalStop } from "./utils/signal_types";
 export { set as addClickOutside, remove as removeClickOutside } from "./utils/clickoutside";
 
 export { default as BaseComponent } from "./base";

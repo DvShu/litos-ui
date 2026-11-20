@@ -64,6 +64,8 @@ Element entries register built-in dependencies. Service and utility APIs still r
 
 ### SelectOri Methods
 
+Use `setOptions()` and `appendOptions()` before or after mounting. A native form submits the selected enabled option. It omits the field when there is no selection or the selected option is disabled.
+
 <!-- prettier-ignore -->
 | Method | Description | Type |
 | --- | --- | --- |
@@ -77,3 +79,4 @@ Element entries register built-in dependencies. Service and utility APIs still r
 | --- | --- | --- | --- |
 | `value` | Option value | `string` | - |
 | `label` | Option label | `string` | - |
+| `disabled` | Whether the option is disabled | `boolean` | `false` |

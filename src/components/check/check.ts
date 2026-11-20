@@ -1,5 +1,6 @@
 import FormInner from "../form/form_inner";
 import { FORM_CONTEXT_EVENTS, requestFormContext, type FormContextProvider } from "../form/context";
+import { referenceText } from "../form/accessibility";
 import { parseAttrValue } from "../utils";
 import { $$ } from "utilane/browser";
 
@@ -9,13 +10,24 @@ type CheckState = {
   indeterminate: boolean;
 };
 
+type RadioScope = { owner: Node; name: string };
+
 /** 分处不同 ShadowRoot 的原生 radio 不会自动互斥，由宿主按 owner/name 协调。 */
 const standaloneRadios = new Set<Check>();
 
+const radioDirection = new Map<string, number>([
+  ["ArrowLeft", -1],
+  ["ArrowUp", -1],
+  ["ArrowRight", 1],
+  ["ArrowDown", 1],
+]);
+
 export default class Check extends FormInner<CheckState> {
+  declare checked: boolean;
   private _checked = false;
   private dirtyChecked = false;
   private _groupProvider?: FormContextProvider;
+  private radioScope?: RadioScope;
   _inputType: "radio" | "checkbox" = "radio";
   $input?: HTMLInputElement;
 
@@ -48,27 +60,37 @@ export default class Check extends FormInner<CheckState> {
   }
 
   setChecked(isChecked: boolean) {
+    if (this.grouped) return;
     this.dirtyChecked = true;
     this.applyChecked(isChecked);
   }
 
   /** Default and group synchronization must not dirty the checked property. */
   private applyChecked(isChecked: boolean): void {
+    const changed = this._checked !== !!isChecked;
     this._checked = !!isChecked;
-    if (this._checked && !this.grouped && this._inputType === "radio") {
-      this.uncheckPeers();
-    }
+    const scope = this.radioScope;
+    if (scope && this._checked) this.uncheckPeers(scope);
+    if (changed && !this.grouped) this.notifyFieldValueChanged();
     this.checkedChange();
-    if (!this.grouped && this._inputType === "radio") {
-      for (const peer of standaloneRadios) {
-        if (peer !== this && peer.form === this.form && peer.getName() === this.getName())
-          peer.syncNativeValidity();
-      }
-    }
+    if (scope) this.syncRadioPeers(scope);
   }
 
   getChecked() {
     return this._checked;
+  }
+
+  protected get fallbackAccessibleName(): string | undefined {
+    return this.root
+      .querySelector("slot")
+      ?.assignedNodes({ flatten: true })
+      .map((node) => {
+        if (node instanceof Text) return node.data.trim();
+        if (node instanceof Element && !node.matches('[aria-hidden="true"],[hidden],script,style'))
+          return referenceText([node]);
+      })
+      .filter(Boolean)
+      .join(" ");
   }
 
   static get observedAttributes() {
@@ -90,7 +112,6 @@ export default class Check extends FormInner<CheckState> {
     }
     this._groupProvider = requestFormContext(this, "group");
     this.addEventListener(FORM_CONTEXT_EVENTS.configuration, this._updateGroup);
-    standaloneRadios.add(this);
     super.connectedCallback();
     this._updateGroup();
     this.disabledChange();
@@ -101,14 +122,13 @@ export default class Check extends FormInner<CheckState> {
   protected refreshConfiguration(): void {
     if (this.isConnected) this._groupProvider = requestFormContext(this, "group");
     super.refreshConfiguration();
-    if (this._groupProvider)
-      this.applyChecked((this._groupProvider.getSnapshot().values ?? []).includes(this.token));
-    if (this.getChecked() && !this.grouped && this._inputType === "radio") this.uncheckPeers();
+    this.updateRadioScope(this.getRadioScope());
+    this.applyGroupChecked();
   }
 
   afterInit(): void {
     this.addEventListener("click", this._handleClick);
-    this.$input?.addEventListener("change", this._stopNativeEvent);
+    this.$input?.addEventListener("change", this._handleNativeChange);
     this.$input?.addEventListener("input", this._stopNativeEvent);
     this.$input?.addEventListener("keydown", this._handleKeydown);
   }
@@ -116,10 +136,10 @@ export default class Check extends FormInner<CheckState> {
   beforeDestroy(): void {
     this.removeEventListener("click", this._handleClick);
     this.removeEventListener(FORM_CONTEXT_EVENTS.configuration, this._updateGroup);
-    this.$input?.removeEventListener("change", this._stopNativeEvent);
+    this.$input?.removeEventListener("change", this._handleNativeChange);
     this.$input?.removeEventListener("input", this._stopNativeEvent);
     this.$input?.removeEventListener("keydown", this._handleKeydown);
-    standaloneRadios.delete(this);
+    this.updateRadioScope(undefined);
     this._groupProvider = undefined;
     this.$input = undefined;
   }
@@ -151,7 +171,8 @@ export default class Check extends FormInner<CheckState> {
     switch (name) {
       case "checked":
         // Like native boolean attributes, checked="false" is still present.
-        if (!this.dirtyChecked) this.applyChecked(this.defaultChecked);
+        if (this.grouped) this.applyGroupChecked();
+        else if (!this.dirtyChecked) this.applyChecked(this.defaultChecked);
         break;
       case "button":
         this._state.button = parseAttrValue(newValue, false, name);
@@ -160,9 +181,12 @@ export default class Check extends FormInner<CheckState> {
         this._state.indeterminate = parseAttrValue(newValue, false, name);
         this._updateIndeterminate();
         break;
-      case "label":
+      case "label": {
         this._state.label = newValue;
+        const slot = this.root.querySelector("slot");
+        if (slot) slot.textContent = newValue;
         break;
+      }
       case "required":
         this.checkedChange();
         break;
@@ -183,10 +207,19 @@ export default class Check extends FormInner<CheckState> {
     this.classList.toggle("is-disabled", this.isDisabled());
     if (this.$input) this.$input.disabled = this.isDisabled();
     this.syncNativeValidity();
+    this._groupProvider?.fieldStateChanged?.();
+    if (this.radioScope) this.syncStandaloneRadioTabStops(this.radioMembers(this.radioScope));
   }
 
-  private get token(): string {
-    return String(this.value ?? "on");
+  /** @internal */
+  static normalizeToken(token: string): string {
+    // In Unicode mode the range only matches isolated surrogate code units.
+    return token.replace(/[\uD800-\uDFFF]/gu, "\uFFFD");
+  }
+
+  /** @internal */
+  get token(): string {
+    return Check.normalizeToken(String(this.value ?? "on"));
   }
 
   protected serializeFormValue(): string | null {
@@ -209,10 +242,17 @@ export default class Check extends FormInner<CheckState> {
     if (typeof state !== "string") return;
     try {
       const restored = JSON.parse(state);
-      if (restored?.version !== 1 || typeof restored.checked !== "boolean") return;
+      if (
+        restored?.version !== 1 ||
+        !Object.hasOwn(restored, "value") ||
+        typeof restored.checked !== "boolean" ||
+        (restored.indeterminate !== undefined && typeof restored.indeterminate !== "boolean")
+      )
+        return;
       super.formStateRestoreCallback(state, _mode);
       this._state.indeterminate = !!restored.indeterminate;
-      this.setChecked(restored.checked);
+      if (this.grouped) this.applyGroupChecked();
+      else this.setChecked(restored.checked);
       this._updateIndeterminate();
     } catch {
       // 不认识或损坏的浏览器恢复状态不能覆盖当前 UI。
@@ -228,18 +268,14 @@ export default class Check extends FormInner<CheckState> {
     this._updateIndeterminate();
   }
 
+  public get requiredSelection(): boolean {
+    if (this.getChecked()) return true;
+    const scope = this.getRadioScope();
+    return !!scope && this.radioMembers(scope).some((peer) => peer.getChecked());
+  }
+
   protected get nativeValueMissing(): boolean {
-    if (this.getChecked()) return false;
-    if (this._inputType !== "radio" || !this.getName()) return true;
-    return ![...standaloneRadios].some(
-      (peer) =>
-        !peer.grouped &&
-        peer._inputType === "radio" &&
-        peer.form === this.form &&
-        (this.form !== null || peer.getRootNode() === this.getRootNode()) &&
-        peer.getName() === this.getName() &&
-        peer.getChecked(),
-    );
+    return !this.requiredSelection;
   }
 
   private _updateIndeterminate() {
@@ -249,40 +285,125 @@ export default class Check extends FormInner<CheckState> {
 
   private _updateGroup = () => {
     if (this.isConnected) this._groupProvider = requestFormContext(this, "group");
-    if (this._groupProvider) {
-      const snapshot = this._groupProvider.getSnapshot();
-      this.applyChecked((snapshot.values ?? []).includes(this.token));
-    }
     this.disabledChange();
+    this.applyGroupChecked();
   };
 
-  private uncheckPeers(): void {
+  private applyGroupChecked(): void {
+    const provider = this._groupProvider;
+    if (!provider) return;
+    const checked =
+      provider.getFieldChecked?.(this) ?? provider.getSnapshot().values?.includes(this.token);
+    this.applyChecked(checked ?? false);
+  }
+
+  private getRadioScope(): RadioScope | undefined {
     const name = this.getName();
-    if (!name || !this.isConnected) return;
-    for (const peer of standaloneRadios) {
-      if (
-        peer !== this &&
-        !peer.grouped &&
-        peer._inputType === "radio" &&
-        peer.form === this.form &&
-        (this.form !== null || peer.getRootNode() === this.getRootNode()) &&
-        peer.getName() === name &&
-        peer.getChecked()
-      ) {
-        peer.applyChecked(false);
-      }
+    if (!name || !this.isConnected || this.grouped || this._inputType !== "radio") return;
+    // A standalone l-form may still be creating or assigning its native owner.
+    const owner = this.form ?? (this.hasAttribute("form") ? null : this.closest("l-form"));
+    return { owner: owner ?? this.getRootNode(), name };
+  }
+
+  private updateRadioScope(scope: RadioScope | undefined): void {
+    const previous = this.radioScope;
+    if (!scope && !this.grouped) this.$input?.removeAttribute("tabindex");
+    if (previous?.owner === scope?.owner && previous?.name === scope?.name) return;
+    this.radioScope = scope;
+    if (scope) standaloneRadios.add(this);
+    else standaloneRadios.delete(this);
+
+    if (previous) this.syncRadioPeers(previous);
+    if (scope) {
+      if (this.getChecked()) this.uncheckPeers(scope);
+      this.syncRadioPeers(scope);
+    }
+  }
+
+  private radioMembers(scope: RadioScope): Check[] {
+    return [...standaloneRadios].filter(
+      (peer) => peer.radioScope?.owner === scope.owner && peer.radioScope.name === scope.name,
+    );
+  }
+
+  private syncRadioPeers(scope: RadioScope): void {
+    const radios = this.radioMembers(scope);
+    for (const peer of radios) if (peer !== this) peer.syncNativeValidity();
+    this.syncStandaloneRadioTabStops(radios);
+  }
+
+  private syncStandaloneRadioTabStops(radios: Check[]): void {
+    Check.syncRadioTabStops(
+      radios,
+      radios.find((radio) => radio.getChecked()),
+    );
+  }
+
+  private static inDocumentOrder(radios: Check[]): Check[] {
+    return radios.sort((first, second) => {
+      const position = first.compareDocumentPosition(second);
+      if (!position || position & Node.DOCUMENT_POSITION_DISCONNECTED) return 0;
+      return position & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    });
+  }
+
+  /** @internal 单选组仅让当前选中项或第一个可用项进入 Tab 顺序。 */
+  static syncRadioTabStops(radios: readonly Check[], selected?: Check): void {
+    const enabled = radios.filter((radio) => radio.$input && !radio.isDisabled());
+    const tabStop =
+      selected && enabled.includes(selected) ? selected : Check.inDocumentOrder(enabled)[0];
+    for (const radio of radios) {
+      if (radio.$input) radio.$input.tabIndex = radio === tabStop ? 0 : -1;
+    }
+  }
+
+  private uncheckPeers(scope: RadioScope): void {
+    for (const peer of this.radioMembers(scope)) {
+      if (peer !== this && peer.getChecked()) peer.applyChecked(false);
     }
   }
 
   private _stopNativeEvent = (event: Event) => event.stopPropagation();
+  private _handleNativeChange = (event: Event) => {
+    event.stopPropagation();
+    // A successful native activation clears indeterminate. The host owns this state.
+    this._updateIndeterminate();
+    this._doChangeAction();
+  };
   private _handleKeydown = (event: KeyboardEvent) => {
+    if (event.defaultPrevented || this.isDisabled()) return;
     if (event.key === "Enter") {
       event.preventDefault();
       this._doChangeAction();
+      return;
+    }
+    const step = radioDirection.get(event.key);
+    if (this._inputType !== "radio" || !step || event.altKey || event.ctrlKey || event.metaKey)
+      return;
+
+    const members = this.radioScope
+      ? this.radioMembers(this.radioScope)
+      : (this._groupProvider?.getRadioMembers?.() ?? []);
+    const radios = Check.inDocumentOrder(
+      members.filter(
+        (member): member is Check =>
+          member instanceof Check && !!member.$input && !member.isDisabled(),
+      ),
+    );
+    const current = radios.indexOf(this);
+    if (current === -1) return;
+
+    event.preventDefault();
+    const next = radios[(current + step + radios.length) % radios.length];
+    if (next !== this) {
+      next.$input?.focus();
+      next.$input?.click();
     }
   };
   private _handleClick = (event: Event) => {
-    if (event.composedPath().some((node) => node instanceof Check && node !== this)) return;
+    const path = event.composedPath();
+    if (event.defaultPrevented || path[0] === this.$input) return;
+    if (path.some((node) => node instanceof Check && node !== this)) return;
     this._doChangeAction();
   };
 
@@ -301,7 +422,13 @@ export default class Check extends FormInner<CheckState> {
     }
     if (this._inputType === "radio" && this.getChecked()) return;
     const checked = this._inputType === "radio" || !this.getChecked();
-    this.setChecked(checked);
+    if (this.grouped) {
+      this.dirtyChecked = true;
+      this._groupProvider?.requestFieldChecked?.(this, checked);
+    } else {
+      this.setChecked(checked);
+      this.validateInput();
+    }
     this.emitChange(checked);
   }
 }

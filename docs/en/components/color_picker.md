@@ -35,6 +35,8 @@ Element entries register built-in dependencies. Service and utility APIs still r
 
 ## API
 
+Use six-digit hexadecimal colors such as `#123456`. Reading the value or submitting it through a native form yields lowercase hex. Empty or invalid values fall back to `#000000`.
+
 ### ColorPicker Attributes
 
 <!-- prettier-ignore -->

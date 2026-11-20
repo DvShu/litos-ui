@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { build } from "vite";
 
-// 从独立注册入口检查，而不是总入口；总入口的 Collapse 仍属于独立迁移范围。
+// 此处检查表单按需入口，全量注册另外由发布包消费测试覆盖。
 const entries = [
   "form",
   "form-item",
@@ -21,6 +21,9 @@ const entries = [
   "color-picker",
   "date-picker",
   "date-picker-ori",
+  "button",
+  "upload",
+  "theme",
 ];
 
 test("form-related on-demand entries have no alien-signals runtime or signal type graph", async () => {
@@ -47,7 +50,7 @@ test("form-related on-demand entries have no alien-signals runtime or signal typ
         output: { format: "es" },
         external(id) {
           assert.ok(!/^alien-signals(?:\/|$)/.test(id), `Unexpected signal import: ${id}`);
-          return /^utilane(?:\/|$)/.test(id) || id === "qrcode-generator-es";
+          return false;
         },
       },
     },
@@ -55,7 +58,10 @@ test("form-related on-demand entries have no alien-signals runtime or signal typ
   for (const bundle of Array.isArray(output) ? output : [output]) {
     for (const item of bundle.output) {
       if (item.type === "chunk")
-        assert.doesNotMatch(item.code, /alien-signals|resetCtx|["']form-context-request["']/);
+        assert.doesNotMatch(
+          item.code,
+          /alien-signals|resetCtx|_firstPushValue|["'](?:form-context-request|form-item-context-request|form-value-change|form-action)["']/,
+        );
     }
   }
   let checked = 0;
@@ -67,7 +73,10 @@ test("form-related on-demand entries have no alien-signals runtime or signal typ
       /(?:import|export)[\s\S]*?from\s*["'][^"']*signal_types["']/,
       `Signal type coupling: ${path.relative(process.cwd(), filename)}`,
     );
-    assert.doesNotMatch(source, /from\s*["']alien-signals["']|\bresetCtx\b/);
+    assert.doesNotMatch(
+      source,
+      /from\s*["']alien-signals["']|\b(?:resetCtx|firstPushValue|_firstPushValue)\b/,
+    );
     checked++;
   }
   assert.ok(checked >= 20, `Expected actual source graph, found ${checked} files`);

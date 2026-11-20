@@ -18,6 +18,7 @@ export interface FormContextSnapshot {
   readonly innerBlock?: boolean;
   /** 自身或上级禁用来源；最终有效禁用取所有来源的逻辑或。 */
   readonly disabled?: boolean;
+  readonly autocomplete?: "on" | "off";
   readonly required?: boolean;
   /** FormItem 提供的后备字段名，不能当成控件显式设置的 name。 */
   readonly prop?: string;
@@ -26,10 +27,17 @@ export interface FormContextSnapshot {
   readonly multiple?: boolean;
 }
 
-/** 有效性通知数据；notifyFormValidity 与提供者的 notifyValidity 使用，供字段错误 UI 监听。 */
+/** 错误展示通知；实际有效性变化使用独立的 nativeValidity 事件。 */
 export interface FormFieldValidity {
   readonly valid: boolean;
   readonly message?: string;
+}
+
+export interface NativeFieldValidity extends FormFieldValidity {
+  readonly flags: Readonly<ValidityStateFlags>;
+  readonly constraintMessage?: string;
+  readonly willValidate: boolean;
+  readonly duringReset?: boolean;
 }
 
 /** 当前业务值快照；由已登记字段的 getSnapshot 返回，不是原生 FormData 提交条目。 */
@@ -58,8 +66,17 @@ export interface FormContextProvider {
   getSnapshot(): Readonly<FormContextSnapshot>;
   /** 字段挂载时登记，返回可重复调用的注销函数；移动／断开前由调用方执行注销。 */
   registerField(field: FormContextField): () => void;
-  fieldNameChanged?(field: FormContextField, name: string | undefined): void;
+  fieldNameChanged?(field: FormContextField, name: string | undefined, previousName?: string): void;
   fieldValidityCleared?(field: FormContextField): void;
+  fieldValueChanged?(field: FormContextField): void;
+  /** 组成员的值或有效禁用改变时，组需要重新计算提交值。 */
+  fieldStateChanged?(): void;
+  /** 组根据当前值决定成员的选中状态。 */
+  getFieldChecked?(target: EventTarget): boolean;
+  /** 用户操作组成员时，由组应用选中状态。 */
+  requestFieldChecked?(target: EventTarget, checked: boolean): void;
+  /** 单选组的成员供方向键导航使用。 */
+  getRadioMembers?(): readonly EventTarget[];
   /** 用户编辑完成后，由表单按当前值校验该字段及依赖它的字段。 */
   validateInput?(field: FormContextField): void;
 }
@@ -162,6 +179,7 @@ export const FORM_CONTEXT_EVENTS = {
   request: "l-form-context-request",
   configuration: "l-form-context-configuration",
   validity: "l-form-context-validity",
+  nativeValidity: "l-form-field-validity-change",
 } as const;
 
 /** 仅供 provideFormContext／requestFormContext 使用的同步请求载荷；最近提供者写入响应。 */
@@ -227,9 +245,8 @@ export function notifyFormConfiguration(
 }
 
 /**
- * 向约定的字段目标发送有效性副本；提供者 notifyValidity 调用此函数。
- * 当前协议测试验证定向分发；未来由字段／FormItem 的 UI 协调层监听。
- * 不冒泡、不跨树，不触发用户 change，不代替 setValidity 或业务规则执行。
+ * 向字段或 FormItem 发送错误展示状态。提供者 notifyValidity 调用此函数。
+ * 事件不冒泡、不跨树，只更新视图。实际有效性由字段同步。
  */
 export function notifyFormValidity(
   target: EventTarget,

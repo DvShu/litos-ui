@@ -29,6 +29,8 @@ regist([RadioGroup, Radio]);
 </l-code-preview>
 </ClientOnly>
 
+同一表单内，同名的独立 `l-radio` 会互斥。不同表单可以各自选中同名项。
+
 ### 禁用状态
 
 设置 `disabled` 属性即可。
@@ -44,6 +46,8 @@ regist([RadioGroup, Radio]);
 ### 单选框组
 
 结合 `l-radio-group` 组件实现单选框组
+
+原生表单按组的 `name` 提交当前可用选项的值。组值找不到匹配选项时，原生表单省略该字段，`l-form.getData()` 中的组值为 `null`。参见 [Form 提交数据演示](./form#单选框和复选框的提交数据)。
 
 <ClientOnly>
 <l-code-preview>
@@ -80,7 +84,7 @@ import "litos-ui/radio";
 import "litos-ui/radio-group";
 ```
 
-元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+在客户端显式导入每个用到的组件。使用 `l-radio-group` 时，组和 `l-radio` 选项各自导入。样式、类型和总入口用法见[按需导入](/on_demand)。
 
 ## API
 
@@ -95,6 +99,16 @@ import "litos-ui/radio-group";
 | `value` | 选项值 | `string` | - |
 | `checked` | 是否选中 | `boolean` | `false` |
 | `label` | 标签文本 | `string` | - |
+
+### Radio Properties
+
+<!-- prettier-ignore -->
+| 属性 | 说明 | 类型 |
+| --- | --- | --- |
+| `checked` | 当前选中状态 | `boolean` |
+| `defaultChecked` | 重置默认选中状态，与 `checked` attribute 同步 | `boolean` |
+
+字段名、默认值和有效性等通用属性见 [表单控件通用 API](./form#表单控件通用-api)。
 
 ### Radio Slots
 
@@ -115,8 +129,16 @@ import "litos-ui/radio-group";
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 选中的选项值 | `string` | - |
-| `gap` | 选项间距 | `string` | - |
+| `value` | 选中的选项值，空字符串可匹配 `value=""` 的选项 | `string` | 未设置 |
+| `name` | 组的表单字段名 | `string` | 未设置 |
+| `disabled` | 禁用组内全部选项 | `boolean` | `false` |
+| `required` | 有可提交的选中值时通过必填校验 | `boolean` | `false` |
+| `gap` | 选项间距，数字按 px 处理 | `string` | `0px` |
+| `form` | 关联的原生表单 ID，显式配置优先 | `string` | 自动关联 |
+
+实例的 `value`、`defaultValue`、有效性及重置方法见 [表单控件通用 API](./form#表单控件通用-api)。
+
+通过组的 `value` 设置选中项，设为 `null` 可清空选择。组内选项的 `checked` 可读取当前状态。同值选项也只会选中一个。
 
 组内选项通过 `l-radio` 子元素提供，当前没有 `setItems()` 方法。
 

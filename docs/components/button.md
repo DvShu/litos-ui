@@ -230,6 +230,8 @@ text.color = generateButtonColor("#FF7802", true);
 
 在 `<l-form>` 或原生 `<form>` 内设置 `html-type="submit"` 或 `html-type="reset"`。原生表单中的按钮也可通过 `form` 指向同一 DOM 树里的表单 ID。参见[原生表单演示](/components/form#原生表单)。
 
+在提交按钮上设置 `formnovalidate` 可跳过该次提交的浏览器约束校验。`l-form` 的业务校验由 `l-form` 自己的 `novalidate` 控制。
+
 在原生表单里，点击 `l-button` 可提交，但它不会成为原生 `<input>` 的默认回车提交按钮。要保留这个行为，可使用原生 `<button type="submit">`。
 
 ## 按需入口
@@ -254,6 +256,7 @@ import "litos-ui/button";
 | `block` | 按钮是否为块级元素[适合其父宽度(宽度100%)] | `boolean` | `false` |
 | `shape` | 按钮形状, `default`, `round`按钮为圆角[弧形按钮] , `circle`按钮为圆形 | `string` | `default` |
 | `html-type` | 原生的 `type` 属性; `button`、`submit`、`reset` | `string` | `button` |
+| `formnovalidate` | 提交时跳过浏览器约束校验 | `boolean` | `false` |
 | `loading-text` | 加载状态时显示的文字 | `string` | `加载中……` |
 | `text` | 文本按钮 | `boolean` | `false` |
 | `ghost` | 幽灵按钮 | `boolean` | `false` |

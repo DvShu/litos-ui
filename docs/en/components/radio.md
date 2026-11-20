@@ -45,6 +45,8 @@ Set `disabled` to disable the option.
 
 Combine radio options inside `l-radio-group` for single selection.
 
+A native form submits one selected value under the group's `name`. It omits the value if the selected option is disabled.
+
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
@@ -96,6 +98,16 @@ Element entries register built-in dependencies. Service and utility APIs still r
 | `checked` | Whether the option is checked | `boolean` | `false` |
 | `label` | Label text | `string` | - |
 
+### Radio Properties
+
+<!-- prettier-ignore -->
+| Name | Description | Type |
+| --- | --- | --- |
+| `checked` | Current checked state | `boolean` |
+| `defaultChecked` | Checked state restored on reset, reflected by the `checked` attribute | `boolean` |
+
+See [Common Form Control APIs](/en/components/form#common-form-control-apis) for field names, defaults, validity, and reset methods.
+
 ### Radio Slots
 
 <!-- prettier-ignore -->
@@ -116,7 +128,13 @@ Element entries register built-in dependencies. Service and utility APIs still r
 | Name | Description | Type | Default |
 | --- | --- | --- | --- |
 | `value` | Selected option value | `string` | - |
-| `gap` | Spacing between options | `string` | - |
+| `name` | Form field name for the group | `string` | Not set |
+| `disabled` | Disables all options in the group | `boolean` | `false` |
+| `required` | Requires a selected value that can be submitted | `boolean` | `false` |
+| `gap` | Spacing between options. Plain numbers are treated as pixels | `string` | `0px` |
+| `form` | Associated native form ID. An explicit ID takes precedence | `string` | Associated automatically |
+
+See [Common Form Control APIs](/en/components/form#common-form-control-apis) for `value`, `defaultValue`, validity, and reset methods.
 
 Provide options as `l-radio` children. There is currently no `setItems()` method.
 

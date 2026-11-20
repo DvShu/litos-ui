@@ -64,6 +64,10 @@ import "litos-ui/select-ori";
 
 ### SelectOri Methods
 
+`setOptions()` 和 `appendOptions()` 可在挂载前或挂载后使用。原生表单提交当前选中的可用选项，没有选项或选项被禁用时会省略该字段。
+
+未指定初始 `value` 时，优先采用选项的 `selected` 或 `defaultSelected`，否则选中第一个可用选项。当前值找不到匹配项时，`value` 和 `getData()` 中的字段值为空字符串，必填校验失败。后续补齐匹配项时会恢复对应选项。
+
 <!-- prettier-ignore -->
 | 方法名 | 说明 | 类型 |
 | --- | --- | --- |
@@ -77,3 +81,4 @@ import "litos-ui/select-ori";
 | --- | --- | --- | --- |
 | `value` | 选项值 | `string` | - |
 | `label` | 选项标签 | `string` | - |
+| `disabled` | 是否禁用选项 | `boolean` | `false` |

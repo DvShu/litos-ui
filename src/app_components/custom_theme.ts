@@ -1,38 +1,49 @@
 import { docText } from "./i18n";
-import { on, $one, off } from "utilane/browser";
-import { getTheme, toggleTheme } from "utilane/browser";
+import { getTheme } from "utilane/browser";
+import { applyThemeMode, observeTheme } from "../components/theme/appearance";
 
 export default class CustomTheme extends HTMLElement {
+  #group?: HTMLElement & { value: string };
+  #stopObservingTheme?: () => void;
+
   connectedCallback() {
     this.innerHTML = `<l-radio-group gap="15" id="customThemeRadio"><l-radio value="auto">${docText("auto")}</l-radio><l-radio value="light">${docText("light")}</l-radio><l-radio value="dark">${docText("dark")}</l-radio></l-radio-group>`;
-    const $el = $one("#customThemeRadio", this) as HTMLInputElement;
-    $el.value = getTheme();
-    on($el, "change", this.#handle);
+    const group = this.querySelector<HTMLElement & { value: string }>("l-radio-group")!;
+    this.#group = group;
+    group.value = getTheme();
+    group.addEventListener("change", this.#handle);
+    this.#stopObservingTheme = observeTheme(this.ownerDocument, (mode) => {
+      if (group.value !== mode) group.value = mode;
+    });
   }
 
   disconnectedCallback() {
-    off($one("#customThemeRadio", this) as HTMLElement, "change", this.#handle);
+    this.#group?.removeEventListener("change", this.#handle);
+    this.#group = undefined;
+    this.#stopObservingTheme?.();
+    this.#stopObservingTheme = undefined;
   }
 
-  #handle = (e: Event) => {
-    const newTheme = (e.target as any).value;
-    //@ts-ignore
-    const transition = document.startViewTransition(() => {
-      toggleTheme(newTheme, false).then();
-    });
+  #handle = () => {
+    const document = this.ownerDocument;
+    const mode = this.#group?.value;
+    if (mode !== "auto" && mode !== "light" && mode !== "dark") return;
+    const apply = () => applyThemeMode(document, mode);
+    if (!document.startViewTransition) {
+      void apply().catch(console.error);
+      return;
+    }
+    const transition = document.startViewTransition(apply);
+    void transition.finished.catch(console.error);
 
-    transition.ready.then(() => {
-      // 圆形动画扩散开始
-      document.documentElement.animate(
-        {
-          clipPath: [`circle(0% at center)`, `circle(100% at center)`],
-        },
-        // 设置时间，已经目标伪元素
-        {
-          duration: 300,
-          pseudoElement: "::view-transition-new(root)",
-        },
-      );
-    });
+    void transition.ready.then(
+      () => {
+        document.documentElement.animate(
+          { clipPath: ["circle(0% at center)", "circle(100% at center)"] },
+          { duration: 300, pseudoElement: "::view-transition-new(root)" },
+        );
+      },
+      () => {},
+    );
   };
 }

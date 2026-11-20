@@ -413,6 +413,10 @@ import "litos-ui/upload";
 
 ## API
 
+### 与表单一起使用
+
+上传进度、待传的 `raw` 文件和已上传结果均通过 `fileList` 或上传事件读取。`l-form.getData()` 和原生 `FormData` 都不收集这些数据，表单重置也不清空文件列表。需要保存已上传的附件时，可在业务提交时从 `fileList` 取出 `status` 为 `success` 的结果，或使用 `success` 事件返回的业务数据。
+
 ### Upload Attributes
 
 <!-- prettier-ignore -->

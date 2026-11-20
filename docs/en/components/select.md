@@ -124,11 +124,13 @@ Set `disabled` to disable the selector.
 </l-code-preview>
 </ClientOnly>
 
-> Form and FormItem do not currently provide a shared disabled attribute. Set disabled on each Select control.
+Set `disabled: true` on an option object to prevent users from selecting it from the dropdown.
 
 ### Multiple Selection
 
 Enable `multiple` for multiple selection. Selected values are shown as Tag components by default; enable `collapse-tags` to show them as text instead.
+
+In multiple mode, the `value` property is an array. Native `FormData` includes one entry per value under the same field name. Selecting an option, removing a tag, or clearing the selection fires `change`.
 
 <ClientOnly>
 <l-code-preview>
@@ -262,6 +264,8 @@ The default placeholder and empty-state labels are Chinese. These examples set E
 | `loading` | Whether to show loading, typically during remote search | `boolean` | `false` |
 | `width` | Width | `string` | `100%` |
 
+The built-in placeholder and empty state text are Chinese. Set `placeholder` and `empty-text` to provide English labels.
+
 The JavaScript `value` property accepts a string, number, or an array of selected values. Arrays must be assigned as a property rather than an HTML attribute.
 
 ### Select Slots
@@ -296,6 +300,7 @@ Use `setOptions()` for option objects and `setFilter()` for a filter function. O
 | --- | --- | --- | --- |
 | `value` | Option value | `string` or `number` | - |
 | `label` | Option label | `string` | - |
+| `disabled` | Prevents users from selecting the option | `boolean` | `false` |
 
 ### Select CSS Variables
 

@@ -260,6 +260,78 @@ try {
   equal("remount-reset-matches-native");
   check("reset-cache-property-removed", !("_resetValue" in custom));
   resetForm.remove();
+
+  const autofill = document.createElement("l-input");
+  autofill.name = "autofill";
+  form.append(autofill);
+  let autofillEvents = 0;
+  for (const type of ["input", "change"]) autofill.addEventListener(type, () => autofillEvents++);
+  autofill.autocomplete = "section-contact email";
+  check(
+    "autocomplete-property-reflects",
+    autofill.getAttribute("autocomplete") === "section-contact email" &&
+      autofill.$inner.autocomplete === "section-contact email",
+  );
+  autofill.setAttribute("autocomplete", "off");
+  check(
+    "autocomplete-attribute-updates-property",
+    autofill.autocomplete === "off" && autofill.$inner.autocomplete === "off",
+  );
+  autofill.autocomplete = "";
+  check(
+    "autocomplete-empty-removes-configuration",
+    !autofill.hasAttribute("autocomplete") && !autofill.$inner.hasAttribute("autocomplete"),
+  );
+  autofill.autocomplete = "given-name";
+  autofill.remove();
+  form.append(autofill);
+  check("autocomplete-survives-remount", autofill.$inner.autocomplete === "given-name");
+  autofill.formStateRestoreCallback("Ada", "autocomplete");
+  check(
+    "autocomplete-plain-text-synchronizes",
+    autofill.value === "Ada" &&
+      autofill.$inner.value === "Ada" &&
+      new FormData(form).get("autofill") === "Ada" &&
+      autofillEvents === 0,
+  );
+  autofill.formStateRestoreCallback("0", "autocomplete");
+  check("autocomplete-numeric-looking-text-remains-string", autofill.value === "0");
+  autofill.formStateRestoreCallback("{not a versioned state}", "restore");
+  check("invalid-history-state-still-ignored", autofill.value === "0");
+  autofill.formStateRestoreCallback(
+    JSON.stringify({ version: 1, value: { toString: null, valueOf: null } }),
+    "restore",
+  );
+  check(
+    "unusable-history-value-still-ignored",
+    autofill.value === "0" && autofill.$inner.value === "0",
+  );
+  autofill.setAttribute("type", "password");
+  autofill.value = "new secret";
+  autofill.formStateRestoreCallback(JSON.stringify({ version: 1, value: "old secret" }), "restore");
+  check(
+    "password-ignores-old-history-state",
+    autofill.value === "new secret" && autofill.$inner.value === "new secret",
+  );
+  autofill.formStateRestoreCallback("filled secret", "autocomplete");
+  check(
+    "password-autocomplete-and-submission-remain-available",
+    autofill.value === "filled secret" && new FormData(form).get("autofill") === "filled secret",
+  );
+  autofill.remove();
+
+  const late = document.createElement("test-autocomplete-input");
+  late.setAttribute("autocomplete", "off");
+  late.autocomplete = "email";
+  document.body.append(late);
+  customElements.define("test-autocomplete-input", class extends Input {});
+  check(
+    "autocomplete-property-before-upgrade-wins",
+    late.autocomplete === "email" &&
+      late.$inner.autocomplete === "email" &&
+      !Object.hasOwn(late, "autocomplete"),
+  );
+  late.remove();
   check("no-browser-errors", errors.length === 0);
   document.querySelector("#result").textContent = JSON.stringify({
     userAgent: navigator.userAgent,

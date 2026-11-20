@@ -80,6 +80,9 @@ class Field extends EventTarget {
   hasAttribute(name) {
     return this.attrs.has(name);
   }
+  querySelectorAll() {
+    return [];
+  }
   getAttribute(name) {
     return this.attrs.get(name) ?? null;
   }
@@ -87,11 +90,15 @@ class Field extends EventTarget {
     this.submitted = this.serializeFormValue();
   }
   syncNativeValidity() {}
+  notifyFieldValueChanged() {}
+  validateInput() {}
   refreshConfiguration() {}
   connectedCallback() {
     this.applyDefaultValue();
     this.afterInit();
+    this.refreshConfiguration();
   }
+  afterInit() {}
   loadStyleText() {}
   reset() {
     this.dirtyValue = false;
@@ -220,8 +227,14 @@ test("state serialization restores checked, value and indeterminate without user
 test("group decodes safe tokens and emits same-name native FormData entries", () => {
   const group = new Group();
   group.name = "choices";
-  group.value = "a%26b&100%25&%E4%B8%AD%E6%96%87&bad%zz";
-  assert.deepEqual(Array.from(group.values), ["a&b", "100%", "中文", "bad%zz"]);
+  group.connectedCallback();
+  for (const value of ["a&b", "100%", "中文", "bad%zz"]) {
+    const target = new Check();
+    target.value = value;
+    group.groupProvider.registerField({ target, getSnapshot: () => ({ value }) });
+  }
+  group.value = "a%26b&100%25&%E4%B8%AD%E6%96%87&bad%zz&unmatched";
+  assert.deepEqual(Array.from(group.values), ["a&b", "100%", "中文", "bad%zz", "unmatched"]);
   assert.deepEqual(
     [...group.submitted],
     [
@@ -269,20 +282,29 @@ test("group accepts only nearest Check changes and encodes tokens without consum
   const check = new Check();
   check.parent = inner;
   check.value = "a&b%";
-  check.setChecked(true);
+  check.connectedCallback();
+  const unregister = inner.groupProvider.registerField({
+    target: check,
+    getSnapshot: () => ({ value: check.value }),
+  });
   let stopped = 0;
-  const event = { composedPath: () => [check], stopImmediatePropagation: () => stopped++ };
+  const event = {
+    composedPath: () => [check],
+    stopPropagation: () => stopped++,
+    detail: { checked: true },
+  };
   outer._handleChange(event);
   assert.equal(outer.value, "");
   inner._handleChange(event);
   assert.equal(inner.value, "a%26b%25");
   assert.equal(stopped, 1);
   assert.equal(inner.emitted.length, 1);
-  check.setChecked(false);
-  inner._handleChange(event);
+  inner._handleChange({ ...event, detail: { checked: false } });
   assert.equal(inner.value, "");
   outer._handleChange({ composedPath: () => [inner] });
   assert.equal(outer.value, "");
+  check.beforeDestroy();
+  unregister();
   inner.beforeDestroy();
   outer.beforeDestroy();
 });
@@ -333,17 +355,28 @@ test("group configuration synchronizes checkedness without dirtying member defau
   group.connectedCallback();
   check.parent = group;
   check.connectedCallback();
+  const unregister = group.groupProvider.registerField({
+    target: check,
+    getSnapshot: () => ({ value: check.value }),
+  });
   group.defaultValue = "on";
   check.refreshConfiguration();
   assert.equal(check.getChecked(), true);
   assert.equal(check.dirtyChecked, false);
   check.defaultChecked = true;
+  check.checked = false;
+  check.setChecked(false);
+  assert.equal(group.value, "on");
+  assert.equal(check.getChecked(), true);
   assert.equal(check.dirtyChecked, false);
   check._doChangeAction();
   assert.equal(check.dirtyChecked, true);
+  assert.equal(group.value, "");
+  assert.equal(check.getChecked(), false);
   group.defaultValue = "";
   check.reset();
   assert.equal(check.dirtyChecked, false);
+  unregister();
   check.parent = undefined;
   check.refreshConfiguration();
   check.defaultChecked = false;

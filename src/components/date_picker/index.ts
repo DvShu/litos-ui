@@ -47,7 +47,7 @@ export default class DatePicker extends FormInner<DatePickerState> {
     this._popover?.destroy();
     off(this, "click", this._handleTap);
     off(this.root, "input", this._handleInput);
-    this._popover = undefined as any;
+    this._popover = undefined;
   }
 
   static get observedAttributes() {
@@ -104,6 +104,7 @@ export default class DatePicker extends FormInner<DatePickerState> {
     });
     $header.appendChild($prevBtn);
     const $monthYear = $$("button", {
+      type: "button",
       class: "l-date-picker-header-btn l-date-picker-year-month",
       textContent: "2026-04",
     });
@@ -159,7 +160,9 @@ export default class DatePicker extends FormInner<DatePickerState> {
   }
 
   private _handleInput = (event: Event) => {
-    if (!this.isDisabled()) this.setValue((event.target as HTMLInputElement).value);
+    if (this.isDisabled()) return;
+    this.setValue((event.target as HTMLInputElement).value);
+    this.validateInput();
   };
 
   private _handleTap = () => {

@@ -1,7 +1,7 @@
 import BaseComponent from "../base";
 import { initAttr } from "../utils";
-import { $one, create, off, on } from "utilane/browser";
-import { getTheme, applyTheme } from "utilane/browser";
+import { $one, create, getTheme, off, on } from "utilane/browser";
+import { applyThemeMode, observeTheme, type ThemeMode } from "./appearance";
 //@ts-ignore
 import css from "./index.less?inline";
 
@@ -11,12 +11,45 @@ const RADIO_ITEMS = [
   { value: "dark", text: "深色模式", icon: "l-moon-icon" },
 ];
 
+type ThemeChange = { value: ThemeMode; apply: () => Promise<void> };
+const activeTransitions = new WeakMap<Document, { pending?: ThemeChange }>();
+
+function scheduleThemeChange(document: Document, change: ThemeChange): void {
+  const active = activeTransitions.get(document);
+  if (active?.pending) {
+    active.pending = change;
+    return;
+  }
+  if (active || !document.startViewTransition) {
+    void change.apply().catch(console.error);
+    return;
+  }
+
+  const state: { pending?: ThemeChange } = { pending: change };
+  activeTransitions.set(document, state);
+  const transition = document.startViewTransition(() => {
+    const pending = state.pending;
+    state.pending = undefined;
+    return pending?.apply();
+  });
+  // A skipped animation still applies the change. Update failures surface via finished.
+  void transition.ready.catch(() => {});
+  void transition.finished.then(
+    () => activeTransitions.delete(document),
+    (error: unknown) => {
+      activeTransitions.delete(document);
+      console.error(error);
+    },
+  );
+}
+
 export default class Theme extends BaseComponent {
   public static baseName = "theme";
   public type: "button" | "select" | "switch" | "radio" = "button";
   public label?: "text" | "icon" = "text";
   public theme?: string;
-  #$inner?: HTMLElement;
+  #$inner?: HTMLElement & { value?: string | boolean };
+  #stopObservingTheme?: () => void;
 
   connectedCallback(): void {
     initAttr(this);
@@ -24,9 +57,12 @@ export default class Theme extends BaseComponent {
     this.loadStyleText(css);
     super.connectedCallback();
     this.#initEvents();
+    this.#stopObservingTheme = observeTheme(this.ownerDocument, this.#syncTheme);
   }
 
   disconnectedCallback(): void {
+    this.#stopObservingTheme?.();
+    this.#stopObservingTheme = undefined;
     super.disconnectedCallback();
     this.#removeEvents();
   }
@@ -100,24 +136,43 @@ export default class Theme extends BaseComponent {
     return $inner;
   }
 
-  #handle = async (e: Event) => {
-    let newTheme;
+  #syncTheme = (mode: string) => {
+    const inner = this.#$inner;
+    if (!inner) return;
+    this.theme = mode;
+    if (this.type === "button") this.#updateButtonChild(inner);
+    else {
+      const value = this.type === "switch" ? mode === "dark" : mode;
+      if (inner.value !== value) inner.value = value;
+    }
+  };
+
+  #handle = (e: Event) => {
+    if (e.type === "change") e.stopPropagation();
+    const inner = this.#$inner;
+    if (!inner) return;
+    const document = this.ownerDocument;
+    const pending = activeTransitions.get(document)?.pending;
+    const current = pending?.value ?? getTheme();
+    let value: unknown;
     if (this.type === "button") {
-      newTheme = this.theme === "dark" ? "auto" : "dark";
+      value = current === "dark" ? "auto" : "dark";
     } else {
-      const value: any = (e.target as any).value;
-      if (this.type !== "switch") {
-        newTheme = value;
-      } else {
-        newTheme = value ? "dark" : "light";
-      }
+      const selection = inner.value;
+      value = this.type === "switch" ? (selection ? "dark" : "light") : selection;
     }
-    await applyTheme(newTheme);
-    this.theme = newTheme;
-    if (this.type === "button") {
-      this.#updateButtonChild(this.#$inner as any);
-    }
-    this.emit("change", { detail: newTheme });
+    if (value !== "auto" && value !== "light" && value !== "dark") return;
+    const newTheme = value;
+    if (newTheme === current) return;
+    scheduleThemeChange(document, {
+      value: newTheme,
+      apply: async () => {
+        const changed = getTheme() !== newTheme;
+        if (changed) await applyThemeMode(document, newTheme);
+        if (!this.isConnected || this.#$inner !== inner) return;
+        if (changed) this.emit("change", { detail: newTheme });
+      },
+    });
   };
 
   #initEvents() {
@@ -125,6 +180,9 @@ export default class Theme extends BaseComponent {
     if (this.type === "button") {
       on(this.#$inner, "click", this.#handle);
     } else {
+      this.keepChangeLocal(this.#$inner);
+      for (const option of this.#$inner.querySelectorAll<HTMLElement>("l-radio"))
+        this.keepChangeLocal(option);
       on(this.#$inner, "change", this.#handle);
     }
   }

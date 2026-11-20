@@ -16,12 +16,20 @@ export default class ColorPicker extends FormInner {
   protected get intrinsicDefaultValue(): string {
     return "#000000";
   }
+
+  protected parseDefaultValue(value: string | null): string {
+    return this.normalizeColor(value);
+  }
+
+  private normalizeColor(value: unknown): string {
+    const color = typeof value === "string" ? value.trim() : "";
+    return /^#[0-9a-f]{6}$/i.test(color) ? color.toLowerCase() : this.intrinsicDefaultValue;
+  }
+
   public setValue(value: any): void {
-    super.setValue(value);
-    if (this.$picker) {
-      this.$picker.value = value;
-    }
-    this.syncNativeValue();
+    const color = this.normalizeColor(value);
+    if (this.$picker) this.$picker.value = color;
+    super.setValue(color);
   }
   connectedCallback(): void {
     this.loadStyleText([inputCss, css]);
@@ -56,8 +64,10 @@ export default class ColorPicker extends FormInner {
   }
 
   private _handleChange = (e: Event) => {
+    e.stopPropagation();
     const value = (e.target as HTMLInputElement).value;
-    super.setValue(value);
+    this.setValue(value);
+    this.validateInput();
     this.emit("change", { detail: value });
   };
 }

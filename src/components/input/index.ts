@@ -37,99 +37,28 @@ export default class Input extends FormInner<InputState> {
   public parser?: (value: string) => string;
 
   $inner?: HTMLInputElement;
-  private labelObserver?: MutationObserver;
+  private formInnerBlock = false;
   private userBadInput = false;
+  protected override get formStateRestorationEnabled(): boolean {
+    return (this.getAttribute("type") || "text").toLowerCase() !== "password";
+  }
+  protected override get acceptsAutocompleteText(): boolean {
+    return true;
+  }
   protected override get nativeBadInput(): boolean {
     return this.userBadInput;
   }
 
-  /** 外部同树 label 仍关联 FACE 宿主，文本复制给 Shadow DOM 内真正的编辑控件。 */
-  private labelText(source: Element): string {
-    const clone = source.cloneNode(true) as Element;
-    for (const decoration of clone.querySelectorAll('[aria-hidden="true"],[hidden],script,style'))
-      decoration.remove();
-    return clone.textContent?.trim() ?? "";
-  }
-
-  private syncAccessibleName = (): void => {
-    if (!this.$inner) return;
-    const root = this.getRootNode() as Document | ShadowRoot;
-    const references = (this.getAttribute("aria-labelledby") ?? "")
-      .trim()
-      .split(/\s+/)
-      .filter(Boolean)
-      .map((id) => root.getElementById?.(id))
-      .filter((node): node is HTMLElement => !!node);
-    const labels = Array.from(this.labels ?? []) as HTMLLabelElement[];
-    const item = this.closest("l-form-item");
-    const explicit = this.getAttribute("aria-label");
-    const sources: Element[] = references.length
-      ? references
-      : explicit !== null
-        ? []
-        : labels.length
-          ? labels
-          : item
-            ? [item]
-            : [];
-    const name = references.length
-      ? references
-          .map((node) => this.labelText(node))
-          .filter(Boolean)
-          .join(" ")
-      : explicit !== null
-        ? explicit
-        : labels.length
-          ? labels
-              .map((label) => this.labelText(label))
-              .filter(Boolean)
-              .join(" ")
-          : (item?.getAttribute("label") ?? "");
-    // 不把跨树 IDREF 直接复制到内部；aria-label 是 Safari 16.4 可用的文本桥接。
-    if (name) this.$inner.setAttribute("aria-label", name);
-    else this.$inner.removeAttribute("aria-label");
-    this.labelObserver?.disconnect();
-    this.labelObserver ??= new MutationObserver(this.syncAccessibleName);
-    // 限定在宿主的局部容器，捕获同容器 label 插入／for 改绑；不安装 document 级观察器。
-    if (this.parentElement)
-      this.labelObserver.observe(this.parentElement, {
-        childList: true,
-        subtree: true,
-        characterData: true,
-        attributes: true,
-        attributeFilter: ["for", "id", "label", "aria-hidden", "hidden"],
-      });
-    for (const source of sources) {
-      this.labelObserver.observe(
-        source,
-        source === item
-          ? { attributes: true, attributeFilter: ["label"] }
-          : { childList: true, subtree: true, characterData: true },
-      );
-    }
-  };
-
   private syncInputAttributes(): void {
     if (!this.$inner) return;
     this.$inner.type = this.getAttribute("type") || "text";
-    for (const attr of [
-      "pattern",
-      "min",
-      "max",
-      "step",
-      "minlength",
-      "maxlength",
-      "inputmode",
-      "autocomplete",
-    ]) {
+    for (const attr of ["pattern", "min", "max", "step", "minlength", "maxlength", "inputmode"]) {
       const value = this.getAttribute(attr);
       if (value === null) this.$inner.removeAttribute(attr);
       else this.$inner.setAttribute(attr, value);
     }
     this.$inner.readOnly = this.readOnly;
     this.$inner.disabled = this.isDisabled();
-    this.$inner.setAttribute("aria-required", String(this.contextRequired));
-    this.syncAccessibleName();
   }
 
   protected override configurationApplied(): void {
@@ -148,10 +77,7 @@ export default class Input extends FormInner<InputState> {
   }
 
   public override focus(options?: FocusOptions): void {
-    if (!this.isDisabled()) {
-      this.syncAccessibleName();
-      this.$inner?.focus(options);
-    }
+    if (!this.isDisabled()) this.$inner?.focus(options);
   }
   public override blur(): void {
     this.$inner?.blur();
@@ -226,9 +152,6 @@ export default class Input extends FormInner<InputState> {
         "placeholder",
         "width",
         "block",
-        "id",
-        "aria-label",
-        "aria-labelledby",
         "autocomplete",
       ]),
     ];
@@ -239,7 +162,6 @@ export default class Input extends FormInner<InputState> {
     this.$inner.value = String(this.getValue() ?? "");
     this.#renderClearable();
     this.syncInputAttributes();
-    on(this.$inner, "focus", this.syncAccessibleName);
     this.$inner.addEventListener("keydown", this.#submitOnEnter);
     on(this.$inner, "input", this._input);
     on(this.$inner, "change", this.#handleChange);
@@ -247,8 +169,6 @@ export default class Input extends FormInner<InputState> {
   }
 
   beforeDestroy(): void {
-    this.labelObserver?.disconnect();
-    off(this.$inner as HTMLInputElement, "focus", this.syncAccessibleName);
     this.$inner?.removeEventListener("keydown", this.#submitOnEnter);
     off(this.$inner as HTMLInputElement, "input", this._input);
     off(this.$inner as HTMLInputElement, "change", this.#handleChange);
@@ -273,21 +193,28 @@ export default class Input extends FormInner<InputState> {
     )
       return;
 
-    const root = form.getRootNode() as Document | ShadowRoot;
-    const submitter = Array.from(
-      root.querySelectorAll<HTMLButtonElement | HTMLInputElement | Button>(
-        'button, input, l-button[html-type="submit"]',
-      ),
-    ).find((control) => {
+    const host = this.closest("l-form");
+    const scope =
+      host && form.contains(host) ? host : (form.getRootNode() as Document | ShadowRoot);
+    const isSubmitter = (control: HTMLButtonElement | HTMLInputElement | Button) => {
       if (control.form !== form) return false;
       if (control instanceof HTMLButtonElement || control instanceof HTMLInputElement) {
         return control.type === "submit" || control.type === "image";
       }
-      return true;
-    });
+      return control.getAttribute("html-type") === "submit";
+    };
+    const submitter = Array.from(
+      scope.querySelectorAll<HTMLButtonElement | HTMLInputElement | Button>(
+        'button, input, l-button[html-type="submit"]',
+      ),
+    ).find(isSubmitter);
     if (!submitter) return;
-    event.preventDefault();
-    submitter.click();
+    // 影子输入不归外层 form 所有，原生 Enter 不会代为提交。
+    setTimeout(() => {
+      if (event.defaultPrevented || !this.isConnected || this.$inner !== input || this.isDisabled())
+        return;
+      if (this.form === form && isSubmitter(submitter)) submitter.click();
+    }, 0);
   };
 
   protected attributeChange(name: string, oldValue: string, newValue: string): void {
@@ -347,7 +274,7 @@ export default class Input extends FormInner<InputState> {
     }
 
     if (changedProps.has("block")) {
-      this.innerBlockChange(this._state.block);
+      this.updateBlock();
     }
     if (changedProps.has("placeholder")) {
       if (this.$inner) this.$inner.placeholder = this._state.placeholder;
@@ -594,12 +521,13 @@ export default class Input extends FormInner<InputState> {
     return startsWithMinus ? "-" + str : str;
   }
 
-  protected innerBlockChange(innerBlock: boolean) {
-    if (innerBlock) {
-      addClass(this, "is-block");
-    } else {
-      removeClass(this, "is-block");
-    }
+  protected override innerBlockChange(innerBlock: boolean): void {
+    this.formInnerBlock = innerBlock;
+    this.updateBlock();
+  }
+
+  private updateBlock(): void {
+    this.classList.toggle("is-block", this._state.block || this.formInnerBlock);
   }
 
   private _getStyleObj() {
@@ -619,7 +547,7 @@ export default class Input extends FormInner<InputState> {
   }
 
   protected validResult(msg?: string): void {
-    this.$inner?.setAttribute("aria-invalid", String(!!msg));
+    super.validResult(msg);
     this._updateError(!!msg || !!this._state.error);
   }
 

@@ -13,9 +13,8 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'utilane/browser';
-
   let $input;
+  let mounted = false;
 
   function handleChange(e) {
     console.log('input', e.target.value);
@@ -31,18 +30,17 @@ regist(CloseFilledIcon); // 需要使用 clearable 功能时
     return String(val);
   }
 
-  onMounted(() => {
-    nextTick(() => {
-      if (!import.meta.env.SSR) {
-        $input = $one('#input');
-        if ($input) {
-          $input.addEventListener('change', handleChange);
-          $input.setParser(numericParse);
-        }
-      }
-    })
+  onMounted(async () => {
+    mounted = true;
+    await customElements.whenDefined('l-input');
+    await nextTick();
+    if (!mounted) return;
+    $input = document.querySelector('l-input#input-parser-example');
+    $input?.setParser(numericParse);
+    $input?.addEventListener('change', handleChange);
   });
   onUnmounted(() => {
+    mounted = false;
     $input?.removeEventListener('change', handleChange);
     $input = undefined;
   });
@@ -102,15 +100,13 @@ input.readOnly = false;
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input id="input" placeholder="请输入正整数" clearable></l-input>
+  <l-input id="input-parser-example" placeholder="请输入正整数" clearable></l-input>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-input id="input" placeholder="请输入正整数"></l-input>
+  <l-input id="input-parser-example" placeholder="请输入正整数" clearable></l-input>
 </textarea>
 <textarea lang="ts">
-  import { $one, on, off } from 'utilane/browser';
-  //-
   function numericParse(value) {
     let val = parseInt(value, 10)
     if (Number.isNaN(val)) {
@@ -121,7 +117,7 @@ input.readOnly = false;
     return String(val);
   }
   //-
-  const $input = $one('#input');
+  const $input = document.querySelector('l-input#input-parser-example');
   $input.setParser(numericParse);
 </textarea>
 </div>
@@ -147,6 +143,21 @@ regist([ReductionIcon, SearchIcon]);
 </textarea>
 </l-code-preview>
 </ClientOnly>
+
+### 自动填充
+
+通过 `autocomplete` 设置浏览器的填充提示，也可用实例的 `autocomplete` property 动态修改。未单独设置时继承 [Form](./form) 的默认配置，移除后恢复继承。
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input name="email" type="email" autocomplete="email" placeholder="邮箱"></l-input>
+  <l-input name="password" type="password" autocomplete="new-password" placeholder="设置密码"></l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+是否提供自动填充由浏览器决定，`off` 不强制禁用密码管理器。
 
 ### 带清除图标
 
@@ -198,6 +209,7 @@ import "litos-ui/input";
 | `width` | 宽度 | `string` | - |
 | `clearable` | 是否显示清除按钮 | `boolean` | `false` |
 | `inputmode` | 原生输入模式，未设置时由浏览器决定 | `string` | 未设置 |
+| `autocomplete` | 原生自动填充提示，如 on、off、email、current-password、new-password 或 section-* 组合 | `string` | 未设置 |
 | `maxlength` | 最大输入长度 | `number` | - |
 | `minlength` | 最小输入长度 | `number` | - |
 | `error` | 错误状态标记；存在该属性即显示错误状态，恢复时移除属性 | `string` | 未设置 |
@@ -209,8 +221,11 @@ import "litos-ui/input";
 | --- | --- | --- |
 | `value` | 当前值；程序赋值与用户输入均不改变默认值 | `string` |
 | `defaultValue` | 默认值，与宿主 `value` attribute 同步 | `string` |
+| `autocomplete` | 自动填充提示，与同名 attribute 同步；设为 `""` 移除配置 | `string` |
 
 通过 `value` attribute 或 `defaultValue` 设置重置默认值。修改过当前值后，再修改默认值不会覆盖当前编辑内容；表单重置时恢复最新默认值，并重新允许默认值变化同步当前值。第一次给实例 `value` 赋值不再自动成为默认值。
+
+密码正常参与提交，也可按 `autocomplete` 提示填充，但不写入表单历史恢复状态。这不控制浏览器的页面往返缓存或密码管理器。
 
 ### Input Methods
 

@@ -1,5 +1,7 @@
 import { getAttr } from "utilane/browser";
 
+const localChangeTargets = new WeakSet<HTMLElement>();
+
 export default class BaseComponent<T = Record<string, any>> extends HTMLElement {
   static baseName = "base-component";
   /** 组件是否渲染完成, 是否已经调用 connectedCallback */
@@ -221,6 +223,11 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
   removeEvents() {}
   beforeDestroy() {}
 
+  /** Keep a private child control's change event inside its shadow tree. */
+  protected keepChangeLocal(target: HTMLElement): void {
+    localChangeTargets.add(target);
+  }
+
   /**
    * 触发自定义事件
    * @param name 事件名称
@@ -228,9 +235,9 @@ export default class BaseComponent<T = Record<string, any>> extends HTMLElement 
    * @returns 是否成功触发事件
    */
   emit(name: string, eventOption?: Partial<CustomEventInit>) {
-    return this.dispatchEvent(
-      new CustomEvent(name, { bubbles: true, composed: true, ...eventOption }),
-    );
+    const options = { bubbles: true, composed: true, ...eventOption };
+    if (name === "change" && localChangeTargets.has(this)) options.composed = false;
+    return this.dispatchEvent(new CustomEvent(name, options));
   }
 
   emitInject<Context>(name: string, callback: (context: Context) => void) {

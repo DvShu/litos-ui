@@ -8,6 +8,7 @@ import { debounce } from "utilane/browser";
 
 export type SelectOption = {
   class?: string;
+  disabled?: boolean;
   render?: (
     option: SelectOption,
     isSelect: boolean,
@@ -46,6 +47,10 @@ type SelectState = {
   emptyText: string;
 };
 
+function isObjectValue(value: unknown): boolean {
+  return value !== null && typeof value === "object";
+}
+
 export default class Select extends FormInner<SelectState> {
   public static baseName = "select";
 
@@ -60,9 +65,13 @@ export default class Select extends FormInner<SelectState> {
   /** 下拉弹窗主体 */
   private _popover?: Popover;
   private _searchEl?: HTMLInputElement;
+  private editingSearch = false;
+  // [] and [""] both reflect to an empty value attribute.
+  private emptyOptionDefault = false;
+  private reflectingEmptyOptionDefault = false;
 
   constructor() {
-    super(true, false);
+    super(false);
     this.version = 2;
     this._state = {
       filterable: false,
@@ -144,6 +153,32 @@ export default class Select extends FormInner<SelectState> {
     return this._state.multiple ? [] : "";
   }
 
+  public override get defaultValue(): any {
+    if (this._state.multiple && this.emptyOptionDefault) return [""];
+    return super.defaultValue;
+  }
+
+  public override set defaultValue(value: any) {
+    this.reflectingEmptyOptionDefault =
+      Array.isArray(value) && value.length === 1 && value[0] === "";
+    try {
+      super.defaultValue = value;
+    } finally {
+      this.reflectingEmptyOptionDefault = false;
+    }
+  }
+
+  public override attributeChangedCallback(name: string, oldValue: string, newValue: string): void {
+    if (name === "value") {
+      const previous = this.emptyOptionDefault;
+      this.emptyOptionDefault = newValue === "" && this.reflectingEmptyOptionDefault;
+      this.reflectingEmptyOptionDefault = false;
+      // The base class skips identical attribute strings.
+      if (oldValue === newValue && previous !== this.emptyOptionDefault) this.applyDefaultValue();
+    }
+    super.attributeChangedCallback(name, oldValue, newValue);
+  }
+
   protected parseDefaultValue(value: string | null): string | string[] {
     return value === null ? this.intrinsicDefaultValue : this.normalizeValue(value);
   }
@@ -153,28 +188,17 @@ export default class Select extends FormInner<SelectState> {
   }
 
   private normalizeValue(value: any): any {
-    let v: any = value;
-    if (this._state.multiple && (value == null || value === "")) {
-      v = [];
-    } else if (typeof value === "string") {
-      v = value.split(",");
-    }
-    if (this._state.multiple) {
-      if (!Array.isArray(v)) {
-        v = [v];
-      }
-    } else {
-      if (Array.isArray(v)) {
-        v = v[0];
-      }
-    }
-    return v;
+    if (!this._state.multiple) return Array.isArray(value) ? (value[0] ?? "") : value;
+    if (value == null || value === "") return [];
+    if (Array.isArray(value)) return [...value];
+    return typeof value === "string" ? value.split(",") : [value];
   }
 
-  public setValue(value: string | string[] | number): void {
+  public setValue(value: any): void {
     super.setValue(this.normalizeValue(value));
     this._updateSelectedLabels();
     this._reRenderLabels();
+    if (this.isEmpty()) this._toggleClearable(true);
     this._updatePopoverContent();
     this.syncNativeValue();
   }
@@ -183,11 +207,31 @@ export default class Select extends FormInner<SelectState> {
     return this.isEmpty();
   }
 
-  protected serializeFormValue(): string | FormData {
-    if (!this._state.multiple) return String(this.getValue() ?? "");
+  private get hasObjectValue(): boolean {
+    const value = this.getValue();
+    if (this._state.multiple && Array.isArray(value)) return value.some(isObjectValue);
+    return isObjectValue(value);
+  }
+
+  protected get nativeSubmissionError(): string | undefined {
+    if (this.name && this.hasObjectValue && this.serializeFormValue() === null)
+      return "对象选项无法作为表单值提交，请使用选项标识。";
+  }
+
+  protected get nativeConstraintValues(): readonly unknown[] {
+    return this.hasObjectValue ? [] : super.nativeConstraintValues;
+  }
+
+  protected get formStateRestorationEnabled(): boolean {
+    return !this.hasObjectValue;
+  }
+
+  protected serializeFormValue(): string | FormData | null {
+    if (this.hasObjectValue) return null;
+    const values = this.getValue();
+    if (!this._state.multiple) return values == null ? null : String(values);
     const data = new FormData();
     if (this.name) {
-      const values = this.getValue();
       for (const value of Array.isArray(values)
         ? values
         : values == null || values === ""
@@ -200,13 +244,15 @@ export default class Select extends FormInner<SelectState> {
   }
 
   private _updateSelectedLabels() {
-    if (this._options) {
-      this.selectedLabels = this._options
-        .filter((item) => this._isOptionSelect(item[this._state.valueField as string]))
-        .map((item) => item[this._state.labelField as string]);
-      return;
-    }
-    this.selectedLabels = [];
+    const { labelField, valueField, multiple } = this._state;
+    const options = this._backOptions ?? this._options;
+    const value = this.value;
+    const values: unknown[] = value == null ? [] : multiple ? value : [value];
+    this.selectedLabels = values.flatMap((value: unknown) => {
+      const option = options?.find((item) => item[valueField] === value);
+      if (!option && !multiple && value === "") return [];
+      return [String(option?.[labelField] ?? value ?? "")];
+    });
   }
 
   static get observedAttributes() {
@@ -237,7 +283,7 @@ export default class Select extends FormInner<SelectState> {
         break;
       case "label-field":
       case "value-field":
-        this._state[kebabToCamel(name) as "valueField"] = newValue;
+        this._state[kebabToCamel(name) as "valueField"] = newValue ?? name.replace("-field", "");
         break;
       case "empty-text":
         this._state.emptyText = newValue ?? "暂无数据";
@@ -276,11 +322,11 @@ export default class Select extends FormInner<SelectState> {
     if (changedProps.has("placeholder")) {
       this._reRenderLabels();
     }
-    if (
-      changedProps.has("label-field") ||
-      changedProps.has("value-field") ||
-      changedProps.has("empty-text")
-    ) {
+    if (changedProps.has("label-field") || changedProps.has("value-field")) {
+      this._updateSelectedLabels();
+      this._reRenderLabels();
+    }
+    if (["label-field", "value-field", "empty-text"].some((name) => changedProps.has(name))) {
       this._updatePopoverContent();
     }
   }
@@ -297,10 +343,8 @@ export default class Select extends FormInner<SelectState> {
     this._options = options;
     this._backOptions = [...(options || [])];
     this._updateSelectedLabels();
-    this._reRenderLabels();
-    if (this._popover && this._state.expanded) {
-      this._popover.updatePopoverContent();
-    }
+    this._reRenderLabels(this._state.remote && this.editingSearch);
+    this._updatePopoverContent();
   }
 
   private _isOptionSelect(value?: any) {
@@ -313,24 +357,6 @@ export default class Select extends FormInner<SelectState> {
       }
     }
     return isSelect;
-  }
-
-  private _updateOptionSelect(optionElement: HTMLElement, isSelect: boolean) {
-    let $selectIcon = $one(".l-select-icon", optionElement);
-    if (isSelect) {
-      optionElement.classList.add("l-select-option--selected");
-      if (!$selectIcon) {
-        $selectIcon = $$("l-select-icon", {
-          class: "l-select-icon",
-        });
-        optionElement.appendChild($selectIcon);
-      }
-    } else {
-      optionElement.classList.remove("l-select-option--selected");
-      if ($selectIcon) {
-        $selectIcon.remove();
-      }
-    }
   }
 
   private _renderOption() {
@@ -361,8 +387,13 @@ export default class Select extends FormInner<SelectState> {
         const $li = $$(
           "li",
           {
-            class: ["l-select-option", itemSelected ? "l-select-option--selected" : undefined],
-            "data-action": `${i}`,
+            class: [
+              "l-select-option",
+              itemSelected ? "l-select-option--selected" : undefined,
+              item.disabled ? "l-select-option--disabled" : undefined,
+            ],
+            "aria-disabled": item.disabled ? "true" : undefined,
+            "data-action": item.disabled ? undefined : `${i}`,
           },
           lichildren,
         );
@@ -446,7 +477,6 @@ export default class Select extends FormInner<SelectState> {
 
   private _onRootTap = (e: Event) => {
     if (this.isDisabled()) return;
-    if (this.isDisabled()) return;
     e.stopPropagation();
     const [next, action, _target] = shouldEventNext(
       e,
@@ -455,26 +485,36 @@ export default class Select extends FormInner<SelectState> {
     );
     if (next) {
       if (action === "clear") {
-        this.value = this._state.multiple ? [] : "";
-        this.selectedLabels = [];
+        if (!this.isEmpty()) this._commitSelection(this._state.multiple ? [] : "");
         this._toggleClearable(true);
-        this._reRenderLabels();
-        this._updatePopoverContent();
       } else {
-        // 删除多选标签
         const index = Number(action);
-        this.selectedLabels.splice(index, 1);
-        this.setValue((this._value as any[]).filter((_, i) => i !== index));
-        this._updatePopoverContent();
-        this._reRenderLabels(); // 重新渲染标签
-        if (this._searchEl) {
-          this._searchEl.focus();
+        const values = this.value;
+        if (
+          Array.isArray(values) &&
+          Number.isInteger(index) &&
+          index >= 0 &&
+          index < values.length
+        ) {
+          this._commitSelection(values.filter((_, i) => i !== index));
+          this._searchEl?.focus();
         }
       }
       return;
     }
     this._togglePopover();
   };
+
+  private _commitSelection(value: any) {
+    this.setValue(value);
+    this.validateInput();
+    this.emit("change", {
+      detail: {
+        value: Array.isArray(this.value) ? [...this.value] : this.value,
+        labels: [...this.selectedLabels],
+      },
+    });
+  }
 
   private _onTap = () => {
     this._togglePopover();
@@ -486,6 +526,7 @@ export default class Select extends FormInner<SelectState> {
 
   private _onSearchInput = (e: Event) => {
     if (this.inputHandler && this._state.filterable) {
+      this.editingSearch = true;
       const searchValue = (e.target as HTMLInputElement).value;
       this.inputHandler(searchValue);
     }
@@ -557,71 +598,21 @@ export default class Select extends FormInner<SelectState> {
             this._popover?.hide();
           }
         },
-        onPopoverAction: (action, target) => {
-          if (!this.isDisabled() && action && this._options) {
-            const index = Number(action);
-            const option = this._options[index];
-            const value = option[this._state.valueField];
-            const label = option[this._state.labelField];
-            let oldValue = Array.isArray(this.value) ? [...this.value] : this.value;
-            let oldLabels = [...this.selectedLabels];
-            if (this._state.multiple === true) {
-              // 多选
-              if (!oldValue) {
-                oldValue = [value];
-                oldLabels = [label];
-              } else {
-                if (Array.isArray(oldValue)) {
-                  const i = oldValue.indexOf(value);
-                  if (i !== -1) {
-                    oldValue.splice(i, 1);
-                    oldLabels.splice(i, 1);
-                  } else {
-                    oldValue.push(value);
-                    oldLabels.push(label);
-                  }
-                } else {
-                  if (oldValue != value) {
-                    oldValue = [oldValue, value];
-                    oldLabels = [oldLabels, label];
-                  }
-                }
-              }
-            } else {
-              // 单选
-              oldValue = value;
-              oldLabels = [label];
-            }
-            if (this._value != oldValue) {
-              this.emit("change", {
-                detail: { value: oldValue, labels: oldLabels }, // 兼容旧版本写法
-              });
-            }
-            super.setValue(oldValue);
-            this.selectedLabels = oldLabels;
-            const isSelect = this._isOptionSelect(value);
-            if (!this._state.multiple) {
-              // 单选移除之前的选中态
-              const $oldSelected = $(
-                ".l-select-option--selected",
-                target.parentElement as HTMLElement,
-              ) as HTMLElement[];
-              iterate($oldSelected, (oldOption) => {
-                this._updateOptionSelect(oldOption, false);
-              });
-            }
-            // 修改选中状态
-            this._updateOptionSelect(target, isSelect);
-            // 重新渲染标签
-            this._reRenderLabels();
-            if (!this._state.multiple && this._popover) {
-              // 单选关闭弹窗
-              this._popover.hide();
-            }
-            // 焦点
-            if (this._searchEl && this._state.multiple) {
-              this._searchEl.focus();
-            }
+        onPopoverAction: (action) => {
+          if (this.isDisabled() || action === "") return;
+          const option = this._options?.[Number(action)];
+          if (!option || option.disabled) return;
+          const value = option[this._state.valueField];
+          if (this._state.multiple) {
+            const values = this.value as unknown[];
+            const next = values.includes(value)
+              ? values.filter((item) => item !== value)
+              : [...values, value];
+            this._commitSelection(next);
+            this._searchEl?.focus();
+          } else {
+            if (this.value !== (value ?? "")) this._commitSelection(value);
+            this._popover?.hide();
           }
         },
       });
@@ -651,6 +642,7 @@ export default class Select extends FormInner<SelectState> {
         this.inputHandler = undefined;
       }
       this._searchEl = undefined;
+      this.editingSearch = false;
     }
     this.filter = undefined;
   }
@@ -735,7 +727,7 @@ export default class Select extends FormInner<SelectState> {
     return $tmpTag;
   }
 
-  private _reRenderLabels() {
+  private _reRenderLabels(preserveQuery = false) {
     let $main = $one(".l-select-main", this.root);
     if ($main) {
       const $children = $(".l-selected-item", $main) as HTMLElement[];
@@ -755,10 +747,10 @@ export default class Select extends FormInner<SelectState> {
         $main.appendChild($tags);
       }
     }
-    this._updateSearchValue();
+    this._updateSearchValue(preserveQuery);
   }
 
-  private _updateSearchValue() {
+  private _updateSearchValue(preserveQuery = false) {
     if (this._searchEl) {
       let placeholder = this._state.placeholder;
       let value = "";
@@ -772,7 +764,10 @@ export default class Select extends FormInner<SelectState> {
       }
 
       this._searchEl.placeholder = placeholder;
-      this._searchEl.value = value;
+      if (!preserveQuery) {
+        this._searchEl.value = value;
+        this.editingSearch = false;
+      }
     }
   }
 

@@ -19,13 +19,17 @@
   opacity: 0;
 }
 
+:host(:focus-within) {
+  outline: 2px solid var(--l-primary-color, #722ed1);
+  outline-offset: 2px;
+}
+
 .l-check__inner {
   width: var(--l-check-size, 14px);
   height: var(--l-check-size, 14px);
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: var(--l-check-border-radius, var(--l-border-radius, 13px));
   border: 1px solid #dcddd9;
   box-sizing: border-box;
   transition: border-color 0.3s ease-in-out;

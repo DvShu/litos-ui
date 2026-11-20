@@ -35,6 +35,8 @@ import "litos-ui/color-picker";
 
 ## API
 
+颜色值使用六位十六进制格式，例如 `#123456`。读取和原生表单提交均使用小写，空值或无效颜色回到 `#000000`。
+
 ### ColorPicker Attributes
 
 <!-- prettier-ignore -->

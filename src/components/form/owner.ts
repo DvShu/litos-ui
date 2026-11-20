@@ -17,6 +17,98 @@ const managers = new WeakMap<HTMLElement, FormOwner>();
 // refresh／release 使用；跨宿主移交前释放旧管理器写入的 form 属性。
 const assignments = new WeakMap<OwnedFormField, FormOwner>();
 
+const submitterSources = new WeakMap<HTMLElement, HTMLElement>();
+
+/** Shadow DOM 按钮不能充当外部 form 的原生 submitter。 */
+export function requestSubmitFromButton(form: HTMLFormElement, source: HTMLElement): void {
+  const submitter = form.ownerDocument.createElement("button");
+  submitter.type = "submit";
+  submitter.hidden = true;
+  submitter.formNoValidate = source.hasAttribute("formnovalidate");
+  for (const name of ["name", "value"]) {
+    const value = source.getAttribute(name);
+    if (value !== null) submitter.setAttribute(name, value);
+  }
+  submitterSources.set(submitter, source);
+  Element.prototype.append.call(form, submitter);
+  try {
+    HTMLFormElement.prototype.requestSubmit.call(form, submitter);
+  } finally {
+    submitter.remove();
+  }
+}
+
+type NativeSubmitBridge = {
+  hosts: Map<HTMLElement, { submit: () => void; ownsForm: boolean }>;
+  dispose: () => void;
+};
+
+const submitBridges = new WeakMap<HTMLFormElement, NativeSubmitBridge>();
+
+/** 一个原生 form 只有一个提交桥，按实际提交按钮归属选中库表单。 */
+export function listenFormSubmit(
+  form: HTMLFormElement,
+  host: HTMLElement,
+  ownsForm: boolean,
+  submit: () => void,
+): () => void {
+  let bridge = submitBridges.get(form);
+  if (!bridge) {
+    const hosts: NativeSubmitBridge["hosts"] = new Map();
+    const listener = (event: SubmitEvent) => {
+      if (event.target !== form) return;
+
+      const button = event.submitter;
+      const source = button ? (submitterSources.get(button) ?? button) : null;
+      const sourceHost = source?.closest<HTMLElement>("l-form");
+      const first = hosts.keys().next().value;
+      // 辅助表单也接受显式关联在宿主外的按钮；单宿主兼容无提交者的 requestSubmit()。
+      const fallback =
+        first && (hosts.get(first)?.ownsForm || (!source && hosts.size === 1)) ? first : undefined;
+      const target = sourceHost && hosts.has(sourceHost) ? sourceHost : fallback;
+      const registration = target && hosts.get(target);
+      if (!target || !registration) return;
+      event.stopPropagation();
+      if (event.defaultPrevented) return;
+
+      // 立即阻止浏览器导航，并记录后续原生监听器主动取消提交的调用。
+      const descriptor = Object.getOwnPropertyDescriptor(event, "preventDefault");
+      const preventDefault = event.preventDefault;
+      let cancelled = false;
+      const cancel = () => {
+        cancelled = true;
+        preventDefault.call(event);
+      };
+      preventDefault.call(event);
+      event.preventDefault = cancel;
+      setTimeout(() => {
+        if (event.preventDefault === cancel) {
+          if (descriptor) Object.defineProperty(event, "preventDefault", descriptor);
+          else Reflect.deleteProperty(event, "preventDefault");
+        }
+        if (!cancelled && hosts.get(target) === registration) registration.submit();
+      }, 0);
+    };
+    form.addEventListener("submit", listener);
+    bridge = {
+      hosts,
+      dispose: () => {
+        form.removeEventListener("submit", listener);
+        submitBridges.delete(form);
+      },
+    };
+    submitBridges.set(form, bridge);
+  }
+  const state = bridge;
+  const registration = { submit, ownsForm };
+  state.hosts.set(host, registration);
+  return () => {
+    if (state.hosts.get(host) !== registration) return;
+    state.hosts.delete(host);
+    if (!state.hosts.size) state.dispose();
+  };
+}
+
 /**
  * 单个 l-form 的所有权控制器，当前由生命周期浏览器样例实例化。
  * 由生产 Form 持有，字段注册／升级后可主动 refresh；不负责上下文或校验规则。
@@ -58,6 +150,11 @@ export class FormOwner {
    */
   get form(): HTMLFormElement | undefined {
     return this.current;
+  }
+
+  /** 辅助 form 只归当前宿主使用，复用的原生祖先可能由多个宿主共享。 */
+  get ownsForm(): boolean {
+    return this.auxiliary !== undefined && this.current === this.auxiliary;
   }
 
   /**

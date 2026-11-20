@@ -1,4 +1,4 @@
-import { $$, addClass, removeClass, $one, on, off } from "utilane/browser";
+import { $$, addClass, $one, on, off } from "utilane/browser";
 import FormInner from "../form/form_inner";
 import { initAttr } from "../utils";
 // @ts-ignore
@@ -8,30 +8,50 @@ import { isBlank, random } from "utilane";
 export default class MdInput extends FormInner {
   public static baseName = "md-input";
 
-  protected _ignoreInitAttrs = ["value"];
+  protected _ignoreInitAttrs = ["value", "autocomplete", "htmlType"];
 
   /** 是否显示四周边框 */
   public outline = false;
-  public htmlType: "text" | "number" | "password" | "tel" = "text";
+  public get htmlType(): "text" | "number" | "password" | "tel" {
+    const value = (this.getAttribute("html-type") || "text").toLowerCase();
+    return value === "number" || value === "password" || value === "tel" ? value : "text";
+  }
+  public set htmlType(value: "text" | "number" | "password" | "tel") {
+    this.setAttribute("html-type", value);
+  }
   public inputmode?: "text" | "numeric" | "decimal" | "tel";
   public label?: string;
 
+  protected override get formStateRestorationEnabled(): boolean {
+    return this.htmlType !== "password";
+  }
+  protected override get acceptsAutocompleteText(): boolean {
+    return true;
+  }
+
   static get observedAttributes() {
-    return [...new Set([...FormInner.observedAttributes, "disabled"])];
+    return [...new Set([...FormInner.observedAttributes, "disabled", "html-type", "autocomplete"])];
+  }
+
+  protected override attributeChange(name: string, _oldValue: string, _newValue: string): void {
+    const input = $one("input", this.root) as HTMLInputElement | undefined;
+    if (name === "html-type" && input) {
+      input.type = this.htmlType;
+      this.syncEditorValue(input);
+    }
+  }
+
+  private syncEditorValue(input: HTMLInputElement): void {
+    if (input.value === this.value) return;
+    const dirty = this.dirtyValue;
+    this.setValue(input.value);
+    this.dirtyValue = dirty;
   }
 
   connectedCallback(): void {
     initAttr(this);
     this.loadStyleText(css);
     super.connectedCallback();
-    this.#initEvents();
-    this.syncNativeValue();
-    this.disabledChange();
-  }
-
-  disconnectedCallback(): void {
-    super.disconnectedCallback();
-    this.#removeEvents();
   }
 
   render() {
@@ -66,13 +86,15 @@ export default class MdInput extends FormInner {
   }
 
   public setValue(value: any): void {
-    super.setValue(value);
+    const text = String(value ?? "");
     const $inner = $one("input", this.root) as HTMLInputElement;
-    if ($inner) {
-      $inner.value = value ?? "";
-    }
-    this.classList.toggle("l-has-value", !isBlank(value));
-    this.syncNativeValue();
+    const type = this.htmlType;
+    const editor = $inner ?? (type === "number" ? this.ownerDocument.createElement("input") : null);
+    if (editor && !$inner) editor.type = type;
+    if (editor && editor.value !== text) editor.value = text;
+    const current = editor?.value ?? text;
+    this.classList.toggle("l-has-value", !isBlank(current));
+    super.setValue(current);
   }
 
   protected disabledChange(): void {
@@ -80,14 +102,20 @@ export default class MdInput extends FormInner {
     if (input) input.disabled = this.isDisabled();
   }
 
-  #initEvents() {
+  protected innerBlockChange(innerBlock: boolean): void {
+    this.classList.toggle("is-block", innerBlock);
+  }
+
+  afterInit(): void {
     const $inner = $one("input", this.root) as HTMLInputElement;
     if ($inner) {
+      this.syncEditorValue($inner);
+      this.syncAutocomplete();
       on($inner, "input", this.#handleInput);
     }
   }
 
-  #removeEvents() {
+  beforeDestroy(): void {
     const $inner = $one("input", this.root) as HTMLInputElement;
     if ($inner) {
       off($inner, "input", this.#handleInput);
@@ -96,12 +124,7 @@ export default class MdInput extends FormInner {
 
   #handleInput = (e: Event) => {
     const $target = e.target as HTMLInputElement;
-    const value = $target.value;
-    this.setValue(value);
-    if (!isBlank(value)) {
-      addClass(this, "l-has-value");
-    } else {
-      removeClass(this, "l-has-value");
-    }
+    this.setValue($target.value);
+    this.validateInput();
   };
 }

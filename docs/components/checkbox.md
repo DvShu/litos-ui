@@ -96,7 +96,7 @@ regist([Checkbox, CheckboxGroup]);
 
 ### 多选框组
 
-结合 `l-checkbox-group` 组件实现多选框组
+使用 `l-checkbox-group` 的 `value` 设置选中项。组内选项的 `checked` 可读取当前状态。原生表单和 `l-form.getData()` 都过滤无匹配的值。没有任何匹配时，原生表单省略该字段，`getData()` 中的组值为空字符串。参见 [Form 提交数据演示](./form#单选框和复选框的提交数据)。
 
 <ClientOnly>
 <l-code-preview>
@@ -112,6 +112,8 @@ regist([Checkbox, CheckboxGroup]);
 </ClientOnly>
 
 > 注意：传递给 `l-checkbox-group` 的 `value` 为多选值的每一项 `encodeURIComponent` 后拼接 `&`
+
+原生表单为复选组的每个选中值生成同名条目。选中值只对应禁用选项时，提交会省略它。
 
 ### 按钮样式
 
@@ -205,7 +207,7 @@ import "litos-ui/checkbox";
 import "litos-ui/checkbox-group";
 ```
 
-元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](/on_demand)。
+在客户端显式导入每个用到的组件。使用 `l-checkbox-group` 时，组和 `l-checkbox` 选项各自导入。样式、类型和总入口用法见[按需导入](/on_demand)。
 
 ## API
 
@@ -222,12 +224,31 @@ import "litos-ui/checkbox-group";
 | `name` | 原生属性 | `string` | `-` |
 | `label` | 显示的标签 | `string` | `-` |
 
+### Checkbox Properties
+
+<!-- prettier-ignore -->
+| 属性 | 说明 | 类型 |
+| --- | --- | --- |
+| `checked` | 当前选中状态 | `boolean` |
+| `defaultChecked` | 重置默认选中状态，与 `checked` attribute 同步 | `boolean` |
+
+字段名、默认值和有效性等通用属性见 [表单控件通用 API](./form#表单控件通用-api)。
+
 ### CheckboxGroup Attributes
 
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 多选值,每一项 `encodeURIComponent` 后拼接 `&` | `string` | `-` |
+| `value` | 逐项用 `encodeURIComponent` 编码后以 `&` 拼接。仅选中空值项时为 `&`，未选中时为空字符串 | `string` | 未设置 |
+| `name` | 组的表单字段名 | `string` | 未设置 |
+| `disabled` | 禁用组内全部选项 | `boolean` | `false` |
+| `required` | 至少有一个可提交的选中值时通过必填校验 | `boolean` | `false` |
+| `gap` | 选项间距，数字按 px 处理 | `string` | `0px` |
+| `form` | 关联的原生表单 ID，显式配置优先 | `string` | 自动关联 |
+
+实例的 `value`、`defaultValue`、有效性及重置方法见 [表单控件通用 API](./form#表单控件通用-api)。
+
+组编码时，截断字符留下的孤立 Unicode 代理项会替换为 `U+FFFD`，与原生提交一致。旧值中无法解码的百分号转义仍按原文读取。
 
 ### Checkbox Slots
 

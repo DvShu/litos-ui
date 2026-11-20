@@ -15,12 +15,14 @@ const ignoreFiles = new Set([
   "check/check.ts",
   "check/index.ts",
   "collapse/types.ts",
+  "form/accessibility.ts",
+  "form/autocomplete.ts",
   "form/context.ts",
   "form/owner.ts",
   "form/form_inner.ts",
   "input/style.ts",
   "table/types.ts",
-  "utils/signal_types.ts",
+  "theme/appearance.ts",
 ]);
 for (const rawFilename of entryFiles) {
   const filename = rawFilename.replaceAll("\\", "/");
@@ -53,7 +55,7 @@ export default defineConfig({
     rolldownOptions: {
       // 确保外部化处理那些
       // 你不想打包进库的依赖
-      external: [/^utilane(?:\/|$)/, /^alien-signals(?:\/|$)/, "qrcode-generator-es"],
+      external: [/^utilane(?:\/|$)/, "qrcode-generator-es"],
       output: {
         preserveModules: true,
         preserveModulesRoot: "src/components",

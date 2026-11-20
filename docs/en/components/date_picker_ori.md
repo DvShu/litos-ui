@@ -90,6 +90,8 @@ Limit the date range with `min` and `max`.
 
 Enable `range` to select a date range.
 
+The `value` property and the native form submission both use a comma-separated string. The start date sets the minimum for the end date, and the end date sets the maximum for the start date.
+
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">

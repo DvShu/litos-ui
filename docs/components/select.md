@@ -124,11 +124,19 @@ regist([CloseFilledIcon]);
 </l-code-preview>
 </ClientOnly>
 
-> 当前 Form 和 FormItem 未提供统一 disabled 属性，请在具体 Select 控件上设置禁用状态。
+选项对象可设置 `disabled: true`，使该选项无法通过下拉列表点选。
 
 ### 多选
 
 设置 `multiple` 属性即可启用多选，默认情况下选中值会以 `Tag` 组件的形式展现， 你也可以设置 `collapse-tags` 属性将它们合并为一段文字。
+
+多选的 `value` property 为数组，原生 `FormData` 为每个值生成一个同名条目。点选、删除标签和清空会触发 `change`。
+
+通过 `defaultValue = [""]` 将空字符串选项设为唯一的多选默认项。HTML `value=""` 表示默认未选中。
+
+单选时，程序赋值 `null` 或 `undefined` 会保留原值，原生 `FormData` 省略该字段。值为 `""` 时提交空字符串，若存在对应选项则显示其标签。空字符串仍视为空值，无法通过必填校验。
+
+选中对象值时，`value` 和 `l-form.getData()` 保留对象引用。具名字段会报告原生校验错误，`FormData` 省略整个 Select 字段。需要原生提交时，可用 `value-field` 指向字符串、数字或布尔标识。
 
 <ClientOnly>
 <l-code-preview>
@@ -188,6 +196,8 @@ regist([CloseFilledIcon]);
 搜索框和远程数据结合，输入关键字以从远程服务器中查找数据。
 
 为了启用远程搜索，需要将 `filterable` 和 `remote` 同时设置为 `true`，同时监听 `search` 事件，事件参数为输入的值, 可以在事件中搜索远程结果，并重新更新 `options` 选项；可以在搜索的过程中设置 `loading` 为 `true` 来显示加载状态。
+
+通过 `setOptions()` 更新远程结果时，搜索框会保留正在编辑的关键词。
 
 <ClientOnly>
 <l-code-preview>
@@ -292,8 +302,9 @@ JavaScript `value` 属性可以接收字符串、数字或选中值数组。数�
 <!-- prettier-ignore -->
 | 参数 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| `value` | 选项的值 | `string` or `number` | - |
+| `value` | 选项的值 | `string \| number \| boolean \| object` | - |
 | `label` | 选项的标签 | `string` | - |
+| `disabled` | 是否禁止点选该选项 | `boolean` | `false` |
 
 ### Select CSS Variables
 

@@ -116,6 +116,8 @@ import "litos-ui/switch";
 
 ## API
 
+读取 `value` property 得到布尔值。HTML `value="false"`、JavaScript 布尔值 `false` 和旧代码传入的字符串 `"false"` 都表示关闭。原生表单中，开启提交字符串 `"true"`，关闭提交 `"false"`。设置 `required` 后，只有开启状态通过必填校验。
+
 ### Switch Attributes
 
 <!-- prettier-ignore -->

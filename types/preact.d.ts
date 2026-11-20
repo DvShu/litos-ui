@@ -4,6 +4,7 @@ interface ButtonProps extends HTMLAttributes<HTMLDivElement> {
   type?: "primary" | "default" | "link";
   "html-type"?: "button" | "submit" | "reset";
   form?: string;
+  formnovalidate?: boolean;
   block?: boolean;
   disabled?: boolean;
   loading?: boolean;
@@ -75,6 +76,7 @@ interface QrcodeProps extends HTMLAttributes<HTMLElement> {
 }
 
 type FormProps = HTMLAttributes<HTMLElement> & {
+  autocomplete?: "on" | "off";
   disabled?: boolean;
   /** 表单内的输入元素是否铺满剩余宽度 */
   "inner-block"?: boolean;
@@ -92,6 +94,7 @@ type FormProps = HTMLAttributes<HTMLElement> & {
 };
 
 type InputProps = HTMLAttributes<HTMLElement> & {
+  autocomplete?: string;
   readonly?: boolean;
   placeholder?: string;
   value?: string;
@@ -100,6 +103,39 @@ type InputProps = HTMLAttributes<HTMLElement> & {
   name?: string;
   maxlength?: number;
 };
+
+type MdInputProps = HTMLAttributes<HTMLElement> & {
+  autocomplete?: string;
+  value?: string;
+  name?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  "html-type"?: "text" | "number" | "password" | "tel";
+  label?: string;
+  outline?: boolean;
+  inputmode?: "text" | "numeric" | "decimal" | "tel";
+};
+
+interface CollapseProps extends HTMLAttributes<HTMLElement> {
+  prop?: string;
+  grid?: boolean;
+  gap?: string;
+  "border-radius"?: string;
+  background?: boolean;
+  "arrow-placement"?: "left" | "right";
+  "header-justify"?: "flex-start" | "flex-end" | "space-between";
+  accordion?: boolean;
+  onchange?: (event: CustomEvent<{ expands: string[]; value: string }>) => void;
+}
+
+interface CollapseItemProps extends HTMLAttributes<HTMLElement> {
+  prop?: string;
+  "header-text"?: string;
+  "heading-level"?: "1" | "2" | "3" | "4" | "5" | "6";
+  "toggle-label"?: string;
+  expand?: boolean;
+  "onexpand-change"?: (event: CustomEvent<{ prop: string; expand: boolean }>) => void;
+}
 
 // 正确扩展 Preact 的 JSX 命名空间以支持 VSCode 智能感知
 declare global {
@@ -126,6 +162,9 @@ declare global {
         "l-arrow-down-icon": IconProps;
         "l-qrcode": QrcodeProps;
         "l-input": InputProps;
+        "l-md-input": MdInputProps;
+        "l-collapse": CollapseProps;
+        "l-collapse-item": CollapseItemProps;
       }
     }
   }

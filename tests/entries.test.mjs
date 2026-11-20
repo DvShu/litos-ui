@@ -17,6 +17,7 @@ import path from "node:path";
 import os from "node:os";
 import { gzipSync } from "node:zlib";
 import { build } from "vite";
+import { runBrowserFixture } from "../scripts/browser-fixture.mjs";
 
 const require = createRequire(import.meta.url);
 const workspace = process.cwd();
@@ -53,7 +54,7 @@ execFileSync("tar", [
   "--strip-components=1",
 ]);
 const pkg = JSON.parse(readFileSync(path.join(packageRoot, "package.json"), "utf8"));
-for (const dep of Object.keys(pkg.dependencies)) {
+for (const dep of [...Object.keys(pkg.dependencies), "preact"]) {
   cpSync(
     realpathSync(path.join(workspace, "node_modules", dep)),
     path.join(consumer, "node_modules", dep),
@@ -81,7 +82,14 @@ const publicEntries = readdirSync(path.join(packageRoot, "lib/entries"))
   });
 
 test("published entries and declarations exist with exact case and no source aliases", () => {
-  assert.equal(publicEntries.length, 91);
+  const expected = readdirSync(path.join(workspace, "src/components/entries"))
+    .filter((file) => file.endsWith(".ts") && !file.endsWith(".d.ts"))
+    .map((file) => file.replace(/\.ts$/, ".js"))
+    .sort();
+  assert.deepEqual(
+    publicEntries.map(([, target]) => path.basename(target.import)).sort(),
+    expected,
+  );
   for (const [key, target] of publicEntries) {
     assert.match(key, /^\.\/[a-z0-9/-]+$/);
     for (const value of [target.import, target.types]) {
@@ -117,25 +125,239 @@ const results = {};
 async function bundle(name, source) {
   const entry = path.join(consumer, `${name}.js`);
   writeFileSync(entry, source);
+  const parsedModules = [];
   const result = await build({
     configFile: false,
     root: consumer,
     logLevel: "silent",
+    plugins: [
+      {
+        name: "record-consumer-dependencies",
+        moduleParsed(info) {
+          parsedModules.push(info.id.replaceAll("\\", "/"));
+        },
+      },
+    ],
     build: { write: false, minify: true, lib: { entry, formats: ["es"] } },
   });
   const outputs = (Array.isArray(result) ? result[0] : result).output;
   const chunks = outputs.filter((item) => item.type === "chunk");
   const code = chunks.map((item) => item.code).join("\n");
   const modules = chunks
-    .flatMap((item) => Object.keys(item.modules))
+    .flatMap((item) =>
+      Object.entries(item.modules)
+        .filter(([, info]) => info.renderedLength > 0)
+        .map(([id]) => id),
+    )
     .map((id) => id.replaceAll("\\", "/"));
   results[name] = { bytes: Buffer.byteLength(code), gzip: gzipSync(code).length };
-  return { modules, code, outputs };
+  return { modules, parsedModules, code, outputs };
 }
 function excludes(result, names) {
   for (const name of names)
     assert(!result.modules.some((id) => id.includes(`/lib/${name}/`)), `${name} retained`);
 }
+
+test("packed form and Collapse entries and shared chunks have no recursive signal runtime", async () => {
+  const names = [
+    "form",
+    "form-item",
+    "input",
+    "input-number",
+    "md-input",
+    "select",
+    "select-ori",
+    "switch",
+    "checkbox",
+    "checkbox-group",
+    "radio",
+    "radio-group",
+    "color-picker",
+    "date-picker",
+    "date-picker-ori",
+    "button",
+    "upload",
+    "theme",
+    "collapse",
+    "collapse-item",
+  ];
+  const input = Object.fromEntries(
+    names.map((name) => {
+      const entry = path.join(consumer, `shared-${name}.js`);
+      writeFileSync(entry, `import "litos-ui/${name}";`);
+      return [name, entry];
+    }),
+  );
+  let checked = 0;
+  const output = await build({
+    configFile: false,
+    root: consumer,
+    logLevel: "error",
+    plugins: [
+      {
+        name: "assert-packed-component-boundary",
+        moduleParsed(info) {
+          assert.doesNotMatch(info.id, /alien-signals/);
+          if (info.id.replaceAll("\\", "/").includes("/node_modules/litos-ui/lib/")) checked++;
+        },
+      },
+    ],
+    build: { write: false, minify: false, rolldownOptions: { input, output: { format: "es" } } },
+  });
+  const chunks = (Array.isArray(output) ? output : [output])
+    .flatMap((bundle) => bundle.output)
+    .filter((item) => item.type === "chunk");
+  assert.ok(checked >= names.length, "Must resolve actual packaged implementations");
+  assert.ok(
+    chunks.some((chunk) => !chunk.isEntry),
+    "Must also inspect shared chunks",
+  );
+  for (const chunk of chunks) {
+    assert.doesNotMatch(chunk.code, /alien-signals/);
+    assert.ok(
+      !Object.keys(chunk.modules).some((id) =>
+        id.replaceAll("\\", "/").includes("/src/components/"),
+      ),
+    );
+  }
+});
+
+test("isolated and whole-library packed consumers exclude the signal runtime", async () => {
+  const scenarios = {
+    form: 'import "litos-ui/form";',
+    formItem: 'import "litos-ui/form-item";',
+    input: 'import "litos-ui/input";',
+    radioGroup: 'import "litos-ui/radio"; import "litos-ui/radio-group";',
+    checkboxGroup: 'import "litos-ui/checkbox"; import "litos-ui/checkbox-group";',
+    combination:
+      'import "litos-ui/form-item"; import "litos-ui/form"; import "litos-ui/input"; import "litos-ui/radio"; import "litos-ui/radio-group"; import "litos-ui/checkbox"; import "litos-ui/checkbox-group"; import "litos-ui/button";',
+    theme: 'import "litos-ui/radio"; import "litos-ui/radio-group"; import "litos-ui/theme";',
+    namedForm: 'import { Form, FormItem, regist } from "litos-ui"; regist([FormItem, Form]);',
+    namedInput: 'import { Input, regist } from "litos-ui"; regist(Input);',
+    namedGroups:
+      'import { Radio, RadioGroup, Checkbox, CheckboxGroup, regist } from "litos-ui"; regist([Radio, RadioGroup, Checkbox, CheckboxGroup]);',
+    namedCombination:
+      'import { Form, FormItem, Input, Radio, RadioGroup, Checkbox, CheckboxGroup, regist } from "litos-ui"; regist([FormItem, Form, Input, Radio, RadioGroup, Checkbox, CheckboxGroup]);',
+    mixedCollapse:
+      'import { Collapse, CollapseItem, ArrowRightIcon, regist } from "litos-ui"; import "litos-ui/collapse"; import "litos-ui/collapse-item"; regist([ArrowRightIcon, CollapseItem, Collapse]);',
+  };
+  for (const [name, source] of Object.entries(scenarios)) {
+    const result = await bundle(`no-signals-${name}`, source);
+    assert.doesNotMatch(result.code, /alien-signals/, name);
+    assert.ok(
+      !result.modules.some((id) => /alien-signals/.test(id)),
+      `${name}: rendered signal runtime`,
+    );
+    assert.ok(
+      !result.parsedModules.some((id) => /alien-signals/.test(id)),
+      `${name}: recursive signal runtime`,
+    );
+    assert.ok(
+      result.modules.some((id) => id.includes("/node_modules/litos-ui/lib/")),
+      name,
+    );
+    assert.ok(!result.modules.some((id) => id.includes("/src/components/")), name);
+  }
+  const whole = await bundle(
+    "no-signals-whole-library",
+    'import * as ui from "litos-ui"; for (const value of Object.values(ui)) if (value?.baseName) ui.regist(value);',
+  );
+  assert.ok(
+    whole.modules.some((id) => id.endsWith("/lib/collapse/item.js")),
+    "Whole-library registration must include Collapse Item",
+  );
+  assert.doesNotMatch(whole.code, /alien-signals/);
+  assert.ok(
+    !whole.parsedModules.some((id) => /alien-signals/.test(id)),
+    "Whole-library registration must not import the signal runtime",
+  );
+  assert.doesNotMatch(
+    readFileSync(path.join(packageRoot, "lib/index.d.ts"), "utf8"),
+    /\b(?:Signal|SignalStop)\b/,
+  );
+  assert.ok(
+    !packed.files.some(({ path: file }) => /\/(?:context_provide|signal_types)\./.test(file)),
+    "The published package must exclude the removed context and signal modules",
+  );
+  assert.doesNotMatch(readFileSync(path.join(packageRoot, "lib/index.js"), "utf8"), /signal_types/);
+});
+
+test(
+  "packed Theme and Group consumers emit one change through remounts",
+  {
+    skip: process.env.FORM_TEST_BROWSER
+      ? false
+      : "Run scripts/check-form-signals.mjs with FORM_TEST_BROWSER for the required browser gate",
+  },
+  async () => {
+    const source = readFileSync(path.join(workspace, "tests/form-consumer.browser.mjs"), "utf8");
+    const result = await bundle("form-consumer-browser", source);
+    assert.ok(!result.modules.some((id) => /alien-signals/.test(id)));
+    const browser = await runBrowserFixture(result.code, process.env.FORM_TEST_BROWSER);
+    mkdirSync(path.join(workspace, ".artifacts"), { recursive: true });
+    writeFileSync(
+      path.join(workspace, ".artifacts/form-consumer-result.json"),
+      JSON.stringify(browser, null, 2) + "\n",
+    );
+    assert.deepEqual(browser.consoleErrors, []);
+    assert.equal(browser.pass, true, JSON.stringify(browser, null, 2));
+    console.log(
+      `Packed consumer browser: ${browser.version.product}, ${browser.checks.length} checks passed`,
+    );
+  },
+);
+
+test("packed Collapse entries retain their registrations and render the arrow", async () => {
+  const browser = process.env.COLLAPSE_TEST_BROWSER;
+  for (const declaration of ["index", "item", "types"]) {
+    assert.doesNotMatch(
+      readFileSync(path.join(packageRoot, `lib/collapse/${declaration}.d.ts`), "utf8"),
+      /signal_types|alien-signals/,
+    );
+  }
+  for (const name of ["collapse", "collapse-item"]) {
+    const entry = await bundle(`packed-${name}`, `import "litos-ui/${name}";`);
+    assert.doesNotMatch(entry.code, /alien-signals/, name);
+    assert.ok(!entry.parsedModules.some((id) => /alien-signals/.test(id)), name);
+    assert(
+      entry.modules.some((id) => id.endsWith("/lib/collapse/item.js")),
+      name,
+    );
+    assert(
+      entry.modules.some((id) => id.endsWith("/lib/icon/arrow_right.js")),
+      name,
+    );
+    assert.equal(
+      entry.modules.some((id) => id.endsWith("/lib/collapse/index.js")),
+      name === "collapse",
+    );
+    excludes(entry, ["carousel", "table", "select"]);
+    if (browser) {
+      const code =
+        entry.code +
+        `
+        const item = document.querySelector("l-collapse-item");
+        const arrow = item.shadowRoot.querySelector("l-arrow-right-icon");
+        document.querySelector("#result").textContent = JSON.stringify({
+          groupRegistered: !!customElements.get("l-collapse"),
+          arrowRendered: !!arrow.shadowRoot.querySelector("svg"),
+          expanded: item.classList.contains("l-collapse-expand"),
+        });`;
+      const item = '<l-collapse-item prop="initial">Content</l-collapse-item>';
+      const markup = name === "collapse" ? `<l-collapse prop="initial">${item}</l-collapse>` : item;
+      const result = await runBrowserFixture(code, browser, {
+        pages: {
+          "/": `<!doctype html><meta charset="utf-8">${markup}<pre id="result">pending</pre><script type="module" src="/fixture.js"></script>`,
+        },
+      });
+      assert.deepEqual(result.consoleErrors, []);
+      assert.equal(result.groupRegistered, name === "collapse");
+      assert.equal(result.expanded, name === "collapse");
+      assert.equal(result.arrowRendered, true);
+    }
+  }
+});
+
 test("production consumer keeps explicit registration and excludes unrelated components", async () => {
   const only = await bundle("button", 'import "litos-ui/button";');
   assert(only.modules.some((id) => id.endsWith("/lib/entries/button.js")));
@@ -235,13 +457,62 @@ import Base from "litos-ui/base";
 import Message from "litos-ui/message";
 import { type UploadFile } from "litos-ui/upload";
 import { type Column } from "litos-ui/table";
+import { Radio, Checkbox, Collapse, CollapseItem } from "litos-ui";
+import RadioEntry from "litos-ui/radio";
+import CheckboxEntry from "litos-ui/checkbox";
+import CollapseEntry from "litos-ui/collapse";
+import CollapseItemEntry from "litos-ui/collapse-item";
+import Input from "litos-ui/input";
+import MdInput from "litos-ui/md-input";
+import Form from "litos-ui/form";
+import InputNumber from "litos-ui/input-number";
+import type { JSX } from "preact";
+import "litos-ui/types/preact.d.ts";
+declare const input: Input;
+declare const material: MdInput;
+declare const form: Form;
+declare const number: InputNumber;
+declare const checks: [Radio, Checkbox, RadioEntry, CheckboxEntry];
+for (const check of checks) {
+  check.checked = true;
+  const checked: boolean = check.checked;
+  // @ts-expect-error checked is a boolean property.
+  check.checked = "true";
+  void checked;
+}
+form.autocomplete = "off";
+form.autocomplete = "";
+number.autocomplete = "off";
+input.autocomplete = "email";
+material.autocomplete = "new-password";
+material.htmlType = "password";
+const inputProps: JSX.IntrinsicElements["l-input"] = { autocomplete: "email" };
+const formProps: JSX.IntrinsicElements["l-form"] = { autocomplete: "off" };
+const materialProps: JSX.IntrinsicElements["l-md-input"] = { autocomplete: "current-password", "html-type": "password" };
+const collapseCtor: typeof Collapse = CollapseEntry;
+const itemCtor: typeof CollapseItem = CollapseItemEntry;
+const collapse = (
+  <l-collapse prop="details" accordion arrow-placement="right" onchange={(event) => {
+    const value: string = event.detail.value;
+    const expands: string[] = event.detail.expands;
+    void [value, expands];
+  }}>
+    <l-collapse-item prop="details" header-text="Details" heading-level="2" toggle-label="Show details" expand
+      onexpand-change={(event) => {
+        const prop: string = event.detail.prop;
+        const expand: boolean = event.detail.expand;
+        void [prop, expand];
+      }}
+    />
+  </l-collapse>
+);
 const ctor: typeof HTMLElement = Button;
 const base: typeof HTMLElement = Base;
 const upload: UploadFile[] = [];
 const columns: Column[] = [];
-void [ctor, base, upload, columns, Message.success];
+void [ctor, base, upload, columns, Message.success, formProps, inputProps, materialProps, collapseCtor, itemCtor, collapse];
 `;
-  writeFileSync(path.join(consumer, "index.ts"), source);
+  writeFileSync(path.join(consumer, "index.tsx"), source);
   writeFileSync(
     path.join(consumer, "tsconfig.json"),
     JSON.stringify({
@@ -249,12 +520,14 @@ void [ctor, base, upload, columns, Message.success];
         target: "ESNext",
         module: "ESNext",
         moduleResolution: "bundler",
+        jsx: "react-jsx",
+        jsxImportSource: "preact",
         strict: true,
         noEmit: true,
         skipLibCheck: false,
         noUncheckedSideEffectImports: true,
       },
-      files: ["index.ts"],
+      files: ["index.tsx"],
     }),
   );
   try {

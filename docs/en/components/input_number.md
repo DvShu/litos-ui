@@ -192,10 +192,12 @@ Element entries register built-in dependencies. Service and utility APIs still r
 
 ### InputNumber Events
 
+Set the `value` attribute to choose the number restored on form reset. The `value` property contains a number after valid input and `undefined` after clearing. `FormData` submits a numeric string or an empty string, respectively.
+
 <!-- prettier-ignore -->
 | Name | Description | event.detail |
 | --- | --- | --- |
-| `input` | Fires immediately when the value changes | `{ value: number, name: string }` |
+| `input` | Fires on typing or stepping. `event.detail.value` is `undefined` after clearing | `{ value: number \| undefined, name: string }` |
 | `change` | Fires when a value change is committed on blur or Enter | `{ value: number, name: string }` |
 
 ### InputNumber Methods

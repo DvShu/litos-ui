@@ -192,10 +192,12 @@ import "litos-ui/input-number";
 
 ### InputNumber Events
 
+`value` attribute 设置数字默认值，表单重置会恢复该默认值。用户输入后的 `value` property 为数字，清空后为 `undefined`。`FormData` 中对应的值分别为数字字符串和空字符串。
+
 <!-- prettier-ignore -->
 | 名称 | 说明 | event.detail |
 | --- | --- | --- |
-| `input` | 值变化时触发（实时） | `{ value: number, name: string }` |
+| `input` | 输入或步进时触发，清空时 `detail.value` 为 `undefined` | `{ value: number \| undefined, name: string }` |
 | `change` | 值变化时触发（失焦或回车） | `{ value: number, name: string }` |
 
 ### InputNumber Methods

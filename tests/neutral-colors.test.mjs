@@ -4,9 +4,13 @@ import { test } from "node:test";
 
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
 function variables(css, selector = ":root") {
-  const block = css.match(new RegExp(`${selector.replaceAll(".", "\\.")}\\s*\\{([^}]+)\\}`))[1];
+  const rules = css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]+)\}/g);
+  const rule = [...rules].find(([, selectors]) =>
+    selectors.split(",").some((candidate) => candidate.trim() === selector),
+  );
+  assert.ok(rule, `Missing variable rule for ${selector}`);
   return Object.fromEntries(
-    [...block.matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]),
+    [...rule[2].matchAll(/(--[\w-]+):\s*([^;]+);/g)].map((m) => [m[1], m[2].trim()]),
   );
 }
 function resolve(value, vars) {
@@ -48,7 +52,7 @@ test("info Tag uses fill tokens for background, never secondary text tokens", ()
 
 for (const theme of ["default", "jade", "coral", "tangerine"]) {
   const themed =
-    theme === "default" ? base : { ...base, ...variables(read(`styles/theme-${theme}.css`)) };
+    theme === "default" ? base : { ...base, ...variables(read(`styles/themes/${theme}.css`)) };
   for (const isDark of [false, true]) {
     test(`${theme} ${isDark ? "dark" : "light"}: info and Upload secondary text retain 4.5:1 contrast`, () => {
       // :root.dark is more specific than a theme's :root, independent of import order.

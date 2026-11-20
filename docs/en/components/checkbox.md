@@ -113,6 +113,8 @@ Place checkboxes inside `l-checkbox-group` for multiple selection.
 
 > Encode each selected value with `encodeURIComponent`, then join the values with `&` for `l-checkbox-group`.
 
+A native form submits one entry per selected value under the group's `name`. It omits values that correspond only to disabled options.
+
 ### Button Style
 
 Add `button` to `l-checkbox` for button styling.
@@ -222,12 +224,29 @@ Element entries register built-in dependencies. Service and utility APIs still r
 | `name` | Native attribute | `string` | `-` |
 | `label` | Displayed label | `string` | `-` |
 
+### Checkbox Properties
+
+<!-- prettier-ignore -->
+| Name | Description | Type |
+| --- | --- | --- |
+| `checked` | Current checked state | `boolean` |
+| `defaultChecked` | Checked state restored on reset, reflected by the `checked` attribute | `boolean` |
+
+See [Common Form Control APIs](/en/components/form#common-form-control-apis) for field names, defaults, validity, and reset methods.
+
 ### CheckboxGroup Attributes
 
 <!-- prettier-ignore -->
 | Name | Description | Type | Default |
 | --- | --- | --- | --- |
 | `value` | Selected values, each encoded with encodeURIComponent and joined with & | `string` | `-` |
+| `name` | Form field name for the group | `string` | Not set |
+| `disabled` | Disables all options in the group | `boolean` | `false` |
+| `required` | Requires at least one selected value that can be submitted | `boolean` | `false` |
+| `gap` | Spacing between options. Plain numbers are treated as pixels | `string` | `0px` |
+| `form` | Associated native form ID. An explicit ID takes precedence | `string` | Associated automatically |
+
+See [Common Form Control APIs](/en/components/form#common-form-control-apis) for `value`, `defaultValue`, validity, and reset methods.
 
 ### Checkbox Slots
 

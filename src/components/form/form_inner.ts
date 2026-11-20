@@ -1,21 +1,33 @@
 import BaseComponent from "../base";
 import {
+  FieldAccessibility,
+  fieldControlSelector,
+  referenceElements,
+  referenceText,
+  type NativeFieldControl,
+} from "./accessibility";
+import {
   FORM_CONTEXT_EVENTS,
   requestFormContext,
   resolveFieldContext,
   readFormBooleanAttribute,
 } from "./context";
-import type { FormContextField, FormContextProvider, FormFieldValidity } from "./context";
+import type {
+  FormContextField,
+  FormContextProvider,
+  FormFieldValidity,
+  NativeFieldValidity,
+} from "./context";
 
 /** 原生表单控件公共基类；所有权由 FormOwner 维护，上下文只使用普通请求／定向事件。 */
 export default class FormInner<T = Record<string, any>> extends BaseComponent<T> {
   public static formAssociated = true;
   protected readonly internals: ElementInternals;
   public _disabled = false;
-  public _value: any = undefined;
-  protected _firstPushValue = true;
+  #value: any = undefined;
   protected dirtyValue = false;
   private applyingDefault = false;
+  private applyingFormReset = false;
   private valueInitialized = false;
   private ownDisabled = false;
   private nativeDisabled = false;
@@ -23,7 +35,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   protected contextRequired = false;
   private explicitName?: string;
   private effectiveName?: string;
-  private reflectingName = false;
+  private syncedNameAttribute: string | null = null;
   private reflectingDisabled = false;
   private connecting = false;
   private unregister: (() => void)[] = [];
@@ -32,12 +44,24 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   private itemContext?: FormContextProvider;
   private manualValidity: ValidityStateFlags = {};
   private manualMessage = "";
+  private businessMessage?: string;
+  private nativeValidity?: NativeFieldValidity;
+  private displayedValidityMessage?: string;
+  private itemPresentation?: {
+    owner: HTMLElement;
+    label?: string;
+    error?: string;
+    groupError?: string;
+  };
+  private accessibilityControl?: NativeFieldControl;
+  private fieldAccessibility?: FieldAccessibility;
+  private accessibilityObserver?: MutationObserver;
   protected readonly contextField: FormContextField = {
     target: this,
     getSnapshot: () => ({ name: this.name, value: this.getValue(), disabled: this.isDisabled() }),
   };
 
-  public constructor(firstPushValue = true, delegatesFocus = true) {
+  public constructor(delegatesFocus = true) {
     super(true, { delegatesFocus });
     if (typeof this.attachInternals !== "function") {
       throw new Error(
@@ -45,7 +69,6 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
       );
     }
     this.internals = this.attachInternals();
-    this._firstPushValue = firstPushValue;
   }
 
   public get nativeValueEnabled(): boolean {
@@ -57,6 +80,10 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   }
   public get valueSnapshot(): any {
     return this.getValue();
+  }
+  /** @internal 由选中状态决定必填的控件可提供结果。 */
+  public get requiredSelection(): boolean | undefined {
+    return undefined;
   }
   public get form(): HTMLFormElement | null {
     return this.internals.form;
@@ -72,6 +99,10 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     this.syncNativeValidity();
     return this.internals.validationMessage;
   }
+  /** @internal 原生约束和手动错误的提示，独立于业务规则的 customError。 */
+  public get constraintValidationMessage(): string | undefined {
+    return this.nativeValidity?.constraintMessage;
+  }
   public get willValidate(): boolean {
     return this.internals.willValidate;
   }
@@ -84,32 +115,45 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     return this.internals.reportValidity();
   }
   public setValidity(flags: ValidityStateFlags = {}, message?: string, anchor?: HTMLElement): void {
+    this.internals.setValidity(flags, message, anchor);
     this.manualValidity = { ...flags };
     this.manualMessage = message ?? "";
-    this.internals.setValidity(flags, message, anchor);
+    this.syncNativeValidity(anchor);
   }
 
   get name(): string | undefined {
     return this.effectiveName ?? this.explicitName;
   }
   set name(value: string | undefined) {
-    if (this.reflectingName) return;
+    this.syncedNameAttribute = this.getAttribute("name");
     this.explicitName = value == null ? undefined : String(value);
     this.refreshConfiguration();
   }
+  public get autocomplete(): string {
+    return this.getAttribute("autocomplete") ?? "";
+  }
+  public set autocomplete(value: string | null | undefined) {
+    if (value == null || value === "") this.removeAttribute("autocomplete");
+    else this.setAttribute("autocomplete", value);
+  }
   get value(): any {
-    return this._value;
+    return this.#value;
   }
   set value(value: any) {
     this.setValue(value);
   }
   public setValue(value: any): void {
-    this._value = value;
+    const changed = !Object.is(this.#value, value);
+    this.#value = value;
     if (!this.applyingDefault) this.dirtyValue = true;
+    if (changed) this.notifyFieldValueChanged();
     this.syncNativeValue();
   }
+  protected notifyFieldValueChanged(): void {
+    if (!this.applyingFormReset) this.formContext?.fieldValueChanged?.(this.contextField);
+  }
   public getValue(): any {
-    return this._value;
+    return this.#value;
   }
   /** 默认值来源于 value attribute；程序赋值／用户输入不再捕获为重置基线。 */
   public get defaultValue(): any {
@@ -150,6 +194,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   static get observedAttributes(): string[] {
     return [
       "disabled",
+      "autocomplete",
       "value",
       "name",
       "form",
@@ -162,6 +207,11 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
       "max",
       "step",
       "readonly",
+      "id",
+      "aria-label",
+      "aria-labelledby",
+      "aria-describedby",
+      "aria-invalid",
     ];
   }
   protected attributeChanged(name: string, oldValue: string, newValue: string): void {
@@ -169,11 +219,14 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
       // 与原生文本输入一致：dirty 时只改变默认值，reset 后重新跟随默认属性。
       this.applyDefaultValue();
     } else if (name === "name") {
-      if (!this.reflectingName) this.name = newValue ?? undefined;
+      if (this.getAttribute("name") === this.syncedNameAttribute) return;
+      this.refreshConfiguration();
     } else if (name === "disabled") {
       if (!this.reflectingDisabled) this.setDisabled(readFormBooleanAttribute(newValue) ?? false);
     } else if (name === "inner-block" || name === "required") {
       this.refreshConfiguration();
+    } else if (name === "id" || name.startsWith("aria-")) {
+      this.syncFieldAccessibility();
     } else {
       this.attributeChange(name, oldValue, newValue);
       if (name === "form" && this.isConnected) this.bindContexts();
@@ -185,7 +238,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   connectedCallback(): void {
     this.connecting = true;
     // 定义前 property 不能遮蔽原型 setter；升级后重放一次。
-    for (const key of ["value", "name", "disabled", "defaultValue"]) {
+    for (const key of ["value", "name", "disabled", "defaultValue", "autocomplete", "htmlType"]) {
       if (Object.prototype.hasOwnProperty.call(this, key)) {
         const value = (this as any)[key];
         delete (this as any)[key];
@@ -201,10 +254,19 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     this.bindContexts();
     super.connectedCallback();
     this.connecting = false;
+    this.addEventListener("focusin", this.syncFieldAccessibility);
     this.refreshConfiguration();
     this.syncNativeValue();
   }
   disconnectedCallback(): void {
+    this.removeEventListener("focusin", this.syncFieldAccessibility);
+    this.accessibilityObserver?.disconnect();
+    this.fieldAccessibility?.clear(this.root);
+    this.accessibilityControl = undefined;
+    this.fieldAccessibility = undefined;
+    this.itemPresentation = undefined;
+    this.displayedValidityMessage = undefined;
+    this.nativeValidity = undefined;
     this.unbindContexts();
     this.removeEventListener(FORM_CONTEXT_EVENTS.configuration, this.configurationChanged);
     this.removeEventListener(FORM_CONTEXT_EVENTS.validity, this.validityChanged);
@@ -216,6 +278,7 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     this.formContext = undefined;
     this.itemContext = undefined;
     this.groupContext = undefined;
+    this.applyBusinessValidity();
   }
   public refreshFormContext(): void {
     this.bindContexts();
@@ -241,10 +304,20 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   };
   private validityChanged = (event: Event): void => {
     const validity = (event as CustomEvent<FormFieldValidity>).detail;
-    // 业务提示保留到重新校验，避免旧错误阻止浏览器派发下一次 submit。
     this.validResult(validity.valid ? undefined : validity.message || "校验失败");
   };
+
+  /** @internal 表单已执行的规则结果，与外部提示和手动 setValidity 分开。 */
+  public applyBusinessValidity(message?: string): void {
+    if (this.businessMessage === message) return;
+    this.businessMessage = message;
+    this.syncNativeValidity();
+  }
   protected refreshConfiguration(): void {
+    const nameAttribute = this.getAttribute("name");
+    // Read the DOM before reflecting a name. Upgrade may queue several attribute reactions,
+    // including the reaction to our own write after the original callback has returned.
+    if (nameAttribute !== this.syncedNameAttribute) this.explicitName = nameAttribute ?? undefined;
     const result = resolveFieldContext(
       {
         name: this.explicitName,
@@ -258,15 +331,13 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         group: this.groupContext?.getSnapshot(),
       },
     );
-    const nameChanged = this.effectiveName !== result.name;
+    const previousName = this.effectiveName;
+    const nameChanged = previousName !== result.name;
     this.effectiveName = result.name;
-    this.reflectingName = true;
-    try {
-      if (result.name === undefined) {
-        if (this.hasAttribute("name")) this.removeAttribute("name");
-      } else if (this.getAttribute("name") !== result.name) this.setAttribute("name", result.name);
-    } finally {
-      this.reflectingName = false;
+    this.syncedNameAttribute = result.name ?? null;
+    if (nameAttribute !== this.syncedNameAttribute) {
+      if (result.name === undefined) this.removeAttribute("name");
+      else this.setAttribute("name", result.name);
     }
     this.contextDisabled = !!(
       this.formContext?.getSnapshot().disabled ||
@@ -275,10 +346,12 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     );
     this.contextRequired = result.required;
     this.configurationApplied();
+    this.syncFieldAccessibility();
     this.innerBlockChange(result.innerBlock);
     this.applyDisabled();
     this.syncNativeValue();
-    if (nameChanged) this.formContext?.fieldNameChanged?.(this.contextField, result.name);
+    if (nameChanged)
+      this.formContext?.fieldNameChanged?.(this.contextField, result.name, previousName);
   }
 
   public isDisabled(): boolean {
@@ -314,7 +387,104 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   protected configurationApplied(): void {}
   protected disabledChange(): void {}
   protected innerBlockChange(_innerBlock: boolean): void {}
-  protected validResult(_msg?: string): void {}
+  protected validResult(message?: string): void {
+    this.displayedValidityMessage = message;
+    this.syncFieldAccessibility();
+  }
+
+  /** @internal 单一编辑控件才可作为行标签的聚焦目标。 */
+  public get formItemControl(): NativeFieldControl | undefined {
+    const controls = this.root?.querySelectorAll<NativeFieldControl>(fieldControlSelector);
+    return controls?.length === 1 ? controls[0] : undefined;
+  }
+
+  /** @internal 行标签和错误随控件归属变化。 */
+  public setFormItemPresentation(
+    owner: HTMLElement,
+    label?: string,
+    error?: string,
+    groupError?: string,
+  ): void {
+    if (label === undefined && error === undefined && groupError === undefined) {
+      if (this.itemPresentation?.owner !== owner) return;
+      this.itemPresentation = undefined;
+    } else {
+      const current = this.itemPresentation;
+      if (
+        current?.owner === owner &&
+        current.label === label &&
+        current.error === error &&
+        current.groupError === groupError
+      )
+        return;
+      this.itemPresentation = { owner, label, error, groupError };
+    }
+    this.syncFieldAccessibility();
+  }
+
+  protected get fallbackAccessibleName(): string | undefined {
+    return undefined;
+  }
+
+  private syncFieldAccessibility = (): void => {
+    if (!this.isConnected || !this.rendered) return;
+    const control = this.formItemControl;
+    if (control !== this.accessibilityControl) {
+      this.fieldAccessibility?.clear(this.root);
+      this.accessibilityControl = control;
+      this.fieldAccessibility = control && new FieldAccessibility(control);
+    }
+    const presentation = this.fieldAccessibility;
+    if (!control || !presentation) return;
+
+    const labelledBy = referenceElements(this, "aria-labelledby");
+    const externalLabels = Array.from(this.labels ?? []) as HTMLLabelElement[];
+    const explicit = this.getAttribute("aria-label");
+    const name =
+      (labelledBy.length ? referenceText(labelledBy) : explicit) ??
+      (referenceText(externalLabels) ||
+        presentation.authoredValue("aria-label") ||
+        referenceText(referenceElements(control, "aria-labelledby")) ||
+        referenceText(control.labels ?? []) ||
+        this.getAttribute("label") ||
+        this.fallbackAccessibleName ||
+        this.itemPresentation?.label);
+    presentation.attribute("aria-label", name || undefined);
+    presentation.attribute("aria-required", String(this.contextRequired));
+
+    const describedBy = referenceElements(this, "aria-describedby");
+    const error = this.itemPresentation?.error ?? this.displayedValidityMessage;
+    const invalid = !!(error || this.displayedValidityMessage);
+    const fieldDescription = error === this.itemPresentation?.groupError ? undefined : error;
+    const description = Array.from(
+      new Set([referenceText(describedBy), fieldDescription].filter(Boolean)),
+    ).join(" ");
+    presentation.attribute(
+      "aria-invalid",
+      invalid ? "true" : (this.getAttribute("aria-invalid") ?? "false"),
+    );
+    // 引用节点和编辑控件在同一 ShadowRoot，保留宿主已有描述。
+    presentation.describe(this.root, description);
+
+    this.accessibilityObserver?.disconnect();
+    this.accessibilityObserver ??= new MutationObserver(this.syncFieldAccessibility);
+    this.accessibilityObserver.observe(this.parentElement ?? this, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["for", "id", "label", "slot", "aria-hidden", "hidden"],
+    });
+    for (const element of [...labelledBy, ...externalLabels, ...describedBy]) {
+      this.accessibilityObserver.observe(element, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ["id", "aria-hidden", "hidden"],
+      });
+    }
+  };
 
   /** 原生 owner 的每次变化都重新登记，不缓存首次 owner。 */
   public formAssociatedCallback(_form: HTMLFormElement | null): void {
@@ -328,16 +498,24 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
   protected serializeFormValue(): string | File | FormData | null {
     return String(this.getValue() ?? "");
   }
-  /** Safari 16.4 基线使用版本化字符串；提交值与业务恢复状态独立。 */
-  protected serializeFormState(): string {
+  /** 字段可拒绝保存和重放历史状态，同时继续参与提交和原生自动填充。 */
+  protected get formStateRestorationEnabled(): boolean {
+    return true;
+  }
+  protected get acceptsAutocompleteText(): boolean {
+    return false;
+  }
+  /** Safari 16.4 基线使用版本化字符串；显式 null 禁止保存该字段的恢复 state。 */
+  protected serializeFormState(): string | null {
+    if (!this.formStateRestorationEnabled) return null;
     return JSON.stringify({ version: 1, value: this.getValue() ?? "" });
   }
   protected syncNativeValue(): void {
     if (!this.internals || !this.nativeValueEnabled) return;
-    this.internals.setFormValue(
-      this.isDisabled() ? null : this.serializeFormValue(),
-      this.serializeFormState(),
-    );
+    this.syncAutocomplete();
+    const value = this.isDisabled() ? null : this.serializeFormValue();
+    // Older WebKit leaves the previous value in place when passed null (WebKit 258870).
+    this.internals.setFormValue(value ?? new FormData(), this.serializeFormState());
     const anchor = this.root?.querySelector<HTMLInputElement>("input,textarea,select");
     if (anchor) {
       anchor.disabled = this.isDisabled();
@@ -346,25 +524,47 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     }
     this.syncNativeValidity();
   }
+  protected syncAutocomplete(): void {
+    const value = this.getAttribute("autocomplete") ?? this.formContext?.getSnapshot().autocomplete;
+    for (const control of this.root?.querySelectorAll("input,textarea,select") ?? []) {
+      if (value === undefined) control.removeAttribute("autocomplete");
+      else if (control.getAttribute("autocomplete") !== value)
+        control.setAttribute("autocomplete", value);
+    }
+  }
   public formResetCallback(): void {
-    this.reset();
+    this.applyingFormReset = true;
+    try {
+      this.reset();
+    } finally {
+      this.applyingFormReset = false;
+    }
   }
   public formStateRestoreCallback(
     state: string | File | FormData | null,
-    _mode: "restore" | "autocomplete",
+    mode: "restore" | "autocomplete",
   ): void {
     if (typeof state !== "string") return;
+    if (mode !== "autocomplete" && !this.formStateRestorationEnabled) return;
+    let value: unknown;
     try {
       const decoded = JSON.parse(state);
-      if (decoded?.version !== 1 || !Object.hasOwn(decoded, "value")) return;
-      this.value = decoded.value;
+      if (decoded?.version === 1 && Object.hasOwn(decoded, "value")) value = decoded.value;
+      else if (mode === "autocomplete" && this.acceptsAutocompleteText) value = state;
+      else return;
+    } catch {
+      if (mode !== "autocomplete" || !this.acceptsAutocompleteText) return;
+      value = state;
+    }
+    try {
+      this.value = value;
       this.manualValidity = {};
       this.manualMessage = "";
       this.validResult();
       this.formContext?.fieldValidityCleared?.(this.contextField);
       this.syncNativeValue();
     } catch {
-      /* 不认识的浏览器状态不覆盖当前值。 */
+      /* 合法 JSON 也可能不是此控件接受的值，不让损坏的状态中断页面。 */
     }
   }
 
@@ -377,18 +577,23 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
     return undefined;
   }
 
+  protected get nativeSubmissionError(): string | undefined {
+    return undefined;
+  }
+
   protected get nativeConstraintValues(): readonly unknown[] {
     return [this.getValue()];
   }
 
-  protected syncNativeValidity(): void {
+  protected syncNativeValidity(manualAnchor?: HTMLElement): void {
     if (!this.internals || !this.ownerDocument) return;
     const anchor =
       this.root?.querySelector<HTMLElement>("input,textarea,select,button,[tabindex]") ?? undefined;
     const flags: ValidityStateFlags = {};
     let message = "";
     const readOnly = readFormBooleanAttribute(this.getAttribute("readonly")) ?? false;
-    if (!this.isDisabled() && !readOnly && !this.grouped) {
+    const checksConstraints = !this.isDisabled() && !readOnly && !this.grouped;
+    if (checksConstraints) {
       const probe = this.ownerDocument.createElement("input");
       const type =
         this.getAttribute("type") ?? (anchor instanceof HTMLInputElement ? anchor.type : "text");
@@ -446,17 +651,58 @@ export default class FormInner<T = Record<string, any>> extends BaseComponent<T>
         flags.badInput = true;
         message = "请输入有效值";
       }
-      Object.assign(flags, this.manualValidity);
-      if (Object.values(this.manualValidity).some(Boolean)) message = this.manualMessage;
+      const submissionError = this.nativeSubmissionError;
+      if (submissionError) {
+        flags.customError = true;
+        message = submissionError;
+      }
+      for (const flag of Object.keys(this.manualValidity) as (keyof ValidityStateFlags)[]) {
+        if (this.manualValidity[flag]) flags[flag] = true;
+      }
     }
-    const invalid = Object.values(flags).some(Boolean);
+    const manualError = checksConstraints && Object.values(this.manualValidity).some(Boolean);
+    if (manualError) message = this.manualMessage;
+    const constraintMessage = Object.values(flags).some(Boolean)
+      ? message || "请检查字段值"
+      : undefined;
+    const businessMessage = checksConstraints ? this.businessMessage : undefined;
+    if (businessMessage) flags.customError = true;
+    const validationMessage =
+      (manualError ? constraintMessage : businessMessage) ?? constraintMessage;
     // 某些复合控件没有可聚焦锚点，不能把非后代元素传给 setValidity。
-    this.internals.setValidity(flags, invalid ? message || "请检查字段值" : "", anchor);
+    this.internals.setValidity(flags, validationMessage ?? "", manualAnchor ?? anchor);
+    const next: NativeFieldValidity = {
+      valid: this.internals.validity.valid,
+      message: validationMessage,
+      flags,
+      constraintMessage,
+      willValidate: this.internals.willValidate,
+    };
+    const previous = this.nativeValidity;
+    this.nativeValidity = next;
+    if (!this.isConnected || !this.rendered) return;
+    if (
+      previous &&
+      previous.valid === next.valid &&
+      previous.message === next.message &&
+      previous.constraintMessage === next.constraintMessage &&
+      previous.willValidate === next.willValidate &&
+      Object.keys(previous.flags).length === Object.keys(flags).length &&
+      Object.keys(flags).every((flag) => previous.flags[flag as keyof ValidityStateFlags])
+    )
+      return;
+    this.dispatchEvent(
+      new CustomEvent<NativeFieldValidity>(FORM_CONTEXT_EVENTS.nativeValidity, {
+        bubbles: true,
+        detail: { ...next, flags: { ...flags }, duringReset: this.applyingFormReset },
+      }),
+    );
   }
   public reset(): void {
     this.dirtyValue = false;
     this.applyDefaultValue();
     // reset 只清业务错误；手动 setValidity 的状态及消息需由调用方显式清除。
+    this.applyBusinessValidity();
     this.validResult();
     this.formContext?.fieldValidityCleared?.(this.contextField);
     this.syncNativeValue();

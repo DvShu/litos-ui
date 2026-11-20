@@ -14,7 +14,9 @@ regist([Collapse, CollapseItem, ArrowRightIcon]);
 
 ### Basic Usage
 
-Multiple panels can be expanded independently.
+Multiple panels can be expanded independently. Press Tab to focus a header, then Enter or Space to toggle it.
+
+When a panel collapses, focus inside it returns to the header. With reduced motion enabled, the panel and arrow update immediately.
 
 <ClientOnly>
 <l-code-preview>
@@ -104,7 +106,7 @@ Set `arrow-placement` to `left` (default) or `right`.
 
 ### Header Alignment
 
-Use `header-justify` to align header content. Combine `space-between` with `arrow-placement="right"` to place the text and arrow at opposite ends.
+Use `header-justify` to align the header content. `flex-start` and `flex-end` align it to the start and end of the row, respectively, while `space-between` places the text and arrow at opposite ends.
 
 <ClientOnly>
 <l-code-preview>
@@ -219,11 +221,46 @@ Enable `grid` to arrange panels in a grid.
 </l-code-preview>
 </ClientOnly>
 
+### Wrappers and Standalone Panels
+
+Place `l-collapse-item` directly inside `l-collapse`, inside a regular wrapper element, or on its own. In `grid` mode, each direct child occupies one grid cell, so panels inside a wrapper share a cell.
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-collapse grid gap="8" prop="delivery">
+    <div>
+      <l-collapse-item prop="delivery" header-text="Delivery Options">
+        <div>Courier delivery is available.</div>
+      </l-collapse-item>
+      <l-collapse-item prop="pickup" header-text="Store Pickup">
+        <div>Pick up your order once it is ready.</div>
+      </l-collapse-item>
+    </div>
+    <l-collapse-item prop="returns" header-text="Returns and Exchanges">
+      <div>Request a return or exchange from the order details.</div>
+    </l-collapse-item>
+  </l-collapse>
+
+  <l-collapse-item header-text="Opening Hours">
+    <div>Monday to Sunday, 09:00–18:00.</div>
+  </l-collapse-item>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
 ## On-demand entry
 
 ```js
 import "litos-ui/styles/vars.css";
 import "litos-ui/collapse";
+```
+
+For standalone panels, load `litos-ui/collapse-item`.
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/collapse-item";
 ```
 
 Element entries register themselves and their configured dependencies; conditional features may require additional imports. Service and utility APIs still require explicit calls. Import from a client-only entry in SSR frameworks. See [On-demand Imports](/en/on_demand) for styles, child elements, types and root-entry compatibility.
@@ -235,7 +272,7 @@ Element entries register themselves and their configured dependencies; condition
 <!-- prettier-ignore -->
 | Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `prop` | Expanded panel names, separated by & when multiple panels are expanded | `string` | - |
+| `prop` | Expanded panel names separated by `&`. Accordion mode uses the first name. | `string` | - |
 | `grid` | Grid layout | `boolean` | `false` |
 | `gap` | Panel spacing | `string` | `0px` |
 | `border-radius` | Border radius | `string` | `0px` |
@@ -250,19 +287,52 @@ Element entries register themselves and their configured dependencies; condition
 | Name | Description | Type | Default |
 | --- | --- | --- | --- |
 | `prop` | Panel name | `string` | - |
-| `header-text` | Header text | `string` | - |
+| `header-text` | Header text. When empty or removed, the `header-text` slot is shown. | `string` | - |
+| `heading-level` | Heading level in the document outline, from `1` to `6` | `string` | `3` |
+| `toggle-label` | Accessible name of the toggle. Set it explicitly when the header contains only an icon or an action button. | `string` | Header text or `Toggle panel` |
 | `expand` | Whether the panel is expanded | `boolean` | `false` |
+
+### CollapseItem Slots
+
+<!-- prettier-ignore -->
+| Name | Description |
+| --- | --- |
+| Default slot | Panel content |
+| `header-text` | Custom header content. Links and buttons in the slot can be focused and used independently. |
+
+### CollapseItem CSS Parts
+
+<!-- prettier-ignore -->
+| Name | Description |
+| --- | --- |
+| `header` | Header container |
+| `header-text` | Header text rendered from the `header-text` attribute |
 
 ### Collapse Events
 
 <!-- prettier-ignore -->
 | Event | Description | Callback parameter |
 | --- | --- | --- |
-| `change` | Fires when panels change; detail: { expands: string[], value: string } | `(event: CustomEvent)` |
+| `change` | Fires after a grouped panel is toggled via its header. `event.detail` is `{ expands: string[], value: string }`. | `(event: CustomEvent)` |
+
+### CollapseItem Events
+
+<!-- prettier-ignore -->
+| Event | Description | Callback parameter |
+| --- | --- | --- |
+| `expand-change` | Fires after this panel is toggled via its header. `event.detail` is `{ prop: string, expand: boolean }`. | `(event: CustomEvent)` |
+
+Initialization, changes to the `prop` or `expand` attributes, and other panels closing during an accordion toggle update state silently.
+
+### CollapseItem Manual Context Injection
+
+Before mounting, pass two callable values to `contextInject(context, expands)` to set the initial layout and expansion state. When the values change, call `_updateLayout()` to refresh the layout or `_handleExpandsChange()` to refresh the expansion state.
 
 ### Collapse CSS Variables
 
 <!-- prettier-ignore -->
 | Name | Description | Default |
 | --- | --- | --- |
-| - | - | - |
+| `--l-collapse-gap` | Overrides panel spacing on `l-collapse` | `gap` attribute or `0px` |
+| `--l-collapse-border-radius` | Overrides panel corner radius on `l-collapse` | `border-radius` attribute or `0px` |
+| `--l-collapse-border-color` | Overrides panel border color on `l-collapse` | `--l-border-color` or `#dedede` |

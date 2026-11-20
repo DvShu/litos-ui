@@ -116,6 +116,8 @@ Element entries register built-in dependencies. Service and utility APIs still r
 
 ## API
 
+The `value` property is a boolean. A native form submits `"true"` when the switch is on and `"false"` when it is off. With `required` set, the switch must be on to pass required validation.
+
 ### Switch Attributes
 
 <!-- prettier-ignore -->

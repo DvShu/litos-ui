@@ -23,11 +23,16 @@
 
 ### 翻译待同步记录
 
-- 中文：docs/components/input.md；英文：docs/en/components/input.md；类别：过期；待同步：value attribute／value property／defaultValue 分离及 dirty／reset 默认值语义，不再首次赋值捕获默认值。
-- 中文：docs/components/form.md；英文：docs/en/components/form.md；类别：遗漏／过期；待同步：基础用法移除重复引用代码，新增默认值与重置说明、原生表单演示、内外层 `novalidate` 的区别、输入时校验和 `validate-error` 的说明，以及 Form 的 `disabled` attribute 和 property。
-- 中文：docs/components/button.md；英文：docs/en/components/button.md；类别：遗漏；待同步：表单按钮用法、显式 form 关联与原生默认提交按钮的区别。
-
 - 中文：docs/components/dropdown.md；英文：docs/en/components/dropdown.md；类别：新增；待同步：当前英文站保留中文正文，待翻译 createDropdown 函数、reference／items 配置、回调、显式样式导入、销毁及演示。
+- 中文：docs/components/radio.md；英文：docs/en/components/radio.md；类别：过期；待同步：空值选择和清空方式、同值选项互斥、独立同名项按表单互斥、组 value 控制选中、无匹配时的业务值及原生提交、分别引入组和选项。
+- 中文：docs/components/checkbox.md；英文：docs/en/components/checkbox.md；类别：过期；待同步：仅选中空值项的编码、截断字符和旧百分号转义的处理、组 value 控制选中、无匹配时的业务值及原生提交、分别引入组和选项。
+- 中文：docs/components/form.md；英文：docs/en/components/form.md；类别：遗漏；待同步：原生表单演示的反馈脚本、独立 Radio／Checkbox 与分组的业务值和原生提交数据对照、显式导入 FormItem 及用到的其他组件、提交失败时的整表错误及动态切换 `emit-error` 的行为。
+- 中文：docs/components/select.md；英文：docs/en/components/select.md；类别：遗漏；待同步：单选显式 `null`／`undefined` 与空字符串的表单区别、单选空字符串选项的标签与校验、对象选项的业务值和原生校验限制、选项值类型、多选空字符串选项的默认值、远程更新选项时保留搜索关键词。
+- 中文：docs/components/select_ori.md；英文：docs/en/components/select_ori.md；类别：遗漏；待同步：默认选项、未匹配值的业务值和必填校验、补齐选项后的恢复行为。
+- 中文：docs/components/md_input.md；英文：docs/en/components/md_input.md；类别：遗漏；待同步：数字类型下无效赋值按空字符串处理。
+- 中文：docs/components/switch.md；英文：docs/en/components/switch.md；类别：遗漏；待同步：字符串 `"false"` 的兼容行为和布尔读取结果。
+- 中文：docs/components/date_picker_ori.md；英文：docs/en/components/date_picker_ori.md；类别：过期；待同步：半填区间格式、`delay=0` 的派发时序、`change` 的事件标志、`time`／`week` 的日期转换及 iOS 原生 `week` 支持范围。
+- 中文：docs/on_demand.md；英文：docs/en/on_demand.md；类别：过期；待同步：显式导入用到的组件与配套元素，Button loading 图标导入，以及 Notification 显式注册的入口说明。
 
 此处只记录已识别的待同步内容；无记录不代表全站译文已经校验或全部保持最新。本次仅建立维护流程，未开展全站翻译差异盘点。
 

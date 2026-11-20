@@ -13,9 +13,8 @@ regist(CloseFilledIcon); // Required for clearable inputs.
 
 <script setup>
   import { onMounted, onUnmounted, nextTick } from 'vue';
-  import { $one, on, off } from 'utilane/browser';
-
   let $input;
+  let mounted = false;
 
   function handleChange(e) {
     console.log('input', e.target.value);
@@ -31,18 +30,17 @@ regist(CloseFilledIcon); // Required for clearable inputs.
     return String(val);
   }
 
-  onMounted(() => {
-    nextTick(() => {
-      if (!import.meta.env.SSR) {
-        $input = $one('#input');
-        if ($input) {
-          $input.addEventListener('change', handleChange);
-          $input.setParser(numericParse);
-        }
-      }
-    })
+  onMounted(async () => {
+    mounted = true;
+    await customElements.whenDefined('l-input');
+    await nextTick();
+    if (!mounted) return;
+    $input = document.querySelector('l-input#input-parser-example');
+    $input?.setParser(numericParse);
+    $input?.addEventListener('change', handleChange);
   });
   onUnmounted(() => {
+    mounted = false;
     $input?.removeEventListener('change', handleChange);
     $input = undefined;
   });
@@ -102,15 +100,13 @@ Use `setParser` to parse incoming values with a custom function, for example to 
 <ClientOnly>
 <l-code-preview>
 <textarea lang="html">
-  <l-input id="input" placeholder="Enter a non-negative integer" clearable></l-input>
+  <l-input id="input-parser-example" placeholder="Enter a non-negative integer" clearable></l-input>
 </textarea>
 <div class="source">
 <textarea lang="html">
-  <l-input id="input" placeholder="Enter a non-negative integer"></l-input>
+  <l-input id="input-parser-example" placeholder="Enter a non-negative integer" clearable></l-input>
 </textarea>
 <textarea lang="ts">
-  import { $one, on, off } from 'utilane/browser';
-  //-
   function numericParse(value) {
     let val = parseInt(value, 10)
     if (Number.isNaN(val)) {
@@ -121,7 +117,7 @@ Use `setParser` to parse incoming values with a custom function, for example to 
     return String(val);
   }
   //-
-  const $input = $one('#input');
+  const $input = document.querySelector('l-input#input-parser-example');
   $input.setParser(numericParse);
 </textarea>
 </div>
@@ -147,6 +143,21 @@ Use the `prefix` and `suffix` slots to add icons.
 </textarea>
 </l-code-preview>
 </ClientOnly>
+
+### Autofill
+
+Set the `autocomplete` attribute or property to give the browser an autofill hint. When unset, the field inherits the [Form](/en/components/form#form-wide-autofill) default. Removing the field's setting restores inheritance.
+
+<ClientOnly>
+<l-code-preview>
+<textarea lang="html">
+  <l-input name="email" type="email" autocomplete="email" placeholder="Email"></l-input>
+  <l-input name="password" type="password" autocomplete="new-password" placeholder="Set a password"></l-input>
+</textarea>
+</l-code-preview>
+</ClientOnly>
+
+The browser decides whether to offer autofill. Password managers can still fill fields with `off`.
 
 ### Clearable Input
 
@@ -188,7 +199,7 @@ Element entries register built-in dependencies. Service and utility APIs still r
 <!-- prettier-ignore -->
 | Name | Description | Type | Default |
 | --- | --- | --- | --- |
-| `value` | Input value; also readable and writable through the value property | `string` | - |
+| `value` | Default input value. Changes update the current value until it is edited or assigned | `string` | - |
 | `disabled` | Whether the control is disabled | `boolean` | `false` |
 | `readonly` | Whether the input is read-only; also readable and writable through the readOnly property | `boolean` | `false` |
 | `name` | Form field name | `string` | - |
@@ -198,9 +209,23 @@ Element entries register built-in dependencies. Service and utility APIs still r
 | `width` | Width | `string` | - |
 | `clearable` | Whether to show the clear button | `boolean` | `false` |
 | `inputmode` | Native input mode; determined by the browser when unset | `string` | Not set |
+| `autocomplete` | Browser autofill hint, such as `on`, `off`, `email`, `current-password`, `new-password`, or a `section-*` combination | `string` | Not set |
 | `maxlength` | Maximum input length | `number` | - |
 | `minlength` | Minimum input length | `number` | - |
 | `error` | Error-state marker; its presence enables the error state. Remove it to clear the state | `string` | Not set |
+
+### Input Properties
+
+<!-- prettier-ignore -->
+| Name | Description | Type |
+| --- | --- | --- |
+| `value` | Current value. Assignments and user input leave the default unchanged | `string` |
+| `defaultValue` | Reset value, reflected by the `value` attribute | `string` |
+| `autocomplete` | Reflects the attribute of the same name. Assign `""` to remove it | `string` |
+
+Use the `value` attribute or `defaultValue` property to set the value restored on reset. After the current value changes, updating the default preserves the edit until reset. Reset restores the latest default and lets later default changes update the current value again. The first assignment to the `value` property only sets the current value.
+
+Passwords can be submitted and autofilled. The component excludes them from form history restoration state. The browser's back-forward cache and password manager operate independently.
 
 ### Input Methods
 

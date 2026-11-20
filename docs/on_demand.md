@@ -1,12 +1,13 @@
 # 按需导入与 Tree Shaking
 
-在客户端入口导入小写 kebab-case 子路径，元素入口会自动注册自身和内建依赖。基础变量仍需显式引入。
+在客户端入口显式导入每个用到的组件，包括组内子元素和功能所需的图标。使用小写 kebab-case 子路径，元素入口负责注册对应的元素。基础变量也需显式引入。
 
 本页对应当前源码构建的包；在包含这些入口的新版本发布前，可用本地 `npm pack` 产物安装验证，不能假定既有 npm 版本已经提供这些路径。
 
 ```js
 import "litos-ui/styles/vars.css";
 import "litos-ui/button";
+import "litos-ui/icon/loading";
 import "litos-ui/input-number";
 ```
 
@@ -24,7 +25,7 @@ import "litos-ui/input-number";
 </l-code-preview>
 </ClientOnly>
 
-Button 自带 loading 图标注册。Form、Tabbar、Carousel、Collapse 的入口包含标准配套子元素；用户插槽内放入的其他组件仍需单独导入。Theme 包含全部内建显示模式。单独引入图标，例如 `litos-ui/icon/arrow-left`，只注册该图标。
+上例的 Button 使用 `loading`，因此也导入 `litos-ui/icon/loading`。使用 `l-form` 和 `l-form-item` 时分别导入 `litos-ui/form` 和 `litos-ui/form-item`，其他成组组件同样按实际使用的元素分别导入。
 
 Notification 是显式注册的例外：`litos-ui/notification` 与 `litos-ui/notification-box` 都不会自动注册组件或图标。
 
@@ -159,7 +160,7 @@ Tree Shaking 用于删除未使用的纯导出与无关组件；显式自动注�
 | `litos-ui/card` | 自动注册 |
 | `litos-ui/calendar` | 自动注册 |
 | `litos-ui/upload` | 自动注册 |
-| `litos-ui/notification` | 自动注册 |
+| `litos-ui/notification` | 显式注册 |
 | `litos-ui/popover` | 显式 API |
 | `litos-ui/popconfirm` | 显式 API |
 | `litos-ui/transition` | 显式 API |

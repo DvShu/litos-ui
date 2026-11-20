@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Native form state recovery</title>
+<form id="native">
+  <l-input id="text" name="text" value="initial"></l-input>
+  <l-input id="password" name="password" type="password"></l-input>
+  <l-input id="dynamic-password" name="dynamic-password"></l-input>
+  <l-md-input id="md-password" name="md-password" html-type="password"></l-md-input>
+  <l-checkbox id="check" name="check" value="token"></l-checkbox>
+  <l-input-number id="number" name="number" value="0"></l-input-number>
+  <l-switch id="switch" name="switch" value="false"></l-switch>
+  <l-select-ori id="select" name="select"
+    ><option value="a">A</option>
+    <option value="b">B</option></l-select-ori
+  >
+  <l-color-picker id="color" name="color" value="#000000"></l-color-picker>
+  <l-date-picker-ori id="date" name="date" value="2026-11-01"></l-date-picker-ori>
+  <input id="plain" name="plain" value="native-initial" />
+</form>
+<l-form id="helper-form">
+  <l-form-item prop="helper"><l-input id="helper" value="helper-initial"></l-input></l-form-item>
+  <l-md-input id="md-dynamic-password" name="md-dynamic-password"></l-md-input>
+  <l-checkbox-group id="group" name="group" value="a"
+    ><l-checkbox value="a">A</l-checkbox><l-checkbox value="b">B</l-checkbox></l-checkbox-group
+  >
+  <l-radio-group id="radio" name="radio" value="a"
+    ><l-radio value="a">A</l-radio><l-radio value="b">B</l-radio></l-radio-group
+  >
+</l-form>
+<a href="/away">Away</a>
+<script type="module" src="/fixture.js"></script>

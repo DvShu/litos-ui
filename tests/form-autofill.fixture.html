@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Native browser autofill</title>
+<form id="native">
+  <label
+    >Native first<input id="native-first" name="first" autocomplete="section-native given-name"
+  /></label>
+  <label
+    >Native last<input id="native-last" name="last" autocomplete="section-native family-name"
+  /></label>
+  <label
+    >Native email<input id="native-email" name="email" autocomplete="section-native email"
+  /></label>
+  <label
+    >Native address<input
+      id="native-address"
+      name="address"
+      autocomplete="section-native street-address"
+  /></label>
+  <label
+    >Native zip<input id="native-zip" name="zip" autocomplete="section-native postal-code"
+  /></label>
+  <l-form id="field-autofill-form" autocomplete="off">
+    <l-input id="custom-first" name="custom-first" aria-label="First name"></l-input>
+    <l-input id="custom-last" name="custom-last" aria-label="Last name"></l-input>
+    <l-input id="custom-email" name="custom-email" aria-label="Email"></l-input>
+    <l-input id="custom-address" name="custom-address" aria-label="Street address"></l-input>
+    <l-input id="custom-zip" name="custom-zip" aria-label="Postal code"></l-input>
+    <l-md-input id="material-first" name="material-first" label="First name"></l-md-input>
+    <l-md-input id="material-last" name="material-last" label="Last name"></l-md-input>
+    <l-md-input id="material-email" name="material-email" label="Email"></l-md-input>
+    <l-md-input id="material-address" name="material-address" label="Street address"></l-md-input>
+    <l-md-input id="material-zip" name="material-zip" label="Postal code"></l-md-input>
+  </l-form>
+  <l-form id="global-autofill-form" autocomplete="on">
+    <l-input id="global-first" name="global-first" aria-label="First name"></l-input>
+    <l-md-input id="global-last" name="global-last" label="Last name"></l-md-input>
+    <l-input id="global-email" name="global-email" type="email" aria-label="Email"></l-input>
+  </l-form>
+</form>
+<script type="module" src="/fixture.js"></script>
