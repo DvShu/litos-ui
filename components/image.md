@@ -1,0 +1,275 @@
+---
+url: https://dvshu.github.io/litos-ui/components/image.md
+---
+# Image 图片
+
+可预览的图片，在保留所有原生 `img` 的特性下，支持懒加载，自定义占位图片、加载失败等
+
+## 引用
+
+```js
+import {
+  regist,
+  Image,
+  ImagePreview,
+  CloseIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+  ReductionIcon,
+  RefreshLeftIcon,
+  RefreshRightIcon,
+} from "litos-ui";
+
+regist([Image]);
+// 需要图片预览时, 如果禁用图片预览, 则不需要引入下面
+regist([
+  ImagePreview,
+  CloseIcon,
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+  ReductionIcon,
+  RefreshLeftIcon,
+  RefreshRightIcon,
+]);
+```
+
+## 演示
+
+### 基础用法
+
+通过 `src` 属性来设置图片的地址, 可以通过 `width`、`height` 来设置图片的宽度、高度
+
+```html
+  <l-image src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px"></l-image>
+```
+
+### 适应容器
+
+通过设置 `fit` 属性来控制图片的填充模式，可选值有：
+
+* fill: 被替换的内容正好填充元素的内容框。整个对象将完全填充此框。如果对象的宽高比与内容框不相匹配，那么该对象将被拉伸以适应内容框。
+* contain: 保持原有尺寸比例完整显示在内容区域内，可能会留白。
+* cover: 保持原有尺寸比例缩放图片，直到图片至少一边填满内容区域，另一边超出内容区域并被裁剪。
+* none: 不改变图像本身的尺寸、密度和方向。
+* scale-down: 将图像缩小，以使其适应元素的内容框，同时保持其原始纵横比。如果无法满足这一条件（即图像已经小于或等于元素的大小），则将使用 'none' 值进行替代。
+
+```html
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
+    height="100px"
+    fit="fill"
+  ></l-image>
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
+    height="100px"
+    fit="contain"
+  ></l-image>
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
+    height="100px"
+    fit="cover"
+  ></l-image>
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
+    height="100px"
+    fit="none"
+  ></l-image>
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
+    height="100px"
+    fit="scale-down"
+  ></l-image>
+```
+
+### 占位
+
+使用 `placeholder` 定义图片加载时显示的图片；通常用于加载大图时用来实现渐进加载，将 `placeholder` 设置为一个原图模糊后的图片
+
+```html
+  <l-image src="/litos-ui/img1.svg" width="100px" placeholder="/litos-ui/img_loading.png"></l-image>
+```
+
+### 加载失败
+
+通过配置 `fallback` 配置加载失败显示图像占位符; 也可以传递 `custom-fallback` 启用自定义加载失败占位符, 然后配置 `fallback` 插槽 来自定义加载失败显示.
+
+```html
+  <l-image src="/litos-ui/img3.svg" width="100px" height="100px" fallback="/litos-ui/loading_error.png"></l-image>
+  <l-image src="/litos-ui/img3.svg" width="100px" height="100px" custom-fallback>
+    <span slot="fallback">error</span>
+  </l-image>
+```
+
+### 多图预览
+
+通过 `setPreviewImageList(imageList?: string[])` 函数来设置多图预览, 可以通过 `preview-index` 属性来设置当前预览的图片索引
+
+```html
+  <l-image class="morePreview" src="/litos-ui/img1.svg" width="100px" preview-index="0"></l-image>
+  <l-image class="morePreview" src="/litos-ui/img2.svg" width="100px" preview-index="1"></l-image>
+  <l-image class="morePreview" src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg" width="100px" preview-index="2"></l-image>
+```
+
+```js
+  import { $, $$, on, off, iterate } from 'utilane/browser';
+  const imgs = [
+    '/litos-ui/img1.svg',
+    '/litos-ui/img2.svg',
+    'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+  ];
+  const $morePreview = $('.morePreview');
+  iterate($morePreview, (item) => {
+    item.setPreviewImageList(imgs);
+  });
+```
+
+### 禁用预览
+
+通过 `preview-disabled` 属性来禁用图片预览
+
+```html
+  <l-image
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
+    width="100px"
+    preview-disabled
+  ></l-image>
+```
+
+### 懒加载
+
+通过使用浏览器原生支持的 `loading` 属性来开启懒加载，只需要设置 `loading="lazy"`
+
+```html
+  <l-image
+    src="/litos-ui/img1.svg"
+    width="100px"
+    loading="lazy"
+  ></l-image>
+```
+
+> 懒加载依赖浏览器支持；如有需要，可根据目标浏览器评估 [loading-attribute-polyfill](https://github.com/mfranzke/loading-attribute-polyfill)。
+
+### 手动预览
+
+如果不想通过 `Image` 组件来预览图片，也可以手动通过使用 `ImagePreview` 来预览图片
+
+```html
+  <l-image
+    class="customPreview"
+    src="/litos-ui/img1.svg"
+    width="100px"
+    data-preview-index="0"
+    preview-disabled
+  ></l-image>
+  <l-image
+    class="customPreview"
+    src="/litos-ui/img2.svg"
+    width="100px"
+    data-preview-index="1"
+    preview-disabled
+  ></l-image>
+  <l-image
+    class="customPreview"
+    src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
+    width="100px"
+    data-preview-index="2"
+    preview-disabled
+  ></l-image>
+```
+
+```js
+  import { $, $$, on, off, iterate } from 'utilane/browser';
+  const imgs = [
+    '/litos-ui/img1.svg',
+    '/litos-ui/img2.svg',
+    'https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg'
+  ];
+  let $preview;
+  const $customPreview = $('.customPreview');
+  iterate($customPreview, (item) => {
+    on(item, 'click', handleCustomTap);
+  });
+  function handleCustomTap(e) {
+    const index = Number(e.target.getAttribute('data-preview-index'));
+    if (!$preview) {
+      $preview = $$("l-image-preview");
+      $preview.setImages(imgs);
+      $preview.setCurrentIndex(index);
+      on($preview, 'closed', handlePreviewClosed);
+      document.body.appendChild($preview);
+      $preview.open = true;
+    }
+  }
+  function handlePreviewClosed() {
+    if ($preview) {
+      off($preview, 'closed', handlePreviewClosed);
+      $preview.remove();
+      $preview = undefined;
+    }
+  }
+```
+
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/image";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](https://dvshu.github.io/litos-ui/on_demand.md)。
+
+## API
+
+### Image Attributes
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `src` | *必填* , 图片源地址，同原生属性一致 | `string` | — |
+| `width` | 宽度 | `string` | - |
+| `height` | 高度 | `string` | - |
+| `alt` | 原生属性 `alt` | `string` | - |
+| `loading` | 原生属性, 浏览器加载图像的策略 | `eager`、`lazy` | `eager` |
+| `fit` | 确定图片如何适应容器框，同原生 [object-fit](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) | `string` | - |
+| `fallback` | 图片加载失败时显示的地址 | `string` | - |
+| `custom-fallback` | 是否使用自定义加载失败内容 | `boolean` | `false` |
+| `placeholder` | 图片占位, 用于加载大图时的占位 | `string` | - |
+| `preview-disabled` | 禁用图片预览 | `boolean` | `false` |
+| `preview-image-list` | 预览图片地址列表, 多图预览时使用, 用 `,` 分隔 | `string` | - |
+| `preview-index` | 初始预览图像索引 | `number` | `0` |
+
+### Image Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| `default` | 内容 |
+| `fallback` | 图片加载失败时的内容 |
+
+### Image Events
+
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| `click` | 点击图片时触发 | `(event: Event)` |
+
+### Image Methods
+
+| 方法名 | 说明 | 类型 |
+| --- | --- | --- |
+| `setPreviewImageList(imageList: string[] \| undefined)` | 设置预览图片地址列表 | `void` |
+| `setPreviewIndex(index: number)` | 设置预览图片索引 | `void` |
+| `openPreview()` | 打开预览 | `void` |
+| `closePreview()` | 关闭预览 | `void` |
+
+### Image CSS Variables
+
+| 变量名 | 说明 | 默认值 |
+| --- | --- | --- |
+| - | - | - |

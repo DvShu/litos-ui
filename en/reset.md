@@ -1,0 +1,76 @@
+---
+url: https://dvshu.github.io/litos-ui/en/reset.md
+---
+# Style Reset
+
+Components do not apply a style reset by default. To opt in, manually import the provided reset stylesheet in your application entry point.
+
+For example, import it in `main.ts`:
+
+```ts
+import "litos-ui/styles/reset.css";
+```
+
+The reset stylesheet contains the following rules. This source file is shared with the Chinese documentation, so its original Chinese comments are preserved:
+
+```css
+/* 一般开发网页的时候，都是按照100%来开发 */
+:where(html) {
+  font-size: 62.5%;
+}
+:where(html, body) {
+  height: 100%;
+}
+:where(body) {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+/* 修复由于 inline baseline 导致的图片下方的空白间隙问题 */
+:where(img) {
+  vertical-align: top;
+}
+/* 非大面积文字排版网站通常不需要列表项，如果需要可单独设置 */
+:where(ul, ol) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+:where(dialog) {
+  border: none;
+  outline: none;
+  padding: 0;
+  opacity: 0;
+  transition: opacity 3s;
+}
+:where(dialog)[open] {
+  opacity: 1;
+}
+/* 统一采用盒子模式 */
+:where(div) {
+  box-sizing: border-box;
+}
+/*
+ * 去除链接默认的下划线，提高文字可读性
+ */
+:where(a) {
+  text-decoration: none;
+  color: #4998f6;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+:where(a):hover {
+  color: #5ba2f7; /* less tint(#4998f6, 10%) */
+}
+:where(a):active {
+  color: #64a7f7; /* less tint(#4998f6, 15%) */
+}
+
+:where(p) {
+  margin: 5px 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+```

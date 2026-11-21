@@ -1,0 +1,71 @@
+# LitosUI — 中文文档
+
+> 基于 Web Components 的 UI 组件库
+
+中文文档是内容依据。英文译文可能滞后；两者不一致时，以中文为准。
+
+[全文](https://dvshu.github.io/litos-ui/llms-zh-full.txt)
+
+## 指南
+
+- [快速开始](https://dvshu.github.io/litos-ui/usage.md)
+- [按需导入](https://dvshu.github.io/litos-ui/on_demand.md)
+- [样式重置](https://dvshu.github.io/litos-ui/reset.md)
+- [工具样式](https://dvshu.github.io/litos-ui/css_util.md)
+- [预置主题](https://dvshu.github.io/litos-ui/theme.md)
+## 通用
+
+- [Base 基础组件](https://dvshu.github.io/litos-ui/components/base.md)
+- [Transition 过渡动画](https://dvshu.github.io/litos-ui/components/transition.md)
+- [Container 容器布局](https://dvshu.github.io/litos-ui/components/container.md)
+- [Icon 图标](https://dvshu.github.io/litos-ui/components/icon.md)
+- [Polygon 多边形](https://dvshu.github.io/litos-ui/components/polygon.md)
+- [Theme 主题切换](https://dvshu.github.io/litos-ui/components/theme.md)
+## 表单
+
+- [Button 按钮](https://dvshu.github.io/litos-ui/components/button.md)
+- [Input 输入框](https://dvshu.github.io/litos-ui/components/input.md)
+- [MdInput Material输入框](https://dvshu.github.io/litos-ui/components/md_input.md)
+- [Radio 单选框](https://dvshu.github.io/litos-ui/components/radio.md)
+- [Checkbox 复选框](https://dvshu.github.io/litos-ui/components/checkbox.md)
+- [SelectOri 原生下拉框](https://dvshu.github.io/litos-ui/components/select_ori.md)
+- [Select 选择器](https://dvshu.github.io/litos-ui/components/select.md)
+- [Switch 开关](https://dvshu.github.io/litos-ui/components/switch.md)
+- [ColorPicker 颜色选择器](https://dvshu.github.io/litos-ui/components/color_picker.md)
+- [Form 表单](https://dvshu.github.io/litos-ui/components/form.md)
+- [DatePickerOri 日期选择器](https://dvshu.github.io/litos-ui/components/date_picker_ori.md)
+- [DatePicker 日期选择器](https://dvshu.github.io/litos-ui/components/date_picker.md)
+- [InputNumber 数字输入框](https://dvshu.github.io/litos-ui/components/input_number.md)
+- [Upload 上传](https://dvshu.github.io/litos-ui/components/upload.md)
+## 数据展示
+
+- [List 滚动列表](https://dvshu.github.io/litos-ui/components/list.md)
+- [Loading 加载](https://dvshu.github.io/litos-ui/components/loading.md)
+- [Carousel 轮播](https://dvshu.github.io/litos-ui/components/carousel.md)
+- [Qrcode 二维码](https://dvshu.github.io/litos-ui/components/qrcode.md)
+- [Pagination 分页](https://dvshu.github.io/litos-ui/components/pagination.md)
+- [Tabs 标签页](https://dvshu.github.io/litos-ui/components/tabs.md)
+- [PageHeader 页头](https://dvshu.github.io/litos-ui/components/page_header.md)
+- [Tag 标签](https://dvshu.github.io/litos-ui/components/tag.md)
+- [Collapse 折叠面板](https://dvshu.github.io/litos-ui/components/collapse.md)
+- [Image 图片](https://dvshu.github.io/litos-ui/components/image.md)
+- [Table 表格](https://dvshu.github.io/litos-ui/components/table.md)
+- [Space 间距](https://dvshu.github.io/litos-ui/components/space.md)
+- [Calendar 日历](https://dvshu.github.io/litos-ui/components/calendar.md)
+- [Card 卡片](https://dvshu.github.io/litos-ui/components/card.md)
+## 反馈
+
+- [Message 消息提示](https://dvshu.github.io/litos-ui/components/message.md)
+- [Notification 通知提醒框](https://dvshu.github.io/litos-ui/components/notification.md)
+- [Popover 弹出气泡](https://dvshu.github.io/litos-ui/components/popover.md)
+- [Dialog 对话框](https://dvshu.github.io/litos-ui/components/dialog.md)
+- [Mask 浮层遮罩](https://dvshu.github.io/litos-ui/components/mask.md)
+- [Modal 对话框](https://dvshu.github.io/litos-ui/components/modal.md)
+## 导航
+
+- [Tabbar 标签栏](https://dvshu.github.io/litos-ui/components/tabbar.md)
+- [Menu 菜单](https://dvshu.github.io/litos-ui/components/menu.md)
+- [Dropdown 下拉菜单](https://dvshu.github.io/litos-ui/components/dropdown.md)
+## 业务组件
+
+- [DescriptionPanel 简介面板](https://dvshu.github.io/litos-ui/components/description_panel.md)

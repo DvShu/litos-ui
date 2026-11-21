@@ -1,0 +1,267 @@
+---
+url: https://dvshu.github.io/litos-ui/components/table.md
+---
+# Table 表格
+
+用于展示大量结构化数据
+
+这个表格只是一个简单的数据展示功能，只包含有固定表头和列、排序功能。如果当前组件不能满足需求需要使用更多功能的时候，可以考虑使用 [TanstackTable](https://tanstack.com/table/latest)
+
+## 引用
+
+```js
+import { regist, Table, Button } from "litos-ui";
+
+regist([Table, Button]);
+```
+
+## 演示
+
+### 基础用法
+
+先通过 `setColumns()` 定义列, 再通过 `setData()` 定义数据源；如果需要最后一列操作列，则可以通过给元素定义 `data-action` 属性，然后监听 `table` 上对应名称的事件（本例为 `edit` 和 `delete`）。
+
+```html
+  <l-table class="data-table"></l-table>
+```
+
+```js
+  import { on, $$, $one } from 'utilane/browser';
+  //-
+  const $table = $one('.data-table');
+  //-
+  const dataSource = [
+    {
+      id: 1,
+      name: '张三',
+      age: 18,
+      address: '北京朝阳',
+    },
+    {
+      id: 2,
+      name: '李四',
+      age: 19,
+      address: '北京朝阳',
+    },
+    {
+      id: 3,
+      name: '王五',
+      age: 20,
+      address: '北京朝阳',
+    },
+  ];
+  //-
+  const columns = [{
+    title: '姓名',
+    key: 'name',
+  }, {
+    title: '年龄',
+    key: 'age',
+  }, {
+    title: '住址',
+    key: 'address',
+  }, {
+    title: '操作',
+    render: (rowData) => {
+      const children = [];
+      const attrs = {
+        text: true,
+        type: 'primary',
+        'data-id': `${rowData.id}`
+      }
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'edit',
+        textContent: '编辑'
+      }));
+      //-
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'delete',
+        textContent: '删除'
+      }));
+      return children;
+    }
+  }];
+  $table.setColumns(columns);
+  $table.setData(dataSource);
+  //-
+  function handleAction(e) {
+    const d = e.detail;
+    if (d.action === 'edit') {
+      // 编辑 d.id 数据
+    } else if (d.action === 'delete') {
+      // 删除 d.id 数据
+    }
+  }
+  //-
+  on($table, 'edit', handleAction);
+  on($table, 'delete', handleAction);
+```
+
+### 斑马纹
+
+表格默认带斑马纹，可以通过设置 `stripe` 为 `off` 来取消斑马纹
+
+```html
+  <l-table class="data-table" stripe="off"></l-table>
+```
+
+### 边框
+
+默认情况下，`Table` 组件是不具有竖直方向的边框的， 如果需要，可以使用 `border` 属性，把该属性设置为 `on` 即可启用。
+
+```html
+  <l-table class="data-table" border></l-table>
+```
+
+### 空表格
+
+数据列表没有数据时，显示空表格。通过 `empty-text` 自定义提示文案，动态修改时同步更新；空字符串隐藏文案，移除属性恢复默认的“暂无数据”。
+
+```html
+  <l-table class="data-table"></l-table>
+```
+
+### 固定表头和列
+
+设置 `fixed-head` 属性即可实现固定表头。将需要固定的列设置 `fixed` 为 `left` 或 `right`，就能实现固定列。
+
+```html
+  <l-table class="data-table"></l-table>
+```
+
+```js
+  import { on, $$, $one } from 'utilane/browser';
+  //-
+  const $table = $one('.data-table');
+  //-
+  const columns = [{
+    title: '姓名',
+    key: 'name',
+    fixed: 'left',
+    width: 80
+  }, {
+    title: '年龄',
+    key: 'age',
+    width: 200
+  }, {
+    title: '住址',
+    key: 'address',
+    width: 200
+  }, {
+    title: '操作',
+    width: 200,
+    fixed: 'right',
+    render: (rowData) => {
+      const children = [];
+      const attrs = {
+        text: true,
+        type: 'primary',
+        'data-id': `${rowData.id}`
+      }
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'edit',
+        textContent: '编辑'
+      }));
+      //-
+      children.push($$('l-button', {
+        ...attrs,
+        'data-action': 'delete',
+        textContent: '删除'
+      }));
+      return children;
+    }
+  }];
+  $table.setColumns(columns);
+  $table.setData(dataSource);
+```
+
+> 可以通过 `max-height` 来设置表格的最大高度, 以更好的适配固定 `head`
+
+> 如果需要改变滚动条样式，引入 [滚动条样式](https://dvshu.github.io/litos-ui/css_util.md#_3-%E6%BB%9A%E5%8A%A8%E6%9D%A1%E6%A0%B7%E5%BC%8F)，然后给 `table` 添加 `l-scrollbar`
+
+### 排序
+
+给列的选项增加 `sorter` 为 `true`、`custom` 来启用排序，同时配置 `key` 字段标记排序 `key`；如果 `sorter=custom` 就能启用手动排序，这个时候会触发一个`sort` 事件，然后在 `sort` 事件中调用 `setData` 方法来设置排序后的数据。
+
+```html
+  <l-table class="data-table" border></l-table>
+```
+
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/table";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](https://dvshu.github.io/litos-ui/on_demand.md)。
+
+## API
+
+### Table Attributes
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `stripe` | 斑马纹 | `boolean` | `true` |
+| `border` | 是否显示四周边框 | `boolean` | `false` |
+| `fixed-head` | 是否固定表头 | `boolean` | `false` |
+| `fixed-column` | 是否固定列，在进行列解析时，会自动确认该属性 | `boolean` | `false` |
+| `max-height` | 最大高度 | `number \| string` | `-` |
+| `table-layout` | 表格布局 | `"auto" \| "fixed"` | `-` |
+| `empty-text` | 无数据时的提示文案，支持动态更新；空字符串隐藏文案，移除属性恢复默认值 | `string` | 暂无数据 |
+
+### Table Column Options
+
+| 参数 | 说明 | 类型 |
+| --- | --- | --- |
+| `title` | 列的标题 | `string` |
+| `key` | 列标识, 列排序必传 | `string` |
+| `width` | 列宽度, 固定列时，需要传 | `number` | `string` |
+| `fixed` | 是否固定列 | `"left"` | `"right"` |
+| `left` | 列固定左时, 左边偏移量 | `number` |
+| `right` | 列固定右时, 右边偏移量 | `number` |
+| `children` | 多级表头 | `Column[]` |
+| `titleRowspan` | 表头跨行 | `number` |
+| `titleColspan` | 表头跨列 | `number` |
+| `sorter` | 列是否支持排序 | `boolean` | `"custom"` |
+| `style` | 列的样式 | `Record<string, string \| null \| undefined>` |
+| `colspan` | td colspan | `number` | `(rowData: any, rowIndex: number) => number` |
+| `rowspan` | td rowspan | `number` | `(rowData: any, rowIndex: number) => number` |
+| `render` | 单元格内容渲染函数 | `(rowData: any, rowIndex: number) => HTMLElement \| DocumentFragment \| HTMLElement[] \| string` |
+
+### Table Events
+
+| 事件名 | 说明 | 回调参数 | detail |
+| --- | --- | --- | --- |
+| `click` | 点击按钮时触发 | `(event: Event)` | - |
+| `sort` | 排序时触发 | `(event: CustomEvent)` | `{ index: number, key: string, dir: asc \| desc }` |
+| `[action]` | 所有设置了 `data-action` 属性的节点，点击时触发 | `(event: CustomEvent)` | 该节点上的所有的 `dataset` 属性 |
+
+### Table Methods
+
+| 方法名 | 说明 | 类型 |
+| --- | --- | --- |
+| `setColumns` | 设置列 | `(columns: Column[]) => void` |
+| `setData` | 设置数据 | `(data: any[], sortInfo?: {key: string; order: "asc" \| "desc"}) => void` |
+
+### Table CSS Variables
+
+| 变量名 | 说明 | 默认值 |
+| --- | --- | --- |
+| `--l-table-max-height` | 表格最大高度 | `100%` |
+| `--l-table-font-size` | 表格字体大小 | `14px` |
+| `--l-table-td-padding` | 单元格内边距 | `10px` |
+| `--l-table-th-padding` | 表头单元格内边距 | `10px` |
+| `--l-table-layout` | 表格布局；`auto` 或 `fixed` | `auto` |
+| `--l-table-border-color` | 表格边框颜色（包括单元格底部和边框表格） | `#e6e6e6` |
+| `--l-table-th-bg` | 表头背景色 | `#f2f2f2` |
+| `--l-table-th-color` | 表头文字颜色 | `#000000` |
+| `--l-table-td-bg` | 单元格背景色 | `#ffffff` |
+| `--l-table-td-color` | 单元格文字颜色 | `#000000` |
+| `--l-table-row-hover-bg` | 行悬停时单元格背景色 | `#f2f2f2` |
+| `--l-table-empty-color` | 空状态文字颜色 | `#999999` |
+| `--l-table-stripe-bg` | 斑马纹偶数行背景色 | `#fafafa` |
+| `--l-table-sort-inactive-color` | 排序图标未激活状态颜色 | `#c0c4cc` |

@@ -1,0 +1,78 @@
+---
+url: https://dvshu.github.io/litos-ui/components/select_ori.md
+---
+# SelectOri 原生下拉框
+
+这个是原生的下拉选择，只是对于 `select` 标签进行了一定的优化，通常用于单选时使用。
+
+## 引用
+
+```js
+import { SelectOri, regist } from "litos-ui";
+
+regist(SelectOri);
+```
+
+## 演示
+
+### 基础用法
+
+通过 `setOptions()` 方法设置选项，或者在组件内提供原生 `<option>` 子元素。
+
+```html
+  <l-select-ori value="2">
+    <option value="1">选项一</option>
+    <option value="2">选项二</option>
+    <option value="3">选项三</option>
+  </l-select-ori>
+```
+
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/select-ori";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](https://dvshu.github.io/litos-ui/on_demand.md)。
+
+## API
+
+### SelectOri Attributes
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `value` | 选中项绑定值 | `string` | - |
+| `name` | 原生的 `name` 属性 | `string` | - |
+| `disabled` | 是否禁用 | `boolean` | `false` |
+
+### SelectOri Slots
+
+| 名称 | 说明 |
+| --- | --- |
+| `default` | 选项列表 |
+
+### SelectOri Events
+
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| `change` | 选中项改变时触发，`event.detail` 为选中的字符串值 | `(event: CustomEvent<string>)` |
+
+### SelectOri Methods
+
+`setOptions()` 和 `appendOptions()` 可在挂载前或挂载后使用。原生表单提交当前选中的可用选项，没有选项或选项被禁用时会省略该字段。
+
+未指定初始 `value` 时，优先采用选项的 `selected` 或 `defaultSelected`，否则选中第一个可用选项。当前值找不到匹配项时，`value` 和 `getData()` 中的字段值为空字符串，必填校验失败。后续补齐匹配项时会恢复对应选项。
+
+| 方法名 | 说明 | 类型 |
+| --- | --- | --- |
+| `setOptions` | 重新设置新的选项列表 | `(options: SelectOption[]): void` |
+| `appendOptions` | 为选项列表追加新的选项 | `(options: SelectOption[]): void` |
+
+### SelectOption
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `value` | 选项值 | `string` | - |
+| `label` | 选项标签 | `string` | - |
+| `disabled` | 是否禁用选项 | `boolean` | `false` |

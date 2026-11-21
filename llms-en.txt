@@ -1,0 +1,71 @@
+# LitosUI — English documentation
+
+> A Web Components UI library with customizable themes and dark mode
+
+Chinese documentation is the source of truth. English translations may lag behind; prefer Chinese when the versions differ. Pages under /en/ are not a guarantee of translation completeness.
+
+[Full documentation](https://dvshu.github.io/litos-ui/llms-en-full.txt)
+
+## Guide
+
+- [Getting Started](https://dvshu.github.io/litos-ui/en/usage.md)
+- [On-demand Imports](https://dvshu.github.io/litos-ui/en/on_demand.md)
+- [Style Reset](https://dvshu.github.io/litos-ui/en/reset.md)
+- [Utility Styles](https://dvshu.github.io/litos-ui/en/css_util.md)
+- [Preset Themes](https://dvshu.github.io/litos-ui/en/theme.md)
+## General
+
+- [Base](https://dvshu.github.io/litos-ui/en/components/base.md)
+- [Transition](https://dvshu.github.io/litos-ui/en/components/transition.md)
+- [Container](https://dvshu.github.io/litos-ui/en/components/container.md)
+- [Icon](https://dvshu.github.io/litos-ui/en/components/icon.md)
+- [Polygon](https://dvshu.github.io/litos-ui/en/components/polygon.md)
+- [Theme](https://dvshu.github.io/litos-ui/en/components/theme.md)
+## Form
+
+- [Button](https://dvshu.github.io/litos-ui/en/components/button.md)
+- [Input](https://dvshu.github.io/litos-ui/en/components/input.md)
+- [MdInput](https://dvshu.github.io/litos-ui/en/components/md_input.md)
+- [Radio](https://dvshu.github.io/litos-ui/en/components/radio.md)
+- [Checkbox](https://dvshu.github.io/litos-ui/en/components/checkbox.md)
+- [SelectOri](https://dvshu.github.io/litos-ui/en/components/select_ori.md)
+- [Select](https://dvshu.github.io/litos-ui/en/components/select.md)
+- [Switch](https://dvshu.github.io/litos-ui/en/components/switch.md)
+- [ColorPicker](https://dvshu.github.io/litos-ui/en/components/color_picker.md)
+- [Form](https://dvshu.github.io/litos-ui/en/components/form.md)
+- [DatePickerOri](https://dvshu.github.io/litos-ui/en/components/date_picker_ori.md)
+- [DatePicker](https://dvshu.github.io/litos-ui/en/components/date_picker.md)
+- [InputNumber](https://dvshu.github.io/litos-ui/en/components/input_number.md)
+- [Upload](https://dvshu.github.io/litos-ui/en/components/upload.md)
+## Data Display
+
+- [List](https://dvshu.github.io/litos-ui/en/components/list.md)
+- [Loading](https://dvshu.github.io/litos-ui/en/components/loading.md)
+- [Carousel](https://dvshu.github.io/litos-ui/en/components/carousel.md)
+- [Qrcode](https://dvshu.github.io/litos-ui/en/components/qrcode.md)
+- [Pagination](https://dvshu.github.io/litos-ui/en/components/pagination.md)
+- [Tabs](https://dvshu.github.io/litos-ui/en/components/tabs.md)
+- [PageHeader](https://dvshu.github.io/litos-ui/en/components/page_header.md)
+- [Tag](https://dvshu.github.io/litos-ui/en/components/tag.md)
+- [Collapse](https://dvshu.github.io/litos-ui/en/components/collapse.md)
+- [Image](https://dvshu.github.io/litos-ui/en/components/image.md)
+- [Table](https://dvshu.github.io/litos-ui/en/components/table.md)
+- [Space](https://dvshu.github.io/litos-ui/en/components/space.md)
+- [Calendar](https://dvshu.github.io/litos-ui/en/components/calendar.md)
+- [Card](https://dvshu.github.io/litos-ui/en/components/card.md)
+## Feedback
+
+- [Message](https://dvshu.github.io/litos-ui/en/components/message.md)
+- [Notification](https://dvshu.github.io/litos-ui/en/components/notification.md)
+- [Popover](https://dvshu.github.io/litos-ui/en/components/popover.md)
+- [Dialog](https://dvshu.github.io/litos-ui/en/components/dialog.md)
+- [Mask](https://dvshu.github.io/litos-ui/en/components/mask.md)
+- [Modal](https://dvshu.github.io/litos-ui/en/components/modal.md)
+## Navigation
+
+- [Tabbar](https://dvshu.github.io/litos-ui/en/components/tabbar.md)
+- [Menu](https://dvshu.github.io/litos-ui/en/components/menu.md)
+- [Dropdown](https://dvshu.github.io/litos-ui/en/components/dropdown.md)
+## Business Components
+
+- [DescriptionPanel](https://dvshu.github.io/litos-ui/en/components/description_panel.md)

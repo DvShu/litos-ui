@@ -1,0 +1,204 @@
+---
+url: https://dvshu.github.io/litos-ui/components/theme.md
+---
+# Theme 主题切换
+
+通过切换主题来减轻长时间使用屏幕带来的视觉疲劳
+
+## 引用
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/styles/dark.css";
+
+import {
+  Theme,
+  ThemeColor,
+  regist,
+  Button,
+  SelectOri,
+  Switch,
+  Radio,
+  RadioGroup,
+  ColorPicker,
+  SunIcon,
+  MoonIcon,
+  ThemeDefaultIcon,
+} from "litos-ui";
+
+regist(Theme);
+// 颜色主题
+regist([ColorPicker, ThemeColor]);
+// 根据风格注册以下组件
+regist([Button, SunIcon, MoonIcon]); // 按钮风格
+regist(SelectOri); // 下拉风格
+regist([Switch, SunIcon, MoonIcon]); // 开关风格
+// 图标单选风格[label="icon"]
+regist([Radio, SunIcon, MoonIcon, ThemeDefaultIcon, RadioGroup]);
+// 文本单选风格
+regist([Radio, RadioGroup]);
+```
+
+## 演示
+
+> 1. 主题切换是通过 [utilane](https://www.npmjs.com/package/utilane) 工具库的 `theme` 工具类控制
+> 2. 为了每次切换主题后，重新加载能够生效，需要在应用开始的时候, 执行 `initTheme()` 方法
+
+```js [main.ts]
+import { initTheme } from "utilane/browser";
+
+initTheme().then();
+```
+
+### 基础用法
+
+提供多种风格的主题切换按钮: 按钮、下拉选择、单选按钮组、开关; 通过 `type` 指定。
+
+```html
+  <l-theme style="vertical-align:middle;"></l-theme>
+  <l-theme type="select" style="vertical-align:middle;"></l-theme>
+  <l-theme type="switch" style="vertical-align:middle;"></l-theme>
+  <l-theme type="radio" style="vertical-align:middle;" label="icon"></l-theme>
+  <l-theme type="radio" style="vertical-align:middle;"></l-theme>
+```
+
+> 切换主题后，如果要让应用启动的时候也应用上一次切换的主题, 需要在应用开始的地方调用 `initTheme()` 函数
+
+```javascript
+// main.js
+import { initTheme } from "utilane/browser";
+
+// await initTheme();
+initTheme().then();
+```
+
+### 自定义风格
+
+框架内置的主题切换其实就是一个排版的样式，核心的主题切换的逻辑是调用的 `utilane` 库的 `theme` 模块相关函数来实现的。
+
+通常调用的模块有: `getTheme()`、`applyTheme()`
+
+内置的切换的动画效果为渐变动画。
+
+如果想要实现自定义的排版或者自定义的动画完全可以通过自定义来实现，下面通过 `Radio` + 简单文字实现
+
+```html
+  <l-radio-group gap="15" id="customThemeRadio">
+    <l-radio value="auto">自</l-radio>
+    <l-radio value="light">浅</l-radio>
+    <l-radio value="dark">深</l-radio>
+  </l-radio-group>
+```
+
+```js
+  import { applyTheme } from "utilane/browser";
+  //-
+  const $radio = document.querySelector('#customThemeRadio');
+  //-
+  $radio.addEventListener('change', (e) => {
+    const newTheme = e.target.value;
+    const transition = document.startViewTransition(() => {
+      // 应用主题
+      applyTheme(newTheme, true, false).then();
+    });
+    //-
+    transition.ready.then(() => {
+      /*
+        如果在 click 事件中想根据鼠标位置来设置圆形扩散效果
+        // 获取鼠标的坐标
+        const { clientX, clientY } = e;
+        a: (clientX, clientY)
+                              b: (innerWidth, innerHeight)
+        a -> b 的距离就是最大半径
+        //-
+        // 计算最大半径
+        const radius = Math.hypot(
+          Math.max(clientX, innerWidth - clientX),
+          Math.max(clientY, innerHeight - clientY)
+        );
+      */
+      //-
+      // 圆形动画扩散开始
+      document.documentElement.animate(
+        /*
+          // 应用鼠标位置扩展
+          clipPath: [
+             `circle(0% at ${clientX}px ${clientY}px)`,
+             `circle(${radius}px at ${clientX}px ${clientY}px)`,
+          ]
+        */
+        {
+          clipPath: [`circle(0% at center)`, `circle(100% at center)`],
+        },
+        // 设置时间，已经目标伪元素
+        {
+          duration: 300,
+          pseudoElement: "::view-transition-new(root)",
+        }
+      );
+    });
+  });
+```
+
+```css
+  ::view-transition-new(root),
+  ::view-transition-old(root) {
+    /* 关闭默认动画 */
+    animation: none;
+  }
+```
+
+### 主题色更改
+
+除了修改主题风格，还可以修改主题色，通过修改 `ThemeColor` 来实现。
+
+```html
+  <l-theme-color></l-theme-color>
+```
+
+生成的主题色代码如下:
+
+```CSS
+:root {
+  --l-primary-color: #722ed1;
+  --l-primary-color-light1: #9254de;
+  --l-primary-color-light2: #b37feb;
+  --l-primary-color-light3: #d3adf7;
+  --l-primary-color-light4: #efdbff;
+  --l-primary-color-light5: #f9f0ff;
+  --l-primary-color-dark1: #531dab;
+}
+```
+
+> 跟主题模式一样，如果想要再下次启动时也应用选择的主题色，需要在应用启动时，调用 `initColorTheme()` 函数
+
+```javascript
+// main.js
+import { initColorTheme } from "utilane/browser";
+
+await initColorTheme();
+```
+
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/theme";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](https://dvshu.github.io/litos-ui/on_demand.md)。
+
+## API
+
+### Theme Attributes
+
+| 参数 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `type` | 主题切换按钮风格 | `button` | `select` | `switch` | `radio` | `button` |
+| `label` | 当 `type="radio"` 时是使用文字还是图标 | `text` | `icon` | `text` |
+
+### Events
+
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| `change` | 主题改变时触发, 可以通过 `e.detail` 获取值 | `(event: CustomEvent)` |

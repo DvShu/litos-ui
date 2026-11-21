@@ -1,0 +1,95 @@
+---
+url: https://dvshu.github.io/litos-ui/components/message.md
+---
+# Message 消息提示
+
+常用于主动操作后的反馈提示。更多用于系统级通知的被动提醒。
+
+## 引入
+
+```js
+import { Message } from "litos-ui";
+import "litos-ui/styles/message.css";
+```
+
+## 基础用法
+
+### 显示信息
+
+从顶部出现，`3` 秒后自动消失; 可以接收一个字符串被显示为正文内容
+
+```html
+  <l-button text>显示消息</l-button>
+```
+
+```js
+  import { Message } from 'litos-ui';
+  import { elem, on } from 'utilane/browser';
+  //-
+  on(elem('l-button')[0], 'click', () => {
+    Message.show({ message: '这是一条普通的提示信息' });
+  });
+```
+
+### 不同状态
+
+用来显示「成功、警告、消息、错误」类的操作反馈。
+
+当需要自定义更多属性时，`Message` 也可以接收一个对象为参数。 比如，设置 `type` 字段可以定义不同的状态，默认为 `info` 。 此时正文内容以 `message` 的值传入。 同时，也为 `Message` 的各种 `type` 注册了方法，可以在不传入 `type` 字段的情况下, 直接调用指定类型的函数, 例如: `Message.info('x')`。
+
+```js
+  import { Message } from 'litos-ui';
+  //-
+  Message.info("提示消息");
+  Message.success("成功消息");
+  Message.warn("警告消息");
+  Message.error("错误消息");
+```
+
+### 手动关闭
+
+将 `duration` 属性设置为 `0`, 可以使 `Message` 不自动消失。然后显示消息的函数会返回一个消息 `id`, 通过手动调用 close 手动关闭
+
+```js
+  import { Message } from 'litos-ui';
+  //-
+  // 打开消息
+  const id = Message.show({
+    message: '这是一条手动关闭的提示信息',
+    type: 'info',
+    duration: 0
+  });
+  // 关闭消息
+  Message.close(id);
+```
+
+## 按需入口
+
+```js
+import "litos-ui/styles/vars.css";
+import "litos-ui/styles/message.css";
+import Message from "litos-ui/message";
+```
+
+元素入口会注册内建依赖，服务与工具 API 仍需显式调用。SSR 框架请在客户端入口加载；样式、配套子元素、类型和总入口兼容用法见[按需导入](https://dvshu.github.io/litos-ui/on_demand.md)。
+
+## API
+
+### Methods
+
+| 名称 | 参数 | 说明 | 返回类型 |
+| --- | --- | --- | --- |
+| `info`、`show` | `string` 或 `MessageOption` | 显示普通提示信息, 参数为配置项, 返回消息 `id` | `string` |
+| `success` | `string` 或 `MessageOption` | 显示成功提示信息 | `string` |
+| `warn` | `string` 或 `MessageOption` | 显示警告提示信息 | `string` |
+| `error` | `string` 或 `MessageOption` | 显示错误提示信息 | `string` |
+| `close` | `id: string` | 手动关闭消息 | - |
+
+### MessageOption
+
+| 名称 | 类型 | 默认值 | 说明 |
+| --- | --- | --- | --- |
+| `message` | `string` | - | 消息正文内容 |
+| `duration` | `number` | `3000` | 消息显示的持续时间，单位为毫秒。如果设置为 `0`，则不会自动关闭 |
+| `type` | `string` | `info` | 消息类型，可选值为 `success`、`warn`、`error`、`info` |
+| `customClass` | `string` | - | 自定义类名 |

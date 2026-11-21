@@ -1,0 +1,19 @@
+# LitosUI
+
+> A framework-agnostic UI component library built with Web Components and TypeScript.
+
+## Documentation languages
+
+- [中文文档索引](https://dvshu.github.io/litos-ui/llms-zh.txt)
+- [English documentation index](https://dvshu.github.io/litos-ui/llms-en.txt)
+
+## Full documentation
+
+- [中文全文](https://dvshu.github.io/litos-ui/llms-zh-full.txt)
+- [English full documentation](https://dvshu.github.io/litos-ui/llms-en-full.txt)
+
+## Content policy
+
+Chinese documentation is the source of truth. English translations may lag behind. If the two versions differ, prefer the Chinese documentation. English-path pages may still contain untranslated content.
+
+The language indexes cover the guides and components in the site sidebars; marketing home pages are omitted.
